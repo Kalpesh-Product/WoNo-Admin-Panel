@@ -3,7 +3,7 @@ import { routes } from './routes/Routes';
 
 function App() {
   return (
-    <div className='flex w-full'>
+    <div className=''>
       <RouterProvider router={routes} />
     </div>
   );

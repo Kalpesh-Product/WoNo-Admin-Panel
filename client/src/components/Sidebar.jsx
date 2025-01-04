@@ -16,7 +16,6 @@ const Sidebar = () => {
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
   const navigate = useNavigate();
   const location = useLocation();
-  const [expandedDepartment, setExpandedDepartment] = useState(null);
   const [expandedModule, setExpandedModule] = useState(null);
 
   // Menu items array (without DASHBOARD)
@@ -75,65 +74,85 @@ const Sidebar = () => {
   const isActive = (path) => location.pathname.startsWith(path);
 
   return (
-    <div className={`flex flex-col h-screen bg-gray`}>
-      <div className={`w-full flex ${isSidebarOpen ? "justify-between p-3" : 'justify-center p-6'} items-center`}>
-        <div className={`${isSidebarOpen ? 'w-40' : 'hidden' } object-contain`}>
-            <img src={biznestLogo} alt="logo" />
-        </div>
- 
-      <button
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="p-2"
+    <div
+      className={`flex flex-col p-2 h-screen bg-gray ${
+        isSidebarOpen && "shadow-md"
+      }`}
+    >
+      <div
+        className={`w-full border-b-2 border-gray-200 mb-4 flex ${
+          isSidebarOpen ? "justify-between px-3 py-4" : "justify-center py-4"
+        } transition-all duration-100 items-center`}
       >
-        {isSidebarOpen ? <GiHamburgerMenu /> : <IoIosArrowForward />}
-      </button>
+        <div className={`${isSidebarOpen ? "w-32" : "hidden"}  h-full`}>
+          <img
+            className="w-full h-full object-contain"
+            src={biznestLogo}
+            alt="logo"
+          />
+        </div>
+
+        <button
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="p-2 text-gray-500 text-xl"
+        >
+          {isSidebarOpen ? <GiHamburgerMenu /> : <IoIosArrowForward />}
+        </button>
       </div>
 
       <div
         className={`${
           isSidebarOpen ? "w-60" : "w-20"
-        } bg-white border-2  text-black flex flex-shrink-0 h-screen overflow-y-auto transition-all duration-300 z-[1]`}
+        } bg-white  text-black flex flex-shrink-0 h-screen overflow-y-auto transition-all duration-100 z-[1]`}
       >
         <div className="flex relative w-full">
           {/*Dashboard */}
-          <div className="p-1 flex flex-col gap-0 w-full">
+          <div className="p-1 flex flex-col gap-2 w-full">
             <div
               onClick={() => {
-                navigate("/dashboard");
+                navigate("/frontend-dashboard");
               }}
               className={`flex border-b-[1px] ${
                 isSidebarOpen ? "pl-[1rem]" : "justify-center"
-              } items-center cursor-pointer  py-4 hover:wono-blue-dark hover:text-white hover:rounded-md ${
-                location.pathname === "/dashboard"
+              } items-center cursor-pointer  py-2 hover:wono-blue-dark hover:text-white hover:rounded-md ${
+                location.pathname === "/"
                   ? "wono-blue border-r-4 border-[#0DB4EA] rounded-tl-md rounded-bl-md text-[#0DB4EA]"
                   : "bg-white"
               }`}
             >
-              <div className="flex justify-center w-6 text-md">
+              <div
+                className={`flex justify-center w-8 h-8 items-center text-sm ${
+                  location.pathname === "/" && "bg-[#1E3D73] rounded-md"
+                }`}
+              >
                 <RiDashboardLine />
               </div>
-              {isSidebarOpen && <span className="pl-5 text-md">Dashboard</span>}
+              {isSidebarOpen && <span className="pl-5 text-sm">Dashboard</span>}
             </div>
-            <div>
+            <div className="rounded-md">
               {defaultModules.map((module, index) => (
                 <div key={index} className="border-b">
                   <div
-                    className={`cursor-pointer flex justify-center items-center py-4 px-4 hover:wono-blue-dark hover:text-white hover:rounded-md ${
+                    className={`cursor-pointer bg-[#E7ECEE]  flex justify-center items-center py-3 px-4 hover:wono-blue-dark hover:text-white hover:rounded-md ${
                       isActive(module.route)
-                        ? "wono-blue border-r-4 border-[#0DB4EA] rounded-tl-md rounded-bl-md text-[#0DB4EA]"
-                        : "bg-white border-b-[1px] border-gray-200"
+                        ? "wono-blue border-r-4 transition-all duration-100 border-[#0DB4EA] rounded-tl-md rounded-bl-md text-[#0DB4EA]"
+                        : "bg-white"
                     }`}
                     onClick={() => {
                       module.submenus && toggleModule(index);
-                      navigate(module.route);
+                      // navigate(module.route);
                     }}
                   >
-                    <div className="text-md">{module.icon}</div>
+                    <div className="flex justify-center text-sm w-8">{module.icon}</div>
                     {isSidebarOpen && (
-                      <span className="pl-5 text-md">{module.title}</span>
+                      <span className="pl-5 text-sm">{module.title}</span>
                     )}
                     {isSidebarOpen && module.submenus && (
-                      <span className="ml-auto">
+                      <span
+                        className={`ml-auto transition-transform duration-300 ease-in-out ${
+                          expandedModule === index ? "rotate-180" : "rotate-0"
+                        }`}
+                      >
                         {expandedModule === index ? (
                           <FaChevronUp />
                         ) : (
@@ -142,40 +161,46 @@ const Sidebar = () => {
                       </span>
                     )}
                   </div>
-                  {expandedModule === index && module.submenus && (
-                    <div className="pl-4">
-                      {module.submenus.map((submenu, idx) => (
-                        <div
-                          key={idx}
-                          className={`cursor-pointer py-4 hover:wono-blue-dark hover:text-white hover:rounded-md ${
-                            isActive(submenu.route)
-                              ? "wono-blue border-r-4 border-[#0DB4EA] rounded-tl-md rounded-bl-md text-[#0DB4EA]"
-                              : "bg-white border-b-[1px] border-gray-200"
-                          } `}
-                          onClick={() => navigate(submenu.route)}
-                        >
+                  <div
+                    className={`overflow-hidden transition-[max-height] duration-300 ease-in-out ${
+                      expandedModule === index ? "max-h-[500px]" : "max-h-0"
+                    }`}
+                  >
+                    {module.submenus && (
+                      <div>
+                        {module.submenus.map((submenu, idx) => (
                           <div
-                            className={`flex items-center ${
-                              isSidebarOpen
-                                ? "justify-start pl-4"
-                                : "justify-center"
-                            }`}
+                            key={idx}
+                            className={`cursor-pointer bg-[#E7ECEE] py-4 hover:wono-blue-dark hover:text-white hover:rounded-md ${
+                              isActive(submenu.route)
+                                ? "wono-blue border-r-4 border-[#0DB4EA] rounded-tl-md rounded-bl-md text-[#0DB4EA]"
+                                : "bg-white border-b-[1px] border-gray-200"
+                            } `}
+                            onClick={() => navigate(submenu.route)}
                           >
                             <div
-                              className={`${
-                                isSidebarOpen ? "text-md" : "text-md"
+                              className={`flex items-center ${
+                                isSidebarOpen
+                                  ? "justify-start pl-4"
+                                  : "justify-center"
                               }`}
                             >
-                              {submenu.icon}
+                              <div
+                                className={`${
+                                  isSidebarOpen ? "text-sm" : "text-sm"
+                                }`}
+                              >
+                                {submenu.icon}
+                              </div>
+                              {isSidebarOpen && (
+                                <span className="pl-4 text-sm">{submenu.title}</span>
+                              )}
                             </div>
-                            {isSidebarOpen && (
-                              <span className="pl-4">{submenu.title}</span>
-                            )}
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -188,18 +213,18 @@ const Sidebar = () => {
                   isSidebarOpen
                     ? "pl-[1rem] hover:wono-blue-dark hover:rounded-md hover:text-white"
                     : "justify-center"
-                } items-center border-b-[1px] py-4 ${
+                } items-center border-b-[1px] py-3 ${
                   location.pathname === item.route
                     ? "wono-blue border-r-4 border-b-[0px]  border-[#0DB4EA] rounded-tl-md rounded-bl-md text-[#0DB4EA]"
                     : "bg-white"
                 } `}
               >
-                {/* <img src={item.icon} alt={item.name} className="w-6 h-6 mr-3" /> */}
-                <div className="flex justify-center w-6 text-md">
+                {/* <img src={item.icon} alt={item.name} className="w-8 h-6 mr-3" /> */}
+                <div className="flex justify-center w-8 text-sm">
                   {item.icon}
                 </div>
                 {isSidebarOpen && (
-                  <span className="pl-5 text-md">{item.name}</span>
+                  <span className="pl-5 text-sm">{item.name}</span>
                 )}
               </div>
             ))}
@@ -216,10 +241,10 @@ const Sidebar = () => {
                   : "bg-white"
               }`}
             >
-              <div className="flex justify-center w-6 text-md">
+              <div className="flex justify-center w-8 text-sm">
                 <CgProfile />
               </div>
-              {isSidebarOpen && <span className="pl-5 text-md">Profile</span>}
+              {isSidebarOpen && <span className="pl-5 text-sm">Profile</span>}
             </div>
           </div>
         </div>

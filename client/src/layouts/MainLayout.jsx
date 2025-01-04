@@ -11,10 +11,10 @@ const MainLayout = () => {
             <Sidebar />
         </aside>
         <div className="w-full">
-            <header className=" flex w-full shadow-sm">
+            <header className=" flex w-full shadow-md">
                 <Header />
             </header>
-          <main className="flex w-full">
+          <main className="w-full bg-[#F7F8FA] h-screen overflow-y-auto p-4">
             <Outlet />
           </main>
         </div>

@@ -1,4 +1,4 @@
-import { TextField, Button, Avatar, InputAdornment } from "@mui/material";
+import { TextField, Avatar, InputAdornment } from "@mui/material";
 import { IoIosSearch, IoMdNotificationsOutline } from "react-icons/io";
 import { MdOutlineMailOutline } from "react-icons/md";
 

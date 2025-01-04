@@ -2,36 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
-.wono-blue {
-  background-color: rgba(176, 235, 255, 0.36);
-}
-.wono-blue-dark {
-  background-color: #0db4ea;
-}
-.wono-blue-dark-border {
-  border-color: #0db4ea;
-}
-.wono-blue-text {
-  color: #0db4ea;
-}
-.wono-text {
-  color: rgb(234, 127, 13);
-}
-.wono-opacity {
-  opacity: 15%;
-}
-.wono-title {
-  font-size: 1.5rem /* 24px */;
-  line-height: 2rem /* 32px */;
-  font-weight: 600;
-}
-.wono-bg {
-  background-color: #e6eef5;
-}
-.gray-underline {
-  border-bottom: 1px solid rgb(209, 209, 209);
+@layer utilities{
+  .wono-blue {
+    background-color: rgba(176, 235, 255, 0.36);
+  }
+  .wono-blue-dark {
+    background-color: #0db4ea;
+  }
+  .wono-blue-dark-border {
+    border-color: #0db4ea;
+  }
+  .wono-blue-text {
+    color: #0db4ea;
+  }
+  .wono-text {
+    color: rgb(234, 127, 13);
+  }
+  .wono-opacity {
+    opacity: 15%;
+  }
+  .wono-title {
+    font-size: 1.5rem /* 24px */;
+    line-height: 2rem /* 32px */;
+    font-weight: 600;
+  }
+  .wono-bg {
+    background-color: #e6eef5;
+  }
+  .gray-underline {
+    border-bottom: 1px solid rgb(209, 209, 209);
+  }
+  
+  .css-6y0rrm-MuiInputBase-input-MuiInput-input{
+    padding: 0 !important ;
+  }
+  
+  body{
+    /* For all modern browsers */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+  
+    /* For Webkit browsers (Chrome, Safari, Edge) */
+    overflow: -moz-scrollbars-none; /* Older Firefox (optional, rarely used now) */
+    overflow: hidden; /* Prevents scrolling in some cases */
+  }
+  
+  /* For Webkit browsers (Chrome, Safari, Edge) */
+  body::-webkit-scrollbar {
+    display: none;
+  }
+  
+  
 }
 
-.css-6y0rrm-MuiInputBase-input-MuiInput-input{
-  padding: 0 !important ;
-}
