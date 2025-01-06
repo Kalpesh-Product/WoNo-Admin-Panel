@@ -10,10 +10,11 @@ const errorHandler = require("./middlewares/errorHandler");
 const authRoutes = require("./routes/auth/authRoutes");
 const credentials = require("./middlewares/credentials");
 
-const app = express();
+const app = express();  
 const PORT = process.env.PORT || 5000;
 
 connectDb(process.env.DB_URL);
+
 
 app.use("/files", express.static("files"));
 app.use(credentials);
