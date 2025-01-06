@@ -11,6 +11,12 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useSidebar } from "../context/SideBarContext";
 import { GiHamburgerMenu } from "react-icons/gi";
 import biznestLogo from "../assets/biznest/biznest_logo.jpg";
+import { MdHome } from "react-icons/md";
+import { CgWebsite } from "react-icons/cg";
+import { RiAdminFill } from "react-icons/ri";
+import { TbCashRegister } from "react-icons/tb";
+import { FaUserTie } from "react-icons/fa6";
+import { TbAccessible } from "react-icons/tb";
 
 const Sidebar = () => {
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
@@ -28,7 +34,7 @@ const Sidebar = () => {
 
     { name: "Calendar", icon: <FaRegCalendarAlt />, route: "/calendar" },
     { name: "Chat", icon: <HiOutlineChatAlt2 />, route: "/chat" },
-    { name: "Access", icon: <SiAuthelia />, route: "/access" },
+    { name: "Access",icon:< TbAccessible/>, route: "/access" },
     {
       name: "Notifications",
       icon: <IoMdNotifications />,
@@ -40,23 +46,23 @@ const Sidebar = () => {
   const defaultModules = [
     {
       id: 1,
-      icon: <FaTasks />,
+      icon: <MdHome />,
       title: "Dashboard",
       submenus: [
         {
           id: 2,
           title: "Frontend Dashboard",
-          icon: <FaProjectDiagram />,
+          icon: <CgWebsite />,
         },
         {
           id: 3,
           title: "HR Dashboard",
-          icon: <FaTasks />,
+          icon: <RiAdminFill />,
         },
         {
           id: 4,
           title: "Finance Dashboard",
-          icon: <FaUsers />,
+          icon: <TbCashRegister />,
         },
       ],
     },
@@ -108,7 +114,7 @@ const Sidebar = () => {
         <div className="flex relative w-full">
           {/*Dashboard */}
           <div className="p-1 flex flex-col gap-2 w-full">
-            <div
+            {/* <div
               onClick={() => {
                 navigate("/frontend-dashboard");
               }}
@@ -125,10 +131,10 @@ const Sidebar = () => {
                   location.pathname === "/" && "bg-[#1E3D73] rounded-md"
                 }`}
               >
-                <RiDashboardLine />
+                
               </div>
-              {isSidebarOpen && <span className="pl-5 text-sm">Dashboard</span>}
-            </div>
+              
+            </div> */}
             <div className="rounded-md">
               {defaultModules.map((module, index) => (
                 <div key={index} className="border-b">
@@ -242,7 +248,7 @@ const Sidebar = () => {
               }`}
             >
               <div className="flex justify-center w-8 text-sm">
-                <CgProfile />
+                <FaUserTie  />
               </div>
               {isSidebarOpen && <span className="pl-5 text-sm">Profile</span>}
             </div>
