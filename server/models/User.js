@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Role", // Refers to the Role schema
+    ref: "Role", 
   },
   department: [
     {
