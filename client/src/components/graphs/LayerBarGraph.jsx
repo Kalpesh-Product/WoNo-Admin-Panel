@@ -10,16 +10,21 @@ const LayerBarGraph = () => {
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth: '70%',
-        borderRadius: 5,
+        columnWidth: '45%',
+        borderRadius: 8,
         dataLabels: {
           position: 'top',
         },
       },
     },
-    colors: ['#0000FF','#00FF00', '#FF0000'], // Green, Red, Blue
+    colors: ['#00FF00', '#0000FF', '#FF0000'], // Green (Utilised), Blue (Default), Red (Exceeded)
     dataLabels: {
       enabled: true,
+      formatter: (value, { seriesIndex, dataPointIndex, w }) => {
+        // Disable labels for the "Default Budget" series (index 1)
+        if (seriesIndex === 1) return '';
+        return `${value}%`;
+      },
     },
     xaxis: {
       categories: [
@@ -54,25 +59,29 @@ const LayerBarGraph = () => {
     },
   };
 
-  const utilisedData = [125, 150, 90, 85, 70, 50, 80, 95, 100, 65, 50, 120];
+  const utilisedData = [125, 150, 99, 85, 70, 50, 80, 95, 100, 65, 50, 120];
+
+  // Calculate adjusted default and exceeded data
+  const defaultData = utilisedData.map((value) => Math.max(100 - Math.min(value, 100), 0));
+  const utilisedStack = utilisedData.map((value) => Math.min(value, 100));
+  const exceededData = utilisedData.map((value) => (value > 100 ? value - 100 : 0));
 
   const series = [
     {
-        name: 'Default Budget',
-        data: Array(12).fill(100),
-        group: 'default', // Assign a unique stack for "Default Budget"
-      },
-    {
       name: 'Utilised Budget',
-      data: utilisedData.map((value) => Math.min(value, 100)),
-    group : 'budget'
+      data: utilisedStack,
+      group: 'budget',
+    },
+    {
+      name: 'Default Budget',
+      data: defaultData,
+      group: 'budget',
     },
     {
       name: 'Exceeded Budget',
-      data: utilisedData.map((value) => (value > 100 ? value - 100 : 0)),
-      group: 'budget', // Stack "Utilised" and "Exceeded" together
+      data: exceededData,
+      group: 'budget',
     },
-
   ];
 
   return (
