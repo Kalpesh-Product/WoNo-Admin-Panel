@@ -12,7 +12,7 @@ const roleSchema = new mongoose.Schema({
         ref: "Module",
         required: true,
       },
-      moduleAccessScope: {
+      modulePermissions: {
         read: {
           type: Boolean,
           default: false,
@@ -29,7 +29,7 @@ const roleSchema = new mongoose.Schema({
             ref: "SubModule",
             required: true,
           },
-          accessScope: {
+          permissions: {
             read: {
               type: Boolean,
               default: false,
