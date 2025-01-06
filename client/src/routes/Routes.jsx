@@ -2,20 +2,31 @@ import { createBrowserRouter } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
 import LoginPage from "../pages/LoginPage/LoginPage";
 import Reports from "../pages/Reports";
-import FrontendDashboard from "../pages/Dashboard/FrontendDashboard";
+import Dashboard from "../pages/Dashboard/Dashboard";
 
 export const routes = createBrowserRouter([
   {
     path: "/",
-    element: <MainLayout />,
+    element: <LoginPage />, // Login Page as the default route
+  },
+  {
+    path: "/app", // Base path for routes under MainLayout
+    element: <MainLayout />, // MainLayout as the wrapper
     children: [
       {
-        path: "/frontend-dashboard",
-        index:true,
-        element: <FrontendDashboard />,
+        path: "/app/frontend-dashboard", // Accessible at /app/dashboard
+        element: <Dashboard />,
       },
       {
-        path: "/reports",
+        path: "/app/finance-dashboard", // Accessible at /app/dashboard
+        element: <Dashboard />,
+      },
+      {
+        path: "/app/hr-dashboard", // Accessible at /app/dashboard
+        element: <Dashboard />,
+      },
+      {
+        path: "reports", // Accessible at /app/reports
         element: <Reports />,
       },
     ],

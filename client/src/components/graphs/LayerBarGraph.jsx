@@ -13,7 +13,7 @@ const LayerBarGraph = () => {
         columnWidth: '45%',
         borderRadius: 8,
         dataLabels: {
-          position: 'top',
+          position: 'center',
         },
       },
     },
@@ -85,7 +85,7 @@ const LayerBarGraph = () => {
   ];
 
   return (
-    <div>
+    <div className='bg-white shadow-md p-2 rounded-md'>
       <Chart options={options} series={series} type="bar" height={350} />
     </div>
   );

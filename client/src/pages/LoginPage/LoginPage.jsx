@@ -51,7 +51,7 @@ const LoginPage = () => {
     // } catch (error) {
     //   toast.error(error.message);
     // }
-    navigate('/dashboard')
+    navigate('/app/dashboard')
   };
 
   return (

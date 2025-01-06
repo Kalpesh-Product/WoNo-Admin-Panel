@@ -47,6 +47,7 @@ const Sidebar = () => {
           id: 2,
           title: "Frontend Dashboard",
           icon: <FaProjectDiagram />,
+          route : "/app/frontend-dashboard"
         },
         {
           id: 3,
@@ -106,9 +107,8 @@ const Sidebar = () => {
         } bg-white  text-black flex flex-shrink-0 h-screen overflow-y-auto transition-all duration-100 z-[1]`}
       >
         <div className="flex relative w-full">
-          {/*Dashboard */}
           <div className="p-1 flex flex-col gap-2 w-full">
-            <div
+            {/* <div
               onClick={() => {
                 navigate("/frontend-dashboard");
               }}
@@ -128,19 +128,18 @@ const Sidebar = () => {
                 <RiDashboardLine />
               </div>
               {isSidebarOpen && <span className="pl-5 text-sm">Dashboard</span>}
-            </div>
+            </div> */}
             <div className="rounded-md">
               {defaultModules.map((module, index) => (
                 <div key={index} className="border-b">
                   <div
-                    className={`cursor-pointer bg-[#E7ECEE]  flex justify-center items-center py-3 px-4 hover:wono-blue-dark hover:text-white hover:rounded-md ${
+                    className={`cursor-pointer bg-[#E7ECEE]  flex justify-center items-center p-4 hover:wono-blue-dark hover:text-white hover:rounded-md ${
                       isActive(module.route)
                         ? "wono-blue border-r-4 transition-all duration-100 border-[#0DB4EA] rounded-tl-md rounded-bl-md text-[#0DB4EA]"
                         : "bg-white"
                     }`}
                     onClick={() => {
                       module.submenus && toggleModule(index);
-                      // navigate(module.route);
                     }}
                   >
                     <div className="flex justify-center text-sm w-8">{module.icon}</div>
@@ -171,7 +170,7 @@ const Sidebar = () => {
                         {module.submenus.map((submenu, idx) => (
                           <div
                             key={idx}
-                            className={`cursor-pointer bg-[#E7ECEE] py-4 hover:wono-blue-dark hover:text-white hover:rounded-md ${
+                            className={`cursor-pointer bg-[#E7ECEE] p-4 hover:wono-blue-dark hover:text-white hover:rounded-md ${
                               isActive(submenu.route)
                                 ? "wono-blue border-r-4 border-[#0DB4EA] rounded-tl-md rounded-bl-md text-[#0DB4EA]"
                                 : "bg-white border-b-[1px] border-gray-200"
@@ -181,7 +180,7 @@ const Sidebar = () => {
                             <div
                               className={`flex items-center ${
                                 isSidebarOpen
-                                  ? "justify-start pl-4"
+                                  ? "justify-start pl-2"
                                   : "justify-center"
                               }`}
                             >

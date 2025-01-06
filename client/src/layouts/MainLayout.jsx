@@ -14,7 +14,8 @@ const MainLayout = () => {
             <header className=" flex w-full shadow-md">
                 <Header />
             </header>
-          <main className="w-full bg-[#F7F8FA] h-screen overflow-y-auto p-4">
+          <main className="w-full bg-[#F7F8FA] h-[90vh] overflow-y-auto p-6">
+            <div>breacrumb here</div>
             <Outlet />
           </main>
         </div>

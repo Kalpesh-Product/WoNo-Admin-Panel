@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 @layer utilities{
+
+  body{
+    font-family: Poppins-Regular;
+  }
   .wono-blue {
     background-color: rgba(176, 235, 255, 0.36);
   }
@@ -53,5 +57,15 @@
   }
   
   
+}
+
+@font-face {
+  font-family: Poppins-Regular;
+  src: url("../src/assets/WONO_images/img/font/Poppins-Regular.ttf");
+}
+@font-face {
+  font-family: Poppins-SemiBold;
+  src: url("../src/assets/WONO_images/img/font/Poppins-SemiBold.ttf");
+  font-weight: 600;
 }
 
