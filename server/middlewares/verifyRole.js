@@ -1,43 +1,84 @@
-const verifyRoleAndPermission = (
-  allowedRoles,
-  moduleId,
-  subModuleId,
-  action
-) => {
+const Role = require("../models/Roles");
+
+const checkScope = (requiredPermissions) => {
   return async (req, res, next) => {
     try {
-      const userRole = req.role; // Assumes `req.user` contains the authenticated user
-      const userPermissions = req.permissions; // Assumes permissions are populated in `req.user`
+      const { role } = req.user; // Extract role from the JWT payload
 
-      if (!userRole) return res.sendStatus(401); // Unauthorized: No role found
-      if (!allowedRoles.includes(userRole)) return res.sendStatus(403); // Forbidden: Role not allowed
+      if (!role) {
+        return res
+          .status(403)
+          .json({ message: "Role not found, access denied" });
+      }
 
-      // Check permissions for the module and submodule
-      const hasPermission = userPermissions.some((permission) => {
-        if (permission.module.toString() === moduleId.toString()) {
-          // Check module-level action
-          if (permission.modulePermissions[action]) return true;
+      // Fetch the full role document from the database
+      const userRole = await Role.findById(role._id)
+        .populate({
+          path: "modulePermissions.module",
+          select: "moduleTitle",
+        })
+        .populate({
+          path: "modulePermissions.subModulePermissions.subModule",
+          select: "subModuleTitle",
+        })
+        .lean();
 
-          // Check submodule-level permissions
-          const subModulePermission = permission.subModulePermissions.find(
-            (sub) => sub.subModule.toString() === subModuleId.toString()
-          );
+      if (!userRole) {
+        return res
+          .status(403)
+          .json({ message: "Role does not exist, access denied" });
+      }
 
-          if (subModulePermission && subModulePermission.permissions[action]) {
-            return true;
+      // Check permissions against requiredPermissions
+      let hasPermission = false;
+
+      for (const modulePerm of userRole.modulePermissions) {
+        // Check if the main module matches
+        if (requiredPermissions.module === modulePerm.module.moduleTitle) {
+          const mainModulePermissions = modulePerm.permissions;
+
+          // If main module has only "read", enforce "read-only" for all submodules
+          if (mainModulePermissions.read && !mainModulePermissions.write) {
+            hasPermission = modulePerm.subModulePermissions.every(
+              (subModulePerm) =>
+                requiredPermissions.permissions.every(
+                  (perm) => perm === "read" && subModulePerm.permissions.read
+                )
+            );
+          }
+          // If main module has both "read" and "write"
+          else if (mainModulePermissions.read && mainModulePermissions.write) {
+            hasPermission = modulePerm.subModulePermissions.some(
+              (subModulePerm) =>
+                subModulePerm.subModule.subModuleTitle ===
+                  requiredPermissions.subModule &&
+                requiredPermissions.permissions.every((perm) => {
+                  if (perm === "write") {
+                    return (
+                      subModulePerm.permissions.write &&
+                      subModulePerm.permissions.read
+                    );
+                  }
+                  return subModulePerm.permissions[perm];
+                })
+            );
           }
         }
-        return false;
-      });
 
-      if (!hasPermission) return res.sendStatus(403); // Forbidden: No permission for action
+        if (hasPermission) break;
+      }
 
-      next(); // Proceed to the next middleware if role and permission checks pass
+      if (!hasPermission) {
+        return res
+          .status(403)
+          .json({ message: "Access denied, insufficient permissions" });
+      }
+
+      next();
     } catch (error) {
-      console.error("Error in verifyRoleAndPermission middleware:", error);
-      res.status(500).json({ message: "Internal Server Error" });
+      next(error);
     }
   };
 };
 
-module.exports = verifyRoleAndPermission;
+module.exports = checkScope;
