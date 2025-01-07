@@ -36,7 +36,24 @@ const checkScope = (requiredPermissions) => {
         if (requiredPermissions.module === modulePerm.module.moduleTitle) {
           const mainModulePermissions = modulePerm.modulePermissions;
 
-          // If main module has only "read", enforce "read-only" for all submodules
+     
+          //If only main modules exists
+          if(!requiredPermissions.subModule){
+           hasPermission =  requiredPermissions.permissions.every((perm) => {
+            if (perm === "read") {
+              return mainModulePermissions.read;  
+            }
+            if (perm === "write") {
+              return (
+                mainModulePermissions.write &&
+                mainModulePermissions.read
+              );
+            }
+          })
+          break;
+          }
+
+               // If main module has only "read", enforce "read-only" for all submodules
           if (mainModulePermissions.read && !mainModulePermissions.write) {
             hasPermission = modulePerm.subModulePermissions.every(
               (subModulePerm) =>
@@ -45,6 +62,7 @@ const checkScope = (requiredPermissions) => {
                 )
             );
           }
+
           // If main module has both "read" and "write"
           else if (mainModulePermissions.read && mainModulePermissions.write) {
             hasPermission = modulePerm.subModulePermissions.some(

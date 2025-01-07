@@ -25,8 +25,7 @@ const moduleRoutes = require("./routes/moduleRoutes");
 const subModuleRoutes = require("./routes/subModuleRoutes");
 const roleRoutes = require("./routes/roleRoutes");
 const eventRoutes = require("./routes/eventsRoutes");
-const taskRoutes = require("./routes/tasksRoutes");
-const checkScope = require("./middlewares/checkScope");
+const taskRoutes = require("./routes/tasksRoutes");const checkScope = require("./middlewares/checkScope");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -69,20 +68,17 @@ app.use("/api/modules", moduleRoutes);
 app.use("/api/sub-modules", subModuleRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/tasks", taskRoutes);
-
 app.get(
   "/api/protected",
   verifyJwt,
   checkScope({
-    module: "Asset Management", 
-    subModule: "Manage Asset", 
+    module: "Ticket Management", 
     permissions: ["write"], 
   }),
   (req, res) => {
     res.json({ message: "This is protected route" });
   }
 );
-
 app.all("*", (req, res) => {
   if (req.accepts("html")) {
     res.status(404).sendFile(path.join(__dirname, "views", "404.html"));
