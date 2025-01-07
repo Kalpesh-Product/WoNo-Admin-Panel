@@ -12,16 +12,7 @@ const roleSchema = new mongoose.Schema({
         ref: "Module",
         required: true,
       },
-      modulePermissions: {
-        read: {
-          type: Boolean,
-          default: false,
-        },
-        write: {
-          type: Boolean,
-          default: false,
-        },
-      },
+
       subModulePermissions: [
         {
           subModule: {
