@@ -1,10 +1,8 @@
 const router = require("express").Router();
 const {
-    addModule
+  addModule,
 } = require("../controllers/modulesControllers/moduleControllers");
 
-// router.post("/add-module", addModule)
-
-
+router.post("/add-module", addModule);
 
 module.exports = router;
