@@ -3,6 +3,7 @@ import MainLayout from "../layouts/MainLayout";
 import LoginPage from "../pages/LoginPage/LoginPage";
 import Reports from "../pages/Reports";
 import Dashboard from "../pages/Dashboard/Dashboard";
+import Access from "../pages/Access";
 
 export const routes = createBrowserRouter([
   {
@@ -31,4 +32,9 @@ export const routes = createBrowserRouter([
       },
     ],
   },
+  {
+    path:"access",
+    element:<Access/>
+
+  }
 ]);
