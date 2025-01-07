@@ -15,7 +15,7 @@ const MainLayout = () => {
                 <Header />
             </header>
           <main className="w-full bg-[#F7F8FA] h-[90vh] overflow-y-auto p-6">
-            <div>breacrumb here</div>
+            <div className="mb-0">breacrumb here</div>
             <Outlet />
           </main>
         </div>

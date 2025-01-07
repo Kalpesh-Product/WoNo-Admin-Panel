@@ -6,7 +6,6 @@ import { IoIosArrowForward, IoMdNotifications } from "react-icons/io";
 import { SiAuthelia } from "react-icons/si";
 import { CgProfile } from "react-icons/cg";
 import { HiOutlineChatAlt2 } from "react-icons/hi";
-import { RiDashboardLine } from "react-icons/ri";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSidebar } from "../context/SideBarContext";
 import { GiHamburgerMenu } from "react-icons/gi";
@@ -32,9 +31,9 @@ const Sidebar = () => {
       route: "/reports",
     },
 
-    { name: "Calendar", icon: <FaRegCalendarAlt />, route: "/calendar" },
+    { name: "Calendar", icon: <FaRegCalendarAlt />, route: "calendar" },
     { name: "Chat", icon: <HiOutlineChatAlt2 />, route: "/chat" },
-    { name: "Access",icon:< TbAccessible/>, route: "/access" },
+    { name: "Access", icon: <SiAuthelia />, route: "access" },
     {
       name: "Notifications",
       icon: <IoMdNotifications />,
@@ -114,27 +113,7 @@ const Sidebar = () => {
       >
         <div className="flex relative w-full">
           <div className="p-1 flex flex-col gap-2 w-full">
-            {/* <div
-              onClick={() => {
-                navigate("/frontend-dashboard");
-              }}
-              className={`flex border-b-[1px] ${
-                isSidebarOpen ? "pl-[1rem]" : "justify-center"
-              } items-center cursor-pointer  py-2 hover:wono-blue-dark hover:text-white hover:rounded-md ${
-                location.pathname === "/"
-                  ? "wono-blue border-r-4 border-[#0DB4EA] rounded-tl-md rounded-bl-md text-[#0DB4EA]"
-                  : "bg-white"
-              }`}
-            >
-              <div
-                className={`flex justify-center w-8 h-8 items-center text-sm ${
-                  location.pathname === "/" && "bg-[#1E3D73] rounded-md"
-                }`}
-              >
-                
-              </div>
-              
-            </div> */}
+
             <div className="rounded-md">
               {defaultModules.map((module, index) => (
                 <div key={index} className="border-b">
