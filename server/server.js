@@ -72,8 +72,7 @@ app.get(
   "/api/protected",
   verifyJwt,
   checkScope({
-    module: "Asset Management", 
-    subModule: "Manage Asset", 
+    module: "Ticket Management", 
     permissions: ["write"], 
   }),
   (req, res) => {

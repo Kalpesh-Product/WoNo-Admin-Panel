@@ -45,8 +45,8 @@ const checkScope = (requiredPermissions) => {
             }
             if (perm === "write") {
               return (
-                mainModulePermissions.permissions.write &&
-                mainModulePermissions.permissions.read
+                mainModulePermissions.write &&
+                mainModulePermissions.read
               );
             }
           })
