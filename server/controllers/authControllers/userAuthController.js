@@ -33,7 +33,17 @@ const login = async (req, res, next) => {
       })
       .populate({
         path: "role",
-        select: "roleTitle",
+        select: "roleTitle modulePermissions",
+        populate: [
+          {
+            path: "modulePermissions.module",
+            select: "moduleTitle",
+          },
+          {
+            path: "modulePermissions.subModulePermissions.subModule",
+            select: "subModuleTitle",
+          },
+        ],
       })
       .populate({ path: "designation", select: "title" })
       .populate({ path: "company", select: "companyName" })
@@ -53,7 +63,7 @@ const login = async (req, res, next) => {
       {
         userInfo: {
           userId: userExists._id,
-          role: userExists.role,
+          role: userExists.role._id,
           email: userExists.email,
         },
       },
