@@ -5,7 +5,7 @@ import { MdOutlineMailOutline } from "react-icons/md";
 const Header = () => {
   return (
     <>
-      <div className="flex w-full justify-between gap-x-8 items-center p-3">
+      <div className="flex w-full justify-between gap-x-8 items-center p-2">
         <div className="w-full flex items-center pl-6">
           <TextField
             fullWidth

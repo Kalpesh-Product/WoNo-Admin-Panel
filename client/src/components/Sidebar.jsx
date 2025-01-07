@@ -52,12 +52,13 @@ const Sidebar = () => {
           id: 2,
           title: "Frontend Dashboard",
           icon: <CgWebsite />,
-          route : "/app/frontend-dashboard"
+          route: "frontend-dashboard",
         },
         {
           id: 3,
           title: "HR Dashboard",
           icon: <RiAdminFill />,
+          route: "hr-dashboard",
         },
         {
           id: 4,
@@ -77,7 +78,9 @@ const Sidebar = () => {
     setExpandedModule((prev) => (prev === index ? null : index));
   };
 
-  const isActive = (path) => location.pathname.startsWith(path);
+  console.log(expandedModule);
+
+  const isActive = (path) => location.pathname.includes(path);
 
   return (
     <div
@@ -86,8 +89,8 @@ const Sidebar = () => {
       }`}
     >
       <div
-        className={`w-full border-b-2 border-gray-200 mb-4 flex ${
-          isSidebarOpen ? "justify-between px-3 py-4" : "justify-center py-4"
+        className={`w-full border-b-2 border-gray-200 mb-1 flex ${
+          isSidebarOpen ? "justify-between px-3 py-3" : "justify-center py-3"
         } transition-all duration-100 items-center`}
       >
         <div className={`${isSidebarOpen ? "w-32" : "hidden"}  h-full`}>
@@ -108,32 +111,54 @@ const Sidebar = () => {
 
       <div
         className={`${
-          isSidebarOpen ? "w-60" : "w-20"
+          isSidebarOpen ? "w-60" : "w-16"
         } bg-white  text-black flex flex-shrink-0 h-screen overflow-y-auto transition-all duration-100 z-[1]`}
       >
         <div className="flex relative w-full">
-          <div className="p-1 flex flex-col gap-2 w-full">
-
-            <div className="rounded-md">
+          <div className="p-0 flex flex-col gap-2 w-full">
+            <div
+              className={`rounded-md ${
+                expandedModule === 0 ? "bg-gray-200" : "bg-white"
+              }`}
+            >
               {defaultModules.map((module, index) => (
-                <div key={index} className="border-b">
+                <div key={index} className="">
                   <div
-                    className={`cursor-pointer bg-[#E7ECEE]  flex justify-center items-center p-4 hover:wono-blue-dark hover:text-white hover:rounded-md ${
+                    className={`cursor-pointer text-gray-500  flex ${
+                      expandedModule === null && isSidebarOpen
+                        ? "justify-between pr-2"
+                        : expandedModule === 0 && isSidebarOpen
+                        ? "justify-between text-[#1E3D73] pr-2"
+                        : "justify-center pr-0"
+                    } items-center   ${
+                      expandedModule === 0 &&
+                      "bg-gray-200 rounded-t-md text-black"
+                    }  ${
                       isActive(module.route)
-                        ? "wono-blue border-r-4 transition-all duration-100 border-[#0DB4EA] rounded-tl-md rounded-bl-md text-[#0DB4EA]"
-                        : "bg-white"
+                        ? "wono-blue border-r-4 transition-all duration-100 rounded-tl-md rounded-bl-md "
+                        : ""
                     }`}
                     onClick={() => {
                       module.submenus && toggleModule(index);
                     }}
                   >
-                    <div className="flex justify-center text-sm w-8">{module.icon}</div>
-                    {isSidebarOpen && (
-                      <span className="pl-5 text-sm">{module.title}</span>
-                    )}
+                    <div className="flex justify-start items-center">
+                      <div
+                        className={`flex items-center justify-center text-sm h-9 w-9 ${
+                          expandedModule === 0
+                            ? "bg-primary text-white rounded-md"
+                            : ""
+                        }`}
+                      >
+                        {module.icon}
+                      </div>
+                      {isSidebarOpen && (
+                        <span className="pl-5 text-sm ">{module.title}</span>
+                      )}
+                    </div>
                     {isSidebarOpen && module.submenus && (
                       <span
-                        className={`ml-auto transition-transform duration-300 ease-in-out ${
+                        className={`transition-transform duration-300 ease-in-out ${
                           expandedModule === index ? "rotate-180" : "rotate-0"
                         }`}
                       >
@@ -155,29 +180,27 @@ const Sidebar = () => {
                         {module.submenus.map((submenu, idx) => (
                           <div
                             key={idx}
-                            className={`cursor-pointer bg-[#E7ECEE] p-4 hover:wono-blue-dark hover:text-white hover:rounded-md ${
-                              isActive(submenu.route)
-                                ? "wono-blue border-r-4 border-[#0DB4EA] rounded-tl-md rounded-bl-md text-[#0DB4EA]"
-                                : "bg-white border-b-[1px] border-gray-200"
-                            } `}
+                            className={`cursor-pointer  hover:text-[#1E3D73] transition-all duration-100 ${isActive(submenu.route) ? 'text-[#1E3D73]' : 'text-gray-500'}  py-3`}
                             onClick={() => navigate(submenu.route)}
                           >
                             <div
                               className={`flex items-center ${
                                 isSidebarOpen
-                                  ? "justify-start pl-2"
+                                  ? "justify-start"
                                   : "justify-center"
                               }`}
                             >
                               <div
-                                className={`${
+                                className={`flex justify-center  items-center w-8 ${
                                   isSidebarOpen ? "text-sm" : "text-sm"
                                 }`}
                               >
                                 {submenu.icon}
                               </div>
                               {isSidebarOpen && (
-                                <span className="pl-4 text-sm">{submenu.title}</span>
+                                <span className="pl-4 text-sm">
+                                  {submenu.title}
+                                </span>
                               )}
                             </div>
                           </div>
@@ -193,11 +216,9 @@ const Sidebar = () => {
               <div
                 key={index}
                 onClick={() => handleMenuOpen(item)}
-                className={`cursor-pointer flex ${
-                  isSidebarOpen
-                    ? "pl-[1rem] hover:wono-blue-dark hover:rounded-md hover:text-white"
-                    : "justify-center"
-                } items-center border-b-[1px] py-3 ${
+                className={`cursor-pointer hover:text-[#1E3D73] transition-all duration-100 text-gray-500 flex ${
+                  isSidebarOpen ? "" : "justify-center"
+                } items-center py-2 ${
                   location.pathname === item.route
                     ? "wono-blue border-r-4 border-b-[0px]  border-[#0DB4EA] rounded-tl-md rounded-bl-md text-[#0DB4EA]"
                     : "bg-white"
@@ -217,16 +238,16 @@ const Sidebar = () => {
               onClick={() => {
                 navigate("/profile");
               }}
-              className={`flex border-b-[1px] ${
-                isSidebarOpen ? "pl-[1rem]" : "justify-center"
-              } items-center cursor-pointer  py-4 hover:wono-blue-dark hover:text-white hover:rounded-md ${
+              className={`flex hover:text-[#1E3D73] transition-all duration-100 text-gray-500 ${
+                isSidebarOpen ? "pl-[0rem]" : "justify-center"
+              } items-center cursor-pointer  ${
                 location.pathname === "/profile"
                   ? "wono-blue border-r-4 border-[#0DB4EA] rounded-tl-md rounded-bl-md text-[#0DB4EA]"
                   : "bg-white"
               }`}
             >
               <div className="flex justify-center w-8 text-sm">
-                <FaUserTie  />
+                <FaUserTie />
               </div>
               {isSidebarOpen && <span className="pl-5 text-sm">Profile</span>}
             </div>

@@ -196,7 +196,8 @@ const Calender = () => {
             dayMaxEvents={2}
             eventClick={handleEventClick}
             dateClick={handleDateClick}
-            // contentHeight={"auto"}
+            eventBackgroundColor=""
+            evenTex
             displayEventTime={false}
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             initialView="dayGridMonth"

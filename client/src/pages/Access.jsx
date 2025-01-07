@@ -3,7 +3,7 @@ import HierarchyTree from '../components/HierarchyTree'
 
 const Access = () => {
   return (
-    <div>
+    <div className=''> 
       <HierarchyTree />
     </div>
   )
