@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, Link, useLocation } from "react-router-dom";
-import { Container, Box, Grid, TextField, Button } from "@mui/material";
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { Container, Box, Grid, TextField } from "@mui/material";
 import "./ClientLogin.css";
 import "./ClientSpecialClasses.css";
 import LoginWithGoogleImage from "../../assets/WONO_images/img/login_images/google-icon2.png";
@@ -51,7 +51,7 @@ const LoginPage = () => {
     // } catch (error) {
     //   toast.error(error.message);
     // }
-    navigate('/app/frontend-dashboard')
+    navigate('frontend-dashboard')
   };
 
   return (
