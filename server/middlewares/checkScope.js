@@ -3,7 +3,7 @@ const Role = require("../models/Roles");
 const checkScope = (requiredPermissions) => {
   return async (req, res, next) => {
     try {
-      const { role } = req.user; // Extract role from the JWT payload
+      const { role } = req; // Extract role from the JWT payload
 
       if (!role) {
         return res
@@ -28,14 +28,13 @@ const checkScope = (requiredPermissions) => {
           .status(403)
           .json({ message: "Role does not exist, access denied" });
       }
-
       // Check permissions against requiredPermissions
       let hasPermission = false;
-
+      
       for (const modulePerm of userRole.modulePermissions) {
         // Check if the main module matches
         if (requiredPermissions.module === modulePerm.module.moduleTitle) {
-          const mainModulePermissions = modulePerm.permissions; //modulePermissions
+          const mainModulePermissions = modulePerm.modulePermissions;
 
           // If main module has only "read", enforce "read-only" for all submodules
           if (mainModulePermissions.read && !mainModulePermissions.write) {
