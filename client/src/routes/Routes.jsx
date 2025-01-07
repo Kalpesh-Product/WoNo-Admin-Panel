@@ -41,5 +41,10 @@ export const routes = createBrowserRouter([
       },
     ],
   },
+  {
+    path:"access",
+    element:<Access/>
+
+  }
 ]);
 

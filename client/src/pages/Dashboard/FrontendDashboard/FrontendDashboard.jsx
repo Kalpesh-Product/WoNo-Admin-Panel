@@ -9,6 +9,10 @@ import { CgWebsite } from "react-icons/cg";
 import DataCard from "../../../components/DataCard";
 import BarGraph from "../../../components/graphs/BarGraph";
 
+import { SiCashapp } from "react-icons/si";
+import { SiGoogleadsense } from "react-icons/si";
+import { MdMiscellaneousServices } from "react-icons/md";
+
 const FrontendDashboard = () => {
   const location = useLocation(); //will need to change useLocation and use context for content rendering once the auth is done
 
@@ -23,9 +27,9 @@ const FrontendDashboard = () => {
         <Card icon={<MdRebaseEdit />} title="Edit Live Theme" />,
         <Card icon={<LuHardDriveUpload />} title="Upload Website" />,
         <Card icon={<CgWebsite />} title="New Themes" />,
-        <Card title="Card 4" />,
-        <Card title="Card 5" />,
-        <Card title="Card 6" />,
+        <Card icon={< SiCashapp/>} title="Budget" />,
+        <Card icon={<SiGoogleadsense/>} title="Leads" />,
+        <Card icon={<MdMiscellaneousServices/>} title="Miscellaneous" />,
       ],
     },
     {

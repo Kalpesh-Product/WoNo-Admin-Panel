@@ -10,6 +10,12 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useSidebar } from "../context/SideBarContext";
 import { GiHamburgerMenu } from "react-icons/gi";
 import biznestLogo from "../assets/biznest/biznest_logo.jpg";
+import { MdHome } from "react-icons/md";
+import { CgWebsite } from "react-icons/cg";
+import { RiAdminFill } from "react-icons/ri";
+import { TbCashRegister } from "react-icons/tb";
+import { FaUserTie } from "react-icons/fa6";
+import { TbAccessible } from "react-icons/tb";
 
 const Sidebar = () => {
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
@@ -39,24 +45,24 @@ const Sidebar = () => {
   const defaultModules = [
     {
       id: 1,
-      icon: <FaTasks />,
+      icon: <MdHome />,
       title: "Dashboard",
       submenus: [
         {
           id: 2,
           title: "Frontend Dashboard",
-          icon: <FaProjectDiagram />,
+          icon: <CgWebsite />,
           route : "/app/frontend-dashboard"
         },
         {
           id: 3,
           title: "HR Dashboard",
-          icon: <FaTasks />,
+          icon: <RiAdminFill />,
         },
         {
           id: 4,
           title: "Finance Dashboard",
-          icon: <FaUsers />,
+          icon: <TbCashRegister />,
         },
       ],
     },
@@ -220,7 +226,7 @@ const Sidebar = () => {
               }`}
             >
               <div className="flex justify-center w-8 text-sm">
-                <CgProfile />
+                <FaUserTie  />
               </div>
               {isSidebarOpen && <span className="pl-5 text-sm">Profile</span>}
             </div>
