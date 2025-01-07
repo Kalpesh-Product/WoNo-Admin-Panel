@@ -35,7 +35,7 @@ const checkScope = (requiredPermissions) => {
       for (const modulePerm of userRole.modulePermissions) {
         // Check if the main module matches
         if (requiredPermissions.module === modulePerm.module.moduleTitle) {
-          const mainModulePermissions = modulePerm.permissions;
+          const mainModulePermissions = modulePerm.permissions; //modulePermissions
 
           // If main module has only "read", enforce "read-only" for all submodules
           if (mainModulePermissions.read && !mainModulePermissions.write) {
