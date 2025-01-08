@@ -17,6 +17,7 @@ module.exports = {
         subtitle: '1.125rem', // Equivalent to text-lg
         widgetTitle : '1.25rem',
         content: '0.875rem', // Equivalent to text-sm
+        small : '0.7rem'
       },
     },
   },

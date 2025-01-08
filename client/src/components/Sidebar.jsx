@@ -180,7 +180,11 @@ const Sidebar = () => {
                         {module.submenus.map((submenu, idx) => (
                           <div
                             key={idx}
-                            className={`cursor-pointer  hover:text-[#1E3D73] transition-all duration-100 ${isActive(submenu.route) ? 'text-[#1E3D73]' : 'text-gray-500'}  py-3`}
+                            className={`cursor-pointer  hover:text-[#1E3D73] transition-all duration-100 ${
+                              isActive(submenu.route)
+                                ? "text-[#1E3D73]"
+                                : "text-gray-500"
+                            }  py-3`}
                             onClick={() => navigate(submenu.route)}
                           >
                             <div
@@ -216,16 +220,19 @@ const Sidebar = () => {
               <div
                 key={index}
                 onClick={() => handleMenuOpen(item)}
-                className={`cursor-pointer hover:text-[#1E3D73] transition-all duration-100 text-gray-500 flex ${
+                className={`cursor-pointer hover:text-[#1E3D73] transition-all duration-100 ${
+                  isActive(item.route) ? "text-[#1E3D73] bg-gray-200 rounded-md" : "text-gray-500"
+                } flex ${
                   isSidebarOpen ? "" : "justify-center"
-                } items-center py-2 ${
-                  location.pathname === item.route
-                    ? "wono-blue border-r-4 border-b-[0px]  border-[#0DB4EA] rounded-tl-md rounded-bl-md text-[#0DB4EA]"
-                    : "bg-white"
-                } `}
+                } items-center py-0 `}
               >
-                {/* <img src={item.icon} alt={item.name} className="w-8 h-6 mr-3" /> */}
-                <div className="flex justify-center w-8 text-sm">
+                <div
+                  className={`flex justify-center items-center w-9 h-9 ${
+                    isActive(item.route)
+                      ? "bg-primary text-white rounded-md"
+                      : ""
+                  } text-sm`}
+                >
                   {item.icon}
                 </div>
                 {isSidebarOpen && (

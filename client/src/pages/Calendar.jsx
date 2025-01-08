@@ -25,7 +25,12 @@ const Calender = () => {
     start: "",
     description: "",
   });
-  const [eventFilter, setEventFilter] = useState(["holiday", "event"]);
+  const [eventFilter, setEventFilter] = useState([
+    "View All",
+    "Meetings",
+    "Holidays",
+    "Events",
+  ]);
   //   const { data: eventsData } = useQuery({
   //     queryKey: ["events"],
   //     queryFn: async () => {
@@ -68,10 +73,10 @@ const Calender = () => {
   //       toast.error(error.message);
   //     },
   //   });
-//   const handleChange = (e) => {
-//     const { name, value } = e.target;
-//     setEventDetails((prev) => ({ ...prev, [name]: value }));
-//   };
+  //   const handleChange = (e) => {
+  //     const { name, value } = e.target;
+  //     setEventDetails((prev) => ({ ...prev, [name]: value }));
+  //   };
 
   //   const handleDateChange = (field, newValue) => {
   //     setEventDetails((prev) => ({ ...prev, [field]: newValue }));
@@ -159,76 +164,154 @@ const Calender = () => {
 
   return (
     <div className="flex w-[70%] md:w-full">
-      <div className="flex-1 p-4 bg-white h-screen overflow-y-auto">
-        <div className="flex justify-between items-center">
-          <h1 className="font-pregular text-2xl pb-5">Calendar</h1>
-          <FormGroup row>
-            {["holiday", "event"].map((type) => (
-              <FormControlLabel
-                key={type}
-                control={
-                  <Checkbox
-                    checked={eventFilter.includes(type)}
-                    onChange={(e) => {
-                      const selectedType = e.target.value;
-                      setEventFilter((prevFilter) =>
-                        e.target.checked
-                          ? [...prevFilter, selectedType]
-                          : prevFilter.filter((t) => t !== selectedType)
+      <div className="flex-1 p-4 bg-white">
+        <div className="flex gap-4 relative w-full">
+          <div className="flex flex-col gap-4 w-[25%]">
+            <div className="border-2 border-gray-300 p-4">
+              <div className="w-full flex justify-start ">
+                <span className="text-content font-bold">Event Filters</span>
+              </div>
+              <div className="flex justify-start text-content">
+                <FormGroup column>
+                  {["View All", "Meetings", "Holidays", "Events"].map(
+                    (type, index) => {
+                      const colors = {
+                        "View All": "#f44336",
+                        Meetings: "#2196f3",
+                        Holidays: "#4caf50",
+                        Events: "#ff9800",
+                      };
+                      return (
+                        <FormControlLabel
+                          key={type}
+                          control={
+                            <Checkbox
+                              sx={{
+                                fontSize: "0.75rem",
+                                transform: "scale(0.8)", // Adjusts the checkbox size
+                                color: colors[type],
+                                "&.Mui-checked": {
+                                  color: colors[type],
+                                },
+                              }}
+                              checked={eventFilter.includes(type)}
+                              onChange={(e) => {
+                                const selectedType = e.target.value;
+                                setEventFilter((prevFilter) =>
+                                  e.target.checked
+                                    ? [...prevFilter, selectedType]
+                                    : prevFilter.filter(
+                                        (t) => t !== selectedType
+                                      )
+                                );
+                              }}
+                              value={type}
+                            />
+                          }
+                          label={
+                            <span style={{ fontSize: "0.875rem" }}>
+                              {type.charAt(0).toUpperCase() + type.slice(1)}
+                            </span>
+                          }
+                        />
                       );
-                    }}
-                    value={type}
-                  />
-                }
-                label={type.charAt(0).toUpperCase() + type.slice(1)}
-              />
-            ))}
-          </FormGroup>
-        </div>
+                    }
+                  )}
+                </FormGroup>
+              </div>
+            </div>
 
-        <div className="relative w-[70%] pt-2 md:w-full">
-          <FullCalendar
-            headerToolbar={{
-              left: "today",
-              center: "prev title next",
-              right: "dayGridMonth,timeGridWeek,timeGridDay",
-            }}
-            dayMaxEvents={2}
-            eventClick={handleEventClick}
-            dateClick={handleDateClick}
-            eventBackgroundColor=""
-            evenTex
-            displayEventTime={false}
-            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-            initialView="dayGridMonth"
-            eventDisplay="block"
-            weekends={true}
-            // dateClick={(info) => {
-            //   const clickedDate = dayjs(info.date).startOf("day");
-            //   setSelectedDate(info.dateStr);
-            //   setShowModal(true);
-            //   setEventDetails((prev) => ({
-            //     ...prev,
-            //     startDate: clickedDate,
-            //     endDate: clickedDate,
-            //   }));
-            // }}
-            // events={filteredEvents}
-            events={[
-              {
-                id: "1",
-                title: "Event 1",
-                start: "2025-01-10",
-                description: "Description for Event 1",
-              },
-              {
-                id: "2",
-                title: "Event 2",
-                start: "2025-01-12",
-                description: "Description for Event 2",
-              },
-            ]}
-          />
+            <div className="border-2 border-gray-300 p-4">
+              <div className="mb-2 text-content font-bold">
+                Today's Schedule
+              </div>
+              {[
+                {
+                  type: "Meetings",
+                  title: "Team Standup",
+                  timing: "10:00 AM - 10:30 AM",
+                },
+                { type: "Holidays", title: "Christmas Eve", timing: "All Day" },
+                {
+                  type: "Events",
+                  title: "Product Launch",
+                  timing: "02:00 PM - 04:00 PM",
+                },
+                {
+                  type: "Meetings",
+                  title: "Client Call",
+                  timing: "04:30 PM - 05:00 PM",
+                },
+              ].map((event, index) => {
+                const colors = {
+                  "View All": "#f44336",
+                  Meetings: "#2196f3",
+                  Holidays: "#4caf50",
+                  Events: "#ff9800",
+                };
+                return (
+                  <div key={index} className="flex gap-2 items-center mb-2">
+                    <div
+                      className="w-3 h-3 rounded-full mr-2"
+                      style={{ backgroundColor: colors[event.type] }}
+                    ></div>
+                    <div className="flex flex-col">
+                      <span className="text-content font-medium">
+                        {event.title}
+                      </span>
+                      <span className="text-small text-gray-500">
+                        {event.timing}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <div className="w-full h-[80vh] overflow-y-auto">
+            <FullCalendar
+              headerToolbar={{
+                left: "today",
+                center: "prev title next",
+                right: "dayGridMonth,timeGridWeek,timeGridDay",
+              }}
+              dayMaxEvents={2}
+              eventClick={handleEventClick}
+              dateClick={handleDateClick}
+              eventBackgroundColor=""
+              evenTex
+              displayEventTime={false}
+              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+              initialView="dayGridMonth"
+              eventDisplay="block"
+              weekends={true}
+              // dateClick={(info) => {
+              //   const clickedDate = dayjs(info.date).startOf("day");
+              //   setSelectedDate(info.dateStr);
+              //   setShowModal(true);
+              //   setEventDetails((prev) => ({
+              //     ...prev,
+              //     startDate: clickedDate,
+              //     endDate: clickedDate,
+              //   }));
+              // }}
+              // events={filteredEvents}
+              events={[
+                {
+                  id: "1",
+                  title: "Event 1",
+                  start: "2025-01-10",
+                  description: "Description for Event 1",
+                },
+                {
+                  id: "2",
+                  title: "Event 2",
+                  start: "2025-01-12",
+                  description: "Description for Event 2",
+                },
+              ]}
+            />
+          </div>
         </div>
 
         <Drawer anchor="right" open={isDrawerOpen} onClose={closeDrawer}>

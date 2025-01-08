@@ -124,11 +124,13 @@ input {
 
 .fc-prev-button,
 .fc-next-button {
-  background-color: #e0e0e0;
+  background-color: white !important;
   border-radius: 50% !important;
   margin: 0 !important;
   padding: 0.3rem !important;
   text-align: center;
+  color: black !important;
+  border : none !important;
 }
 
 .fc .fc-button-primary {
