@@ -32,8 +32,9 @@ const Sidebar = () => {
     },
 
     { name: "Calendar", icon: <FaRegCalendarAlt />, route: "calendar" },
-    { name: "Chat", icon: <HiOutlineChatAlt2 />, route: "/chat" },
+    { name: "Chat", icon: <HiOutlineChatAlt2 />, route: "chat" },
     { name: "Access", icon: <SiAuthelia />, route: "access" },
+    
     {
       name: "Notifications",
       icon: <IoMdNotifications />,
@@ -215,7 +216,7 @@ const Sidebar = () => {
 
             <div
               onClick={() => {
-                navigate("/profile");
+                navigate("profile");
               }}
               className={`flex border-b-[1px] ${
                 isSidebarOpen ? "pl-[1rem]" : "justify-center"

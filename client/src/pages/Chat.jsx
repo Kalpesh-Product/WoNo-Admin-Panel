@@ -1,9 +1,48 @@
-import React ,{ useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef } from "react";
 import { IoMdSend, IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 import { FaPaperclip } from "react-icons/fa6";
 import { MdOutlineEmojiEmotions } from "react-icons/md";
 import initialChats from "../utils/initialChat";
-import { toast } from "sonner";
+import PropTypes from "prop-types";
+import { useTheme } from "@mui/material/styles";
+import AppBar from "@mui/material/AppBar";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`full-width-tabpanel-${index}`}
+      aria-labelledby={`full-width-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box sx={{ p: "2px", backgroundColor: "white" }}>
+          <Typography>{children}</Typography>
+        </Box>
+      )}
+    </div>
+  );
+}
+
+TabPanel.propTypes = {
+  children: PropTypes.node,
+  index: PropTypes.number.isRequired,
+  value: PropTypes.number.isRequired,
+};
+
+function a11yProps(index) {
+  return {
+    id: `full-width-tab-${index}`,
+    "aria-controls": `full-width-tabpanel-${index}`,
+  };
+}
 
 const contacts = [
   { id: 1, name: "Mac", status: "online", previewMessage: "See you soon!" },
@@ -65,132 +104,141 @@ const contacts = [
 ];
 
 const Chat = () => {
-    const fileRef = useRef(null);
-    const messageEndRef = useRef(null);
-    const [activeContact, setActiveContact] = useState(contacts[0]);
-    const [messages, setMessages] = useState(initialChats(activeContact.name));
-    const [message, setMessage] = useState("");
-    const [expandedGroup, setExpandedGroup] = useState(null);
-    const [searchQuery, setSearchQuery] = useState("");
-    const [contactFilter, setContactFilter] = useState("All");
-  
-    useEffect(() => {
-      if (activeContact.name === "Customer Service") {
-        setMessages([
-          {
-            id: 1,
-            sender: "Customer Service",
-            time: new Date().toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-            content: "What can I help you with?",
-            fromMe: false,
-          },
-        ]);
-      } else {
-        setMessages(initialChats(activeContact.name));
-      }
-    }, [activeContact]);
-  
-    useEffect(() => {
-      // Scroll to the bottom whenever messages change
-      if (messageEndRef.current) {
-        messageEndRef.current.scrollIntoView({
-          behavior: "smooth",
-          block: "nearest", // Ensures minimal movement
-        });
-      }
-    }, [messages]);
-  
-    const handleSendMessage = () => {
-      if (message.trim() === "") return;
-  
-      const newMessage = {
-        id: messages.length + 1,
-        sender: "Me",
-        time: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        content: message,
-        fromMe: true,
-      };
-  
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
-  
-      setTimeout(() => {
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          {
-            id: prevMessages.length + 1,
-            sender: activeContact.name,
-            time: new Date().toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-            content: "demo message",
-            fromMe: false,
-          },
-        ]);
-      }, 1000);
-  
-      setMessage("");
+  const fileRef = useRef(null);
+  const messageEndRef = useRef(null);
+  const [activeContact, setActiveContact] = useState(contacts[0]);
+  const [messages, setMessages] = useState(initialChats(activeContact.name));
+  const [message, setMessage] = useState("");
+  const [expandedGroup, setExpandedGroup] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [contactFilter, setContactFilter] = useState("All");
+
+  const theme = useTheme();
+  const [value, setValue] = React.useState(0);
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
+
+  useEffect(() => {
+    if (activeContact.name === "Customer Service") {
+      setMessages([
+        {
+          id: 1,
+          sender: "Customer Service",
+          time: new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          content: "What can I help you with?",
+          fromMe: false,
+        },
+      ]);
+    } else {
+      setMessages(initialChats(activeContact.name));
+    }
+  }, [activeContact]);
+
+  useEffect(() => {
+    // Scroll to the bottom whenever messages change
+    if (messageEndRef.current) {
+      messageEndRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest", // Ensures minimal movement
+      });
+    }
+  }, [messages]);
+
+  const handleSendMessage = () => {
+    if (message.trim() === "") return;
+
+    const newMessage = {
+      id: messages.length + 1,
+      sender: "Me",
+      time: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      content: message,
+      fromMe: true,
     };
-  
-    const handleFileSelect = () => {
-      fileRef.current.click();
-    };
-  
-    const handleFileChange = (e) => {
-      if (e.target.files && e.target.files.length > 0) {
-        toast.success("File saved successfully");
-      }
-    };
-  
-    const handleKeyDown = (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        handleSendMessage();
-      }
-    };
-  
-    const filteredContacts = contacts.filter((contact) => {
-      const isMatch = contact.name
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
-  
-      if (contactFilter === "WoNo") {
-        // Show only the Customer Service chat
-        return contact.name === "Customer Service";
-      } else if (contactFilter === "BIZNest") {
-        // Show group chats and one-to-one chats excluding Customer Service
-        return (
-          (contact.name.includes("BIZ") || !contact.group) &&
-          contact.name !== "Customer Service"
-        );
-      } else if (contactFilter === "Companies") {
-        // Show only the Companies chat
-        return contact.name === "Companies";
-      }
-  
-      // Default: Show all chats
-      return isMatch;
-    });
+
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
+
+    setTimeout(() => {
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          id: prevMessages.length + 1,
+          sender: activeContact.name,
+          time: new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          content: "demo message",
+          fromMe: false,
+        },
+      ]);
+    }, 1000);
+
+    setMessage("");
+  };
+
+  const handleFileSelect = () => {
+    fileRef.current.click();
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      alert.success("File saved successfully");
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const filteredContacts = contacts.filter((contact) => {
+    const isMatch = contact.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+
+    if (contactFilter === "WoNo") {
+      // Show only the Customer Service chat
+      return contact.name === "Customer Service";
+    } else if (contactFilter === "BIZNest") {
+      // Show group chats and one-to-one chats excluding Customer Service
+      return (
+        (contact.name.includes("BIZ") || !contact.group) &&
+        contact.name !== "Customer Service"
+      );
+    } else if (contactFilter === "Companies") {
+      // Show only the Companies chat
+      return contact.name === "Companies";
+    }
+
+    // Default: Show all chats
+    return isMatch;
+  });
 
   return (
-      <div className="flex py-2 bg-white h-[80vh] overflow-y-auto">
+    <div className="flex py-2 bg-white h-[80vh] overflow-y-auto">
       <div className="h-full flex flex-col w-full">
         <div className="h-[80vh]  flex flex-1">
           <aside className="w-1/4 bg-white p-4 shadow-lg border-r border-gray-300 h-[80vh] relative">
             <div className="">
-              <h2 className="text-2xl font-semibold mb-4">Chat</h2>
+              <h2 className="text-title font-pregular mb-4">Chat</h2>
               <select
                 className="mt-2 mb-4 w-full p-2 rounded-lg border border-gray-300 bg-gray-50"
                 value={contactFilter}
                 onChange={(e) => setContactFilter(e.target.value)}
               >
-                <option value="All">All</option>
+                <option value="All" className="self-center">
+                  Select Priority
+                </option>
                 <option value="BIZNest">BIZNest</option>
                 <option value="WoNo">WoNo</option>
                 <option value="Companies">Companies</option>
@@ -198,11 +246,80 @@ const Chat = () => {
 
               <input
                 type="search"
-                placeholder="Search"
+                placeholder="Search people & group"
                 className="w-full p-2 mb-4 rounded-lg bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
+
+              {/* tabs for all read and unread msg */}
+              <Box sx={{ bgcolor: "black", borderRadius: "50px", }}>
+                <AppBar position="static">
+                  <Tabs
+                    value={value}
+                    onChange={handleChange}
+                    indicatorColor="secondary"
+                    textColor="inherit"
+                    variant="fullWidth"
+                    aria-label="full width tabs example"
+                    sx={{
+                      backgroundColor: "white",
+                      "& .MuiTabs-indicator": {
+                        display: "none", // Hide the underline
+                      },
+                    }}
+                  >
+                    <Tab
+                      label="All"
+                      {...a11yProps(0)}
+                      sx={{
+                        textTransform: "none",
+                        color: "#1E3D73",
+                        "&.Mui-selected": {
+                          backgroundColor: "#1E3D73",
+                          color: "#ffffff",
+                        },
+                      }}
+                    />
+                    <Tab
+                      label="Read"
+                      {...a11yProps(1)}
+                      sx={{
+                        textTransform: "none",
+                        color: "#1E3D73",
+                        "&.Mui-selected": {
+                          backgroundColor: "#1E3D73",
+                          color: "#ffffff",
+                        },
+                      }}
+                    />
+                    <Tab
+                      label="Unread"
+                      {...a11yProps(2)}
+                      sx={{
+                        textTransform: "none",
+                        color: "#1E3D73",
+                        "&.Mui-selected": {
+                          backgroundColor: "#1E3D73",
+                          color: "#ffffff",
+                        },
+                      }}
+                    />
+                  </Tabs>
+                </AppBar>
+                {/* -----tabs content start--- */}
+                {/* <TabPanel value={value} index={0} dir={theme.direction}>
+                  Item One
+                </TabPanel>
+                <TabPanel value={value} index={1} dir={theme.direction}>
+                  Item Two
+                </TabPanel>
+                <TabPanel value={value} index={2} dir={theme.direction}>
+                  Item Three
+                </TabPanel> */}
+                {/* -----tabs content end----- */}
+              </Box>
+              {/* tabs for all end !! */}
             </div>
             <div className=" h-[50vh] overflow-y-auto">
               <ul className="space-y-2  py-4">
@@ -354,33 +471,33 @@ const Chat = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 const getInitials = (name) => {
-    return name
-      .split(" ")
-      .map((part) => part[0])
-      .join("")
-      .toUpperCase();
-  };
-  
-  const getNodeColor = (name) => {
-    const colors = [
-      "bg-orange-600",
-      "bg-purple-600",
-      "bg-yellow-600",
-      "bg-green-600",
-      "bg-blue-600",
-      "bg-red-600",
-      "bg-teal-600",
-      "bg-pink-600",
-    ];
-    const hash = Array.from(name).reduce(
-      (acc, char) => acc + char.charCodeAt(0),
-      0
-    );
-    return colors[hash % colors.length];
-  };
+  return name
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+};
 
-export default Chat
+const getNodeColor = (name) => {
+  const colors = [
+    "bg-orange-600",
+    "bg-purple-600",
+    "bg-yellow-600",
+    "bg-green-600",
+    "bg-blue-600",
+    "bg-red-600",
+    "bg-teal-600",
+    "bg-pink-600",
+  ];
+  const hash = Array.from(name).reduce(
+    (acc, char) => acc + char.charCodeAt(0),
+    0
+  );
+  return colors[hash % colors.length];
+};
+
+export default Chat;

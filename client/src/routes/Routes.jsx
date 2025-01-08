@@ -6,6 +6,7 @@ import Dashboard from "../pages/Dashboard/Dashboard";
 import Calender from "../pages/Calendar";
 import Access from "../pages/Access";
 import Chat from "../pages/Chat";
+import Profile from "../pages/Profile";
 
 export const routes = createBrowserRouter([
   {
@@ -41,9 +42,13 @@ export const routes = createBrowserRouter([
         element: <Access />,
       },
       {
-        path: "Chat", // Accessible at /reports
+        path: "chat", // Accessible at /reports
         element: <Chat/>,
 
+      },
+      {
+        path:"profile",
+        element:<Profile/>,
       }
     ],
   },
