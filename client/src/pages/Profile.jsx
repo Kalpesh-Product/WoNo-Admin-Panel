@@ -51,8 +51,8 @@ const Profile = () => {
 
   return (
     <div>
-      <Box sx={{ borderRadius: "50px", padding: "10px" }}>
-        <AppBar position="static">
+      <Box sx={{ borderRadius: "50px", padding: "10px", boxShadow:"none" }}>
+        <AppBar position="static" sx={{boxShadow:"none"}}>
           <Tabs
             value={value}
             onChange={handleChange}
@@ -61,11 +61,13 @@ const Profile = () => {
             variant="fullWidth"
             aria-label="full width tabs example"
             sx={{
-            padding:"0px",
+            padding:"0px",height:"20px",
+
               backgroundColor: "white",
               "& .MuiTabs-indicator": {
                 display: "none", // Hide the underline
               },
+              boxShadow:"none"
             }}
           >
             <Tab

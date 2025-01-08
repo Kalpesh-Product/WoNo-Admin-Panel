@@ -253,8 +253,8 @@ const Chat = () => {
               />
 
               {/* tabs for all read and unread msg */}
-              <Box sx={{ bgcolor: "black", borderRadius: "50px", }}>
-                <AppBar position="static">
+              <Box sx={{ bgcolor: "black", borderRadius: "50px" }}>
+                <AppBar position="static" sx={{boxShadow:"none"}}>
                   <Tabs
                     value={value}
                     onChange={handleChange}
@@ -267,6 +267,7 @@ const Chat = () => {
                       "& .MuiTabs-indicator": {
                         display: "none", // Hide the underline
                       },
+                      
                     }}
                   >
                     <Tab
