@@ -5,6 +5,7 @@ import Reports from "../pages/Reports";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import Calender from "../pages/Calendar";
 import Access from "../pages/Access";
+import Chat from "../pages/Chat";
 
 export const routes = createBrowserRouter([
   {
@@ -39,12 +40,19 @@ export const routes = createBrowserRouter([
         path: "access", // Accessible at /reports
         element: <Access />,
       },
+      {
+        path: "Chat", // Accessible at /reports
+        element: <Chat/>,
+
+      }
     ],
   },
+ 
   {
     path:"access",
     element:<Access/>
 
   }
 ]);
+
 
