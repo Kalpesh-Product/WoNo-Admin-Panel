@@ -53,6 +53,10 @@
   .css-6y0rrm-MuiInputBase-input-MuiInput-input {
     padding: 0 !important;
   }
+
+  .css-13mqbm2-MuiButtonBase-root-MuiTab-root.Mui-selected {
+    color: #ffff !important;
+}
  
 
   body {
