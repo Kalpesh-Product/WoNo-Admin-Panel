@@ -34,7 +34,7 @@ const Sidebar = () => {
     { name: "Calendar", icon: <FaRegCalendarAlt />, route: "calendar" },
     { name: "Chat", icon: <HiOutlineChatAlt2 />, route: "chat" },
     { name: "Access", icon: <SiAuthelia />, route: "access" },
-    
+
     {
       name: "Notifications",
       icon: <IoMdNotifications />,
@@ -221,8 +221,10 @@ const Sidebar = () => {
               <div
                 key={index}
                 onClick={() => handleMenuOpen(item)}
-                className={`cursor-pointer hover:text-[#1E3D73] transition-all duration-100 ${
-                  isActive(item.route) ? "text-[#1E3D73] bg-gray-200 rounded-md" : "text-gray-500"
+                className={`cursor-pointer hover:text-primary transition-all duration-100 ${
+                  isActive(item.route)
+                    ? "text-primary bg-gray-200 rounded-md"
+                    : "text-gray-500"
                 } flex ${
                   isSidebarOpen ? "" : "justify-center"
                 } items-center py-0 `}
@@ -246,15 +248,19 @@ const Sidebar = () => {
               onClick={() => {
                 navigate("profile");
               }}
-              className={`flex hover:text-[#1E3D73] transition-all duration-100 text-gray-500 ${
+              className={`flex hover:text-primary transition-all duration-100 text-gray-500 ${
+                isActive('/profile')
+                  ? "text-primary bg-gray-200 rounded-md"
+                  : "text-gray-500"
+              } ${
                 isSidebarOpen ? "pl-[0rem]" : "justify-center"
-              } items-center cursor-pointer  ${
-                location.pathname === "/profile"
-                  ? "wono-blue border-r-4 border-[#0DB4EA] rounded-tl-md rounded-bl-md text-[#0DB4EA]"
-                  : "bg-white"
-              }`}
+              } items-center cursor-pointer `}
             >
-              <div className="flex justify-center w-8 text-sm">
+              <div className={`flex justify-center items-center w-9 h-9 ${
+                    isActive('/profile')
+                      ? "bg-primary text-white rounded-md"
+                      : ""
+                  } text-sm`}>
                 <FaUserTie />
               </div>
               {isSidebarOpen && <span className="pl-5 text-sm">Profile</span>}

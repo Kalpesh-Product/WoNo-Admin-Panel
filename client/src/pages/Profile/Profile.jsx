@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Tabs, Tab, Box } from "@mui/material";
+import { Tabs, Tab } from "@mui/material";
 import MyProfile from "./MyProfile";
-import PrimaryButton from "../../components/PrimaryButton";
-import MyAssets from "./MyAssets";
+import ChangePassword from "./ChangePassword";
+import AccessGrant from "./AccessGrant";
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -30,7 +30,7 @@ const Profile = () => {
           },
           "& .Mui-selected": {
             backgroundColor: "#1E3D73", // Highlight background color for the active tab
-            color: "#ffff",
+            color: "white",
           },
         }}
       >
@@ -44,17 +44,20 @@ const Profile = () => {
 
       <div className="py-4 bg-white">
         {activeTab === 0 && (
-          <div className="h-[65vh] overflow-y-auto">
-            <MyProfile pageTitle={"Profile Settings"}/>
+          <div className="">
+            <MyProfile pageTitle={"Profile settings"}/>
           </div>
         )}
-        {activeTab === 1 && <div>
-          
-          </div>}
-        {activeTab === 2 && <div>Activity Content</div>}
-        {activeTab === 3 && <div className="h-[65vh] overflow-y-auto">
-            <MyAssets />
-          </div>}
+        {activeTab === 1 && (
+          <div>
+            <ChangePassword pageTitle={"Change password"} />
+            </div>
+          )}
+        {activeTab === 2 && (
+          <div>
+            <AccessGrant pageTitle={"Access grant"} />
+          </div>
+          )}
       </div>
     </div>
   );
