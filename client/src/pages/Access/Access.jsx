@@ -1,5 +1,5 @@
 import React from 'react'
-import HierarchyTree from '../components/HierarchyTree'
+import HierarchyTree from '../../components/HierarchyTree'
 
 const Access = () => {
   return (

@@ -2,6 +2,7 @@ import { Avatar } from "@mui/material";
 import React from "react";
 import { Tree, TreeNode } from "react-organizational-chart";
 import { useSidebar } from "../context/SideBarContext";
+import { useLocation, useNavigate } from "react-router-dom";
 
 // Users array with the specified roles and reporting structure
 const users = [
@@ -11,6 +12,10 @@ const users = [
     role: "Master Admin",
     reports: null,
     avatarColor: "#f44336",
+    email: "abrar.shaikh@example.com",
+    userSince: "2020-01-01",
+    status: "Active",
+    department: "Management",
   },
   {
     id: 2,
@@ -18,6 +23,10 @@ const users = [
     role: "Super Admin",
     reports: 1,
     avatarColor: "#2196f3",
+    email: "kashif.shaikh@example.com",
+    userSince: "2020-03-15",
+    status: "Active",
+    department: "Operations",
   },
   {
     id: 3,
@@ -25,6 +34,10 @@ const users = [
     role: "Super Admin",
     reports: 1,
     avatarColor: "#2196f3",
+    email: "farzeen.qudri@example.com",
+    userSince: "2020-05-20",
+    status: "Active",
+    department: "Operations",
   },
   {
     id: 4,
@@ -32,6 +45,10 @@ const users = [
     role: "Admin",
     reports: 2,
     avatarColor: "#4caf50",
+    email: "kalpesh.naik@example.com",
+    userSince: "2021-02-10",
+    status: "Active",
+    department: "Administration",
   },
   {
     id: 5,
@@ -39,6 +56,10 @@ const users = [
     role: "Employee",
     reports: 4,
     avatarColor: "#4caf50",
+    email: "aiwinraj@example.com",
+    userSince: "2022-07-18",
+    status: "Active",
+    department: "Development",
   },
   {
     id: 6,
@@ -46,6 +67,10 @@ const users = [
     role: "Employee",
     reports: 4,
     avatarColor: "#4caf50",
+    email: "sankalp@example.com",
+    userSince: "2022-09-05",
+    status: "Active",
+    department: "Development",
   },
   {
     id: 7,
@@ -53,6 +78,10 @@ const users = [
     role: "Employee",
     reports: 4,
     avatarColor: "#4caf50",
+    email: "allan@example.com",
+    userSince: "2022-10-01",
+    status: "Active",
+    department: "Development",
   },
   {
     id: 8,
@@ -60,6 +89,10 @@ const users = [
     role: "Employee",
     reports: 3,
     avatarColor: "#ff9800",
+    email: "emily.davis@example.com",
+    userSince: "2023-01-15",
+    status: "Active",
+    department: "Design",
   },
   {
     id: 9,
@@ -67,6 +100,10 @@ const users = [
     role: "Employee",
     reports: 3,
     avatarColor: "#9c27b0",
+    email: "chris.johnson@example.com",
+    userSince: "2023-03-20",
+    status: "Active",
+    department: "Support",
   },
   {
     id: 10,
@@ -74,13 +111,21 @@ const users = [
     role: "Employee",
     reports: 3,
     avatarColor: "#9c27b0",
+    email: "chris@example.com",
+    userSince: "2023-04-12",
+    status: "Active",
+    department: "Support",
   },
   {
-    id:11,
+    id: 11,
     name: "Chris Johnson",
     role: "Employee",
     reports: 3,
     avatarColor: "#9c27b0",
+    email: "chris.johnson2@example.com",
+    userSince: "2023-06-25",
+    status: "Active",
+    department: "Support",
   },
 ];
 
@@ -92,7 +137,7 @@ const StyledNode = ({ children }) => {
   );
 };
 
-const renderTreeNodes = (users, parentId) => {
+const renderTreeNodes = (users, parentId, navigate) => {
   return users
     .filter((user) => user.reports === parentId)
     .map((user) => (
@@ -106,25 +151,35 @@ const renderTreeNodes = (users, parentId) => {
                   {user.name.charAt(0)}
                 </Avatar>
               </div>
-              <div className="flex flex-col">
+              <div
+                className="flex flex-col cursor-pointer"
+                onClick={() => navigate(`/user/${user.id}`)} // Example navigation
+              >
                 <span className="text-subtitle font-pmedium">{user.name}</span>
-                <span className="text-content text-gray-400">({user.role})</span>
+                <span className="text-content text-gray-400">
+                  ({user.role})
+                </span>
               </div>
             </div>
           </StyledNode>
         }
       >
-        {renderTreeNodes(users, user.id)}
+        {renderTreeNodes(users, user.id, navigate)}
       </TreeNode>
     ));
 };
 
 const HierarchyTree = () => {
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
+  const navigate = useNavigate(); // Initialize useNavigate once
 
   return (
     <div className="w-full">
-      <div className={`${isSidebarOpen ? 'w-[78vw]' : 'w-[90vw]'} h-[90vh] overflow-y-auto overflow-x-auto`}>
+      <div
+        className={`${
+          isSidebarOpen ? "w-[78vw]" : "w-[90vw]"
+        } h-[90vh] overflow-y-auto overflow-x-auto`}
+      >
         <Tree
           lineWidth={"2px"}
           lineColor={"black"}
@@ -137,15 +192,26 @@ const HierarchyTree = () => {
                     {users[0].name.charAt(0)}
                   </Avatar>
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-subtitle font-pmedium">{users[0].name}</span>
-                  <span className="text-content text-gray-400">({users[0].role})</span>
+                <div
+                  className="flex flex-col cursor-pointer"
+                  onClick={() =>
+                    navigate("/app/access/permissions", {
+                      state: { user: users[0] },
+                    })
+                  }
+                >
+                  <span className="text-subtitle font-pmedium">
+                    {users[0].name}
+                  </span>
+                  <span className="text-content text-gray-400">
+                    ({users[0].role})
+                  </span>
                 </div>
               </div>
             </StyledNode>
           }
         >
-          {renderTreeNodes(users, users[0].id)}
+          {renderTreeNodes(users, users[0].id, navigate)} {/* Pass navigate */}
         </Tree>
       </div>
     </div>

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import TextField from "@mui/material/TextField"; // Assuming you're using Material-UI for TextField
-import Button from "@mui/material/Button";
 import PrimaryButton from "../../components/PrimaryButton";
 
 const ChangePassword = ({ pageTitle }) => {

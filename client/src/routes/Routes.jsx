@@ -4,9 +4,10 @@ import LoginPage from "../pages/LoginPage/LoginPage";
 import Reports from "../pages/Reports";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import Calender from "../pages/Calendar";
-import Access from "../pages/Access";
+import Access from "../pages/Access/Access";
 import Chat from "../pages/Chat";
 import Profile from "../pages/Profile/Profile";
+import AccessProfile from "../pages/Access/AccessProfile";
 
 export const routes = createBrowserRouter([
   {
@@ -30,21 +31,24 @@ export const routes = createBrowserRouter([
         element: <Dashboard />,
       },
       {
-        path: "reports", // Accessible at /reports
+        path: "reports", 
         element: <Reports />,
       },
       {
-        path: "calendar", // Accessible at /reports
+        path: "calendar", 
         element: <Calender />,
       },
       {
-        path: "access", // Accessible at /reports
+        path: "access", 
         element: <Access />,
       },
       {
-        path: "chat", // Accessible at /reports
+        path: "access/permissions", 
+        element: <AccessProfile />,
+      },
+      {
+        path: "chat", 
         element: <Chat/>,
-
       },
       {
         path:"profile",
