@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Tabs, Tab, Box } from "@mui/material";
 import MyProfile from "./MyProfile";
 import PrimaryButton from "../../components/PrimaryButton";
+import MyAssets from "./MyAssets";
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -47,8 +48,13 @@ const Profile = () => {
             <MyProfile pageTitle={"Profile Settings"}/>
           </div>
         )}
-        {activeTab === 1 && <div>Settings Content</div>}
+        {activeTab === 1 && <div>
+          
+          </div>}
         {activeTab === 2 && <div>Activity Content</div>}
+        {activeTab === 3 && <div className="h-[65vh] overflow-y-auto">
+            <MyAssets />
+          </div>}
       </div>
     </div>
   );
