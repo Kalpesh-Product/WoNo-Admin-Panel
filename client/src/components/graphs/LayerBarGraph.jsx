@@ -1,7 +1,7 @@
 import React from 'react';
 import Chart from 'react-apexcharts';
 
-const LayerBarGraph = () => {
+const LayerBarGraph = ({title}) => {
   const options = {
     chart: {
       type: 'bar',
@@ -85,8 +85,13 @@ const LayerBarGraph = () => {
   ];
 
   return (
-    <div className='bg-white shadow-md p-2 rounded-md'>
+    <div className='bg-white shadow-md  rounded-md'>
+      <div className='border-b-2 p-4 border-gray-200'>
+        <span className='text-lg'>{title}</span>
+      </div>
+    <div className=''>
       <Chart options={options} series={series} type="bar" height={350} />
+    </div>
     </div>
   );
 };
