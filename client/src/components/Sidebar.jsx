@@ -89,7 +89,7 @@ const Sidebar = () => {
         isSidebarOpen && "shadow-md"
       }`}
     >
-      <div
+      {/* <div
         className={`w-full  border-gray-200 mb-1 flex ${
           isSidebarOpen ? "justify-between px-3 py-3" : "justify-center py-3"
         } transition-all duration-100 items-center`}
@@ -107,7 +107,7 @@ const Sidebar = () => {
             {isSidebarOpen ? <GiHamburgerMenu /> : <IoIosArrowForward />}
           </button>
         </div>
-      </div>
+      </div> */}
 
       <div
         className={`${
