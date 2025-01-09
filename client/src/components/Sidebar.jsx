@@ -90,7 +90,7 @@ const Sidebar = () => {
       }`}
     >
       <div
-        className={`w-full border-b-2 border-gray-200 mb-1 flex ${
+        className={`w-full  border-gray-200 mb-1 flex ${
           isSidebarOpen ? "justify-between px-3 py-3" : "justify-center py-3"
         } transition-all duration-100 items-center`}
       >
@@ -100,14 +100,13 @@ const Sidebar = () => {
             src={biznestLogo}
             alt="logo"
           />
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="p-2 text-gray-500 text-xl"
+          >
+            {isSidebarOpen ? <GiHamburgerMenu /> : <IoIosArrowForward />}
+          </button>
         </div>
-
-        <button
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="p-2 text-gray-500 text-xl"
-        >
-          {isSidebarOpen ? <GiHamburgerMenu /> : <IoIosArrowForward />}
-        </button>
       </div>
 
       <div
@@ -249,18 +248,18 @@ const Sidebar = () => {
                 navigate("profile");
               }}
               className={`flex hover:text-primary transition-all duration-100 text-gray-500 ${
-                isActive('/profile')
+                isActive("/profile")
                   ? "text-primary bg-gray-200 rounded-md"
                   : "text-gray-500"
               } ${
                 isSidebarOpen ? "pl-[0rem]" : "justify-center"
               } items-center cursor-pointer `}
             >
-              <div className={`flex justify-center items-center w-9 h-9 ${
-                    isActive('/profile')
-                      ? "bg-primary text-white rounded-md"
-                      : ""
-                  } text-sm`}>
+              <div
+                className={`flex justify-center items-center w-9 h-9 ${
+                  isActive("/profile") ? "bg-primary text-white rounded-md" : ""
+                } text-sm`}
+              >
                 <FaUserTie />
               </div>
               {isSidebarOpen && <span className="pl-5 text-sm">Profile</span>}
