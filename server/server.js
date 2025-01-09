@@ -25,7 +25,8 @@ const moduleRoutes = require("./routes/moduleRoutes");
 const subModuleRoutes = require("./routes/subModuleRoutes");
 const roleRoutes = require("./routes/roleRoutes");
 const eventRoutes = require("./routes/eventsRoutes");
-const taskRoutes = require("./routes/tasksRoutes");const checkScope = require("./middlewares/checkScope");
+const taskRoutes = require("./routes/tasksRoutes");
+const checkScope = require("./middlewares/checkScope");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -72,8 +73,8 @@ app.get(
   "/api/protected",
   verifyJwt,
   checkScope({
-    module: "Ticket Management", 
-    permissions: ["write"], 
+    module: "Ticket Management",
+    permissions: ["write"],
   }),
   (req, res) => {
     res.json({ message: "This is protected route" });

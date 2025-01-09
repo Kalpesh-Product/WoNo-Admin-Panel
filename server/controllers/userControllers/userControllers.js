@@ -157,4 +157,59 @@ const fetchUser = async (req, res) => {
   }
 };
 
-module.exports = { createUser, fetchUser };
+const fetchSingleUser = async (req, res) => {
+  try {
+    const { id } = req.params; // Extract user ID from request parameters
+    const user = await User.findById(id)
+      .select("-password") // Exclude the password field
+      .populate("reportsTo", "name email")
+      .populate("department", "name")
+      .populate("company", "name")
+      .populate("role", "roleTitle modulePermissions");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "User data fetched",
+      user,
+    });
+  } catch (error) {
+    console.error("Error fetching user by ID: ", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const updateSingleUser = async (req, res) => {
+  try {
+    const { id } = req.params; // Extract user ID from request parameters
+    const updateData = req.body; // Data to update comes from the request body
+
+    // Perform the update operation
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { $set: updateData }, // Use `$set` to update specific fields
+      { new: true, runValidators: true } // Return the updated document and enforce validation
+    )
+      .select("-password") // Exclude the password field
+      .populate("reportsTo", "name email")
+      .populate("department", "name")
+      .populate("company", "name")
+      .populate("role", "roleTitle modulePermissions");
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "User data updated successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Error updating user: ", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = { createUser, fetchUser, fetchSingleUser, updateSingleUser };
