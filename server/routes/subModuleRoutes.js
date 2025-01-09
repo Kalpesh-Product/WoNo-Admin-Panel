@@ -1,8 +1,8 @@
 const router = require("express").Router();
 const {
-    addSubModule
+  addSubModule,
 } = require("../controllers/subModulesControllers/subModuleControllers");
 
-router.post("/add-sub-module", addSubModule)
+router.post("/add-sub-module", addSubModule);
 
 module.exports = router;

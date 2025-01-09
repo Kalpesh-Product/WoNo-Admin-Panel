@@ -10,20 +10,17 @@ const createEvent = async (req, res, next) => {
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
       return res.status(400).json({ message: "Invalid date format" });
     }
-    
 
     const validParticipants = Array.isArray(participants) ? participants : [];
 
-    
     const newEvent = new Event({
-        title,
-        type,
-        description,
-        start: startDate,
-        end: endDate,
-        participants: validParticipants,
-      });
-     
+      title,
+      type,
+      description,
+      start: startDate,
+      end: endDate,
+      participants: validParticipants,
+    });
 
     if (!title || !type || !description || !start || !end) {
       return res.status(400).json({ message: "All fields are required" });
@@ -77,6 +74,7 @@ const getNormalEvents = async (req, res, next) => {
     next(error);
   }
 };
+
 const getHolidays = async (req, res, next) => {
   try {
     const normalEvents = await Event.find();

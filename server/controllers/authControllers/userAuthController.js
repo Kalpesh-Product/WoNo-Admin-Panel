@@ -134,4 +134,67 @@ const logOut = async (req, res, next) => {
   }
 };
 
-module.exports = { login, logOut };
+const checkPassword = async (req, res) => {
+  try {
+    const { id } = req.body; // Extract user ID from request parameters
+    const { currentPassword } = req.body; // Extract current password from the request body
+
+    console.log(id);
+    console.log(currentPassword);
+
+    // Find the user by ID
+    const user = await User.findById(id);
+    // console.log(user);
+
+    if (!user) {
+      // console.log(user);
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if the provided password matches the user's stored password
+    if (user.password !== currentPassword) {
+      return res.status(401).json({ message: "Incorrect password" });
+    }
+
+    res.status(200).json({
+      message: "Password matches",
+    });
+  } catch (error) {
+    console.error("Error checking password: ", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const updatePassword = async (req, res) => {
+  try {
+    const { id } = req.body; // Extract user ID from request parameters
+    const { newPassword, confirmPassword } = req.body; // Extract new password and confirm password from the request body
+
+    // Check if newPassword and confirmPassword match
+    if (newPassword !== confirmPassword) {
+      return res
+        .status(400)
+        .json({ message: "New password and confirm password do not match" });
+    }
+
+    // Find the user by ID and update the password
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { $set: { password: newPassword } }, // Update the password field
+      { new: true, runValidators: true } // Return the updated document and enforce validation
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "Password updated successfully",
+    });
+  } catch (error) {
+    console.error("Error updating password: ", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = { login, logOut, checkPassword, updatePassword };
