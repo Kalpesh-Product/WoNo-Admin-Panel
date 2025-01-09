@@ -89,25 +89,7 @@ const Sidebar = () => {
         isSidebarOpen && "shadow-md"
       }`}
     >
-      {/* <div
-        className={`w-full  border-gray-200 mb-1 flex ${
-          isSidebarOpen ? "justify-between px-3 py-3" : "justify-center py-3"
-        } transition-all duration-100 items-center`}
-      >
-        <div className={`${isSidebarOpen ? "w-32" : "hidden"}  h-full`}>
-          <img
-            className="w-full h-full object-contain"
-            src={biznestLogo}
-            alt="logo"
-          />
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 text-gray-500 text-xl"
-          >
-            {isSidebarOpen ? <GiHamburgerMenu /> : <IoIosArrowForward />}
-          </button>
-        </div>
-      </div> */}
+
 
       <div
         className={`${
