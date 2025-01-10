@@ -12,7 +12,7 @@ const theme = createTheme({
       "Helvetica Neue",
       "Arial",
       "sans-serif",
-    ].join(","),
+    ].join(","), // Joins the array into a comma-separated string
   },
 });
 

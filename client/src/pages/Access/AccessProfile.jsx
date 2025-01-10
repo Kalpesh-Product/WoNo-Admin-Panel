@@ -16,8 +16,6 @@ const AccessProfile = () => {
     { name: "Finance", icon: "👤" },
   ];
 
-  
-
   const HrModules = {
     attendance: [
       { name: "Clock In / Clock Out", read: false, write: false },
@@ -53,14 +51,14 @@ const AccessProfile = () => {
 
   const [permissions, setPermissions] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
-  const [depModules, setDepModules] = useState([])
+  const [depModules, setDepModules] = useState([]);
 
   const handleSelectedCard = (department) => {
     setSelectedCard(department);
     const modules = moduleMapping[department];
     const modulesArray = Object.values(modules);
     setDepModules(modulesArray);
-    console.log(depModules)
+    console.log(depModules);
 
     // Initialize selectAll state for each module array
     const initialSelectAllState = modulesArray.map(() => false);
@@ -92,7 +90,6 @@ const AccessProfile = () => {
       )
     );
   };
-
 
   if (!user) {
     return <div>No user data available</div>;
@@ -166,27 +163,30 @@ const AccessProfile = () => {
       </div>
 
       <div>
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-subtitle font-pregular">Role Permissions</span>
-          <PrimaryButton title={"Edit"} />
-        </div>
-
         {selectedCard && (
-        <WidgetSection layout={depModules.length}>
-          {depModules.map((module, index) => (
-            <AccessGrantTable
-              key={index}
-              title={`Module ${index + 1}`}
-              permissions={module}
-              selectAll={selectAll[index]}
-              handleSelectAll={(checked) => handleSelectAll(checked, index)}
-              handlePermissionChange={(permIndex, field, checked) =>
-                handlePermissionChange(index, permIndex, field, checked)
-              }
-            />
-          ))}
-        </WidgetSection>
-      )}
+          <>
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-subtitle font-pregular">
+                Role Permissions
+              </span>
+              <PrimaryButton title={"Edit"} />
+            </div>
+            <WidgetSection layout={depModules.length}>
+              {depModules.map((module, index) => (
+                <AccessGrantTable
+                  key={index}
+                  title={`Module ${index + 1}`}
+                  permissions={module}
+                  selectAll={selectAll[index]}
+                  handleSelectAll={(checked) => handleSelectAll(checked, index)}
+                  handlePermissionChange={(permIndex, field, checked) =>
+                    handlePermissionChange(index, permIndex, field, checked)
+                  }
+                />
+              ))}
+            </WidgetSection>
+          </>
+        )}
       </div>
     </div>
   );
