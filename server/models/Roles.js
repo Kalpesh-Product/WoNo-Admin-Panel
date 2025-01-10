@@ -27,7 +27,6 @@ const roleSchema = new mongoose.Schema({
           subModule: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "SubModule",
-            required: true,
           },
           permissions: {
             read: {

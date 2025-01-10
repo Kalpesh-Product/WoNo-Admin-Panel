@@ -134,4 +134,62 @@ const logOut = async (req, res, next) => {
   }
 };
 
-module.exports = { login, logOut };
+const checkPassword = async (req, res, next) => {
+  try {
+    const { id, currentPassword } = req.body;
+
+    // Find the user by ID
+    const user = await User.findById(id).lean().exec();
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if the provided password matches the user's stored password
+    if (user.password !== currentPassword) {
+      return res.status(401).json({ message: "Incorrect password" });
+    }
+
+    res.status(200).json({
+      message: "Password matches",
+    });
+  } catch (error) {
+    console.error("Error checking password: ", error);
+    next(error);
+  }
+};
+
+const updatePassword = async (req, res, next) => {
+  try {
+    const { id, newPassword, confirmPassword } = req.body;
+
+    // Check if newPassword and confirmPassword match
+    if (newPassword !== confirmPassword) {
+      return res
+        .status(400)
+        .json({ message: "New password and confirm password do not match" });
+    }
+
+    // Find the user by ID and update the password
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { $set: { password: newPassword } }, // Update the password field
+      { new: true, runValidators: true } // Return the updated document and enforce validation
+    )
+      .lean()
+      .exec();
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "Password updated successfully",
+    });
+  } catch (error) {
+    console.error("Error updating password: ", error);
+    next(error);
+  }
+};
+
+module.exports = { login, logOut, checkPassword, updatePassword };

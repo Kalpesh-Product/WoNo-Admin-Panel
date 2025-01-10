@@ -14,20 +14,17 @@ const createEvent = async (req, res, next) => {
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
       return res.status(400).json({ message: "Invalid date format" });
     }
-    
 
     const validParticipants = Array.isArray(participants) ? participants : [];
 
-    
     const newEvent = new Event({
-        title,
-        type,
-        description,
-        start: startDate,
-        end: endDate,
-        participants: validParticipants,
-      });
-     
+      title,
+      type,
+      description,
+      start: startDate,
+      end: endDate,
+      participants: validParticipants,
+    });
 
     const event = await newEvent.save();
     res.status(201).json({ event });
