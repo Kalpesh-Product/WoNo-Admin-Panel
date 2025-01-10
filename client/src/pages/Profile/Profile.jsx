@@ -3,6 +3,8 @@ import { Tabs, Tab } from "@mui/material";
 import MyProfile from "./MyProfile";
 import ChangePassword from "./ChangePassword";
 import AccessGrant from "./AccessGrant";
+import MyAssets from "./MyAssets";
+import TicketsHistory from "./TicketsHistory";
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -56,6 +58,16 @@ const Profile = () => {
         {activeTab === 2 && (
           <div>
             <AccessGrant pageTitle={"Access grant"} />
+          </div>
+          )}
+           {activeTab === 3 && (
+          <div>
+            <MyAssets page />
+          </div>
+          )}
+          {activeTab === 5 && (
+          <div>
+            <TicketsHistory  />
           </div>
           )}
       </div>

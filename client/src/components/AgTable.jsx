@@ -1,5 +1,6 @@
 import React from 'react'
 import { AgGridReact } from "ag-grid-react";
+import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 
@@ -46,8 +47,10 @@ const AgTable = React.memo(
       return (
         <div
           className="ag-theme-quartz border-none w-full"
-          style={{ width: "100%",height:500,overflowY:'auto', fontFamily: "Popins-Regular" }}>
+          style={{ width: "100%",height:500,overflowY:'auto', fontFamily: "Popins-Regular" }}
+          >
           <AgGridReact
+            style={{ width: '100%', height: '100%' }}
             rowData={data}
             columnDefs={columns}
             defaultColDef={defaultColDef}
@@ -56,7 +59,6 @@ const AgTable = React.memo(
             domLayout="normal"
             rowHeight={50} // Increased row height for better spacing
             getRowStyle={getRowStyle}
-            // rowStyle={rowStyle}
           />
         </div>
         
