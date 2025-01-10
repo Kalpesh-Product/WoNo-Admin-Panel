@@ -1,27 +1,23 @@
 import React, { useState } from "react";
-import { FaAngleDown, FaChevronUp, FaUsers } from "react-icons/fa6";
-import { FaProjectDiagram, FaRegCalendarAlt, FaTasks } from "react-icons/fa";
+import { FaAngleDown, FaChevronUp } from "react-icons/fa6";
+import { FaRegCalendarAlt, FaTasks } from "react-icons/fa";
 import { TbReportSearch } from "react-icons/tb";
-import { IoIosArrowForward, IoMdNotifications } from "react-icons/io";
+import { IoMdNotifications } from "react-icons/io";
 import { SiAuthelia } from "react-icons/si";
-import { CgProfile } from "react-icons/cg";
 import { HiOutlineChatAlt2 } from "react-icons/hi";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSidebar } from "../context/SideBarContext";
-import { GiHamburgerMenu } from "react-icons/gi";
-import biznestLogo from "../assets/biznest/biznest_logo.jpg";
 import { MdHome } from "react-icons/md";
 import { CgWebsite } from "react-icons/cg";
 import { RiAdminFill } from "react-icons/ri";
 import { TbCashRegister } from "react-icons/tb";
 import { FaUserTie } from "react-icons/fa6";
-import { TbAccessible } from "react-icons/tb";
 
 const Sidebar = () => {
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
   const navigate = useNavigate();
   const location = useLocation();
-  const [expandedModule, setExpandedModule] = useState(null);
+  const [expandedModule, setExpandedModule] = useState(0);
 
   // Menu items array (without DASHBOARD)
   const menuItems = [
@@ -89,8 +85,6 @@ const Sidebar = () => {
         isSidebarOpen && "shadow-md"
       }`}
     >
-
-
       <div
         className={`${
           isSidebarOpen ? "w-60" : "w-16"
