@@ -134,20 +134,14 @@ const logOut = async (req, res, next) => {
   }
 };
 
-const checkPassword = async (req, res) => {
+const checkPassword = async (req, res, next) => {
   try {
-    const { id } = req.body; // Extract user ID from request parameters
-    const { currentPassword } = req.body; // Extract current password from the request body
-
-    console.log(id);
-    console.log(currentPassword);
+    const { id, currentPassword } = req.body;
 
     // Find the user by ID
-    const user = await User.findById(id);
-    // console.log(user);
+    const user = await User.findById(id).lean().exec();
 
     if (!user) {
-      // console.log(user);
       return res.status(404).json({ message: "User not found" });
     }
 
@@ -161,14 +155,13 @@ const checkPassword = async (req, res) => {
     });
   } catch (error) {
     console.error("Error checking password: ", error);
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 };
 
-const updatePassword = async (req, res) => {
+const updatePassword = async (req, res, next) => {
   try {
-    const { id } = req.body; // Extract user ID from request parameters
-    const { newPassword, confirmPassword } = req.body; // Extract new password and confirm password from the request body
+    const { id, newPassword, confirmPassword } = req.body;
 
     // Check if newPassword and confirmPassword match
     if (newPassword !== confirmPassword) {
@@ -182,7 +175,9 @@ const updatePassword = async (req, res) => {
       id,
       { $set: { password: newPassword } }, // Update the password field
       { new: true, runValidators: true } // Return the updated document and enforce validation
-    );
+    )
+      .lean()
+      .exec();
 
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
@@ -193,7 +188,7 @@ const updatePassword = async (req, res) => {
     });
   } catch (error) {
     console.error("Error updating password: ", error);
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 };
 

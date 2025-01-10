@@ -165,7 +165,9 @@ const fetchSingleUser = async (req, res) => {
       .populate("reportsTo", "name email")
       .populate("department", "name")
       .populate("company", "name")
-      .populate("role", "roleTitle modulePermissions");
+      .populate("role", "roleTitle modulePermissions")
+      .lean()
+      .exec();
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
