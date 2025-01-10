@@ -4,12 +4,12 @@ const mongoose = require("mongoose");
 
 const grantAccess = async (req, res, next) => {
   try {
-    const { user } = req; // Current user from middleware
-    const { id } = req.params; // Target user ID
-    const { moduleId, permissions, subModules } = req.body; // Module and permissions to grant
+    const { user } = req;
+    const { id } = req.params;
+    const { moduleId, permissions, subModules } = req.body;
 
     if (!user) {
-      return res.sendStatus(401); // Unauthorized
+      return res.sendStatus(401);
     }
 
     if (
@@ -20,14 +20,14 @@ const grantAccess = async (req, res, next) => {
     }
 
     // Find the target user by ID
-    const targetUser = await User.findById(id).populate("role");
+    const targetUser = await User.findById(id).populate("role").lean().exec();
 
     if (!targetUser) {
       return res.status(404).json({ message: "User not found" });
     }
 
     // Check if the role exists
-    const role = await Role.findById(targetUser.role);
+    const role = await Roles.findById(targetUser.role._id).lean().exec();
     if (!role) {
       return res.status(404).json({ message: "Role not found" });
     }
