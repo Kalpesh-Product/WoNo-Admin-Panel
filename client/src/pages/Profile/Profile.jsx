@@ -4,6 +4,7 @@ import MyProfile from "./MyProfile";
 import ChangePassword from "./ChangePassword";
 import AccessGrant from "./AccessGrant";
 import MyAssets from "./MyAssets";
+import MeetingRoomCredits from "./MeetingRoomCredits";
 import TicketsHistory from "./TicketsHistory";
 
 const Profile = () => {
@@ -62,12 +63,17 @@ const Profile = () => {
           )}
            {activeTab === 3 && (
           <div>
-            <MyAssets page />
+            <MyAssets pageTitle={'My Assets'} />
+          </div>
+          )}
+          {activeTab === 4 && (
+          <div>
+            <MeetingRoomCredits pageTitle={'Meeting Room Credits'} />
           </div>
           )}
           {activeTab === 5 && (
           <div>
-            <TicketsHistory  />
+            <TicketsHistory pageTitle={'Tickets History'} />
           </div>
           )}
       </div>

@@ -1,19 +1,40 @@
 import React from "react";
 import AgTable from "../../components/AgTable";
 
-const TicketsHistory = () => {
+const TicketsHistory = ({ pageTitle }) => {
   const laptopColumns = [
-    { field: "id", headerName: "ID", flex: 1 },
-    { field: "department", headerName: "Department", flex: 1 },
-    { field: "assetNumber", headerName: "Asset Number", flex: 1 },
-    { field: "category", headerName: "Category", flex: 1 },
+    { field: "id", headerName: "ID"},
+    { field: "department", headerName: "Department" },
+    { field: "assetNumber", headerName: "Asset Number" },
+    { field: "category", headerName: "Category"},
 
-    { field: "brandName", headerName: "Brand", flex: 1 },
-    { field: "price", headerName: "Price", flex: 1 },
-    { field: "quantity", headerName: "Quantity", flex: 1 },
+    { field: "brandName", headerName: "Brand" },
+    { field: "price", headerName: "Price" },
+    { field: "quantity", headerName: "Quantity"},
 
-    { field: "purchaseDate", headerName: "Purchase Date", flex: 1 },
-    { field: "warranty", headerName: "Warranty (Months)", flex: 1 },
+    { field: "purchaseDate", headerName: "Purchase Date" },
+    { field: "warranty", headerName: "Warranty (Months)" },
+    {
+        field: "priority",
+        headerName: "Priority",
+        width: 190,
+        type: "singleSelect",
+        valueOptions: ["High", "Medium", "Low"],
+        cellRenderer: (params) => {
+          const statusColors = {
+            Medium: "text-blue-600 bg-blue-100",
+            High: "text-red-600 bg-red-100",
+            Low: "text-yellow-600 bg-yellow-100",
+          };
+          const statusClass = statusColors[params.value] || "";
+          return (
+            <span
+              className={`px-3 py-1 rounded-full text-sm font-medium ${statusClass}`}>
+              {params.value}
+            </span>
+          );
+        },
+      },
   ];
   const rows = [
     {
@@ -26,9 +47,10 @@ const TicketsHistory = () => {
       quantity: "12",
       purchaseDate: "24/03/200",
       warranty: "2",
+      priority:"High"
     },
     {
-      id: "1",
+      id: "2",
       department: "IT",
       assetNumber: "1203",
       category: "XYZ",
@@ -37,9 +59,10 @@ const TicketsHistory = () => {
       quantity: "12",
       purchaseDate: "24/03/200",
       warranty: "2",
+       priority:"Medium"
     },
     {
-      id: "1",
+      id: "3",
       department: "IT",
       assetNumber: "1203",
       category: "XYZ",
@@ -48,12 +71,18 @@ const TicketsHistory = () => {
       quantity: "12",
       purchaseDate: "24/03/200",
       warranty: "2",
+      priority:"Low"
     },
   ];
   return (
-    <div className="p-2 w-full">
-      <AgTable data={rows} columns={laptopColumns} paginationPageSize={10} />
-    </div>
+    <>
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-title font-pmedium">{pageTitle}</span>
+      </div>
+      <div className=" w-full">
+        <AgTable data={rows} columns={laptopColumns} paginationPageSize={10} />
+      </div>
+    </>
   );
 };
 
