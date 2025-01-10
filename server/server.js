@@ -25,7 +25,8 @@ const moduleRoutes = require("./routes/moduleRoutes");
 const subModuleRoutes = require("./routes/subModuleRoutes");
 const roleRoutes = require("./routes/roleRoutes");
 const eventRoutes = require("./routes/eventsRoutes");
-const taskRoutes = require("./routes/tasksRoutes");const checkScope = require("./middlewares/checkScope");
+const taskRoutes = require("./routes/tasksRoutes");
+const checkScope = require("./middlewares/checkScope");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
