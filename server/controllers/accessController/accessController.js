@@ -27,7 +27,7 @@ const grantAccess = async (req, res, next) => {
     }
 
     // Check if the role exists
-    const role = await Roles.findById(targetUser.role._id).lean().exec();
+    const role = await Roles.findById(targetUser.role._id).exec();
     if (!role) {
       return res.status(404).json({ message: "Role not found" });
     }

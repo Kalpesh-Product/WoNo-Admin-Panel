@@ -26,6 +26,7 @@ const subModuleRoutes = require("./routes/subModuleRoutes");
 const roleRoutes = require("./routes/roleRoutes");
 const eventRoutes = require("./routes/eventsRoutes");
 const taskRoutes = require("./routes/tasksRoutes");
+const accessRoutes = require("./routes/accessRoutes");
 const checkScope = require("./middlewares/checkScope");
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -76,7 +77,7 @@ app.get(
     module: "Asset Management",
     subModule: "Manage Asset",
     permissions: ["write"],
-  }),
+  }), 
   (req, res) => {
     res.json({ message: "This is protected route" });
   }
