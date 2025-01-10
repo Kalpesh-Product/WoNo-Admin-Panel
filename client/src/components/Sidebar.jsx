@@ -22,6 +22,11 @@ const Sidebar = () => {
   // Menu items array (without DASHBOARD)
   const menuItems = [
     {
+      name: "Tickets",
+      icon: <TbReportSearch />,
+      route: "tickets",
+    },
+    {
       name: "Reports",
       icon: <TbReportSearch />,
       route: "/reports",
@@ -34,7 +39,7 @@ const Sidebar = () => {
     {
       name: "Notifications",
       icon: <IoMdNotifications />,
-      route: "/notifications",
+      route: "notifications",
     },
     // { name: "Profile", icon: <CgProfile />, route: "/profile" },
   ];

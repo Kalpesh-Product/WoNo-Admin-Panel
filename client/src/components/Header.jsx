@@ -8,6 +8,7 @@ import { MdOutlineMailOutline } from "react-icons/md";
 import { useSidebar } from "../context/SideBarContext";
 import biznestLogo from "../assets/biznest/biznest_logo.jpg";
 import { GiHamburgerMenu } from "react-icons/gi";
+import Abrar from '../assets/abrar.jpeg'
 
 const Header = () => {
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
@@ -59,10 +60,10 @@ const Header = () => {
           </button>
         </div>
         <div className="flex items-center gap-4 w-[40%]">
-          <Avatar>N</Avatar>
+          <Avatar><img src={Abrar} alt="" /></Avatar>
           <div className="w-full">
-            <h1 className="text-xl font-semibold">Alex</h1>
-            <h2 className="text-md">Super Admin</h2>
+            <h1 className="text-xl font-semibold">Abrar Shaikh</h1>
+            <span className="text-content">Master Admin</span>
           </div>
         </div>
       </div>

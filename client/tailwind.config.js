@@ -11,6 +11,7 @@ module.exports = {
       },
       colors: {
         primary: '#1E3D73',
+        borderGray: '#d1d5db'
       },
       fontSize: {
         title: '1.5rem', // Equivalent to text-2xl
@@ -19,6 +20,9 @@ module.exports = {
         content: '0.875rem', // Equivalent to text-sm
         small : '0.7rem'
       },
+      borderWidth:{
+        default:'2px'
+      }
     },
   },
   plugins: [],

@@ -12,8 +12,12 @@ const WidgetSection = ({ layout = 1, children }) => {
   };
 
   return (
-    <div className={`w-full grid gap-4 py-4 ${gridClasses[layout]}`}>
-      {children}
+    <div className={`w-full grid gap-4 pb-4 ${gridClasses[layout]}`}>
+      {React.Children.map(children, (child) => (
+        <div>
+          {child}
+        </div>
+      ))}
     </div>
   );
 };
