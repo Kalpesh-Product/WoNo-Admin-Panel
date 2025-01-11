@@ -1,12 +1,12 @@
 import React from "react";
 import ReactApexChart from "react-apexcharts";
 
-const DonutChart = ({centerLabel}) => {
+const DonutChart = ({ centerLabel, labels, colors, series, title }) => {
   // Example data
   const chartData = {
-    series: [40, 30, 30], // High, Medium, Low percentages
-    labels: ["High", "Medium", "Low"],
-    colors: ["#ff4d4d", "#ffc107", "#28a745"], // Red, Yellow, Green
+    series: series, // High, Medium, Low percentages
+    labels: labels,
+    colors: colors, // Red, Yellow, Green
   };
 
   const chartOptions = {
@@ -47,8 +47,12 @@ const DonutChart = ({centerLabel}) => {
   };
 
   return (
-    <div className="border-borderGray border-default p-4 rounded-md">
-      <span className="text-subtitle mb-4">Priority Overview</span>
+    <div className="border-borderGray border-default py-4 rounded-md">
+      <div className="border-b-default border-borderGray pb-4 px-4">
+        <span className="text-subtitle">
+          {title}
+        </span>
+      </div>
       <ReactApexChart
         options={chartOptions}
         series={chartData.series}

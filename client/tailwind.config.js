@@ -8,6 +8,7 @@ module.exports = {
       fontFamily: {
         pregular: ['Poppins-Regular', 'sans-serif'],
         pmedium: ['Poppins-SemiBold', 'serif'],
+        pbold: ['Poppins-Bold', 'serif'],
       },
       colors: {
         primary: '#1E3D73',

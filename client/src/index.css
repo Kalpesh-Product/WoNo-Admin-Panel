@@ -94,3 +94,7 @@
   src: url("../src/assets/WONO_images/img/font/Poppins-SemiBold.ttf");
   font-weight: 600;
 }
+@font-face {
+  font-family: Poppins-Bold;
+  src: url("../src/assets/WONO_images/img/font/Poppins-Bold.ttf");
+}

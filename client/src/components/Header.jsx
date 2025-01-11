@@ -32,7 +32,7 @@ const Header = () => {
             </div>
           </div>
         </div>
-        <div className="w-full flex items-center pl-6">
+        <div className="w-full flex items-center pl-20">
           <TextField
             fullWidth
             size="small"
