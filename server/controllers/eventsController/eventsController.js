@@ -35,7 +35,7 @@ const createEvent = async (req, res, next) => {
 
 const getAllEvents = async (req, res, next) => {
   try {
-    // Fetch all events from the database
+    
     const events = await Event.find();
 
     if (!events || events.length === 0) {
@@ -116,7 +116,7 @@ const  extendEvent = async (req,res,next) => {
     return res.status(400).json({ message: "Cannot extend the  meeting" });
   }
   
-  const extendedMeeting = await Event.findOneAndUpdate({_id:id},{end:extendTime},{new:true})
+ await Event.findOneAndUpdate({_id:id},{end:extendTime},{new:true})
 
   return res.status(200).json({ message: "Meeting time extended" });
 
@@ -136,18 +136,15 @@ const deleteEvent = async (req,res,next) => {
   }
 
   try{
-     const inActiveEvent = await Event.findOneAndUpdate({_id:id},{active:false},{new:true});
+  await Event.findOneAndUpdate({_id:id},{active:false},{new:true});
   
-    res.status(200).json({message:"Event deleted successfully",data:inActiveEvent});
+    res.status(200).json({message:"Event deleted successfully"});
     
   }
   catch(error){
-    console.log('error:',error)
     next(error)
   }
 };
-
-
 
 
 module.exports = { createEvent, getAllEvents, getNormalEvents, getHolidays,extendEvent,deleteEvent };
