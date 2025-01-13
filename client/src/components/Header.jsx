@@ -15,7 +15,7 @@ const Header = () => {
   return (
     <>
       <div className="flex w-full justify-between gap-x-10 items-center p-2">
-        <div>
+        {/* <div>
           <div>
             <div className={`w-40 flex items-center gap-10 h-full pl-4`}>
               <img
@@ -30,7 +30,7 @@ const Header = () => {
               </button>
             </div>
           </div>
-        </div>
+        </div> */}
         <div className="w-full flex items-center pl-20">
           <TextField
             fullWidth
