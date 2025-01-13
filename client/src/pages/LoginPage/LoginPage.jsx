@@ -1,6 +1,10 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Container, Box, Grid, TextField } from "@mui/material";
+import { toast } from "sonner";
+import useRefresh from "../../hooks/useRefresh";
+import { api } from "../../utils/axios";
+import useAuth from "../../hooks/useAuth";
 import "./ClientLogin.css";
 import "./ClientSpecialClasses.css";
 import LoginWithGoogleImage from "../../assets/WONO_images/img/login_images/google-icon2.png";
@@ -8,50 +12,47 @@ import LoginWithFacebookImage from "../../assets/WONO_images/img/login_images/lo
 import LoginWithEmailImage from "../../assets/WONO_images/img/login_images/email-icon.png";
 import WonoLogo from "../../assets/WONO_images/img/WONO_LOGO_white_TP.png";
 import Footer from "../../components/Footer";
-// import useAuth from "../hooks/useAuth";
-// import useRefresh from "../hooks/useRefresh";
-// import { api } from "../utils/axios";
-// import { toast } from "sonner";
+
 
 const LoginPage = () => {
-  // const { auth, setAuth } = useAuth();
+  const { auth, setAuth } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // const refresh = useRefresh();
+  const refresh = useRefresh();
 
-  // useEffect(() => {
-  //   if (auth.accessToken.length) {
-  //     navigate("/");
-  //   } else {
-  //     refresh();
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (auth.accessToken.length) {
+      navigate('/app/frontend-dashboard')
+    } else {
+      refresh();
+    }
+  }, []);
 
   // Validation function
   const handleLogin = async (e) => {
     e.preventDefault();
-    // try {
-    //   const response = await api.post(
-    //     "/api/auth/login",
-    //     { email, password },
-    //     {
-    //       withCredentials: true,
-    //     }
-    //   );
-    //   setAuth((prevState) => {
-    //     return {
-    //       ...prevState,
-    //       accessToken: response.data.accessToken,
-    //       user: response.data.user,
-    //     };
-    //   });
-    //   toast.success("Successfully logged in");
-    //   navigate("/");
-    // } catch (error) {
-    //   toast.error(error.message);
-    // }
-    navigate('/app/frontend-dashboard')
+    try {
+      const response = await api.post(
+        "/api/auth/login",
+        { email, password },
+        {
+          withCredentials: true,
+        }
+      );
+      setAuth((prevState) => {
+        return {
+          ...prevState,
+          accessToken: response.data.accessToken,
+          user: response.data.user,
+        };
+      });
+      toast.success("Successfully logged in");
+      navigate('/app/frontend-dashboard');
+    } catch (error) {
+      toast.error(error.response.data.message);
+    }
+    
   };
 
   return (

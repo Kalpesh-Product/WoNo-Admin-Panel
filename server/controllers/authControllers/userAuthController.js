@@ -26,14 +26,24 @@ const login = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid credentials" });
 
     const userExists = await User.findOne({ email })
-      .select("name role email phone empId department")
+      .select("name role email phone empId department password")
       .populate({
         path: "department",
         select: "name departmentId",
       })
       .populate({
         path: "role",
-        select: "roleTitle",
+        select: "roleTitle modulePermissions",
+        populate: [
+          {
+            path: "modulePermissions.module",
+            select: "moduleTitle",
+          },
+          {
+            path: "modulePermissions.subModulePermissions.subModule",
+            select: "subModuleTitle",
+          },
+        ],
       })
       .populate({ path: "designation", select: "title" })
       .populate({ path: "company", select: "companyName" })
@@ -47,6 +57,10 @@ const login = async (req, res, next) => {
         message: "Invalid credentials format",
       });
       return res.status(404).json({ message: "Invalid credentials" });
+    }
+
+    if (userExists.password !== password) {
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
     const accessToken = jwt.sign(
@@ -84,7 +98,7 @@ const login = async (req, res, next) => {
       secure: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
-
+    delete userExists.password;
     res.status(200).json({ user: userExists, accessToken });
   } catch (error) {
     next(error);
@@ -124,4 +138,62 @@ const logOut = async (req, res, next) => {
   }
 };
 
-module.exports = { login, logOut };
+const checkPassword = async (req, res, next) => {
+  try {
+    const { id, currentPassword } = req.body;
+
+    // Find the user by ID
+    const user = await User.findById(id).lean().exec();
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if the provided password matches the user's stored password
+    if (user.password !== currentPassword) {
+      return res.status(401).json({ message: "Incorrect password" });
+    }
+
+    res.status(200).json({
+      message: "Password matches",
+    });
+  } catch (error) {
+    console.error("Error checking password: ", error);
+    next(error);
+  }
+};
+
+const updatePassword = async (req, res, next) => {
+  try {
+    const { id, newPassword, confirmPassword } = req.body;
+
+    // Check if newPassword and confirmPassword match
+    if (newPassword !== confirmPassword) {
+      return res
+        .status(400)
+        .json({ message: "New password and confirm password do not match" });
+    }
+
+    // Find the user by ID and update the password
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { $set: { password: newPassword } }, // Update the password field
+      { new: true, runValidators: true } // Return the updated document and enforce validation
+    )
+      .lean()
+      .exec();
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "Password updated successfully",
+    });
+  } catch (error) {
+    console.error("Error updating password: ", error);
+    next(error);
+  }
+};
+
+module.exports = { login, logOut, checkPassword, updatePassword };

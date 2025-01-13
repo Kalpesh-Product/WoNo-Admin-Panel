@@ -8,13 +8,30 @@ const { corsConfig } = require("./config/corsConfig");
 const connectDb = require("./config/db");
 const errorHandler = require("./middlewares/errorHandler");
 const authRoutes = require("./routes/auth/authRoutes");
+const verifyJwt = require("./middlewares/verifyJwt");
 const credentials = require("./middlewares/credentials");
-
-const app = express();  
+const ticketsRoutes = require("./routes/ticketRoutes");
+const leaveRoutes = require("./routes/leaveRoutes");
+const employeeAgreementRoutes = require("./routes/employeeAgreementRoutes");
+const sopRoutes = require("./routes/SopRoutes");
+const policyRoutes = require("./routes/PolicyRoutes");
+const meetingsRoutes = require("./routes/meetingRoutes");
+const assetsRoutes = require("./routes/assetsRoutes");
+const departmentsRoutes = require("./routes/departmentRoutes");
+const companyRoutes = require("./routes/companyRoutes");
+const userRoutes = require("./routes/userRoutes");
+const designationRoutes = require("./routes/designationRoutes");
+const moduleRoutes = require("./routes/moduleRoutes");
+const subModuleRoutes = require("./routes/subModuleRoutes");
+const roleRoutes = require("./routes/roleRoutes");
+const eventRoutes = require("./routes/eventsRoutes");
+const taskRoutes = require("./routes/tasksRoutes");
+const accessRoutes = require("./routes/accessRoutes");
+const checkScope = require("./middlewares/checkScope");
+const app = express();
 const PORT = process.env.PORT || 5000;
 
 connectDb(process.env.DB_URL);
-
 
 app.use("/files", express.static("files"));
 app.use(credentials);
@@ -36,7 +53,36 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 
-
+//protected routes that should be protected later 👽
+app.use("/api/company", companyRoutes);
+app.use("/api/departments", departmentsRoutes);
+app.use("/api/designations", designationRoutes);
+app.use("/api/assets", assetsRoutes);
+app.use("/api/meetings", meetingsRoutes);
+app.use("/api/tickets", ticketsRoutes);
+app.use("/api/leaves", leaveRoutes);
+app.use("/api/employee-agreements", employeeAgreementRoutes);
+app.use("/api/sops", sopRoutes);
+app.use("/api/policies", policyRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/roles", roleRoutes);
+app.use("/api/modules", moduleRoutes);
+app.use("/api/sub-modules", subModuleRoutes);
+app.use("/api/events", eventRoutes);
+app.use("/api/tasks", taskRoutes);
+app.get(
+  "/api/protected",
+  verifyJwt,
+  checkScope({
+    module: "Asset Management",
+    subModule: "Manage Asset",
+    permissions: ["write"],
+  }), 
+  (req, res) => {
+    res.json({ message: "This is protected route" });
+  }
+);
+app.use("/api/access", verifyJwt, accessRoutes);
 app.all("*", (req, res) => {
   if (req.accepts("html")) {
     res.status(404).sendFile(path.join(__dirname, "views", "404.html"));

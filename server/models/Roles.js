@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const roleSchema = new mongoose.Schema({
   roleTitle: {
-    type: String,
+    type: String, 
     required: true,
   },
   modulePermissions: [
@@ -12,7 +12,7 @@ const roleSchema = new mongoose.Schema({
         ref: "Module",
         required: true,
       },
-      moduleAccessScope: {
+      modulePermissions: {
         read: {
           type: Boolean,
           default: false,
@@ -27,9 +27,8 @@ const roleSchema = new mongoose.Schema({
           subModule: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "SubModule",
-            required: true,
           },
-          accessScope: {
+          permissions: {
             read: {
               type: Boolean,
               default: false,
