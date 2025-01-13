@@ -72,8 +72,8 @@ const RaiseTicket = () => {
     },
   ];
   return (
-    <>
-      <div className=" p-2 bg-white border-2 m-4 rounded-md">
+    <div className="p-4 flex flex-col gap-4">
+      <div className="p-4 bg-white border-2 rounded-md">
         <h3 className="my-5 text-center text-3xl text-primary">
           Raise A Ticket
         </h3>
@@ -136,7 +136,7 @@ const RaiseTicket = () => {
           <PrimaryButton title="Submit" />
         </div>
       </div>
-      <div className="rounded-md bg-white p-4 border-2 m-4">
+      <div className="rounded-md bg-white p-4 border-2 ">
         <div className="flex flex-row justify-between mb-4">
           <div className="text-[20px]">Tickets Raised Today</div>
         </div>
@@ -148,7 +148,7 @@ const RaiseTicket = () => {
           />
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
