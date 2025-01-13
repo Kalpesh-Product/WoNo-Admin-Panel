@@ -15,7 +15,17 @@ const handleRefreshToken = async (req, res, next) => {
       })
       .populate({
         path: "role",
-        select: "roleTitle",
+        select: "roleTitle modulePermissions",
+        populate: [
+          {
+            path: "modulePermissions.module",
+            select: "moduleTitle",
+          },
+          {
+            path: "modulePermissions.subModulePermissions.subModule",
+            select: "subModuleTitle",
+          },
+        ],
       })
       .populate({ path: "designation", select: "title" })
       .populate({ path: "company", select: "companyName" })

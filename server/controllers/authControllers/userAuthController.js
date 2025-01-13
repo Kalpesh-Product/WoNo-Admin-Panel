@@ -26,7 +26,7 @@ const login = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid credentials" });
 
     const userExists = await User.findOne({ email })
-      .select("name role email phone empId department")
+      .select("name role email phone empId department password")
       .populate({
         path: "department",
         select: "name departmentId",
@@ -57,6 +57,10 @@ const login = async (req, res, next) => {
         message: "Invalid credentials format",
       });
       return res.status(404).json({ message: "Invalid credentials" });
+    }
+
+    if (userExists.password !== password) {
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
     const accessToken = jwt.sign(
@@ -94,7 +98,7 @@ const login = async (req, res, next) => {
       secure: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
-
+    delete userExists.password;
     res.status(200).json({ user: userExists, accessToken });
   } catch (error) {
     next(error);
