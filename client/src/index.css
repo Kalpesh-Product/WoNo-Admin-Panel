@@ -56,8 +56,12 @@
 
   .css-13mqbm2-MuiButtonBase-root-MuiTab-root.Mui-selected {
     color: #ffff !important;
-}
- 
+  }
+
+  .css-103akpq-MuiTypography-root {
+    font-size: 1.5rem !important;
+  }
+
 
   body {
     /* For all modern browsers */
@@ -73,12 +77,19 @@
     /* Prevents scrolling in some cases */
   }
 
+
+
   /* For Webkit browsers (Chrome, Safari, Edge) */
   body::-webkit-scrollbar {
     display: none;
   }
 
 
+}
+
+.ag-root-wrapper.ag-layout-normal {
+  height: 100%;
+  border: none !important;
 }
 
 @font-face {
@@ -90,4 +101,9 @@
   font-family: Poppins-SemiBold;
   src: url("../src/assets/WONO_images/img/font/Poppins-SemiBold.ttf");
   font-weight: 600;
+}
+
+@font-face {
+  font-family: Poppins-Bold;
+  src: url("../src/assets/WONO_images/img/font/Poppins-Bold.ttf");
 }
