@@ -77,7 +77,7 @@ app.get(
     module: "Asset Management",
     subModule: "Manage Asset",
     permissions: ["write"],
-  }),
+  }), 
   (req, res) => {
     res.json({ message: "This is protected route" });
   }

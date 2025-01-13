@@ -6,6 +6,10 @@ const createEvent = async (req, res, next) => {
 
     const startDate = new Date(start);
     const endDate = new Date(end);
+ 
+    if (!title || !type || !description || !start || !end) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
 
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
       return res.status(400).json({ message: "Invalid date format" });
@@ -22,10 +26,6 @@ const createEvent = async (req, res, next) => {
       participants: validParticipants,
     });
 
-    if (!title || !type || !description || !start || !end) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-
     const event = await newEvent.save();
     res.status(201).json({ event });
   } catch (error) {
@@ -35,7 +35,7 @@ const createEvent = async (req, res, next) => {
 
 const getAllEvents = async (req, res, next) => {
   try {
-    // Fetch all events from the database
+    
     const events = await Event.find();
 
     if (!events || events.length === 0) {
@@ -50,7 +50,8 @@ const getAllEvents = async (req, res, next) => {
         end: event.end,
         allDay: event.allDay,
         description: event.description,
-        backgroundColor: event.type === "holiday" ? "green" : "#5E5F9C",
+        active:event.active,
+        backgroundColor: event.type === "holiday" ? "green" : (event.type === "meeting" ? "purple" : (event.type === "tasks" ? "yellow" : (event.type === "events" ? "blue" : ""))),
         extendedProps: {
           type: event.type,
         },
@@ -60,7 +61,7 @@ const getAllEvents = async (req, res, next) => {
     res.status(200).json(transformedEvents);
   } catch (error) {
     next(error);
-  }
+   }
 };
 
 const getNormalEvents = async (req, res, next) => {
@@ -87,4 +88,63 @@ const getHolidays = async (req, res, next) => {
   }
 };
 
-module.exports = { createEvent, getAllEvents, getNormalEvents, getHolidays };
+const  extendEvent = async (req,res,next) => {
+
+  const {id,extend} = req.body
+  const extendTime = new Date(extend)
+
+  if(!id){
+    return res.status(400).json({ message: "EventId is required" });
+  }
+  if (isNaN(extendTime.getTime())) {
+    return res.status(400).json({ message: "Invalid date format" });
+  }
+
+  try{
+     
+  const meetings = await Event.find({type:"holiday"});
+
+  const onGoingMeetings = meetings.some((meeting)=> {
+    const startDate = new Date(meeting.start)
+    const endDate = new Date(meeting.end)
+    console.log("startDate: ",startDate)
+    
+    return extendTime > startDate && extendTime < endDate
+  })
+
+  if(onGoingMeetings){
+    return res.status(400).json({ message: "Cannot extend the  meeting" });
+  }
+  
+ await Event.findOneAndUpdate({_id:id},{end:extendTime},{new:true})
+
+  return res.status(200).json({ message: "Meeting time extended" });
+
+  }
+  catch(error){
+    next(error)
+  }
+};
+
+
+const deleteEvent = async (req,res,next) => {
+
+  const {id} = req.body
+
+  if(!id){
+    return res.status(400).json({ message: "EventId is required" });
+  }
+
+  try{
+  await Event.findOneAndUpdate({_id:id},{active:false},{new:true});
+  
+    res.status(200).json({message:"Event deleted successfully"});
+    
+  }
+  catch(error){
+    next(error)
+  }
+};
+
+
+module.exports = { createEvent, getAllEvents, getNormalEvents, getHolidays,extendEvent,deleteEvent };
