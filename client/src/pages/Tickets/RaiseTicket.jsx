@@ -119,6 +119,7 @@ const RaiseTicket = () => {
               value={details.message}
               onChange={(e) => handleChange("message", e.target.value)}
             fullWidth
+            
           />
           <TextField
             size="small"
