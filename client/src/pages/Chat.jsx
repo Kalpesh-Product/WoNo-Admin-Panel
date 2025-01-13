@@ -10,6 +10,7 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+import { BsFillPersonFill } from "react-icons/bs";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -45,30 +46,34 @@ function a11yProps(index) {
 }
 
 const contacts = [
-  { id: 1, name: "Mac", status: "online", previewMessage: "See you soon!" },
+  { id: 1, name: "Mac", status: "online", previewMessage: "See you soon!", lastMessageTime:"1 hour" },
   {
     id: 2,
     name: "Farzeen",
     status: "offline",
     previewMessage: "Let's catch up later.",
+    lastMessageTime:"1 hour"
   },
   {
     id: 3,
     name: "Aaron",
     status: "online",
     previewMessage: "I'll send the files.",
+    lastMessageTime:"1 hour"
   },
   {
     id: 4,
     name: "Kalpesh",
     status: "offline",
     previewMessage: "Got it, thanks!",
+    lastMessageTime:"1 hour"
   },
   {
     id: 5,
     name: "BIZ Nest-admins",
     group: true,
     previewMessage: "Meeting scheduled for tomorrow.",
+    lastMessageTime:"1 hour"
   },
   {
     id: 6,
@@ -76,30 +81,35 @@ const contacts = [
     group: true,
     subGroups: ["Zomato", "SquadStack", "Infuse"],
     previewMessage: "Project updates ready.",
+    lastMessageTime:"1 hour"
   },
   {
     id: 7,
     name: "BIZNest All Hands",
     group: true,
     previewMessage: "The workload is divided between y'all",
+    lastMessageTime:"1 hour"
   },
   {
     id: 8,
     name: "BIZNest Tech Dept 💻",
     group: true,
     previewMessage: "The task of fixing the backend is pending",
+    lastMessageTime:"1 hour"
   },
   {
     id: 9,
     name: "BIZNest Finance Dept",
     group: true,
     previewMessage: "The payment has been processed",
+    lastMessageTime:"1 hour"
   },
   {
     id: 10,
     name: "Customer Service",
     status: "online",
     previewMessage: "What can I help you with?",
+    lastMessageTime:"1 hour"
   },
 ];
 
@@ -115,6 +125,12 @@ const Chat = () => {
 
   const theme = useTheme();
   const [value, setValue] = React.useState(0);
+
+  const [activeTab, setActiveTab] = useState(0);
+
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
+  };
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -230,7 +246,6 @@ const Chat = () => {
         <div className="h-[80vh]  flex flex-1">
           <aside className="w-1/4 bg-white p-4 shadow-lg border-r border-gray-300 h-[80vh] relative">
             <div className="">
-              <h2 className="text-title font-pregular mb-4">Chat</h2>
               <select
                 className="mt-2 mb-4 w-full p-2 rounded-lg border border-gray-300 bg-gray-50"
                 value={contactFilter}
@@ -243,83 +258,51 @@ const Chat = () => {
                 <option value="WoNo">WoNo</option>
                 <option value="Companies">Companies</option>
               </select>
-
-              <input
-                type="search"
-                placeholder="Search people & group"
-                className="w-full p-2 mb-4 rounded-lg bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-
+              <div className="flex  relative align-middle">
+                <BsFillPersonFill className="absolute left-3 top-3" />
+                <input
+                  type="search"
+                  placeholder="Search people & group"
+                  className="w-full p-2 pl-10 mb-4 rounded-lg bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-start"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                ></input>
+              </div>
               {/* tabs for all read and unread msg */}
-              <Box sx={{ bgcolor: "black", borderRadius: "50px" }}>
-                <AppBar position="static" sx={{boxShadow:"none"}}>
-                  <Tabs
-                    value={value}
-                    onChange={handleChange}
-                    indicatorColor="secondary"
-                    textColor="inherit"
-                    variant="fullWidth"
-                    aria-label="full width tabs example"
-                    sx={{
-                      backgroundColor: "white",
-                      "& .MuiTabs-indicator": {
-                        display: "none", // Hide the underline
-                      },
-                      
-                    }}
-                  >
-                    <Tab
-                      label="All"
-                      {...a11yProps(0)}
-                      sx={{
-                        textTransform: "none",
-                        color: "#1E3D73",
-                        "&.Mui-selected": {
-                          backgroundColor: "#1E3D73",
-                          color: "#ffffff",
-                        },
-                      }}
-                    />
-                    <Tab
-                      label="Read"
-                      {...a11yProps(1)}
-                      sx={{
-                        textTransform: "none",
-                        color: "#1E3D73",
-                        "&.Mui-selected": {
-                          backgroundColor: "#1E3D73",
-                          color: "#ffffff",
-                        },
-                      }}
-                    />
-                    <Tab
-                      label="Unread"
-                      {...a11yProps(2)}
-                      sx={{
-                        textTransform: "none",
-                        color: "#1E3D73",
-                        "&.Mui-selected": {
-                          backgroundColor: "#1E3D73",
-                          color: "#ffffff",
-                        },
-                      }}
-                    />
-                  </Tabs>
-                </AppBar>
-                {/* -----tabs content start--- */}
-                {/* <TabPanel value={value} index={0} dir={theme.direction}>
-                  Item One
-                </TabPanel>
-                <TabPanel value={value} index={1} dir={theme.direction}>
-                  Item Two
-                </TabPanel>
-                <TabPanel value={value} index={2} dir={theme.direction}>
-                  Item Three
-                </TabPanel> */}
-                {/* -----tabs content end----- */}
-              </Box>
+
+              <Tabs
+                value={activeTab}
+                onChange={handleTabChange}
+                TabIndicatorProps={{ style: { display: "none" } }} // Removes underline
+                sx={{
+                  minHeight: "30px !important",
+                  borderRadius: 10,
+                  border: "1px solid #d1d5db",
+
+                  "& .MuiTab-root": {
+                    textTransform: "none",
+                    fontWeight: "medium",
+                    borderRight: "0.1px solid #d1d5db",
+                    minHeight: "35px !important",
+                    backgroundColor: "#d1d5db",
+                  },
+                  "& .MuiTabs-root": {
+                    minHeight: "35px !important",
+                  },
+                  "& .Mui-selected": {
+                    backgroundColor: "white", // Highlight background color for the active tab
+                    color: "#1E3D73",
+                  },
+                }}
+              >
+                <Tab label="All" />
+                <Tab label="Read" />
+                <Tab label="Unread" />
+              </Tabs>
+
+              {/* -----tabs content start--- */}
+             
+
               {/* tabs for all end !! */}
             </div>
             <div className=" h-[50vh] overflow-y-auto">
