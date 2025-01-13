@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ag-grid-community/client-side-row-model": "^32.3.3",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@fullcalendar/core": "^6.1.15",
@@ -12,8 +13,9 @@
     "@fullcalendar/timegrid": "^6.1.15",
     "@mui/icons-material": "^6.3.1",
     "@mui/material": "^6.3.1",
+    "@mui/x-data-grid": "^7.23.5",
     "@mui/x-date-pickers": "^7.23.3",
-    "ag-grid-react": "^33.0.3",
+    "ag-grid-react": "^32.3.3",
     "apexcharts": "^4.3.0",
     "axios": "^1.7.9",
     "cra-template": "1.2.0",
