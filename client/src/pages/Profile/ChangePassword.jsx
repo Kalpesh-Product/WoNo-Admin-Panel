@@ -61,7 +61,7 @@ const ChangePassword = ({ pageTitle }) => {
       }
 
       // Simulate password change success
-      const response = await api.post("/api/auth/update-password", {
+      await api.post("/api/auth/update-password", {
         id: auth.user._id,
         newPassword: formData.newPassword,
         confirmPassword: formData.confirmPassword,
@@ -91,6 +91,7 @@ const ChangePassword = ({ pageTitle }) => {
           size="small"
           label="Current Password"
           type="password"
+          disabled={passwordVerified}
           sx={{ width: "49.3%" }}
           value={formData.currentPassword}
           onChange={(e) => handleChange("currentPassword", e.target.value)}
