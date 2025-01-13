@@ -42,14 +42,14 @@ const LoginPage = () => {
       setAuth((prevState) => {
         return {
           ...prevState,
-          accessToken: response.data.accessToken,
+          accessToken: response?.data?.accessToken,
           user: response.data.user,
         };
       });
       toast.success("Successfully logged in");
       navigate("/app/frontend-dashboard");
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data.message);
     }
   };
 
