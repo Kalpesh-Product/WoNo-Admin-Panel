@@ -3,6 +3,10 @@ import WidgetSection from "../../components/WidgetSection";
 import AreaGraph from "../../components/graphs/AreaGraph";
 import Card from "../../components/Card";
 import DonutChart from "../../components/graphs/DonutChart";
+import { RiArchiveDrawerLine } from "react-icons/ri";
+import { RiPagesLine } from "react-icons/ri";
+import { MdFormatListBulleted } from "react-icons/md";
+import { CgProfile } from "react-icons/cg"
 
 const TicketDashboard = () => {
   const ticketWidgets = [
@@ -13,11 +17,11 @@ const TicketDashboard = () => {
     {
       layout: 5,
       widgets: [
-        <Card route={"/app/tickets/raise-ticket"} title={"Raise A Ticket"} />,
-        <Card route={"/app/tickets/manage-tickets"} title={"Manage Tickets"} />,
-        <Card route={"/app/tickets/Reports"} title={"Reports"}  />,
-        <Card route={"/app/tickets/team-members"} title={"Team Members"} />,
-        <Card route={"/app/tickets/ticket-settings"} title={"Ticket Settings"} />,
+        <Card route={"/app/tickets/raise-ticket"} title={"Raise A Ticket"} icon={<RiPagesLine/>}/>,
+        <Card route={"/app/tickets/manage-tickets"} title={"Manage Tickets"} icon={<RiArchiveDrawerLine/>} />,
+        <Card route={"/app/tickets/Reports"} title={"Reports"}  icon={<MdFormatListBulleted/>} />,
+        <Card route={"/app/tickets/team-members"} title={"Team Members"} icon={<CgProfile/>} />,
+        <Card route={"/app/tickets/ticket-settings"} title={"Ticket Settings"} icon={<RiPagesLine/>} />,
       ],
     },
     {

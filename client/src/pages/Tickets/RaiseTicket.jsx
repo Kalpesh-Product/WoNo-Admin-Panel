@@ -123,7 +123,7 @@ const RaiseTicket = () => {
           <TextField
             size="small"
             //   disabled={!isEditable}
-            label="Attachment"
+            
             type="file"
            
             //   value={formData.motherName || ""}
