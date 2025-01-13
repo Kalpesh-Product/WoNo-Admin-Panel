@@ -1,8 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TextField from "@mui/material/TextField"; // Assuming you're using Material-UI for TextField
 import PrimaryButton from "../../components/PrimaryButton";
+import useAuth from "../../hooks/useAuth";
+import { api } from "../../utils/axios";
+import { toast } from "sonner";
 
 const ChangePassword = ({ pageTitle }) => {
+  const { auth } = useAuth();
   const [formData, setFormData] = useState({
     currentPassword: "",
     newPassword: "",
@@ -10,6 +14,7 @@ const ChangePassword = ({ pageTitle }) => {
   });
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [passwordVerified, setPasswordVerified] = useState(false);
 
   const handleChange = (field, value) => {
     setFormData((prevData) => ({
@@ -20,30 +25,57 @@ const ChangePassword = ({ pageTitle }) => {
     setSuccessMessage(""); // Clear success message on input change
   };
 
-  const handlePasswordChange = () => {
-    const { currentPassword, newPassword, confirmPassword } = formData;
+  const handlePasswordCheck = async () => {
+    try {
+      if (!formData.currentPassword) {
+        setErrorMessage("Please provide your current password");
+        return;
+      }
+      const response = await api.post("/api/auth/check-password", {
+        currentPassword: formData.currentPassword,
+        id: auth.user._id,
+      });
+      toast.success(response.data.message);
+      setPasswordVerified(true);
+    } catch (error) {
+      toast.error(error.response.data.message);
+    }
+  };
 
-    // Validate inputs
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      setErrorMessage("All fields are required.");
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      setErrorMessage("New password and confirm password do not match.");
-      return;
-    }
-    if (newPassword.length < 6) {
-      setErrorMessage("New password must be at least 6 characters long.");
-      return;
-    }
+  const handlePasswordChange = async () => {
+    try {
+      const { currentPassword, newPassword, confirmPassword } = formData;
 
-    // Simulate password change success
-    setSuccessMessage("Password changed successfully!");
-    setFormData({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    });
+      // Validate inputs
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        setErrorMessage("All fields are required.");
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        setErrorMessage("New password and confirm password do not match.");
+        return;
+      }
+      if (newPassword.length < 6) {
+        setErrorMessage("New password must be at least 6 characters long.");
+        return;
+      }
+
+      // Simulate password change success
+      await api.post("/api/auth/update-password", {
+        id: auth.user._id,
+        newPassword: formData.newPassword,
+        confirmPassword: formData.confirmPassword,
+      });
+      setSuccessMessage("Password changed successfully!");
+      setFormData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setPasswordVerified(false);
+    } catch (error) {
+      toast.error(error.response.data.message);
+    }
   };
 
   return (
@@ -54,16 +86,24 @@ const ChangePassword = ({ pageTitle }) => {
       </div>
 
       {/* Current Password Field */}
-      <div className="mb-4">
+      <div className="mb-4 w-full flex justify-start items-center gap-2">
         <TextField
           size="small"
           label="Current Password"
           type="password"
+          disabled={passwordVerified}
           sx={{ width: "49.3%" }}
           value={formData.currentPassword}
           onChange={(e) => handleChange("currentPassword", e.target.value)}
           required
         />
+        {!passwordVerified && (
+          <PrimaryButton
+            title="Verify"
+            type="button"
+            handleSubmit={handlePasswordCheck}
+          />
+        )}
       </div>
 
       {/* New Password and Confirm Password Fields */}
