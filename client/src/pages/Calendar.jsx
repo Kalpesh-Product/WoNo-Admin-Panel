@@ -253,8 +253,7 @@ const Calender = () => {
                   <div key={index} className="flex gap-2 items-center mb-2">
                     <div
                       className="w-3 h-3 rounded-full mr-2"
-                      style={{ backgroundColor: colors[event.type] }}
-                    ></div>
+                      style={{ backgroundColor: colors[event.type] }}></div>
                     <div className="flex flex-col">
                       <span className="text-content font-medium">
                         {event.title}
@@ -321,15 +320,13 @@ const Calender = () => {
               padding: 3,
               display: "flex",
               flexDirection: "column",
-            }}
-          >
+            }}>
             <Box
               sx={{
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-              }}
-            >
+              }}>
               <Typography variant="h6">
                 {drawerMode === "view" ? "Event Details" : "Add New Event"}
               </Typography>
@@ -394,8 +391,7 @@ const Calender = () => {
                 <Button
                   variant="contained"
                   color="primary"
-                  onClick={handleSaveEvent}
-                >
+                  onClick={handleSaveEvent}>
                   Save Event
                 </Button>
               </Box>

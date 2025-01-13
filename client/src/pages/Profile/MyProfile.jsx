@@ -9,6 +9,8 @@ import {
   BankDetails,
 } from "../../forms/OnBoarding";
 import SecondaryButton from "../../components/SecondaryButton";
+import { api } from "../../utils/axios";
+import useAuth from "../../hooks/useAuth";
 
 const MyProfile = ({ handleClose, pageTitle }) => {
   const [personalDetails, setPersonalDetails] = useState({
@@ -89,8 +91,7 @@ const MyProfile = ({ handleClose, pageTitle }) => {
           onSubmit={(e) => {
             e.preventDefault();
             handleSubmit();
-          }}
-        >
+          }}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <PersonalDetails
               formData={personalDetails}
@@ -118,11 +119,12 @@ const MyProfile = ({ handleClose, pageTitle }) => {
           </LocalizationProvider>
           {isEditable ? (
             <div className="flex gap-4 items-center justify-center my-4">
-            <PrimaryButton title={"Save"} type={"submit"} />
-            <SecondaryButton title={"Reset"} type={""} />
-          </div>
-          ) : ''}
-          
+              <PrimaryButton title={"Save"} type={"submit"} />
+              <SecondaryButton title={"Reset"} type={""} />
+            </div>
+          ) : (
+            ""
+          )}
         </form>
       </div>
     </div>
