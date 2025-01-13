@@ -36,6 +36,7 @@ export const PersonalDetails = ({ formData, handleChange, isEditable }) => {
           </Select>
         </FormControl>
         <DesktopDatePicker
+        disabled={!isEditable}
           label="Date of Birth"
           inputFormat="MM/DD/YYYY"
           slotProps={{ textField: { size: "small" } }}
@@ -44,7 +45,6 @@ export const PersonalDetails = ({ formData, handleChange, isEditable }) => {
           renderInput={(params) => (
             <TextField
               size="small"
-              disabled={!isEditable}
               {...params}
               fullWidth
               required
@@ -81,6 +81,7 @@ export const WorkDetails = ({ formData, handleChange, isEditable }) => {
       <div className="grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 gap-4">
         <LocalizationProvider>
           <DesktopDatePicker
+           disabled={!isEditable}
             label="Start Date"
             inputFormat="MM/DD/YYYY"
             slotProps={{ textField: { size: "small" } }}
@@ -89,7 +90,6 @@ export const WorkDetails = ({ formData, handleChange, isEditable }) => {
             renderInput={(params) => (
               <TextField
                 size="small"
-                disabled={!isEditable}
                 {...params}
                 fullWidth
                 required

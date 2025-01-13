@@ -169,7 +169,9 @@ const Calender = () => {
           <div className="flex flex-col gap-4 w-[25%]">
             <div className="border-2 border-gray-300 p-4">
               <div className="w-full flex justify-start ">
-                <span className="text-content font-bold">Event Filters</span>
+                <span className="text-content font-bold uppercase">
+                  Event Filters
+                </span>
               </div>
               <div className="flex justify-start text-content">
                 <FormGroup column>
