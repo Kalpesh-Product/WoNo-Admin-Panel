@@ -115,7 +115,7 @@ const AccessGrant = ({ pageTitle }) => {
             </TableContainer>
 
             <div className="flex my-4 justify-center items-center">
-              <PrimaryButton title={"Request"} />
+              <PrimaryButton title={"Request"} onClick={handleRequest}/>
             </div>
           </div>
         )}

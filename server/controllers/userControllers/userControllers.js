@@ -188,6 +188,9 @@ const updateSingleUser = async (req, res) => {
     const { id } = req.params; // Extract user ID from request parameters
     const updateData = req.body; // Data to update comes from the request body
 
+
+    console.log('profile:',updateData)
+
     // Perform the update operation
     const updatedUser = await User.findByIdAndUpdate(
       id,

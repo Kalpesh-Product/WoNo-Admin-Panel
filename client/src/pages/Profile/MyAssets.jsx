@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import AgTable from "../../components/AgTable";
 import { DataGrid } from "@mui/x-data-grid";
-
+ 
 const MyAssets = ({ pageTitle }) => {
   const laptopColumns = [
     { field: "id", headerName: "ID", flex: 1 },

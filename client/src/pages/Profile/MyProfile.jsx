@@ -9,6 +9,11 @@ import {
   BankDetails,
 } from "../../forms/OnBoarding";
 import SecondaryButton from "../../components/SecondaryButton";
+import useAuth from "../../hooks/useAuth";
+import { api } from "../../utils/axios";
+import { toast } from "sonner";
+
+
 
 const MyProfile = ({ handleClose, pageTitle }) => {
   const [personalDetails, setPersonalDetails] = useState({
@@ -16,6 +21,9 @@ const MyProfile = ({ handleClose, pageTitle }) => {
     gender: "",
     dob: null,
   });
+
+  const {auth} = useAuth()
+console.log('auth', auth.user._id)
 
   const [workDetails, setWorkDetails] = useState({
     role: "",
@@ -58,7 +66,7 @@ const MyProfile = ({ handleClose, pageTitle }) => {
     setBankDetails((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async() => {
     const consolidatedFormData = {
       ...personalDetails,
       ...workDetails,
@@ -69,11 +77,26 @@ const MyProfile = ({ handleClose, pageTitle }) => {
     console.log("Submitting Form Data:", consolidatedFormData);
 
     // Send consolidatedFormData to API
+
+    const userId = auth.user._id
+    console.log('user',consolidatedFormData)
+    try {
+            const response = await api.patch(`/api/users/update-single-user/${userId}`,consolidatedFormData);
+            console.log('updated profile',response.data)
+            return response.data;
+          } catch (error) {
+            toast.error(error.message);
+            return [];
+          }
+
   };
 
   const handleEditClick = () => {
     setIsEditable((prev) => !prev);
   };
+
+ 
+
 
   return (
     <div>
@@ -118,7 +141,7 @@ const MyProfile = ({ handleClose, pageTitle }) => {
           </LocalizationProvider>
           {isEditable ? (
             <div className="flex gap-4 items-center justify-center my-4">
-            <PrimaryButton title={"Save"} type={"submit"} />
+            <PrimaryButton title={"Save"} type={"submit"} onClick={handleSubmit}/>
             <SecondaryButton title={"Reset"} type={""} />
           </div>
           ) : ''}
