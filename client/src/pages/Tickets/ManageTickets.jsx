@@ -20,7 +20,7 @@ const ManageTickets = () => {
       widgets: [
         <div className=" rounded-md flex  gap-4">
           <div className="border-default border-borderGray rounded-md w-full">
-            <WidgetSection layout={3} title={"Department Tickets List"}>
+            <WidgetSection layout={3} title={"Department Recieved Tickets"} titleDataColor={"red"} titleData={"25"}>
               <Card
                 title={"Open Tickets"}
                 titleColor={"#1E3D73"}
@@ -45,7 +45,7 @@ const ManageTickets = () => {
             </WidgetSection>
           </div>
           <div className="border-default border-borderGray rounded-md w-full">
-            <WidgetSection layout={3} title={"Department Tickets List"}>
+            <WidgetSection layout={3} title={"Personal Pending Tickets"} titleDataColor={"black"} titleData={"06"}>
               <Card
                 title={"Accepted Tickets"}
                 data={"106"}

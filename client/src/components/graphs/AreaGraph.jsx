@@ -7,23 +7,36 @@ const AreaGraph = () => {
     series: [
       {
         name: "Total Tickets",
-        data: [150, 120, 100, 50, 100, 200, 80],
+        data: [150, 120, 100, 50, 100, 200, 80, 130, 140, 90, 110, 170],
         color: "#007bff", // Blue
       },
       {
         name: "Closed Tickets",
-        data: [120, 100, 80, 45, 60, 150, 75],
+        data: [120, 100, 80, 45, 60, 150, 75, 110, 120, 70, 90, 150],
         color: "#28a745", // Green
       },
       {
         name: "Open Tickets",
-        data: [30, 20, 20, 5, 40, 50, 5],
+        data: [30, 20, 20, 5, 40, 50, 5, 20, 20, 20, 20, 20],
         color: "#ff4d4d", // Red
       },
-
     ],
-    categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"], // Months
+    categories: [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ], // Months
   };
+  
 
   const chartOptions = {
     chart: {

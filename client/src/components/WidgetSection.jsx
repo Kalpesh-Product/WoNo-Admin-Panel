@@ -1,6 +1,12 @@
 import React from "react";
 
-const WidgetSection = ({ layout = 1, children, title }) => {
+const WidgetSection = ({
+  layout = 1,
+  children,
+  title,
+  titleData,
+  titleDataColor,
+}) => {
   // Tailwind grid classes for different layouts
   const gridClasses = {
     1: "grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1",
@@ -15,7 +21,17 @@ const WidgetSection = ({ layout = 1, children, title }) => {
     <div className="h-full">
       {title && (
         <div className=" border-b-default border-borderGray p-4">
-          <span className="text-subtitle">{title}</span>
+          <span className="text-subtitle">
+            {title}{" "}
+            <span >
+              {titleData && (
+                <span>
+                  {" "}
+                  : <span style={{ color: titleDataColor }} className="font-pbold text-title">{titleData}</span>
+                </span>
+              )}
+            </span>
+          </span>
         </div>
       )}
       <div className={`w-full grid gap-4 p-4 ${gridClasses[layout]} h-full `}>
