@@ -167,11 +167,11 @@ const Calender = () => {
       <div className="flex-1 p-4 bg-white">
         <div className="flex gap-4 relative w-full">
           <div className="flex flex-col gap-4 w-[25%]">
-            <div className="border-2 border-gray-300 p-4">
+            <div className="border-2 border-gray-300 p-4 rounded-md">
               <div className="w-full flex justify-start ">
-                <span className="text-content font-bold">Event Filters</span>
+                <span className="text-content font-bold uppercase">Event Filters</span>
               </div>
-              <div className="flex justify-start text-content">
+              <div className="flex justify-start text-content ">
                 <FormGroup column>
                   {["View All", "Meetings", "Holidays", "Events"].map(
                     (type, index) => {
@@ -221,8 +221,8 @@ const Calender = () => {
               </div>
             </div>
 
-            <div className="border-2 border-gray-300 p-4">
-              <div className="mb-2 text-content font-bold">
+            <div className="border-2 border-gray-300 p-4 rounded-md">
+              <div className="mb-2 text-content font-bold uppercase">
                 Today's Schedule
               </div>
               {[
@@ -268,7 +268,7 @@ const Calender = () => {
               })}
             </div>
           </div>
-          <div className="w-full h-[80vh] overflow-y-auto">
+          <div className="w-full h-full overflow-y-auto">
             <FullCalendar
               headerToolbar={{
                 left: "today",
@@ -279,6 +279,7 @@ const Calender = () => {
               eventClick={handleEventClick}
               dateClick={handleDateClick}
               eventBackgroundColor=""
+              contentHeight="auto"
               evenTex
               displayEventTime={false}
               plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}

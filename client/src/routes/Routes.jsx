@@ -8,6 +8,9 @@ import Access from "../pages/Access/Access";
 import Chat from "../pages/Chat";
 import Profile from "../pages/Profile/Profile";
 import AccessProfile from "../pages/Access/AccessProfile";
+import Notifications from "../pages/Notifications";
+import TicketDashboard from "../pages/Tickets/TicketDashboard";
+import ManageTickets from "../pages/Tickets/ManageTickets";
 
 export const routes = createBrowserRouter([
   {
@@ -35,6 +38,10 @@ export const routes = createBrowserRouter([
         element: <Reports />,
       },
       {
+        path: "tickets", 
+        element: <TicketDashboard />,
+      },
+      {
         path: "calendar", 
         element: <Calender />,
       },
@@ -43,8 +50,20 @@ export const routes = createBrowserRouter([
         element: <Access />,
       },
       {
+        path: "notifications", 
+        element: <Notifications />,
+      },
+      {
         path: "access/permissions", 
         element: <AccessProfile />,
+      },
+      {
+        path: "tickets/raise-ticket", 
+        element: <AccessProfile />,
+      },
+      {
+        path: "tickets/manage-tickets", 
+        element: <ManageTickets />,
       },
       {
         path: "chat", 
