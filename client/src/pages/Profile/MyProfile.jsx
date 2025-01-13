@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import PrimaryButton from "../../components/PrimaryButton";
+import dayjs from "dayjs";
 import {
   PersonalDetails,
   WorkDetails,
@@ -16,14 +17,20 @@ import { toast } from "sonner";
 
 
 const MyProfile = ({ handleClose, pageTitle }) => {
-  const [personalDetails, setPersonalDetails] = useState({
-    name: "Aiwinraj",
-    gender: "",
-    dob: null,
-  });
 
   const {auth} = useAuth()
-console.log('auth', auth.user._id)
+  const [roles,setRoles] = useState([])
+  const [departments,setDepartments] = useState([])
+
+  const [personalDetails, setPersonalDetails] = useState({
+    name: "",
+    gender:"",
+    dob: null,
+    fatherName:'',
+    motherName:''
+  });
+
+
 
   const [workDetails, setWorkDetails] = useState({
     role: "",
@@ -79,7 +86,6 @@ console.log('auth', auth.user._id)
     // Send consolidatedFormData to API
 
     const userId = auth.user._id
-    console.log('user',consolidatedFormData)
     try {
             const response = await api.patch(`/api/users/update-single-user/${userId}`,consolidatedFormData);
             console.log('updated profile',response.data)
@@ -94,9 +100,90 @@ console.log('auth', auth.user._id)
   const handleEditClick = () => {
     setIsEditable((prev) => !prev);
   };
+  
+  async function fetchRoles (){
+
+    try {
+      const response = await api.get('/api/roles/get-roles')
+       return response.data.roles
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  async function fetchDepartments (){
+
+    try {
+      const response = await api.get('/api/departments/get-departments')
+      console.log('dept:',response.data)
+       return response.data.departments
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const userId = auth.user._id;
+        const response = await api.get(`/api/users/fetch-single-user/${userId}`);
+        const fetchedUser = response.data.user || {};
+  
+        // Update all states based on fetched data
+ 
+        const roles = await fetchRoles()
+        const departments = await fetchDepartments()
+         
+
+const dateString = fetchedUser?.startDate;
+console.log('date::',dateString)
+const formattedDate = dayjs(dateString).format("MM/DD/YYYY");
+
+console.log(formattedDate); // Output: "15-01-2023"
+  
+        setPersonalDetails({
+          name: fetchedUser.name || "",
+          gender: fetchedUser.gender || "",
+          dob:  fetchedUser.dob ? dayjs(fetchedUser.dob) : null,
+          fatherName: fetchedUser.fatherName,
+          motherName: fetchedUser.motherName
+        });
+  
+        setWorkDetails({
+          role: roles,
+          department: departments || [],
+          designation: fetchedUser.workDetails?.designation || "",
+          workLocation: fetchedUser.workLocation || "",
+          workType: fetchedUser?.workType || "",
+          employeeType: fetchedUser?.employeeType || "",
+          startDate:  fetchedUser.startDate ? dayjs(fetchedUser.startDate) : null,
+          shift: fetchedUser?.shift || "",
+          workPolicy: fetchedUser?.workPolicy || "",
+        });
+  
+        setKycDetails({
+          aadhaar: fetchedUser.kycDetails?.aadhaar || "",
+          pan: fetchedUser.kycDetails?.pan || "",
+        });
+  
+        setBankDetails({
+          bankName: fetchedUser.bankDetails?.bankName || "",
+          accountNumber: fetchedUser.bankDetails?.accountNumber || "",
+          ifsc: fetchedUser.bankDetails?.ifsc || "",
+        });
+  
+        console.log("User data fetched and state updated:", fetchedUser);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+  
+    fetchUser();
+  }, [auth.user._id]);
+  
+  
 
  
-
 
   return (
     <div>
