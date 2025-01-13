@@ -9,9 +9,11 @@ import { useSidebar } from "../context/SideBarContext";
 import biznestLogo from "../assets/biznest/biznest_logo.jpg";
 import { GiHamburgerMenu } from "react-icons/gi";
 import Abrar from "../assets/abrar.jpeg";
+import useAuth from "../hooks/useAuth";
 
 const Header = () => {
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
+  const { auth } = useAuth();
   return (
     <>
       <div className="flex w-full justify-between gap-x-10 items-center p-2">
@@ -63,8 +65,8 @@ const Header = () => {
             <img src={Abrar} alt="" />
           </Avatar>
           <div className="w-full">
-            <h1 className="text-xl font-semibold">Abrar Shaikh</h1>
-            <span className="text-content">Master Admin</span>
+            <h1 className="text-xl font-semibold">{auth.user.name}</h1>
+            <span className="text-content">{auth.user.role.roleTitle}</span>
           </div>
         </div>
       </div>
