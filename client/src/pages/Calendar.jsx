@@ -167,11 +167,11 @@ const Calender = () => {
       <div className="flex-1 p-4 bg-white">
         <div className="flex gap-4 relative w-full">
           <div className="flex flex-col gap-4 w-[25%]">
-            <div className="border-2 border-gray-300 p-4 rounded-md">
+            <div className="border-2 border-gray-300 p-4">
               <div className="w-full flex justify-start ">
-                <span className="text-content font-bold uppercase">Event Filters</span>
+                <span className="text-content font-bold">Event Filters</span>
               </div>
-              <div className="flex justify-start text-content ">
+              <div className="flex justify-start text-content">
                 <FormGroup column>
                   {["View All", "Meetings", "Holidays", "Events"].map(
                     (type, index) => {
@@ -221,8 +221,8 @@ const Calender = () => {
               </div>
             </div>
 
-            <div className="border-2 border-gray-300 p-4 rounded-md">
-              <div className="mb-2 text-content font-bold uppercase">
+            <div className="border-2 border-gray-300 p-4">
+              <div className="mb-2 text-content font-bold">
                 Today's Schedule
               </div>
               {[
@@ -253,8 +253,7 @@ const Calender = () => {
                   <div key={index} className="flex gap-2 items-center mb-2">
                     <div
                       className="w-3 h-3 rounded-full mr-2"
-                      style={{ backgroundColor: colors[event.type] }}
-                    ></div>
+                      style={{ backgroundColor: colors[event.type] }}></div>
                     <div className="flex flex-col">
                       <span className="text-content font-medium">
                         {event.title}
@@ -268,7 +267,7 @@ const Calender = () => {
               })}
             </div>
           </div>
-          <div className="w-full h-full overflow-y-auto">
+          <div className="w-full h-[80vh] overflow-y-auto">
             <FullCalendar
               headerToolbar={{
                 left: "today",
@@ -279,7 +278,6 @@ const Calender = () => {
               eventClick={handleEventClick}
               dateClick={handleDateClick}
               eventBackgroundColor=""
-              contentHeight="auto"
               evenTex
               displayEventTime={false}
               plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -322,15 +320,13 @@ const Calender = () => {
               padding: 3,
               display: "flex",
               flexDirection: "column",
-            }}
-          >
+            }}>
             <Box
               sx={{
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-              }}
-            >
+              }}>
               <Typography variant="h6">
                 {drawerMode === "view" ? "Event Details" : "Add New Event"}
               </Typography>
@@ -395,8 +391,7 @@ const Calender = () => {
                 <Button
                   variant="contained"
                   color="primary"
-                  onClick={handleSaveEvent}
-                >
+                  onClick={handleSaveEvent}>
                   Save Event
                 </Button>
               </Box>

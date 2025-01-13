@@ -112,8 +112,7 @@ console.log('auth', auth.user._id)
           onSubmit={(e) => {
             e.preventDefault();
             handleSubmit();
-          }}
-        >
+          }}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <PersonalDetails
               formData={personalDetails}
