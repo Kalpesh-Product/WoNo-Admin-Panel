@@ -1,7 +1,7 @@
-import { RouterProvider } from 'react-router-dom';
-import { routes } from './routes/Routes';
+import { RouterProvider } from "react-router-dom";
+import { routes } from "./routes/Routes";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-
+import { Toaster } from "sonner";
 
 const theme = createTheme({
   typography: {
@@ -12,7 +12,7 @@ const theme = createTheme({
       "Helvetica Neue",
       "Arial",
       "sans-serif",
-    ].join(","),
+    ].join(","), // Joins the array into a comma-separated string
   },
 });
 
@@ -20,6 +20,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <RouterProvider router={routes} />
+      <Toaster richColors/>
     </ThemeProvider>
   );
 }

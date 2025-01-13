@@ -2,6 +2,7 @@ import React from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
+import BreadCrumbComponent from "../components/BreadCrumbComponent";
 
 const MainLayout = () => {
   return (
@@ -14,10 +15,10 @@ const MainLayout = () => {
           <Sidebar />
         </aside>
         <div className="w-full">
-          <main className="w-full bg-[#F7F8FA] h-[90vh] overflow-y-auto p-3">
+          <main className="w-full bg-[#F7F8FA] h-[92vh] overflow-y-auto p-3">
             <div className="bg-white">
               <div className=" p-4 pb-0 rounded-t-md">
-                <span className="mb-0 ">breacrumb here</span>
+                <BreadCrumbComponent />
               </div>
               <Outlet />
             </div>
