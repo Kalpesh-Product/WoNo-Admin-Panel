@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { toast } from "sonner";
+import React, { useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { api } from "../utils/axios";
 import "../pages/LoginPage/CalenderModal.css";
 import {
   Drawer,
@@ -22,7 +20,6 @@ const Calender = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [drawerMode, setDrawerMode] = useState(""); // 'view' or 'add'
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [events, setEvents] = useState([]);
   const [newEvent, setNewEvent] = useState({
     title: "",
     start: "",
@@ -47,19 +44,35 @@ const Calender = () => {
   //     },
   //   });
 
-  useEffect(() => {
-    const getEvents = async () => {
-      try {
-        const response = await api.get("/api/events/all-events");
-        setEvents(response.data);
-      } catch (error) {
-        toast.error(error.message);
-        return [];
-      }
-    };
-    getEvents();
-  }, []);
+  //   const { mutate } = useMutation({
+  //     mutationFn: async function () {
+  //       try {
+  //         await api.post("/api/events/create-event", {
+  //           ...eventDetails,
+  //           start: eventDetails.startDate.toISOString(),
+  //           end: eventDetails.endDate.toISOString(),
+  //         });
+  //       } catch (error) {
+  //         throw new Error(error.response.data.message);
+  //       }
+  //     },
+  //     onSuccess: function () {
+  //       queryClient.invalidateQueries("events");
+  //       toast.success("Event created successfully");
 
+  //       setShowModal(false);
+  //       setEventDetails({
+  //         title: "",
+  //         description: "",
+  //         startDate: dayjs(),
+  //         endDate: dayjs(),
+  //         type: "event",
+  //       });
+  //     },
+  //     onError: function (error) {
+  //       toast.error(error.message);
+  //     },
+  //   });
   //   const handleChange = (e) => {
   //     const { name, value } = e.target;
   //     setEventDetails((prev) => ({ ...prev, [name]: value }));
@@ -284,7 +297,20 @@ const Calender = () => {
               //   }));
               // }}
               // events={filteredEvents}
-              events={events}
+              events={[
+                {
+                  id: "1",
+                  title: "Event 1",
+                  start: "2025-01-10",
+                  description: "Description for Event 1",
+                },
+                {
+                  id: "2",
+                  title: "Event 2",
+                  start: "2025-01-12",
+                  description: "Description for Event 2",
+                },
+              ]}
             />
           </div>
         </div>
