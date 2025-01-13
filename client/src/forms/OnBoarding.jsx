@@ -73,6 +73,8 @@ export const PersonalDetails = ({ formData, handleChange, isEditable }) => {
 };
 
 export const WorkDetails = ({ formData, handleChange, isEditable }) => {
+  
+  console.log('workdetails:',formData.department)
   return (
     <div>
       <h3 className="text-subtitle font-pmedium my-4">Work Details</h3>
@@ -100,7 +102,9 @@ export const WorkDetails = ({ formData, handleChange, isEditable }) => {
               value={formData.department || ""}
               onChange={(e) => handleChange("department", e.target.value)}>
               <MenuItem value="">Select Department</MenuItem>
-              {/* Add department options dynamically */}
+              {formData.department.length>0 && formData.department.map((department)=>
+               (<MenuItem key={department.name} value={department.name}>{department.name}</MenuItem>))
+              }
             </Select>
           </FormControl>
           <FormControl size="small" fullWidth disabled={!isEditable}>
@@ -110,6 +114,9 @@ export const WorkDetails = ({ formData, handleChange, isEditable }) => {
               onChange={(e) => handleChange("role", e.target.value)}>
               <MenuItem value="">Select Role</MenuItem>
               {/* Add role options dynamically */}
+              {formData.role.length>0 && formData.role.map((role)=>
+               (<MenuItem key={role.roleTitle} value={role.roleTitle}>{role.roleTitle}</MenuItem>))
+              }
             </Select>
           </FormControl>
         </LocalizationProvider>
@@ -119,6 +126,7 @@ export const WorkDetails = ({ formData, handleChange, isEditable }) => {
 };
 
 export const KycDetails = ({ formData, handleChange, isEditable }) => {
+ 
   return (
     <div>
       <h3 className="text-subtitle font-pmedium my-4">KYC Details</h3>
@@ -127,10 +135,10 @@ export const KycDetails = ({ formData, handleChange, isEditable }) => {
           size="small"
           disabled={!isEditable}
           label="Aadhaar Number"
-          value={formData?.kycDetails?.aadhaar || ""}
+          value={formData?.aadhaar || ""}
           onChange={(e) =>
             handleChange("kycDetails", {
-              ...formData.kycDetails,
+              ...formData,
               aadhaar: e.target.value,
             })
           }
@@ -141,10 +149,10 @@ export const KycDetails = ({ formData, handleChange, isEditable }) => {
           size="small"
           disabled={!isEditable}
           label="PAN Number"
-          value={formData.kycDetails?.pan || ""}
+          value={formData?.pan || ""}
           onChange={(e) =>
             handleChange("kycDetails", {
-              ...formData.kycDetails,
+              ...formData,
               pan: e.target.value,
             })
           }
@@ -165,10 +173,10 @@ export const BankDetails = ({ formData, handleChange, isEditable }) => {
           size="small"
           disabled={!isEditable}
           label="Bank Name"
-          value={formData.bankDetails?.bankName || ""}
+          value={formData?.bankName || ""}
           onChange={(e) =>
             handleChange("bankDetails", {
-              ...formData.bankDetails,
+              ...formData,
               bankName: e.target.value,
             })
           }
@@ -179,10 +187,10 @@ export const BankDetails = ({ formData, handleChange, isEditable }) => {
           size="small"
           disabled={!isEditable}
           label="Account Number"
-          value={formData.bankDetails?.accountNumber || ""}
+          value={formData?.accountNumber || ""}
           onChange={(e) =>
             handleChange("bankDetails", {
-              ...formData.bankDetails,
+              ...formData,
               accountNumber: e.target.value,
             })
           }
@@ -193,10 +201,10 @@ export const BankDetails = ({ formData, handleChange, isEditable }) => {
           size="small"
           disabled={!isEditable}
           label="IFSC Code"
-          value={formData.bankDetails?.ifsc || ""}
+          value={formData?.ifsc || ""}
           onChange={(e) =>
             handleChange("bankDetails", {
-              ...formData.bankDetails,
+              ...formData,
               ifsc: e.target.value,
             })
           }
