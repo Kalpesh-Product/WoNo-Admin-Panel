@@ -3,6 +3,7 @@ import { Tabs, Tab } from "@mui/material";
 import MyProfile from "./MyProfile";
 import ChangePassword from "./ChangePassword";
 import AccessGrant from "./AccessGrant";
+import MyAssets from "./MyAssets";
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -11,6 +12,7 @@ const Profile = () => {
     setActiveTab(newValue);
   };
 
+  console.log('tab:',activeTab)
   return (
     <div className="w-full rounded-md bg-white p-4">
       <Tabs
