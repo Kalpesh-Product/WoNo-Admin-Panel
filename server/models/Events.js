@@ -32,6 +32,10 @@ const EventSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    active: {
+      type:Boolean,
+      default: true
+    }
   },
   { timestamps: true }
 );
