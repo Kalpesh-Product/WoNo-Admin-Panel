@@ -11,6 +11,10 @@ import AccessProfile from "../pages/Access/AccessProfile";
 import Notifications from "../pages/Notifications";
 import TicketDashboard from "../pages/Tickets/TicketDashboard";
 import ManageTickets from "../pages/Tickets/ManageTickets";
+import TeamMembers from "../pages/Tickets/TeamMembers";
+import Reportss from "../pages/Tickets/Reports";
+import RaiseTicket from "../pages/Tickets/RaiseTicket";
+import TicketSettings from "../pages/Tickets/TicketSettings";
 
 export const routes = createBrowserRouter([
   {
@@ -59,11 +63,25 @@ export const routes = createBrowserRouter([
       },
       {
         path: "tickets/raise-ticket", 
-        element: <AccessProfile />,
+        element:<RaiseTicket/>,
       },
       {
         path: "tickets/manage-tickets", 
         element: <ManageTickets />,
+      },
+      {
+        path: "tickets/ticket-settings", 
+        element: <TicketSettings />,
+
+      },
+      {
+        path: "tickets/team-members",
+        element:<TeamMembers/>
+      },
+      
+      {
+        path: "tickets/Reports",
+        element:<Reportss/>
       },
       {
         path: "chat", 
@@ -72,6 +90,9 @@ export const routes = createBrowserRouter([
       {
         path:"profile",
         element:<Profile/>,
+      },
+      {
+
       }
     ],
   },

@@ -15,9 +15,9 @@ const TicketDashboard = () => {
       widgets: [
         <Card route={"/app/tickets/raise-ticket"} title={"Raise A Ticket"} />,
         <Card route={"/app/tickets/manage-tickets"} title={"Manage Tickets"} />,
-        <Card title={"Reports"} />,
-        <Card title={"Team Members"} />,
-        <Card title={"Ticket Settings"} />,
+        <Card route={"/app/tickets/Reports"} title={"Reports"}  />,
+        <Card route={"/app/tickets/team-members"} title={"Team Members"} />,
+        <Card route={"/app/tickets/ticket-settings"} title={"Ticket Settings"} />,
       ],
     },
     {
