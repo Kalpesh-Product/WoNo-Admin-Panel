@@ -42,7 +42,7 @@ const getAllEvents = async (req, res, next) => {
       return res.status(404).json({ message: "No events found" });
     }
 
-    const transformedEvents = events.map((event) => {
+    const eventsData = events.map((event) => {
       return {
         id: event._id,
         title: event.title,
@@ -58,7 +58,7 @@ const getAllEvents = async (req, res, next) => {
       };
     });
 
-    res.status(200).json(transformedEvents);
+    res.status(200).json(eventsData);
   } catch (error) {
     next(error);
    }
