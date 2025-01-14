@@ -23,6 +23,7 @@ const Calender = () => {
   const [drawerMode, setDrawerMode] = useState(""); // 'view' or 'add'
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [events, setEvents] = useState([]);
+  const [filteredEvents, setFilteredEvents] = useState([]);
   const [newEvent, setNewEvent] = useState({
     title: "",
     start: "",
@@ -30,9 +31,8 @@ const Calender = () => {
   });
   const [eventFilter, setEventFilter] = useState([
     "View All",
-    "Meetings",
-    "Holidays",
-    "Events",
+    "holiday",
+    "event",
   ]);
   //   const { data: eventsData } = useQuery({
   //     queryKey: ["events"],
@@ -60,58 +60,16 @@ const Calender = () => {
     getEvents();
   }, []);
 
-  //   const handleChange = (e) => {
-  //     const { name, value } = e.target;
-  //     setEventDetails((prev) => ({ ...prev, [name]: value }));
-  //   };
-
-  //   const handleDateChange = (field, newValue) => {
-  //     setEventDetails((prev) => ({ ...prev, [field]: newValue }));
-  //   };
-
-  //   useEffect(() => {
-  //     if (eventFilter.length === 0) {
-  //       setFilteredEvents(events);
-  //     } else {
-  //       const filtered = events.filter((event) =>
-  //         eventFilter.includes(event.extendedProps?.type.toLowerCase())
-  //       );
-  //       setFilteredEvents(filtered);
-  //     }
-  //   }, [eventFilter, events]);
-
-  //   const handleModalClose = () => {
-  //     setShowModal(false);
-  //     setEventDetails({
-  //       title: "",
-  //       description: "",
-  //       startDate: dayjs(),
-  //       endDate: dayjs(),
-  //       type: "event",
-  //     });
-  //   };
-
-  //   const handleEventClick = (info) => {
-  //     const startDate = format(new Date(info.event.start), "do MMMM yyyy");
-  //     const endDate = info.event.end
-  //       ? format(new Date(info.event.end), "do MMMM yyyy")
-  //       : startDate;
-
-  //     setSelectedEvent({
-  //       title: info.event.title,
-  //       description: info.event.extendedProps.description,
-  //       start: startDate,
-  //       end: endDate,
-  //       type: info.event.extendedProps.type,
-  //     });
-  //     setShowEventDetails(true);
-  //   };
-
-  //   useEffect(() => {
-  //     if (eventsData) {
-  //       setEvents(eventsData);
-  //     }
-  //   }, [eventsData]);
+    useEffect(() => {
+      if (eventFilter.length === 0) {
+        setFilteredEvents(events);
+      } else {
+        const filtered = events.filter((event) =>
+          eventFilter.includes(event.extendedProps?.type.toLowerCase())
+        );
+        setFilteredEvents(filtered);
+      }
+    }, [eventFilter, events]);
 
   // Function to handle event clicks
   const handleEventClick = (clickInfo) => {
@@ -162,13 +120,13 @@ const Calender = () => {
               </div>
               <div className="flex justify-start text-content ">
                 <FormGroup column>
-                  {["View All", "Meetings", "Holidays", "Events"].map(
+                  {["holiday", "event"].map(
                     (type, index) => {
                       const colors = {
-                        "View All": "#f44336",
-                        Meetings: "#2196f3",
-                        Holidays: "#4caf50",
-                        Events: "#ff9800",
+                        // "View All": "#f44336",
+                        // meetings: "#2196f3",
+                        holiday: "#4caf50",
+                        event: "#ff9800",
                       };
                       return (
                         <FormControlLabel
@@ -286,7 +244,7 @@ const Calender = () => {
               //   }));
               // }}
               // events={filteredEvents}
-              events={events}
+              events={filteredEvents}
             />
           </div>
         </div>

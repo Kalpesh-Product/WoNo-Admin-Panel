@@ -9,6 +9,7 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Checkbox from "@mui/material/Checkbox";
 import PrimaryButton from "../../components/PrimaryButton";
+import AccessGrantTable from "../../components/Tables/AccessGrantTable";
 
 const AccessGrant = ({ pageTitle }) => {
   const [selectedCard, setSelectedCard] = useState(null);
@@ -20,37 +21,77 @@ const AccessGrant = ({ pageTitle }) => {
     { name: "Finance", icon: "👤" },
   ];
 
-  // Define table data for the "HR" card
-  const tableData = [
-    ["Attendance", "Leave Management", "Payroll", "Payslips"],
-    ["Leaves", "Holidays", "SOPs", "Policies"],
-    ["Task Management", "Performance", "Appraisals", "Templates"],
-  ];
-
-  const [checkedState, setCheckedState] = useState(
-    tableData.map((row) => row.map(() => false))
-  );
-
-  const handleCardClick = (cardName) => {
-    setSelectedCard(cardName);
+  const HrModules = {
+    attendance: [
+      { name: "Clock In / Clock Out", read: false, write: false },
+      { name: "My Timeclock", read: false, write: false },
+      { name: "Correction Request", read: false, write: false },
+      { name: "Approve Timeclock", read: false, write: false },
+    ],
+    payroll: [
+      { name: "P1", read: false, write: false },
+      { name: "P2", read: false, write: false },
+    ],
   };
 
-  const handleSelectAll = () => {
-    const newState = !selectAll;
-    setSelectAll(newState);
-    setCheckedState(tableData.map((row) => row.map(() => newState)));
+  const FinanceModules = {
+    budgets: [
+      { name: "Manage Budgets", read: false, write: false },
+      { name: "View Expenses", read: false, write: false },
+    ],
   };
 
-  const handleCheckboxChange = (rowIndex, cellIndex) => {
-    const updatedState = checkedState.map((row, rIndex) =>
-      row.map((checked, cIndex) =>
-        rIndex === rowIndex && cIndex === cellIndex ? !checked : checked
+  const FrontendModules = {
+    ui: [
+      { name: "UI Updates", read: false, write: false },
+      { name: "Frontend Testing", read: false, write: false },
+    ],
+  };
+
+  const moduleMapping = {
+    HR: HrModules,
+    Finance: FinanceModules,
+    Frontend: FrontendModules,
+  };
+
+  const [depModules, setDepModules] = useState([]);
+
+  const handleSelectedCard = (department) => {
+    setSelectedCard(department);
+    const modules = moduleMapping[department];
+    const modulesArray = Object.values(modules);
+    setDepModules(modulesArray);
+    console.log(depModules);
+
+    // Initialize selectAll state for each module array
+    const initialSelectAllState = modulesArray.map(() => false);
+    setSelectAll(initialSelectAllState);
+  };
+
+  const handleSelectAll = (checked, moduleIndex) => {
+    setSelectAll((prev) =>
+      prev.map((item, index) => (index === moduleIndex ? checked : item))
+    );
+
+    setDepModules((prev) =>
+      prev.map((module, index) =>
+        index === moduleIndex
+          ? module.map((perm) => ({ ...perm, read: checked, write: checked }))
+          : module
       )
     );
-    setCheckedState(updatedState);
+  };
 
-    const allSelected = updatedState.flat().every((checked) => checked);
-    setSelectAll(allSelected);
+  const handlePermissionChange = (moduleIndex, index, field, checked) => {
+    setDepModules((prev) =>
+      prev.map((module, modIdx) =>
+        modIdx === moduleIndex
+          ? module.map((perm, permIdx) =>
+              permIdx === index ? { ...perm, [field]: checked } : perm
+            )
+          : module
+      )
+    );
   };
 
   return (
@@ -67,7 +108,7 @@ const AccessGrant = ({ pageTitle }) => {
             <div
               key={index}
               className="border text-center rounded-lg p-4 shadow hover:shadow-md transition-shadow duration-200 cursor-pointer bg-white"
-              onClick={() => handleCardClick(card.name)}
+              onClick={() => handleSelectedCard(card.name)}
             >
               <div className="text-3xl mb-2">{card.icon}</div>
               <div className="text-lg font-medium">{card.name}</div>
@@ -77,47 +118,29 @@ const AccessGrant = ({ pageTitle }) => {
       </div>
 
       <div>
-        {/* MUI Table */}
-        {selectedCard === "HR" && (
-          <div className="mt-6">
-            <h2 className="text-subtitle font-pregular mb-4">Human Resource</h2>
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell colSpan={4}>
-                      <Checkbox
-                        checked={selectAll}
-                        onChange={handleSelectAll}
-                      />
-                      Select All
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {tableData.map((row, rowIndex) => (
-                    <TableRow key={rowIndex}>
-                      {row.map((cell, cellIndex) => (
-                        <TableCell key={cellIndex}>
-                          <Checkbox
-                            checked={checkedState[rowIndex][cellIndex]}
-                            onChange={() =>
-                              handleCheckboxChange(rowIndex, cellIndex)
-                            }
-                          />
-                          {cell}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-
-            <div className="flex my-4 justify-center items-center">
-              <PrimaryButton title={"Request"} />
+        {selectedCard && (
+          <>
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-subtitle font-pregular">
+                Role Permissions
+              </span>
+              <PrimaryButton title={"Edit"} />
             </div>
-          </div>
+            <WidgetSection layout={depModules.length}>
+              {depModules.map((module, index) => (
+                <AccessGrantTable
+                  key={index}
+                  title={`Module ${index + 1}`}
+                  permissions={module}
+                  selectAll={selectAll[index]}
+                  handleSelectAll={(checked) => handleSelectAll(checked, index)}
+                  handlePermissionChange={(permIndex, field, checked) =>
+                    handlePermissionChange(index, permIndex, field, checked)
+                  }
+                />
+              ))}
+            </WidgetSection>
+          </>
         )}
       </div>
     </div>
