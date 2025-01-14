@@ -1,4 +1,5 @@
-import { TextField, Avatar, InputAdornment } from "@mui/material";
+import React, { useState } from "react";
+import { TextField, Avatar, InputAdornment, Popover, Button } from "@mui/material";
 import {
   IoIosArrowForward,
   IoIosSearch,
@@ -11,11 +12,33 @@ import { GiHamburgerMenu } from "react-icons/gi";
 import Abrar from "../assets/abrar.jpeg";
 import useAuth from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import useLogout from "../hooks/useLogout"
 
 const Header = () => {
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
   const navigate = useNavigate();
-  const { auth } = useAuth();
+  const { auth, signOut } = useAuth(); // Assuming signOut is a method from useAuth()
+  const logout = useLogout()
+  
+  // State for Popover
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleAvatarClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handlePopoverClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleSignOut = async() => {
+    await logout()
+    navigate("/"); // Navigate to the login page after sign-out
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? "avatar-popover" : undefined;
+
   return (
     <>
       <div className="flex w-full justify-between gap-x-10 items-center p-2">
@@ -65,7 +88,7 @@ const Header = () => {
           </button>
         </div>
         <div className="flex items-center gap-4 w-[40%]">
-          <Avatar>
+          <Avatar onClick={handleAvatarClick} className="cursor-pointer">
             {auth.user.name === "Abrar Shaikh" ? (
               <img src={Abrar} alt="" />
             ) : (
@@ -78,6 +101,33 @@ const Header = () => {
           </div>
         </div>
       </div>
+
+      {/* Popover Component */}
+      <Popover
+        id={id}
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handlePopoverClose}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "center",
+        }}
+      >
+        <div className="p-4">
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            onClick={handleSignOut}
+          >
+            Sign Out
+          </Button>
+        </div>
+      </Popover>
     </>
   );
 };

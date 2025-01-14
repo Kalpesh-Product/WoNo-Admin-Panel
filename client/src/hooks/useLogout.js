@@ -21,7 +21,7 @@ export default function useLogout() {
         };
       });
 
-      navigate("/auth");
+      navigate("/");
     } catch (error) {
       toast.error(error.message);
     }

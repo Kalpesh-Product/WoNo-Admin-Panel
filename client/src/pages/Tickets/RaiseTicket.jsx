@@ -27,9 +27,9 @@ const RaiseTicket = () => {
 
  
   const laptopColumns = [
-    { field: "RaisedBy", headerName: "Raised By", flex: 1 },
-    { field: "SelectedDepartment", headerName: "Selected Department", flex: 1 },
-    { field: "TicketTitle", headerName: "Ticket Title", flex: 1 },
+    { field: "RaisedBy", headerName: "Raised By" },
+    { field: "SelectedDepartment", headerName: "Selected Department" },
+    { field: "TicketTitle", headerName: "Ticket Title", flex:1 },
     {
       field: "Priority",
       headerName: "Priority",
@@ -175,6 +175,7 @@ const RaiseTicket = () => {
           >
             <InputLabel>Department</InputLabel>
             <Select
+            label="Department"
               value={details.department || ""}
               onChange={(e) => handleChange("department", e.target.value)}
             >
@@ -192,6 +193,7 @@ const RaiseTicket = () => {
           >
             <InputLabel>Ticket Title</InputLabel>
             <Select
+              label="Ticket Title"
               value={details.ticketTitle || ""}
               onChange={(e) => handleChange("ticketTitle", e.target.value)}
             >
