@@ -31,12 +31,9 @@ const RaiseTicket = () => {
   ];
   const rows = [
     {
-      name: "Kalpesh naik",
-      role: "Tech",
-      assignedToday: "80",
-      totalassigned: "1203",
-      totalresolved: "2204",
-      resolutiontime: "33 mins",
+      RaisedBy:"Abrar Shaikh",
+      SelectedDepartment:"IT",
+      ticketTitle:"Laptop Screen Malfunctioning"
     },
     {
       name: "Aiwin",
@@ -119,7 +116,7 @@ const RaiseTicket = () => {
               value={details.message}
               onChange={(e) => handleChange("message", e.target.value)}
             fullWidth
-            
+
           />
           <TextField
             size="small"

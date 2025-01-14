@@ -17,6 +17,7 @@ import { TbCashRegister } from "react-icons/tb";
 import { FaUserTie } from "react-icons/fa6";
 import { TbAccessible } from "react-icons/tb";
 
+
 const Sidebar = () => {
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ const Sidebar = () => {
     { name: "Calendar", icon: <FaRegCalendarAlt />, route: "calendar" },
     { name: "Chat", icon: <HiOutlineChatAlt2 />, route: "chat" },
     { name: "Access", icon: <SiAuthelia />, route: "access" },
+   
 
     {
       name: "Notifications",
@@ -263,7 +265,7 @@ const Sidebar = () => {
                   } text-sm`}>
                 <FaUserTie />
               </div>
-              {isSidebarOpen && <span className="pl-5 text-sm">Profile</span>}
+              {isSidebarOpen && <span className="pl-5 text-sm">Profiles</span>}
             </div>
           </div>
         </div>
