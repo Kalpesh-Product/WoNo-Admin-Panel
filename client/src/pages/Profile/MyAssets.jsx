@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AgTable from "../../components/AgTable";
 
-
 const MyAssets = ({ pageTitle }) => {
   const laptopColumns = [
     { field: "id", headerName: "ID", flex: 1 },

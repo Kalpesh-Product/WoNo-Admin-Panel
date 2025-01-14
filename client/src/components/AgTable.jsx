@@ -52,8 +52,7 @@ const AgTable = React.memo(
           overflowY: "auto",
           fontFamily: "Poppins-Regular",
           borderWidth: 0,
-        }}
-      >
+        }}>
         <AgGridReact
           style={{ width: "100%", height: "100%" }}
           rowData={data}

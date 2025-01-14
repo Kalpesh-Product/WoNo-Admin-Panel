@@ -9,9 +9,9 @@ import Access from "../pages/Access/Access";
 import Chat from "../pages/Chat";
 import Profile from "../pages/Profile/Profile";
 import AccessProfile from "../pages/Access/AccessProfile";
-import Notifications from "../pages/Notifications";
-import TicketDashboard from "../pages/Tickets/TicketDashboard";
-import ManageTickets from "../pages/Tickets/ManageTickets";
+// import Notifications from "../pages/Notifications";
+// import TicketDashboard from "../pages/Tickets/TicketDashboard";
+// import ManageTickets from "../pages/Tickets/ManageTickets";
 import PersistLogin from "../layouts/PersistLogin";
 import TeamMembers from "../pages/Tickets/TeamMembers";
 import Reportss from "../pages/Tickets/Reports";
@@ -50,10 +50,10 @@ export const routes = createBrowserRouter([
                 path: "reports",
                 element: <Reports />,
               },
-              {
-                path: "tickets",
-                element: <TicketDashboard />,
-              },
+              // {
+              //   path: "tickets",
+              //   element: <TicketDashboard />,
+              // },
               {
                 path: "calendar",
                 element: <Calender />,
@@ -62,10 +62,10 @@ export const routes = createBrowserRouter([
                 path: "access",
                 element: <Access />,
               },
-              {
-                path: "notifications",
-                element: <Notifications />,
-              },
+              // {
+              //   path: "notifications",
+              //   element: <Notifications />,
+              // },
               {
                 path: "access/permissions",
                 element: <AccessProfile />,
@@ -74,10 +74,10 @@ export const routes = createBrowserRouter([
                 path: "tickets/raise-ticket",
                 element:<RaiseTicket/>,
               },
-              {
-                path: "tickets/manage-tickets",
-                element: <ManageTickets />,
-              },
+              // {
+              //   path: "tickets/manage-tickets",
+              //   element: <ManageTickets />,
+              // },
               {
         path: "tickets/ticket-settings", 
         element: <TicketSettings />,

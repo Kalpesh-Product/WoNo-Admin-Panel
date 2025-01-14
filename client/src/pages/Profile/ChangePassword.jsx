@@ -3,6 +3,7 @@ import TextField from "@mui/material/TextField"; // Assuming you're using Materi
 import PrimaryButton from "../../components/PrimaryButton";
 import useAuth from "../../hooks/useAuth";
 import { api } from "../../utils/axios";
+import useLogout from "../../hooks/useLogout";
 import { toast } from "sonner";
 
 const ChangePassword = ({ pageTitle }) => {
@@ -12,6 +13,7 @@ const ChangePassword = ({ pageTitle }) => {
     newPassword: "",
     confirmPassword: "",
   });
+  const logout = useLogout();
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [passwordVerified, setPasswordVerified] = useState(false);
@@ -66,7 +68,8 @@ const ChangePassword = ({ pageTitle }) => {
         newPassword: formData.newPassword,
         confirmPassword: formData.confirmPassword,
       });
-      setSuccessMessage("Password changed successfully!");
+      toast.success("Password changed successfully!");
+      await logout();
       setFormData({
         currentPassword: "",
         newPassword: "",

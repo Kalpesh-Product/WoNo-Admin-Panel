@@ -188,10 +188,35 @@ const updateSingleUser = async (req, res) => {
     const { id } = req.params; // Extract user ID from request parameters
     const updateData = req.body; // Data to update comes from the request body
 
+    // Define a whitelist of updatable fields
+    const allowedFields = [
+      "name",
+      "gender",
+      "fatherName",
+      "motherName",
+      "kycDetails.aadhaar",
+      "kycDetails.pan",
+      "bankDetails.bankName",
+      "bankDetails.accountNumber",
+      "bankDetails.ifsc",
+    ];
+
+    // Filter the updateData to include only allowed fields
+    const filteredUpdateData = Object.keys(updateData)
+      .filter((key) => allowedFields.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = updateData[key];
+        return obj;
+      }, {});
+
+    if (Object.keys(filteredUpdateData).length === 0) {
+      return res.status(400).json({ message: "No valid fields to update" });
+    }
+
     // Perform the update operation
     const updatedUser = await User.findByIdAndUpdate(
       id,
-      { $set: updateData }, // Use `$set` to update specific fields
+      { $set: filteredUpdateData }, // Use `$set` to update specific fields
       { new: true, runValidators: true } // Return the updated document and enforce validation
     )
       .select("-password") // Exclude the password field

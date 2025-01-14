@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { toast } from "sonner";
+import React, { useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { api } from "../utils/axios";
 import "../pages/LoginPage/CalenderModal.css";
 import {
   Drawer,
@@ -22,7 +20,6 @@ const Calender = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [drawerMode, setDrawerMode] = useState(""); // 'view' or 'add'
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [events, setEvents] = useState([]);
   const [newEvent, setNewEvent] = useState({
     title: "",
     start: "",
@@ -47,19 +44,35 @@ const Calender = () => {
   //     },
   //   });
 
-  useEffect(() => {
-    const getEvents = async () => {
-      try {
-        const response = await api.get("/api/events/all-events");
-        setEvents(response.data);
-      } catch (error) {
-        toast.error(error.message);
-        return [];
-      }
-    };
-    getEvents();
-  }, []);
+  //   const { mutate } = useMutation({
+  //     mutationFn: async function () {
+  //       try {
+  //         await api.post("/api/events/create-event", {
+  //           ...eventDetails,
+  //           start: eventDetails.startDate.toISOString(),
+  //           end: eventDetails.endDate.toISOString(),
+  //         });
+  //       } catch (error) {
+  //         throw new Error(error.response.data.message);
+  //       }
+  //     },
+  //     onSuccess: function () {
+  //       queryClient.invalidateQueries("events");
+  //       toast.success("Event created successfully");
 
+  //       setShowModal(false);
+  //       setEventDetails({
+  //         title: "",
+  //         description: "",
+  //         startDate: dayjs(),
+  //         endDate: dayjs(),
+  //         type: "event",
+  //       });
+  //     },
+  //     onError: function (error) {
+  //       toast.error(error.message);
+  //     },
+  //   });
   //   const handleChange = (e) => {
   //     const { name, value } = e.target;
   //     setEventDetails((prev) => ({ ...prev, [name]: value }));
@@ -154,13 +167,13 @@ const Calender = () => {
       <div className="flex-1 p-4 bg-white">
         <div className="flex gap-4 relative w-full">
           <div className="flex flex-col gap-4 w-[25%]">
-            <div className="border-2 border-gray-300 p-4 rounded-md">
+            <div className="border-2 border-gray-300 p-4">
               <div className="w-full flex justify-start ">
                 <span className="text-content font-bold uppercase">
                   Event Filters
                 </span>
               </div>
-              <div className="flex justify-start text-content ">
+              <div className="flex justify-start text-content">
                 <FormGroup column>
                   {["View All", "Meetings", "Holidays", "Events"].map(
                     (type, index) => {
@@ -210,8 +223,8 @@ const Calender = () => {
               </div>
             </div>
 
-            <div className="border-2 border-gray-300 p-4 rounded-md">
-              <div className="mb-2 text-content font-bold uppercase">
+            <div className="border-2 border-gray-300 p-4">
+              <div className="mb-2 text-content font-bold">
                 Today's Schedule
               </div>
               {[
@@ -242,8 +255,7 @@ const Calender = () => {
                   <div key={index} className="flex gap-2 items-center mb-2">
                     <div
                       className="w-3 h-3 rounded-full mr-2"
-                      style={{ backgroundColor: colors[event.type] }}
-                    ></div>
+                      style={{ backgroundColor: colors[event.type] }}></div>
                     <div className="flex flex-col">
                       <span className="text-content font-medium">
                         {event.title}
@@ -257,7 +269,7 @@ const Calender = () => {
               })}
             </div>
           </div>
-          <div className="w-full h-full overflow-y-auto">
+          <div className="w-full h-[80vh] overflow-y-auto">
             <FullCalendar
               headerToolbar={{
                 left: "today",
@@ -268,7 +280,6 @@ const Calender = () => {
               eventClick={handleEventClick}
               dateClick={handleDateClick}
               eventBackgroundColor=""
-              contentHeight="auto"
               evenTex
               displayEventTime={false}
               plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -286,7 +297,20 @@ const Calender = () => {
               //   }));
               // }}
               // events={filteredEvents}
-              events={events}
+              events={[
+                {
+                  id: "1",
+                  title: "Event 1",
+                  start: "2025-01-10",
+                  description: "Description for Event 1",
+                },
+                {
+                  id: "2",
+                  title: "Event 2",
+                  start: "2025-01-12",
+                  description: "Description for Event 2",
+                },
+              ]}
             />
           </div>
         </div>
@@ -298,15 +322,13 @@ const Calender = () => {
               padding: 3,
               display: "flex",
               flexDirection: "column",
-            }}
-          >
+            }}>
             <Box
               sx={{
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-              }}
-            >
+              }}>
               <Typography variant="h6">
                 {drawerMode === "view" ? "Event Details" : "Add New Event"}
               </Typography>
@@ -371,8 +393,7 @@ const Calender = () => {
                 <Button
                   variant="contained"
                   color="primary"
-                  onClick={handleSaveEvent}
-                >
+                  onClick={handleSaveEvent}>
                   Save Event
                 </Button>
               </Box>

@@ -37,80 +37,37 @@ const grantAccess = async (req, res, next) => {
       (mod) => mod.module.toString() === moduleId
     );
 
-  
-  if (!module) {
-    // If module doesn't exist, create it
-    if (permissions?.write && "read" in permissions) {
-      permissions.read = true;
-    }
-    module = {
-      module: moduleId,
-      modulePermissions: {
-        read: permissions?.read || false,
-        write: permissions?.write || false,
-      },
-      subModulePermissions: [],
-    };
-  
-    // Handle submodules during creation
-    if (subModules && Array.isArray(subModules)) {
-      subModules.forEach((subModule) => {
-        if (
-          !subModule.subModuleId ||
-          !mongoose.Types.ObjectId.isValid(subModule.subModuleId)
-        ) {
-          throw new Error("Invalid subModuleId");
-        }
-        if (!subModule.permissions) {
-          throw new Error("Missing permissions in subModule");
-        }
-  
-        if (subModule.permissions?.write && "read" in subModule.permissions) {
-          subModule.permissions.read = true;
-        }
-  
-        module.subModulePermissions.push({
-          subModule: subModule.subModuleId,
-          permissions: {
-            read: subModule.permissions?.read || false,
-            write: subModule.permissions?.write || false,
-          },
-        });
-      });
-    }
-  
-    // Push the new module into role.modulePermissions
-    role.modulePermissions.push(module);
-  } else {
-    // If module exists, update the permissions
-    module.modulePermissions.read =
-      permissions?.read || module.modulePermissions.read;
-    module.modulePermissions.write =
-      permissions?.write || module.modulePermissions.write;
-  
-    // Handle submodules for an existing module
-    if (subModules && Array.isArray(subModules)) {
-      subModules.forEach((subModule) => {
-        if (
-          !subModule.subModuleId ||
-          !mongoose.Types.ObjectId.isValid(subModule.subModuleId) 
-        ) {
-          throw new Error("Invalid subModuleId");
-        }
-        if (!subModule.permissions) {
-          throw new Error("Missing permissions in subModule");
-        }
-  
-        if (subModule.permissions?.write && "read" in subModule.permissions) {
-          subModule.permissions.read = true;
-        }
-  
-        let existingSubModule = module.subModulePermissions.find(
-          (sub) => sub.subModule.toString() === subModule.subModuleId.toString()
-        );
-  
-        if (!existingSubModule) {
-          // Add new submodule
+    if (!module) {
+      // If module doesn't exist, create it
+      if (permissions?.write && "read" in permissions) {
+        permissions.read = true;
+      }
+      module = {
+        module: moduleId,
+        modulePermissions: {
+          read: permissions?.read || false,
+          write: permissions?.write || false,
+        },
+        subModulePermissions: [],
+      };
+
+      // Handle submodules during creation
+      if (subModules && Array.isArray(subModules)) {
+        subModules.forEach((subModule) => {
+          if (
+            !subModule.subModuleId ||
+            !mongoose.Types.ObjectId.isValid(subModule.subModuleId)
+          ) {
+            throw new Error("Invalid subModuleId");
+          }
+          if (!subModule.permissions) {
+            throw new Error("Missing permissions in subModule");
+          }
+
+          if (subModule.permissions?.write && "read" in subModule.permissions) {
+            subModule.permissions.read = true;
+          }
+
           module.subModulePermissions.push({
             subModule: subModule.subModuleId,
             permissions: {
@@ -118,18 +75,61 @@ const grantAccess = async (req, res, next) => {
               write: subModule.permissions?.write || false,
             },
           });
-        } else {
-          // Update existing submodule permissions
-          existingSubModule.permissions.read =
-            subModule.permissions?.read || existingSubModule.permissions.read;
-          existingSubModule.permissions.write =
-            subModule.permissions?.write || existingSubModule.permissions.write;
-        }
-      });
+        });
+      }
+
+      // Push the new module into role.modulePermissions
+      role.modulePermissions.push(module);
+    } else {
+      // If module exists, update the permissions
+      module.modulePermissions.read =
+        permissions?.read || module.modulePermissions.read;
+      module.modulePermissions.write =
+        permissions?.write || module.modulePermissions.write;
+
+      // Handle submodules for an existing module
+      if (subModules && Array.isArray(subModules)) {
+        subModules.forEach((subModule) => {
+          if (
+            !subModule.subModuleId ||
+            !mongoose.Types.ObjectId.isValid(subModule.subModuleId)
+          ) {
+            throw new Error("Invalid subModuleId");
+          }
+          if (!subModule.permissions) {
+            throw new Error("Missing permissions in subModule");
+          }
+
+          if (subModule.permissions?.write && "read" in subModule.permissions) {
+            subModule.permissions.read = true;
+          }
+
+          let existingSubModule = module.subModulePermissions.find(
+            (sub) =>
+              sub.subModule.toString() === subModule.subModuleId.toString()
+          );
+
+          if (!existingSubModule) {
+            // Add new submodule
+            module.subModulePermissions.push({
+              subModule: subModule.subModuleId,
+              permissions: {
+                read: subModule.permissions?.read || false,
+                write: subModule.permissions?.write || false,
+              },
+            });
+          } else {
+            // Update existing submodule permissions
+            existingSubModule.permissions.read =
+              subModule.permissions?.read || existingSubModule.permissions.read;
+            existingSubModule.permissions.write =
+              subModule.permissions?.write ||
+              existingSubModule.permissions.write;
+          }
+        });
+      }
     }
-  }
-  
-  
+
     // Save the updated role
     await role.save();
 
