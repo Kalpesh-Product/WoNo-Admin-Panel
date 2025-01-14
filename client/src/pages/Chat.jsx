@@ -334,11 +334,11 @@ const Chat = () => {
                       </div>
                       <div className="flex-1 truncate">
                         <span className="font-pregular">{contact.name}</span>
-                        <div className="flex flex-row gap-5">
-                        <p className="text-sm text-gray-500 truncate font-pmedium font-small">
+                        <div className="flex flex-row justify-between">
+                        <p className="text-sm text-gray-500 truncate font-pmedium font-small ">
                           {contact.previewMessage}
                         </p>
-                        <p className="align-baseline flex-1 text-small text-left">{contact.lastMessageTime}</p>
+                        <p className=" text-small ">{contact.lastMessageTime}</p>
                         </div>
                       </div>
                       {contact.subGroups && (
