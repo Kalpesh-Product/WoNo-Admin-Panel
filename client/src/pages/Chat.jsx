@@ -301,7 +301,10 @@ const Chat = () => {
               </Tabs>
               {
                 activeTab === 0 &&
-                
+                (
+                  <div className=" h-[50vh] overflow-y-auto">
+              <ul className="space-y-2  py-4">
+              {
                 filteredContacts.map((contact) => (
                   <li key={contact.id} className="space-y-1">
                     <div
@@ -372,6 +375,14 @@ const Chat = () => {
                     )}
                   </li>
                 ))
+              }
+                </ul>
+                
+
+                </div>
+                )
+                
+                
 
               }
 
@@ -380,8 +391,8 @@ const Chat = () => {
 
               {/* tabs for all end !! */}
             </div>
-            <div className=" h-[50vh] overflow-y-auto">
-              <ul className="space-y-2  py-4">
+            {/* <div className=" h-[50vh] overflow-y-auto">
+              <ul className="space-y-2  py-4"> */}
                 {" "}
                 {/* Set scrollable height here */}
                 {/* {
@@ -452,8 +463,8 @@ const Chat = () => {
                     )}
                   </li>
                 ))} */}
-              </ul>
-            </div>
+              {/* </ul>
+            </div> */}
           </aside>
 
           <div className="w-full flex flex-col justify-between bg-white relative overflow-y-auto">
