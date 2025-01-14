@@ -263,7 +263,7 @@ const Chat = () => {
                 <input
                   type="search"
                   placeholder="Search people & group"
-                  className="w-full p-2 pl-10 mb-4 rounded-lg bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-start"
+                  className="w-full p-2 pl-10 mb-4 rounded-lg bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-start font-pregular"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 ></input>
@@ -299,17 +299,10 @@ const Chat = () => {
                 <Tab label="Read" />
                 <Tab label="Unread" />
               </Tabs>
-
-              {/* -----tabs content start--- */}
-             
-
-              {/* tabs for all end !! */}
-            </div>
-            <div className=" h-[50vh] overflow-y-auto">
-              <ul className="space-y-2  py-4">
-                {" "}
-                {/* Set scrollable height here */}
-                {filteredContacts.map((contact) => (
+              {
+                activeTab === 0 &&
+                
+                filteredContacts.map((contact) => (
                   <li key={contact.id} className="space-y-1">
                     <div
                       className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all ${
@@ -337,8 +330,91 @@ const Chat = () => {
                         {getInitials(contact.name)}
                       </div>
                       <div className="flex-1 truncate">
-                        <span className="font-semibold">{contact.name}</span>
-                        <p className="text-sm text-gray-500 truncate">
+                        <span className="font-pregular">{contact.name}</span>
+                        <div className="flex flex-row gap-5">
+                        <p className="text-sm text-gray-500 truncate font-pmedium font-small">
+                          {contact.previewMessage}
+                        </p>
+                        <p className="align-baseline flex-1 text-small text-left">{contact.lastMessageTime}</p>
+                        </div>
+                      </div>
+                      {contact.subGroups && (
+                        <span>
+                          {expandedGroup === contact.id ? (
+                            <IoMdArrowDropup />
+                          ) : (
+                            <IoMdArrowDropdown />
+                          )}
+                        </span>
+                      )}
+                    </div>
+                    {contact.subGroups && expandedGroup === contact.id && (
+                      <ul className="pl-4 space-y-1">
+                        {contact.subGroups.map((subGroup, idx) => (
+                          <li
+                            key={idx}
+                            className={`p-2 rounded-lg cursor-pointer ${
+                              activeContact.name === subGroup
+                                ? "bg-blue-100 text-blue-700"
+                                : "hover:bg-gray-100"
+                            }`}
+                            onClick={() =>
+                              setActiveContact({
+                                id: `${contact.id}-${idx}`,
+                                name: subGroup,
+                              })
+                            }
+                          >
+                            {subGroup}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                ))
+
+              }
+
+              {/* -----tabs content start--- */}
+             
+
+              {/* tabs for all end !! */}
+            </div>
+            <div className=" h-[50vh] overflow-y-auto">
+              <ul className="space-y-2  py-4">
+                {" "}
+                {/* Set scrollable height here */}
+                {/* {
+                filteredContacts.map((contact) => (
+                  <li key={contact.id} className="space-y-1">
+                    <div
+                      className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all ${
+                        activeContact.id === contact.id ||
+                        (contact.subGroups &&
+                          contact.subGroups.includes(activeContact.name))
+                          ? "bg-blue-100 text-blue-700"
+                          : "hover:bg-gray-100"
+                      }`}
+                      onClick={() => {
+                        if (contact.subGroups) {
+                          setExpandedGroup(
+                            expandedGroup === contact.id ? null : contact.id
+                          );
+                        } else {
+                          setActiveContact(contact);
+                        }
+                      }}
+                    >
+                      <div
+                        className={`flex items-center justify-center w-10 h-10 rounded-full text-white font-semibold mr-3 ${getNodeColor(
+                          contact.name
+                        )}`}
+                      >
+                        {getInitials(contact.name)}
+                      </div>
+                      <div className="flex-1 truncate">
+                        <span className="font-pregular">{contact.name}</span>
+                        <p className="text-sm text-gray-500 truncate font-pmedium font-small">
                           {contact.previewMessage}
                         </p>
                       </div>
@@ -375,7 +451,7 @@ const Chat = () => {
                       </ul>
                     )}
                   </li>
-                ))}
+                ))} */}
               </ul>
             </div>
           </aside>
@@ -417,7 +493,7 @@ const Chat = () => {
                           {msg.time}
                         </span>
                       </p>
-                      <p className="mt-1 whitespace-pre-wrap">{msg.content}</p>
+                      <p className="mt-1 whitespace-pre-wrap font-pregular">{msg.content}</p>
                     </div>
                   </div>
                 );
