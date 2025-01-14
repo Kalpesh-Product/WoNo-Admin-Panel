@@ -91,8 +91,7 @@ const MeetingRoomCredits = ({ pageTitle }) => {
               style={{
                 backgroundColor: card.bgcolor,
                 color: card.quantityColor,
-              }}
-            >
+              }}>
               <div className="text-md">{card.cardTitle}</div>
               <div className="text-lg font-bold">{card.quantity}</div>
             </div>

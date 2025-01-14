@@ -3,38 +3,38 @@ import AgTable from "../../components/AgTable";
 
 const TicketsHistory = ({ pageTitle }) => {
   const laptopColumns = [
-    { field: "id", headerName: "ID"},
+    { field: "id", headerName: "ID" },
     { field: "department", headerName: "Department" },
     { field: "assetNumber", headerName: "Asset Number" },
-    { field: "category", headerName: "Category"},
+    { field: "category", headerName: "Category" },
 
     { field: "brandName", headerName: "Brand" },
     { field: "price", headerName: "Price" },
-    { field: "quantity", headerName: "Quantity"},
+    { field: "quantity", headerName: "Quantity" },
 
     { field: "purchaseDate", headerName: "Purchase Date" },
     { field: "warranty", headerName: "Warranty (Months)" },
     {
-        field: "priority",
-        headerName: "Priority",
-        width: 190,
-        type: "singleSelect",
-        valueOptions: ["High", "Medium", "Low"],
-        cellRenderer: (params) => {
-          const statusColors = {
-            Medium: "text-blue-600 bg-blue-100",
-            High: "text-red-600 bg-red-100",
-            Low: "text-yellow-600 bg-yellow-100",
-          };
-          const statusClass = statusColors[params.value] || "";
-          return (
-            <span
-              className={`px-3 py-1 rounded-full text-sm font-medium ${statusClass}`}>
-              {params.value}
-            </span>
-          );
-        },
+      field: "priority",
+      headerName: "Priority",
+      width: 190,
+      type: "singleSelect",
+      valueOptions: ["High", "Medium", "Low"],
+      cellRenderer: (params) => {
+        const statusColors = {
+          Medium: "text-blue-600 bg-blue-100",
+          High: "text-red-600 bg-red-100",
+          Low: "text-yellow-600 bg-yellow-100",
+        };
+        const statusClass = statusColors[params.value] || "";
+        return (
+          <span
+            className={`px-3 py-1 rounded-full text-sm font-medium ${statusClass}`}>
+            {params.value}
+          </span>
+        );
       },
+    },
   ];
   const rows = [
     {
@@ -47,7 +47,7 @@ const TicketsHistory = ({ pageTitle }) => {
       quantity: "12",
       purchaseDate: "24/03/200",
       warranty: "2",
-      priority:"High"
+      priority: "High",
     },
     {
       id: "2",
@@ -59,7 +59,7 @@ const TicketsHistory = ({ pageTitle }) => {
       quantity: "12",
       purchaseDate: "24/03/200",
       warranty: "2",
-       priority:"Medium"
+      priority: "Medium",
     },
     {
       id: "3",
@@ -71,7 +71,7 @@ const TicketsHistory = ({ pageTitle }) => {
       quantity: "12",
       purchaseDate: "24/03/200",
       warranty: "2",
-      priority:"Low"
+      priority: "Low",
     },
   ];
   return (
@@ -86,4 +86,4 @@ const TicketsHistory = ({ pageTitle }) => {
   );
 };
 
-export default TicketsHistory;
+export default TicketsHistory;
