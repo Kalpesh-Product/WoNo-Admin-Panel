@@ -6,7 +6,7 @@
 .pnp.js
 
 wono-7a9f9-firebase-adminsdk-1vvh4-2509500cec.json
-.env
+
 # testing
 /coverage
 
@@ -16,6 +16,7 @@ wono-7a9f9-firebase-adminsdk-1vvh4-2509500cec.json
 /logs
 
 # misc
+.env
 .DS_Store
 .env.local
 .env.development.local
