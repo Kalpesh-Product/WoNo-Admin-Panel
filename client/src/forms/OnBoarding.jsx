@@ -89,7 +89,7 @@ export const WorkDetails = ({ formData, handleChange, isEditable }) => {
               />
             )}
           />
-          <FormControl size="small" fullWidth disabled={!isEditable}>
+          <FormControl size="small" fullWidth disabled={true}>
             <InputLabel>Department</InputLabel>
             <Select
               value={formData.department || ""}
@@ -103,7 +103,7 @@ export const WorkDetails = ({ formData, handleChange, isEditable }) => {
                 ))}
             </Select>
           </FormControl>
-          <FormControl size="small" fullWidth disabled={!isEditable}>
+          <FormControl size="small" fullWidth disabled={true}>
             <InputLabel>Role</InputLabel>
             <Select
               value={formData.role || ""}

@@ -65,10 +65,18 @@ const MyProfile = ({ handleClose, pageTitle }) => {
 
   const handleKycDetailsChange = (field, value) => {
     setKycDetails((prev) => ({ ...prev, [field]: value }));
+
+    console.log(field);
+    console.log(value);
+    console.log(kycDetails);
   };
 
   const handleBankDetailsChange = (field, value) => {
     setBankDetails((prev) => ({ ...prev, [field]: value }));
+
+    console.log(field);
+    console.log(value);
+    console.log(bankDetails);
   };
 
   const handleSubmit = async () => {
@@ -91,7 +99,7 @@ const MyProfile = ({ handleClose, pageTitle }) => {
       );
       toast.success(response.data.message);
       setIsEditable(false);
-      return response.data;
+      // return response.data;
     } catch (error) {
       toast.error(error.message);
     }
@@ -125,7 +133,7 @@ const MyProfile = ({ handleClose, pageTitle }) => {
       try {
         const userId = auth.user._id;
         const response = await api.get(
-         `/api/users/fetch-single-user/${userId}`
+          `/api/users/fetch-single-user/${userId}`
         );
         const fetchedUser = response.data.user || {};
 
