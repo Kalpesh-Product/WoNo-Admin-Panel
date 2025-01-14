@@ -188,7 +188,8 @@ const updateSingleUser = async (req, res) => {
     const { id } = req.params; // Extract user ID from request parameters
     const updateData = req.body; // Data to update comes from the request body
 
-    // Define a whitelist of updatable fields
+
+    // Define a whitelist of updatable fields, including nested objects
     const allowedFields = [
       "name",
       "gender",
@@ -201,17 +202,41 @@ const updateSingleUser = async (req, res) => {
       "bankDetails.ifsc",
     ];
 
+
     // Filter the updateData to include only allowed fields
-    const filteredUpdateData = Object.keys(updateData)
-      .filter((key) => allowedFields.includes(key))
-      .reduce((obj, key) => {
-        obj[key] = updateData[key];
-        return obj;
-      }, {});
+    const filteredUpdateData = {};
+
+
+    Object.keys(updateData).forEach((key) => {
+      if (allowedFields.includes(key)) {
+        // Direct field
+        filteredUpdateData[key] = updateData[key];
+      } else {
+        // Check for nested fields
+        const nestedFieldMatch = allowedFields.find((field) =>
+          field.startsWith(`${key}.`)
+        );
+        if (nestedFieldMatch && typeof updateData[key] === "object") {
+          // If a nested field matches, process its properties
+          const nestedFieldPrefix = `${key}.`;
+          filteredUpdateData[key] = Object.keys(updateData[key]).reduce(
+            (nestedObj, nestedKey) => {
+              if (allowedFields.includes(`${nestedFieldPrefix}${nestedKey}`)) {
+                nestedObj[nestedKey] = updateData[key][nestedKey];
+              }
+              return nestedObj;
+            },
+            {}
+          );
+        }
+      }
+    });
+
 
     if (Object.keys(filteredUpdateData).length === 0) {
       return res.status(400).json({ message: "No valid fields to update" });
     }
+
 
     // Perform the update operation
     const updatedUser = await User.findByIdAndUpdate(
@@ -225,9 +250,11 @@ const updateSingleUser = async (req, res) => {
       .populate("company", "name")
       .populate("role", "roleTitle modulePermissions");
 
+
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
     }
+
 
     res.status(200).json({
       message: "User data updated successfully",
@@ -238,5 +265,7 @@ const updateSingleUser = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
 
 module.exports = { createUser, fetchUser, fetchSingleUser, updateSingleUser };

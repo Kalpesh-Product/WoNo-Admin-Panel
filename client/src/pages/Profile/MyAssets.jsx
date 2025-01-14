@@ -53,8 +53,8 @@ const MyAssets = ({ pageTitle }) => {
   ];
   return (
     <>
-      <div className="flex items-center justify-between mb-4">
-        <span className="text-title font-pmedium">{pageTitle}</span>
+      <div className="flex items-center justify-between pb-4">
+        <span className="text-title font-pmedium text-primary">{pageTitle}</span>
       </div>
 
       <div className=" w-full">

@@ -178,7 +178,7 @@ const HierarchyTree = () => {
       <div
         className={`${
           isSidebarOpen ? "w-[78vw]" : "w-[90vw]"
-        } h-[90vh] overflow-y-auto overflow-x-auto`}
+        } h-[90vh] overflow-y-auto overflow-x-auto `}
       >
         <Tree
           lineWidth={"2px"}

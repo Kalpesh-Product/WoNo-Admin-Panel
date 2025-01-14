@@ -80,7 +80,7 @@ const Notifications = () => {
     <>
       {sectionNotifications.length > 0 && (
         <>
-          <div className="text-xl font-semibold my-4">{sectionName}</div>
+          <div className="text-xl font-semibold pb-4">{sectionName}</div>
           {sectionNotifications.map((notification) => (
             <div key={notification.id} className="mb-6">
               {/* Main Section */}

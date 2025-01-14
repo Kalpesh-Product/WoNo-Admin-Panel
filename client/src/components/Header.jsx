@@ -10,9 +10,11 @@ import biznestLogo from "../assets/biznest/biznest_logo.jpg";
 import { GiHamburgerMenu } from "react-icons/gi";
 import Abrar from "../assets/abrar.jpeg";
 import useAuth from "../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
+  const navigate = useNavigate();
   const { auth } = useAuth();
   return (
     <>
@@ -21,7 +23,8 @@ const Header = () => {
           <div>
             <div className={`w-40 flex items-center gap-10 h-full pl-4`}>
               <img
-                className="w-[70%] h-full object-contain"
+                onClick={() => navigate("frontend-dashboard")}
+                className="w-[70%] h-full object-contain cursor-pointer"
                 src={biznestLogo}
                 alt="logo"
               />
@@ -63,8 +66,11 @@ const Header = () => {
         </div>
         <div className="flex items-center gap-4 w-[40%]">
           <Avatar>
-            {auth.user.name === "Abrar Shaikh" ? (<img src={Abrar} alt="" />) : auth.user.name.charAt(0)}
-            
+            {auth.user.name === "Abrar Shaikh" ? (
+              <img src={Abrar} alt="" />
+            ) : (
+              auth.user.name.charAt(0)
+            )}
           </Avatar>
           <div className="w-full">
             <h1 className="text-xl font-semibold">{auth.user.name}</h1>

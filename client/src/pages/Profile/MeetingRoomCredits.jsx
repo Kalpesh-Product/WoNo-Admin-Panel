@@ -69,7 +69,7 @@ const MeetingRoomCredits = ({ pageTitle }) => {
   return (
     <div>
       <div className="flex items-center justify-between ">
-        <span className="text-title font-pmedium">{pageTitle}</span>
+        <span className="text-title font-pmedium text-primary">{pageTitle}</span>
       </div>
       <div>
         <WidgetSection layout={navigationCards.length}>

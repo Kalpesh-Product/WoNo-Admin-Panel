@@ -97,13 +97,13 @@ const AccessGrant = ({ pageTitle }) => {
   return (
     <div>
       {/* Page Title */}
-      <div className="flex items-center justify-between mb-4">
-        <span className="text-title font-pmedium">{pageTitle}</span>
+      <div className="flex items-center justify-between pb-4">
+        <span className="text-title font-pmedium text-primary">{pageTitle}</span>
       </div>
 
       {/* Grid Layout for Navigation Cards */}
       <div>
-        <WidgetSection layout={navigationCards.length}>
+        <WidgetSection layout={navigationCards.length} padding={"0rem 0 1rem 0"}>
           {navigationCards.map((card, index) => (
             <div
               key={index}
@@ -120,13 +120,13 @@ const AccessGrant = ({ pageTitle }) => {
       <div>
         {selectedCard && (
           <>
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-subtitle font-pregular">
+            <div className="flex items-center justify-between py-4">
+              <span className="text-subtitle font-pregular ">
                 Role Permissions
               </span>
               <PrimaryButton title={"Edit"} />
             </div>
-            <WidgetSection layout={depModules.length}>
+            <WidgetSection layout={depModules.length} padding>
               {depModules.map((module, index) => (
                 <AccessGrantTable
                   key={index}

@@ -165,8 +165,8 @@ const AccessProfile = () => {
       <div>
         {selectedCard && (
           <>
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-subtitle font-pregular">
+            <div className="flex items-center justify-between ">
+              <span className="text-subtitle font-pregular ">
                 Role Permissions
               </span>
               <PrimaryButton title={"Edit"} />

@@ -66,9 +66,9 @@ const MyProfile = ({ handleClose, pageTitle }) => {
   const handleKycDetailsChange = (field, value) => {
     setKycDetails((prev) => ({ ...prev, [field]: value }));
 
-    console.log(field);
-    console.log(value);
-    console.log(kycDetails);
+    console.log("kyc field",field);
+    console.log("kyc value",value);
+    console.log("kyc full",kycDetails);
   };
 
   const handleBankDetailsChange = (field, value) => {
@@ -83,8 +83,8 @@ const MyProfile = ({ handleClose, pageTitle }) => {
     const consolidatedFormData = {
       ...personalDetails,
       ...workDetails,
-      ...kycDetails,
-      ...bankDetails,
+      kycDetails,
+      bankDetails,
     };
 
     console.log("Submitting Form Data:", consolidatedFormData);
@@ -197,8 +197,8 @@ const MyProfile = ({ handleClose, pageTitle }) => {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <span className="text-title font-pmedium">{pageTitle}</span>
+      <div className="flex items-center justify-between pb-4">
+        <span className="text-title font-pmedium text-primary">{pageTitle}</span>
         <PrimaryButton
           title={isEditable ? "Cancel" : "Edit"}
           handleSubmit={handleEditClick}

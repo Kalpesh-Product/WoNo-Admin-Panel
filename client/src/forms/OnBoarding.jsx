@@ -124,6 +124,7 @@ export const WorkDetails = ({ formData, handleChange, isEditable }) => {
 };
 
 export const KycDetails = ({ formData, handleChange, isEditable }) => {
+  console.log(formData?.aadhaar)
   return (
     <div>
       <h3 className="text-subtitle font-pmedium my-4">KYC Details</h3>
@@ -133,12 +134,7 @@ export const KycDetails = ({ formData, handleChange, isEditable }) => {
           disabled={!isEditable}
           label="Aadhaar Number"
           value={formData?.aadhaar || ""}
-          onChange={(e) =>
-            handleChange("kycDetails", {
-              ...formData,
-              aadhaar: e.target.value,
-            })
-          }
+          onChange={(e) => handleChange("aadhaar", e.target.value)}
           fullWidth
           required
         />
@@ -147,12 +143,7 @@ export const KycDetails = ({ formData, handleChange, isEditable }) => {
           disabled={!isEditable}
           label="PAN Number"
           value={formData?.pan || ""}
-          onChange={(e) =>
-            handleChange("kycDetails", {
-              ...formData,
-              pan: e.target.value,
-            })
-          }
+          onChange={(e) => handleChange("pan", e.target.value)}
           fullWidth
           required
         />
@@ -171,12 +162,7 @@ export const BankDetails = ({ formData, handleChange, isEditable }) => {
           disabled={!isEditable}
           label="Bank Name"
           value={formData?.bankName || ""}
-          onChange={(e) =>
-            handleChange("bankDetails", {
-              ...formData,
-              bankName: e.target.value,
-            })
-          }
+          onChange={(e) => handleChange("bankName", e.target.value)}
           fullWidth
           required
         />
@@ -185,12 +171,7 @@ export const BankDetails = ({ formData, handleChange, isEditable }) => {
           disabled={!isEditable}
           label="Account Number"
           value={formData?.accountNumber || ""}
-          onChange={(e) =>
-            handleChange("bankDetails", {
-              ...formData,
-              accountNumber: e.target.value,
-            })
-          }
+          onChange={(e) => handleChange("accountNumber", e.target.value)}
           fullWidth
           required
         />
@@ -199,12 +180,7 @@ export const BankDetails = ({ formData, handleChange, isEditable }) => {
           disabled={!isEditable}
           label="IFSC Code"
           value={formData?.ifsc || ""}
-          onChange={(e) =>
-            handleChange("bankDetails", {
-              ...formData,
-              ifsc: e.target.value,
-            })
-          }
+          onChange={(e) => handleChange("ifsc", e.target.value)}
           fullWidth
           required
         />

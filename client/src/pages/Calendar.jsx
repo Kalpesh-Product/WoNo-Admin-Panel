@@ -60,7 +60,10 @@ const Calender = () => {
     return events.filter((event) => {
       const eventStart = dayjs(event.start).startOf("day");
       const eventEnd = dayjs(event.end).startOf("day");
-      return today.isSame(eventStart) || (today.isAfter(eventStart) && today.isBefore(eventEnd));
+      return (
+        today.isSame(eventStart) ||
+        (today.isAfter(eventStart) && today.isBefore(eventEnd))
+      );
     });
   };
 
@@ -102,13 +105,13 @@ const Calender = () => {
       <div className="flex-1 p-4 bg-white">
         <div className="flex gap-4 relative w-full">
           <div className="flex flex-col gap-4 w-[25%]">
-            <div className="border-2 border-gray-300 p-4 rounded-md">
-              <div className="w-full flex justify-start ">
+            <div className="border-2 border-gray-300  rounded-md">
+              <div className="w-full flex justify-start border-b-default border-borderGray p-2">
                 <span className="text-content font-bold uppercase">
                   Event Filters
                 </span>
               </div>
-              <div className="flex justify-start text-content ">
+              <div className="flex justify-start text-content px-2">
                 <FormGroup column>
                   {["holiday", "event"].map((type) => {
                     const colors = {
@@ -150,40 +153,43 @@ const Calender = () => {
               </div>
             </div>
 
-            <div className="border-2 border-gray-300 p-4 rounded-md">
-              <div className="mb-2 text-content font-bold uppercase">
-                Today's Schedule
+            <div className="border-2 border-gray-300  rounded-md">
+              <div className="mb-2 text-content font-bold uppercase border-b-default border-borderGray p-2">
+                <span>Today's Schedule</span>
               </div>
-              {todaysEvents.length > 0 ? (
-                todaysEvents.map((event, index) => {
-                  const colors = {
-                    holiday: "#4caf50",
-                    event: "#ff9800",
-                  };
-                  return (
-                    <div key={index} className="flex gap-2 items-center mb-2">
-                      <div
-                        className="w-3 h-3 rounded-full mr-2"
-                        style={{
-                          backgroundColor: colors[event.extendedProps.type],
-                        }}
-                      ></div>
-                      <div className="flex flex-col">
-                        <span className="text-content font-medium">
-                          {event.title}
-                        </span>
-                        <span className="text-small text-gray-500">
-                          {event.start
-                            ? dayjs(event.start).format("h:mm A")
-                            : "All Day"}
-                        </span>
+
+              <div className="px-2">
+                {todaysEvents.length > 0 ? (
+                  todaysEvents.map((event, index) => {
+                    const colors = {
+                      holiday: "#4caf50",
+                      event: "#ff9800",
+                    };
+                    return (
+                      <div key={index} className="flex gap-2 items-center mb-2">
+                        <div
+                          className="w-3 h-3 rounded-full mr-2"
+                          style={{
+                            backgroundColor: colors[event.extendedProps.type],
+                          }}
+                        ></div>
+                        <div className="flex flex-col">
+                          <span className="text-content font-medium">
+                            {event.title}
+                          </span>
+                          <span className="text-small text-gray-500">
+                            {event.start
+                              ? dayjs(event.start).format("h:mm A")
+                              : "All Day"}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  );
-                })
-              ) : (
-                <span>No events today.</span>
-              )}
+                    );
+                  })
+                ) : (
+                  <span>No events today.</span>
+                )}
+              </div>
             </div>
           </div>
           <div className="w-full h-full overflow-y-auto">
@@ -274,7 +280,11 @@ const Calender = () => {
                   }
                   sx={{ mb: 2 }}
                 />
-                <Button variant="contained" color="primary" onClick={handleSaveEvent}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleSaveEvent}
+                >
                   Save Event
                 </Button>
               </Box>

@@ -6,6 +6,7 @@ const WidgetSection = ({
   title,
   titleData,
   titleDataColor,
+  padding
 }) => {
   // Tailwind grid classes for different layouts
   const gridClasses = {
@@ -34,7 +35,7 @@ const WidgetSection = ({
           </span>
         </div>
       )}
-      <div className={`w-full grid gap-4 p-4 ${gridClasses[layout]} h-full `}>
+      <div style={{padding:padding ? '0' : '1rem'}} className={`w-full grid gap-4 ${gridClasses[layout]} h-full`}>
         {React.Children.map(children, (child) => (
           <div>{child}</div>
         ))}

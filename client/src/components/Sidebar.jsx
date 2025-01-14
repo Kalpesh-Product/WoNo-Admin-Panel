@@ -86,9 +86,7 @@ const Sidebar = () => {
 
   return (
     <div
-      className={`flex flex-col p-2 h-screen bg-gray ${
-        isSidebarOpen && "shadow-md"
-      }`}
+      className={`flex flex-col p-2 h-screen bg-gray`}
     >
       <div
         className={`${

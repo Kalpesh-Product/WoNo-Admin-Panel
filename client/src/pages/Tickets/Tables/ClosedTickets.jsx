@@ -17,7 +17,7 @@ const ClosedTickets = ({title}) => {
           "in-progress": { backgroundColor: "#ADD8E6", color: "#00008B" }, // Light blue bg, dark blue font
           resolved: { backgroundColor: "#90EE90", color: "#006400" }, // Light green bg, dark green font
           open: { backgroundColor: "#E6E6FA", color: "#4B0082" }, // Light purple bg, dark purple font
-          completed: { backgroundColor: "#cce7fc", color: "#259bf5" },
+          Closed: { backgroundColor: "#cce7fc", color: "#259bf5" },
         };
 
         const { backgroundColor, color } = statusColorMap[params.value] || {
@@ -44,37 +44,37 @@ const ClosedTickets = ({title}) => {
       raisedBy: "Abrar Shaikh",
       fromDepartment: "IT",
       ticketTitle: "Monitor dead pixel",
-      status: "completed",
+      status: "Closed",
     },
     {
       raisedBy: "John Doe",
       fromDepartment: "HR",
       ticketTitle: "System login issue",
-      status: "completed",
+      status: "Closed",
     },
     {
       raisedBy: "Jane Smith",
       fromDepartment: "Finance",
       ticketTitle: "Printer not working",
-      status: "completed",
+      status: "Closed",
     },
     {
       raisedBy: "Mike Brown",
       fromDepartment: "Operations",
       ticketTitle: "Software installation request",
-      status: "completed",
+      status: "Closed",
     },
     {
       raisedBy: "Emily Davis",
       fromDepartment: "Marketing",
       ticketTitle: "Email access problem",
-      status: "completed",
+      status: "Closed",
     },
     {
       raisedBy: "Chris Johnson",
       fromDepartment: "Admin",
       ticketTitle: "Air conditioner maintenance",
-      status: "completed",
+      status: "Closed",
     },
   ];
   return (

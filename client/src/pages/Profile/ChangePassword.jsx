@@ -81,12 +81,12 @@ const ChangePassword = ({ pageTitle }) => {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <span className="text-title font-pmedium">{pageTitle}</span>
+      <div className="flex items-center justify-between pb-4">
+        <span className="text-title font-pmedium text-primary">{pageTitle}</span>
       </div>
 
       {/* Current Password Field */}
-      <div className="mb-4 w-full flex justify-start items-center gap-2">
+      <div className="mb-4 w-full flex justify-start items-center gap-4">
         <TextField
           size="small"
           label="Current Password"
@@ -134,7 +134,7 @@ const ChangePassword = ({ pageTitle }) => {
         {successMessage && <p className="text-green-500">{successMessage}</p>}
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3 text-gray-500">
         <span className="text-subtitle">Password Requirements</span>
         <ul className="text-content list-disc pl-5">
           <li>Must be at least 8 characters long.</li>

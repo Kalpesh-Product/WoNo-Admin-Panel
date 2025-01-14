@@ -3,7 +3,7 @@ import HierarchyTree from '../../components/HierarchyTree'
 
 const Access = () => {
   return (
-    <div className='bg-white'> 
+    <div className='bg-white '> 
       <HierarchyTree />
     </div>
   )
