@@ -16,7 +16,7 @@ wono-7a9f9-firebase-adminsdk-1vvh4-2509500cec.json
 /logs
 
 # misc
-.env
+/.env
 .DS_Store
 .env.local
 .env.development.local
