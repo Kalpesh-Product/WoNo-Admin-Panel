@@ -183,111 +183,60 @@ const fetchSingleUser = async (req, res) => {
   }
 };
 
-// const updateSingleUser = async (req, res) => {
-//   try {
-//     const { id } = req.params; // Extract user ID from request parameters
-//     const updateData = req.body; // Data to update comes from the request body
-
-//     // Define a whitelist of updatable fields
-//     const allowedFields = [
-//       "name",
-//       "gender",
-//       "fatherName",
-//       "motherName",
-//       "kycDetails.aadhaar",
-//       "kycDetails.pan",
-//       "bankDetails.bankName",
-//       "bankDetails.accountNumber",
-//       "bankDetails.ifsc",
-//     ];
-
-//     // Filter the updateData to include only allowed fields
-//     const filteredUpdateData = Object.keys(updateData)
-//       .filter((key) => allowedFields.includes(key))
-//       .reduce((obj, key) => {
-//         obj[key] = updateData[key];
-//         return obj;
-//       }, {});
-
-//     if (Object.keys(filteredUpdateData).length === 0) {
-//       return res.status(400).json({ message: "No valid fields to update" });
-//     }
-
-//     // Perform the update operation
-//     const updatedUser = await User.findByIdAndUpdate(
-//       id,
-//       { $set: filteredUpdateData }, // Use `$set` to update specific fields
-//       { new: true, runValidators: true } // Return the updated document and enforce validation
-//     )
-//       .select("-password") // Exclude the password field
-//       .populate("reportsTo", "name email")
-//       .populate("department", "name")
-//       .populate("company", "name")
-//       .populate("role", "roleTitle modulePermissions");
-
-//     if (!updatedUser) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-
-//     res.status(200).json({
-//       message: "User data updated successfully",
-//       user: updatedUser,
-//     });
-//   } catch (error) {
-//     console.error("Error updating user: ", error);
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-
 const updateSingleUser = async (req, res) => {
   try {
     const { id } = req.params; // Extract user ID from request parameters
     const updateData = req.body; // Data to update comes from the request body
 
-    // Define a whitelist of updatable fields
+    // Define a whitelist of updatable fields, including nested objects
     const allowedFields = [
       "name",
       "gender",
       "fatherName",
       "motherName",
-      "aadhaar",
-      "pan",
-      "bankName",
-      "accountNumber",
-      "ifsc",
+      "kycDetails.aadhaar",
+      "kycDetails.pan",
+      "bankDetails.bankName",
+      "bankDetails.accountNumber",
+      "bankDetails.ifsc",
     ];
 
-    // Map nested fields to flat keys
-    const flattenedUpdateData = Object.keys(updateData).reduce((obj, key) => {
-      if (key === "kycDetails" && updateData.kycDetails) {
-        // Map kycDetails fields
-        if (updateData.kycDetails.aadhaar)
-          obj["aadhaar"] = updateData.kycDetails.aadhaar;
-        if (updateData.kycDetails.pan) obj["pan"] = updateData.kycDetails.pan;
-      } else if (key === "bankDetails" && updateData.bankDetails) {
-        // Map bankDetails fields
-        if (updateData.bankDetails.bankName)
-          obj["bankName"] = updateData.bankDetails.bankName;
-        if (updateData.bankDetails.accountNumber)
-          obj["accountNumber"] = updateData.bankDetails.accountNumber;
-        if (updateData.bankDetails.ifsc)
-          obj["ifsc"] = updateData.bankDetails.ifsc;
-      } else if (allowedFields.includes(key)) {
-        // Add direct fields
-        obj[key] = updateData[key];
-      }
-      return obj;
-    }, {});
+    // Filter the updateData to include only allowed fields
+    const filteredUpdateData = {};
 
-    // Check if any fields are valid for update
-    if (Object.keys(flattenedUpdateData).length === 0) {
+    Object.keys(updateData).forEach((key) => {
+      if (allowedFields.includes(key)) {
+        // Direct field
+        filteredUpdateData[key] = updateData[key];
+      } else {
+        // Check for nested fields
+        const nestedFieldMatch = allowedFields.find((field) =>
+          field.startsWith(`${key}.`)
+        );
+        if (nestedFieldMatch && typeof updateData[key] === "object") {
+          // If a nested field matches, process its properties
+          const nestedFieldPrefix = `${key}.`;
+          filteredUpdateData[key] = Object.keys(updateData[key]).reduce(
+            (nestedObj, nestedKey) => {
+              if (allowedFields.includes(`${nestedFieldPrefix}${nestedKey}`)) {
+                nestedObj[nestedKey] = updateData[key][nestedKey];
+              }
+              return nestedObj;
+            },
+            {}
+          );
+        }
+      }
+    });
+
+    if (Object.keys(filteredUpdateData).length === 0) {
       return res.status(400).json({ message: "No valid fields to update" });
     }
 
     // Perform the update operation
     const updatedUser = await User.findByIdAndUpdate(
       id,
-      { $set: flattenedUpdateData }, // Use `$set` to update specific fields
+      { $set: filteredUpdateData }, // Use `$set` to update specific fields
       { new: true, runValidators: true } // Return the updated document and enforce validation
     )
       .select("-password") // Exclude the password field
