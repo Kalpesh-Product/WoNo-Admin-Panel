@@ -72,27 +72,26 @@ export const routes = createBrowserRouter([
               },
               {
                 path: "tickets/raise-ticket",
-                element:<RaiseTicket/>,
+                element: <RaiseTicket />,
               },
               {
                 path: "tickets/manage-tickets",
                 element: <ManageTickets />,
               },
               {
-        path: "tickets/ticket-settings", 
-        element: <TicketSettings />,
+                path: "tickets/ticket-settings",
+                element: <TicketSettings />,
+              },
+              {
+                path: "tickets/team-members",
+                element: <TeamMembers />,
+              },
 
-      },
-      {
-        path: "tickets/team-members",
-        element:<TeamMembers/>
-      },
-      
-      {
-        path: "tickets/Reports",
-        element:<Reportss/>
-      },
-      {
+              {
+                path: "tickets/Reports",
+                element: <Reportss />,
+              },
+              {
                 path: "chat",
                 element: <Chat />,
               },
@@ -104,9 +103,7 @@ export const routes = createBrowserRouter([
           },
         ],
       },
-      {
-
-      },
+      {},
     ],
   },
 ]);
