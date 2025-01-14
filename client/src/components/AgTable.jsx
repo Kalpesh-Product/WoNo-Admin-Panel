@@ -11,6 +11,7 @@ const AgTable = React.memo(
     paginationPageSize,
     highlightFirstRow,
     highlightEditedRow,
+    rowSelection
   }) => {
     const defaultColDef = {
       resizable: true,
@@ -64,6 +65,7 @@ const AgTable = React.memo(
           domLayout="normal"
           rowHeight={50} // Increased row height for better spacing
           getRowStyle={getRowStyle}
+          rowSelection={rowSelection}
         />
       </div>
     );

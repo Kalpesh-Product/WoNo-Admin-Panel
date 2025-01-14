@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import AgTable from "../../components/AgTable";
 import PrimaryButton from "../../components/PrimaryButton";
+import { Chip } from "@mui/material";
+
 import {
   TextField,
   FormControl,
@@ -25,47 +27,100 @@ const RaiseTicket = () => {
     { field: "RaisedBy", headerName: "Raised By",flex:1 },
     { field: "SelectedDepartment", headerName: "Selected Department",flex:1  },
     { field: "TicketTitle", headerName: "Ticket Title",flex:1  },
-    { field: "Priority", headerName: "Priority",flex:1 },
+    { field: "Priority", headerName: "Priority",
+      cellRenderer: (params) => {
+        const statusColorMap = {
+          High: {  backgroundColor: "#ffbac2", color: "#ed0520"}, // Light orange bg, dark orange font
+          Medium: { backgroundColor: "#ADD8E6", color: "#00008B" }, // Light blue bg, dark blue font
+          Low: { backgroundColor: "#90EE90", color: "#006400" }, // Light green bg, dark green font
+          open: { backgroundColor: "#E6E6FA", color: "#4B0082" }, // Light purple bg, dark purple font
+          Closed: { backgroundColor: "#D3D3D3", color: "#696969" }, // Light gray bg, dark gray font
+        };
 
-    { field: "Status", headerName: "Status",flex:1 },
+        const { backgroundColor, color } = statusColorMap[params.value] || {
+          backgroundColor: "gray",
+          color: "white",
+        };
+        return (
+          <>
+            <Chip
+              label={params.value}
+              style={{
+                backgroundColor,
+                color,
+              }}
+            />
+          </>
+        );
+      },
+      flex:1 },
+
+    {
+      field: "Status",
+      headerName: "Status",
+      cellRenderer: (params) => {
+        const statusColorMap = {
+          Pending: { backgroundColor: "#FFECC5", color: "#CC8400" }, // Light orange bg, dark orange font
+          "in-progress": { backgroundColor: "#ADD8E6", color: "#00008B" }, // Light blue bg, dark blue font
+          resolved: { backgroundColor: "#90EE90", color: "#006400" }, // Light green bg, dark green font
+          open: { backgroundColor: "#E6E6FA", color: "#4B0082" }, // Light purple bg, dark purple font
+          Closed: { backgroundColor: "#D3D3D3", color: "#696969" }, // Light gray bg, dark gray font
+        };
+
+        const { backgroundColor, color } = statusColorMap[params.value] || {
+          backgroundColor: "gray",
+          color: "white",
+        };
+        return (
+          <>
+            <Chip
+              label={params.value}
+              style={{
+                backgroundColor,
+                color,
+              }}
+            />
+          </>
+        );
+      }
+    }
+
   ];
   const rows = [
     {
       RaisedBy:"Abrar Shaikh",
       SelectedDepartment:"IT",
-      ticketTitle:"Laptop Screen Malfunctioning"
+      TicketTitle:"Laptop Screen Malfunctioning",
+      Priority:"High",
+      Status:"In Process"
     },
     {
-      name: "Aiwin",
-      role: "Tech",
-      assignedToday: "80",
-      totalassigned: "1203",
-      totalresolved: "2204",
-      resolutiontime: "34 mins",
+      RaisedBy:"Abrar Shaikh",
+      SelectedDepartment:"IT",
+      TicketTitle:"Request for new stationary Supplies",
+      Priority:"High",
+      Status:"Pending"
     },
     {
-      name: "Sankalp Kalangutkar",
-      role: "Tech",
-      assignedToday: "80",
-      totalassigned: "1203",
-      totalresolved: "2204",
-      resolutiontime: "39 mins",
+      RaisedBy:"Abrar Shaikh",
+      SelectedDepartment:"IT",
+      TicketTitle:"Domain Expired",
+      Priority:"High",
+      Status:"Pending"
     },
     {
-      name: "Anushri Bhagat",
-      role: "IT",
-      assignedToday: "80",
-      totalassigned: "1203",
-      totalresolved: "2204",
-      resolutiontime: "40 mins",
+      RaisedBy:"Abrar Shaikh",
+      SelectedDepartment:"IT",
+      TicketTitle:"Salary Not Revceived",
+      Priority:"High",
+      Status:"Closed"
     },
     {
-      name: "Allen Silvera",
-      role: "IT",
-      assignedToday: "80",
-      totalassigned: "1203",
-      totalresolved: "2204",
-      resolutiontime: "50 mins",
+      RaisedBy:"Abrar Shaikh",
+      SelectedDepartment:"IT",
+      TicketTitle:"Wifi is Not Working",
+      Priority:"High",
+      Status:"Pending"
     },
   ];
   return (
