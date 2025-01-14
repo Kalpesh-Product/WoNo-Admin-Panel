@@ -67,7 +67,7 @@ const BarGraph = ({ data, title }) => {
   ];
 
   return (
-    <div className="bg-white">
+    <div className="bg-white border-default border-borderGray rounded-md">
       <div className="border-b-2 p-4 border-gray-200">
         <span className="text-lg">{title}</span>
       </div>

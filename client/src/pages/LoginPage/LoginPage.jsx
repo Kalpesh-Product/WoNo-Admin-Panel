@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState,useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Container, Box, Grid, TextField } from "@mui/material";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ import LoginWithEmailImage from "../../assets/WONO_images/img/login_images/email
 import WonoLogo from "../../assets/WONO_images/img/WONO_LOGO_white_TP.png";
 import Footer from "../../components/Footer";
 
+
 const LoginPage = () => {
   const { auth, setAuth } = useAuth();
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (auth.accessToken.length) {
-      navigate("/app/frontend-dashboard");
+      navigate('/app/frontend-dashboard')
     } else {
       refresh();
     }
@@ -47,10 +48,11 @@ const LoginPage = () => {
         };
       });
       toast.success("Successfully logged in");
-      navigate("/app/frontend-dashboard");
+      navigate('/app/frontend-dashboard');
     } catch (error) {
       toast.error(error.response?.data.message);
     }
+    
   };
 
   return (
@@ -159,6 +161,7 @@ const LoginPage = () => {
           <div className="loginRightContainer">
             <div className="loginWithSection d-flex flex-column justify-content-center align-items-center">
               <div className="loginWithSection d-flex flex-column justify-content-center align-items-center">
+                
                 <div className="LoginWithGoogleContainer loginWithBox loginWithGoogleBox d-flex justify-content-between align-items-center centerElement">
                   <div className="loginWithIconBox loginWithGoogleIconBox centerElement">
                     <img

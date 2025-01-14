@@ -93,7 +93,6 @@ const AcceptedTickets = ({ title }) => {
             >
               Support
             </button>
-            <h1>hi</h1>
           </div>
         </>
       ),

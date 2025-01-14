@@ -28,7 +28,6 @@ export const PersonalDetails = ({ formData, handleChange, isEditable }) => {
           <InputLabel>Gender</InputLabel>
           <Select
             value={formData.gender || ""}
-            label="Gender"
             onChange={(e) => handleChange("gender", e.target.value)}>
             <MenuItem value="">Select Gender</MenuItem>
             <MenuItem value="Male">Male</MenuItem>
@@ -82,7 +81,6 @@ export const WorkDetails = ({ formData, handleChange, isEditable }) => {
         <LocalizationProvider>
           <DesktopDatePicker
             label="Start Date"
-            disabled={!isEditable}
             inputFormat="MM/DD/YYYY"
             slotProps={{ textField: { size: "small" } }}
             value={formData.startDate}
@@ -90,6 +88,7 @@ export const WorkDetails = ({ formData, handleChange, isEditable }) => {
             renderInput={(params) => (
               <TextField
                 size="small"
+                disabled={!isEditable}
                 {...params}
                 fullWidth
                 required
@@ -100,7 +99,6 @@ export const WorkDetails = ({ formData, handleChange, isEditable }) => {
             <InputLabel>Department</InputLabel>
             <Select
               value={formData.department || ""}
-              label="Department"
               onChange={(e) => handleChange("department", e.target.value)}>
               <MenuItem value="">Select Department</MenuItem>
               {formData.department.length > 0 &&

@@ -116,80 +116,55 @@ const ManageTickets = () => {
               backgroundColor: "#1E3D73", // Highlight background color for the active tab
               color: "white",
             },
-          }}>
-          <Tab
-            label={
-              <div className="flex flex-col gap-2 text-center">
-                <span className="text-content">Recieved Tickets</span>
-                <span className="text-small">Department</span>
-              </div>
-            }
-          />
-          <Tab
-            label={
-              <div className="flex flex-col gap-2 text-center">
-                <span className="text-content">Accepted Tickets</span>
-                <span className="text-small">Personal</span>
-              </div>
-            }
-          />
-          <Tab
-            label={
-              <div className="flex flex-col gap-2 text-center">
-                <span className="text-content">Support Tickets</span>
-                <span className="text-small">Personal</span>
-              </div>
-            }
-          />
-          <Tab
-            label={
-              <div className="flex flex-col gap-2 text-center">
-                <span className="text-content">Escalated Tickets</span>
-                <span className="text-small">Personal</span>
-              </div>
-            }
-          />
+          }}
+        >
+          <Tab label={<div className="flex flex-col gap-2 text-center">
+            <span className="text-content">Recieved Tickets</span>
+            <span className="text-small">Department</span>
+          </div>} />
+          <Tab label={<div className="flex flex-col gap-2 text-center">
+            <span className="text-content">Accepted Tickets</span>
+            <span className="text-small">Personal</span>
+          </div>} />
+          <Tab label={<div className="flex flex-col gap-2 text-center">
+            <span className="text-content">Support Tickets</span>
+            <span className="text-small">Personal</span>
+          </div>} />
+          <Tab label={<div className="flex flex-col gap-2 text-center">
+            <span className="text-content">Escalated Tickets</span>
+            <span className="text-small">Personal</span>
+          </div>} />
 
-          <Tab
-            label={
-              <div className="flex flex-col gap-2 text-center">
-                <span className="text-content">Closed Tickets</span>
-                <span className="text-small">Personal</span>
-              </div>
-            }
-          />
+          <Tab label={<div className="flex flex-col gap-2 text-center">
+            <span className="text-content">Closed Tickets</span>
+            <span className="text-small">Personal</span>
+          </div>} />
         </Tabs>
 
         <div className="py-4 bg-white">
-          {activeTab === 0 && (
-            <div className="">
-              <RecievedTickets title={"Department Ticket Recieved"} />
-            </div>
-          )}
+          {activeTab === 0 && (<div className="">
+            <RecievedTickets title={"Department Ticket Recieved"}/>
+          </div>)}
           {activeTab === 1 && (
             <div>
-              <AcceptedTickets title={"Accepted & Assigned Tickets"} />
+              <AcceptedTickets  title={"Accepted & Assigned Tickets"}/>
             </div>
-          )}
+            )}
           {activeTab === 2 && (
             <div>
-              <SupportTickets
-                title={"Need Support or Pass/Unresolve Tickets "}
-              />
+              <SupportTickets  title={"Need Support or Pass/Unresolve Tickets "}/>
             </div>
-          )}
+            )}
           {activeTab === 3 && (
             <div>
-              <EscalatedTickets
-                title={"Need Support or Pass/Unresolve Tickets "}
-              />
+              <EscalatedTickets title={"Need Support or Pass/Unresolve Tickets "}/>
             </div>
-          )}
+            )}
           {activeTab === 4 && (
             <div>
-              <ClosedTickets title={"Close / Resolve Tickets"} />
+              <ClosedTickets title={"Close / Resolve Tickets"}/>
             </div>
-          )}
+            )}
           {activeTab === 5 && <div></div>}
         </div>
       </div>

@@ -23,16 +23,11 @@ const WidgetSection = ({
         <div className=" border-b-default border-borderGray p-4">
           <span className="text-subtitle">
             {title}{" "}
-            <span>
+            <span >
               {titleData && (
                 <span>
                   {" "}
-                  :{" "}
-                  <span
-                    style={{ color: titleDataColor }}
-                    className="font-pbold text-title">
-                    {titleData}
-                  </span>
+                  : <span style={{ color: titleDataColor }} className="font-pbold text-title">{titleData}</span>
                 </span>
               )}
             </span>

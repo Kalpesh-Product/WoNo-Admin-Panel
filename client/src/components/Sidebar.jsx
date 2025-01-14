@@ -1,30 +1,31 @@
 import React, { useState } from "react";
-import { FaAngleDown, FaChevronUp, FaUsers } from "react-icons/fa6";
-import { FaProjectDiagram, FaRegCalendarAlt, FaTasks } from "react-icons/fa";
+import { FaAngleDown, FaChevronUp } from "react-icons/fa6";
+import { FaRegCalendarAlt, FaTasks } from "react-icons/fa";
 import { TbReportSearch } from "react-icons/tb";
-import { IoIosArrowForward, IoMdNotifications } from "react-icons/io";
+import { IoMdNotifications } from "react-icons/io";
 import { SiAuthelia } from "react-icons/si";
-import { CgProfile } from "react-icons/cg";
 import { HiOutlineChatAlt2 } from "react-icons/hi";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSidebar } from "../context/SideBarContext";
-import { GiHamburgerMenu } from "react-icons/gi";
-import biznestLogo from "../assets/biznest/biznest_logo.jpg";
 import { MdHome } from "react-icons/md";
 import { CgWebsite } from "react-icons/cg";
 import { RiAdminFill } from "react-icons/ri";
 import { TbCashRegister } from "react-icons/tb";
 import { FaUserTie } from "react-icons/fa6";
-import { TbAccessible } from "react-icons/tb";
 
 const Sidebar = () => {
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
   const navigate = useNavigate();
   const location = useLocation();
-  const [expandedModule, setExpandedModule] = useState(null);
+  const [expandedModule, setExpandedModule] = useState(0);
 
   // Menu items array (without DASHBOARD)
   const menuItems = [
+    {
+      name: "Tickets",
+      icon: <TbReportSearch />,
+      route: "tickets",
+    },
     {
       name: "Reports",
       icon: <TbReportSearch />,
@@ -38,7 +39,7 @@ const Sidebar = () => {
     {
       name: "Notifications",
       icon: <IoMdNotifications />,
-      route: "/notifications",
+      route: "notifications",
     },
     // { name: "Profile", icon: <CgProfile />, route: "/profile" },
   ];
@@ -89,27 +90,6 @@ const Sidebar = () => {
         isSidebarOpen && "shadow-md"
       }`}
     >
-      <div
-        className={`w-full border-b-2 border-gray-200 mb-1 flex ${
-          isSidebarOpen ? "justify-between px-3 py-3" : "justify-center py-3"
-        } transition-all duration-100 items-center`}
-      >
-        <div className={`${isSidebarOpen ? "w-32" : "hidden"}  h-full`}>
-          <img
-            className="w-full h-full object-contain"
-            src={biznestLogo}
-            alt="logo"
-          />
-        </div>
-
-        <button
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="p-2 text-gray-500 text-xl"
-        >
-          {isSidebarOpen ? <GiHamburgerMenu /> : <IoIosArrowForward />}
-        </button>
-      </div>
-
       <div
         className={`${
           isSidebarOpen ? "w-60" : "w-16"
@@ -249,18 +229,18 @@ const Sidebar = () => {
                 navigate("profile");
               }}
               className={`flex hover:text-primary transition-all duration-100 text-gray-500 ${
-                isActive('/profile')
+                isActive("/profile")
                   ? "text-primary bg-gray-200 rounded-md"
                   : "text-gray-500"
               } ${
                 isSidebarOpen ? "pl-[0rem]" : "justify-center"
               } items-center cursor-pointer `}
             >
-              <div className={`flex justify-center items-center w-9 h-9 ${
-                    isActive('/profile')
-                      ? "bg-primary text-white rounded-md"
-                      : ""
-                  } text-sm`}>
+              <div
+                className={`flex justify-center items-center w-9 h-9 ${
+                  isActive("/profile") ? "bg-primary text-white rounded-md" : ""
+                } text-sm`}
+              >
                 <FaUserTie />
               </div>
               {isSidebarOpen && <span className="pl-5 text-sm">Profile</span>}
