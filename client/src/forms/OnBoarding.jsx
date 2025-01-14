@@ -36,6 +36,7 @@ export const PersonalDetails = ({ formData, handleChange, isEditable }) => {
         </FormControl>
         <DesktopDatePicker
           label="Date of Birth"
+          disabled={!isEditable}
           inputFormat="MM/DD/YYYY"
           slotProps={{textField : {size:'small'}}}
           value={formData.dob}
@@ -43,7 +44,6 @@ export const PersonalDetails = ({ formData, handleChange, isEditable }) => {
           renderInput={(params) => (
             <TextField
               size="small"
-              disabled={!isEditable}
               {...params}
               fullWidth
               required
