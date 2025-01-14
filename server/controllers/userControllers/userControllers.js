@@ -199,6 +199,8 @@ const updateSingleUser = async (req, res) => {
       "bankDetails.bankName",
       "bankDetails.accountNumber",
       "bankDetails.ifsc",
+      "role",
+      "department",
     ];
 
     // Filter the updateData to include only allowed fields

@@ -58,6 +58,9 @@ const MyProfile = ({ handleClose, pageTitle }) => {
 
   const handleWorkDetailsChange = (field, value) => {
     setWorkDetails((prev) => ({ ...prev, [field]: value }));
+
+    console.log(field);
+    console.log(value);
   };
 
   const handleKycDetailsChange = (field, value) => {
@@ -127,7 +130,6 @@ const MyProfile = ({ handleClose, pageTitle }) => {
         const fetchedUser = response.data.user || {};
 
         // Update all states based on fetched data
-
         const roles = await fetchRoles();
         const departments = await fetchDepartments();
 
@@ -145,9 +147,15 @@ const MyProfile = ({ handleClose, pageTitle }) => {
           motherName: fetchedUser.motherName,
         });
 
+        // Get current role and department from auth.user
+        const currentRole = auth.user.role.roleTitle; // "Master-Admin"
+        const currentDepartment = auth.user.department[0].name; // "TopManagement"
+
         setWorkDetails({
-          role: roles,
-          department: departments || [],
+          role: currentRole, // Current role from auth
+          roles: roles || [], // All available roles
+          department: currentDepartment, // Current department from auth
+          departments: departments || [], // All available departments
           designation: fetchedUser.workDetails?.designation || "",
           workLocation: fetchedUser.workLocation || "",
           workType: fetchedUser?.workType || "",
