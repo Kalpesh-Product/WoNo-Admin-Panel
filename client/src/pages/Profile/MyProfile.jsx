@@ -125,7 +125,7 @@ const MyProfile = ({ handleClose, pageTitle }) => {
       try {
         const userId = auth.user._id;
         const response = await api.get(
-          `/api/users/fetch-single-user/${userId}`
+         `/api/users/fetch-single-user/${userId}`
         );
         const fetchedUser = response.data.user || {};
 

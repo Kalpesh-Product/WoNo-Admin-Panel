@@ -36,6 +36,7 @@ const AreaGraph = () => {
       "Dec",
     ], // Months
   };
+  
 
   const chartOptions = {
     chart: {
