@@ -9,7 +9,7 @@ import Access from "../pages/Access/Access";
 import Chat from "../pages/Chat";
 import Profile from "../pages/Profile/Profile";
 import AccessProfile from "../pages/Access/AccessProfile";
-import Notifications from "../pages/";
+import Notifications from "../pages/Notifications";
 import TicketDashboard from "../pages/Tickets/TicketDashboard";
 import ManageTickets from "../pages/Tickets/ManageTickets";
 import PersistLogin from "../layouts/PersistLogin";

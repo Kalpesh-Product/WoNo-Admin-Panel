@@ -36,8 +36,8 @@ export const PersonalDetails = ({ formData, handleChange, isEditable }) => {
           </Select>
         </FormControl>
         <DesktopDatePicker
-        disabled={!isEditable}
           label="Date of Birth"
+          disabled={!isEditable}
           inputFormat="MM/DD/YYYY"
           slotProps={{ textField: { size: "small" } }}
           value={formData.dob}
@@ -73,15 +73,13 @@ export const PersonalDetails = ({ formData, handleChange, isEditable }) => {
 };
 
 export const WorkDetails = ({ formData, handleChange, isEditable }) => {
-  
-  console.log('workdetails:',formData.department)
+  console.log("workdetails:", formData.department);
   return (
     <div>
       <h3 className="text-subtitle font-pmedium my-4">Work Details</h3>
       <div className="grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 gap-4">
         <LocalizationProvider>
           <DesktopDatePicker
-           disabled={!isEditable}
             label="Start Date"
             inputFormat="MM/DD/YYYY"
             slotProps={{ textField: { size: "small" } }}
@@ -90,6 +88,7 @@ export const WorkDetails = ({ formData, handleChange, isEditable }) => {
             renderInput={(params) => (
               <TextField
                 size="small"
+                disabled={!isEditable}
                 {...params}
                 fullWidth
                 required
@@ -102,9 +101,12 @@ export const WorkDetails = ({ formData, handleChange, isEditable }) => {
               value={formData.department || ""}
               onChange={(e) => handleChange("department", e.target.value)}>
               <MenuItem value="">Select Department</MenuItem>
-              {formData.department.length>0 && formData.department.map((department)=>
-               (<MenuItem key={department.name} value={department.name}>{department.name}</MenuItem>))
-              }
+              {formData.department.length > 0 &&
+                formData.department.map((department) => (
+                  <MenuItem key={department.name} value={department.name}>
+                    {department.name}
+                  </MenuItem>
+                ))}
             </Select>
           </FormControl>
           <FormControl size="small" fullWidth disabled={!isEditable}>
@@ -114,9 +116,12 @@ export const WorkDetails = ({ formData, handleChange, isEditable }) => {
               onChange={(e) => handleChange("role", e.target.value)}>
               <MenuItem value="">Select Role</MenuItem>
               {/* Add role options dynamically */}
-              {formData.role.length>0 && formData.role.map((role)=>
-               (<MenuItem key={role.roleTitle} value={role.roleTitle}>{role.roleTitle}</MenuItem>))
-              }
+              {formData.role.length > 0 &&
+                formData.role.map((role) => (
+                  <MenuItem key={role.roleTitle} value={role.roleTitle}>
+                    {role.roleTitle}
+                  </MenuItem>
+                ))}
             </Select>
           </FormControl>
         </LocalizationProvider>
@@ -126,7 +131,6 @@ export const WorkDetails = ({ formData, handleChange, isEditable }) => {
 };
 
 export const KycDetails = ({ formData, handleChange, isEditable }) => {
- 
   return (
     <div>
       <h3 className="text-subtitle font-pmedium my-4">KYC Details</h3>
