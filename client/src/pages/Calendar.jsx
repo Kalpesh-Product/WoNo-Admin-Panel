@@ -29,23 +29,7 @@ const Calender = () => {
     start: "",
     description: "",
   });
-  const [eventFilter, setEventFilter] = useState([
-    "View All",
-    "holiday",
-    "event",
-  ]);
-  //   const { data: eventsData } = useQuery({
-  //     queryKey: ["events"],
-  //     queryFn: async () => {
-  //       try {
-  //         const response = await api.get("/api/events/all-events");
-  //         return response.data;
-  //       } catch (error) {
-  //         toast.error(error.message);
-  //         return [];
-  //       }
-  //     },
-  //   });
+  const [eventFilter, setEventFilter] = useState(["holiday", "event"]);
 
   useEffect(() => {
     const getEvents = async () => {
@@ -60,25 +44,34 @@ const Calender = () => {
     getEvents();
   }, []);
 
-    useEffect(() => {
-      if (eventFilter.length === 0) {
-        setFilteredEvents(events);
-      } else {
-        const filtered = events.filter((event) =>
-          eventFilter.includes(event.extendedProps?.type.toLowerCase())
-        );
-        setFilteredEvents(filtered);
-      }
-    }, [eventFilter, events]);
+  useEffect(() => {
+    if (eventFilter.length === 0) {
+      setFilteredEvents(events);
+    } else {
+      const filtered = events.filter((event) =>
+        eventFilter.includes(event.extendedProps?.type.toLowerCase())
+      );
+      setFilteredEvents(filtered);
+    }
+  }, [eventFilter, events]);
 
-  // Function to handle event clicks
+  const getTodaysEvents = () => {
+    const today = dayjs().startOf("day");
+    return events.filter((event) => {
+      const eventStart = dayjs(event.start).startOf("day");
+      const eventEnd = dayjs(event.end).startOf("day");
+      return today.isSame(eventStart) || (today.isAfter(eventStart) && today.isBefore(eventEnd));
+    });
+  };
+
+  const todaysEvents = getTodaysEvents();
+
   const handleEventClick = (clickInfo) => {
     setSelectedEvent(clickInfo.event);
     setDrawerMode("view");
     setIsDrawerOpen(true);
   };
 
-  // Function to handle date clicks
   const handleDateClick = (info) => {
     setNewEvent({
       title: "",
@@ -89,7 +82,6 @@ const Calender = () => {
     setIsDrawerOpen(true);
   };
 
-  // Function to close the drawer
   const closeDrawer = () => {
     setIsDrawerOpen(false);
     setSelectedEvent(null);
@@ -100,10 +92,8 @@ const Calender = () => {
     });
   };
 
-  // Function to handle new event save
   const handleSaveEvent = () => {
     console.log("New Event:", newEvent);
-    // Add logic to save the event (e.g., API call or update events array)
     closeDrawer();
   };
 
@@ -120,50 +110,42 @@ const Calender = () => {
               </div>
               <div className="flex justify-start text-content ">
                 <FormGroup column>
-                  {["holiday", "event"].map(
-                    (type, index) => {
-                      const colors = {
-                        // "View All": "#f44336",
-                        // meetings: "#2196f3",
-                        holiday: "#4caf50",
-                        event: "#ff9800",
-                      };
-                      return (
-                        <FormControlLabel
-                          key={type}
-                          control={
-                            <Checkbox
-                              sx={{
-                                fontSize: "0.75rem",
-                                transform: "scale(0.8)", // Adjusts the checkbox size
-                                color: colors[type],
-                                "&.Mui-checked": {
-                                  color: colors[type],
-                                },
-                              }}
-                              checked={eventFilter.includes(type)}
-                              onChange={(e) => {
-                                const selectedType = e.target.value;
-                                setEventFilter((prevFilter) =>
-                                  e.target.checked
-                                    ? [...prevFilter, selectedType]
-                                    : prevFilter.filter(
-                                        (t) => t !== selectedType
-                                      )
-                                );
-                              }}
-                              value={type}
-                            />
-                          }
-                          label={
-                            <span style={{ fontSize: "0.875rem" }}>
-                              {type.charAt(0).toUpperCase() + type.slice(1)}
-                            </span>
-                          }
-                        />
-                      );
-                    }
-                  )}
+                  {["holiday", "event"].map((type) => {
+                    const colors = {
+                      holiday: "#4caf50",
+                      event: "#ff9800",
+                    };
+                    return (
+                      <FormControlLabel
+                        key={type}
+                        control={
+                          <Checkbox
+                            sx={{
+                              fontSize: "0.75rem",
+                              transform: "scale(0.8)",
+                              color: colors[type],
+                              "&.Mui-checked": { color: colors[type] },
+                            }}
+                            checked={eventFilter.includes(type)}
+                            onChange={(e) => {
+                              const selectedType = e.target.value;
+                              setEventFilter((prevFilter) =>
+                                e.target.checked
+                                  ? [...prevFilter, selectedType]
+                                  : prevFilter.filter((t) => t !== selectedType)
+                              );
+                            }}
+                            value={type}
+                          />
+                        }
+                        label={
+                          <span style={{ fontSize: "0.875rem" }}>
+                            {type.charAt(0).toUpperCase() + type.slice(1)}
+                          </span>
+                        }
+                      />
+                    );
+                  })}
                 </FormGroup>
               </div>
             </div>
@@ -172,47 +154,36 @@ const Calender = () => {
               <div className="mb-2 text-content font-bold uppercase">
                 Today's Schedule
               </div>
-              {[
-                {
-                  type: "Meetings",
-                  title: "Team Standup",
-                  timing: "10:00 AM - 10:30 AM",
-                },
-                { type: "Holidays", title: "Christmas Eve", timing: "All Day" },
-                {
-                  type: "Events",
-                  title: "Product Launch",
-                  timing: "02:00 PM - 04:00 PM",
-                },
-                {
-                  type: "Meetings",
-                  title: "Client Call",
-                  timing: "04:30 PM - 05:00 PM",
-                },
-              ].map((event, index) => {
-                const colors = {
-                  "View All": "#f44336",
-                  Meetings: "#2196f3",
-                  Holidays: "#4caf50",
-                  Events: "#ff9800",
-                };
-                return (
-                  <div key={index} className="flex gap-2 items-center mb-2">
-                    <div
-                      className="w-3 h-3 rounded-full mr-2"
-                      style={{ backgroundColor: colors[event.type] }}
-                    ></div>
-                    <div className="flex flex-col">
-                      <span className="text-content font-medium">
-                        {event.title}
-                      </span>
-                      <span className="text-small text-gray-500">
-                        {event.timing}
-                      </span>
+              {todaysEvents.length > 0 ? (
+                todaysEvents.map((event, index) => {
+                  const colors = {
+                    holiday: "#4caf50",
+                    event: "#ff9800",
+                  };
+                  return (
+                    <div key={index} className="flex gap-2 items-center mb-2">
+                      <div
+                        className="w-3 h-3 rounded-full mr-2"
+                        style={{
+                          backgroundColor: colors[event.extendedProps.type],
+                        }}
+                      ></div>
+                      <div className="flex flex-col">
+                        <span className="text-content font-medium">
+                          {event.title}
+                        </span>
+                        <span className="text-small text-gray-500">
+                          {event.start
+                            ? dayjs(event.start).format("h:mm A")
+                            : "All Day"}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              ) : (
+                <span>No events today.</span>
+              )}
             </div>
           </div>
           <div className="w-full h-full overflow-y-auto">
@@ -223,41 +194,18 @@ const Calender = () => {
                 right: "dayGridMonth,timeGridWeek,timeGridDay",
               }}
               dayMaxEvents={2}
+              eventDisplay="block"
               eventClick={handleEventClick}
               dateClick={handleDateClick}
-              eventBackgroundColor=""
-              contentHeight="auto"
-              evenTex
-              displayEventTime={false}
               plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
               initialView="dayGridMonth"
-              eventDisplay="block"
-              weekends={true}
-              // dateClick={(info) => {
-              //   const clickedDate = dayjs(info.date).startOf("day");
-              //   setSelectedDate(info.dateStr);
-              //   setShowModal(true);
-              //   setEventDetails((prev) => ({
-              //     ...prev,
-              //     startDate: clickedDate,
-              //     endDate: clickedDate,
-              //   }));
-              // }}
-              // events={filteredEvents}
               events={filteredEvents}
             />
           </div>
         </div>
 
         <Drawer anchor="right" open={isDrawerOpen} onClose={closeDrawer}>
-          <Box
-            sx={{
-              width: 350,
-              padding: 3,
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
+          <Box sx={{ width: 350, padding: 3 }}>
             <Box
               sx={{
                 display: "flex",
@@ -326,11 +274,7 @@ const Calender = () => {
                   }
                   sx={{ mb: 2 }}
                 />
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleSaveEvent}
-                >
+                <Button variant="contained" color="primary" onClick={handleSaveEvent}>
                   Save Event
                 </Button>
               </Box>
