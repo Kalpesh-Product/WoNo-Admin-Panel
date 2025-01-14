@@ -94,7 +94,7 @@ const TicketDashboard = () => {
             </WidgetSection>
           </div>
           <div className="border-default border-borderGray rounded-md">
-            <WidgetSection layout={3} title={"Department Tickets List"}>
+            <WidgetSection layout={3} title={"Personal Tickets List"}>
               <Card title={"Accepted Tickets"} data={"106"} fontColor={"black"} fontFamily={"Poppins-Bold"} />
               <Card title={"Assigned Tickets"} data={"65"} fontColor={"black"} fontFamily={"Poppins-Bold"} />
               <Card title={"Escalated Tickets"} data={"50"} fontColor={"black"} fontFamily={"Poppins-Bold"} />
