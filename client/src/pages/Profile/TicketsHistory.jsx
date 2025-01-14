@@ -86,4 +86,4 @@ const TicketsHistory = ({ pageTitle }) => {
   );
 };
 
-export default TicketsHistory;
+export default TicketsHistory;

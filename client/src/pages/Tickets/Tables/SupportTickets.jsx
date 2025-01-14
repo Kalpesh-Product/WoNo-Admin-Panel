@@ -76,7 +76,7 @@ const SupportTickets = ({title}) => {
                   backgroundColor: "red",
                   color: "white",
                   border: "none",
-                  padding: "0.2rem",
+                  padding: "0.1rem 0.5rem",
                   borderRadius: "4px",
                   cursor: "pointer",
                 }}
@@ -88,7 +88,7 @@ const SupportTickets = ({title}) => {
                   backgroundColor: "red",
                   color: "white",
                   border: "none",
-                  padding: "0.2rem",
+                  padding: "0.1rem 0.5rem",
                   borderRadius: "4px",
                   cursor: "pointer",
                 }}
