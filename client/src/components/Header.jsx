@@ -38,7 +38,8 @@ const Header = () => {
         </div>
         <div className="flex items-center gap-4 w-[40%]">
           <Avatar>
-            <img src={Abrar} alt="" />
+            {auth.user.name === "Abrar Shaikh" ? ( <img src={Abrar} alt="" />) : <span>{auth.user.name.charAt(0)}</span>}
+           
           </Avatar>
           <div className="w-full">
             <h1 className="text-xl font-semibold">{auth.user.name}</h1>
