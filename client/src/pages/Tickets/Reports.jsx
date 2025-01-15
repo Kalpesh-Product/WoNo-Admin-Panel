@@ -40,8 +40,7 @@ const Reports = () => {
     );
   };
 
-  const [selectedRows, setSelectedRows] = useState([]);
-
+  
 
   
 
@@ -51,7 +50,7 @@ const Reports = () => {
     { field: "RaisedBy", headerName: "Raised By",flex:1 },
     { field: "SelectedDepartment", headerName:"Selected Department",flex:1},
     { field:"TicketTitle",headerName:"Ticket Title",flex:1},
-    { field:"Priority",headerName:"Priority",flex:1},
+    { field:"Priority",headerName:"Priority",flex:1, cellRenderer: PriorityCellRenderer,},
     // {
     //   headerName: '"PRIORITY',
     //   field: 'priority',
