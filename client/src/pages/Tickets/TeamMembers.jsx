@@ -36,11 +36,7 @@ const TeamMembers = () => {
     );
   };
   const laptopColumns = [
-    {
-      headerCheckboxSelection: true, // Adds a checkbox in the header for select-all
-      checkboxSelection: true, // Adds a checkbox before each row
-      width: 50,
-    },
+   
     { field: "name", headerName: "NAME", cellRenderer: AvatarCellRenderer, },
     { field: "role", headerName: "ROLE", flex: 1 },
     { field: "assignedToday", headerName: "ASSIGNED TODAY", flex: 1 },
@@ -102,7 +98,7 @@ const TeamMembers = () => {
         <PrimaryButton title="Add New Member"></PrimaryButton>
       </div>
       <div className=" w-full">
-        <AgTable data={rows} columns={laptopColumns} paginationPageSize={10} rowSelection="multiple"  />
+        <AgTable data={rows} columns={laptopColumns} paginationPageSize={10}  />
       </div>
     </div>
   );

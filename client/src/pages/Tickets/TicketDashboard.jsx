@@ -108,27 +108,9 @@ const TicketDashboard = () => {
         <div className=" rounded-md flex flex-col gap-4">
           <div className="border-default border-borderGray rounded-md">
             <WidgetSection layout={3} title={"Department Tickets List"}>
-              <Card
-                title={"Open Tickets"}
-                titleColor={"#1E3D73"}
-                data={"100"}
-                fontColor={"red"}
-                fontFamily={"Poppins-Bold"}
-              />
-              <Card
-                title={"Closed Tickets"}
-                titleColor={"#1E3D73"}
-                data={"75"}
-                fontColor={"#52CE71"}
-                fontFamily={"Poppins-Bold"}
-              />
-              <Card
-                title={"Pending Tickets"}
-                titleColor={"#1E3D73"}
-                data={"25"}
-                fontColor={"#FFBF42"}
-                fontFamily={"Poppins-Bold"}
-              />
+              <Card title={"Open Tickets"} titleColor={"#1E3D73"} data={"200"} fontColor={"red"} fontFamily={"Poppins-Bold"} />
+              <Card title={"Closed Tickets"} titleColor={"#1E3D73"} data={"75"} fontColor={"#52CE71"} fontFamily={"Poppins-Bold"} />
+              <Card title={"Pending Tickets"} titleColor={"#1E3D73"} data={"100"} fontColor={"#FFBF42"} fontFamily={"Poppins-Bold"} />
             </WidgetSection>
           </div>
           <div className="border-default border-borderGray rounded-md">
