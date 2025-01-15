@@ -59,20 +59,23 @@ const ManageTickets = () => {
               <Card
                 title={"Accepted Tickets"}
                 data={"03"}
-                fontColor={"black"}
+                fontColor={"#1E3D73"}
                 fontFamily={"Poppins-Bold"}
+                titleColor={'#1E3D73'}
               />
               <Card
                 title={"Assigned Tickets"}
                 data={"01"}
-                fontColor={"black"}
+                fontColor={"#1E3D73"}
                 fontFamily={"Poppins-Bold"}
+                titleColor={'#1E3D73'}
               />
               <Card
                 title={"Escalated Tickets"}
                 data={"02"}
-                fontColor={"black"}
+                fontColor={"#1E3D73"}
                 fontFamily={"Poppins-Bold"}
+                titleColor={'#1E3D73'}
               />
             </WidgetSection>
           </div>
