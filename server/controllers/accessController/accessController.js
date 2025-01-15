@@ -9,7 +9,7 @@ const grantAccess = async (req, res, next) => {
     const { moduleId, permissions, subModules } = req.body;
 
     if (!user) {
-      return res.sendStatus(401).json({ message: "UnAuthorized User" });
+      return res.status(401).json({ message: "UnAuthorized User" });
     }
 
     // if (
@@ -27,7 +27,7 @@ const grantAccess = async (req, res, next) => {
     }
 
     // Check if the role exists
-    const role = await Roles.findById(targetUser.role._id).exec();
+    const role = await Roles.findById(targetUser.role._id).lean().exec();
     if (!role) {
       return res.status(404).json({ message: "Role not found" });
     }

@@ -51,7 +51,7 @@ const getAllEvents = async (req, res, next) => {
         allDay: event.allDay,
         description: event.description,
         active:event.active,
-        backgroundColor: event.type === "holiday" ? "green" : (event.type === "meeting" ? "purple" : (event.type === "tasks" ? "yellow" : (event.type === "events" ? "blue" : ""))),
+        backgroundColor: event.type === "holiday" ? "#4caf50" : (event.type === "meeting" ? "purple" : (event.type === "tasks" ? "yellow" : (event.type === "events" ? "blue" : "#ff9800"))),
         extendedProps: {
           type: event.type,
         },

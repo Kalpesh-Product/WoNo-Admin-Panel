@@ -92,6 +92,15 @@
   border: none !important;
 }
 
+.css-1hc19t5.Mui-selected {
+  color: white !important;
+}
+
+.apexcharts-canvas {
+  overflow: hidden !important; /* Ensure no scrolling inside the graph */
+}
+
+
 @font-face {
   font-family: Poppins-Regular;
   src: url("../src/assets/WONO_images/img/font/Poppins-Regular.ttf");

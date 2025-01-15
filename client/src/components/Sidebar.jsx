@@ -13,6 +13,7 @@ import { RiAdminFill } from "react-icons/ri";
 import { TbCashRegister } from "react-icons/tb";
 import { FaUserTie } from "react-icons/fa6";
 
+
 const Sidebar = () => {
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
   const navigate = useNavigate();
@@ -35,6 +36,7 @@ const Sidebar = () => {
     { name: "Calendar", icon: <FaRegCalendarAlt />, route: "calendar" },
     { name: "Chat", icon: <HiOutlineChatAlt2 />, route: "chat" },
     { name: "Access", icon: <SiAuthelia />, route: "access" },
+   
 
     {
       name: "Notifications",
@@ -86,9 +88,7 @@ const Sidebar = () => {
 
   return (
     <div
-      className={`flex flex-col p-2 h-screen bg-gray ${
-        isSidebarOpen && "shadow-md"
-      }`}
+      className={`flex flex-col p-2 h-screen bg-gray`}
     >
       <div
         className={`${
@@ -243,7 +243,7 @@ const Sidebar = () => {
               >
                 <FaUserTie />
               </div>
-              {isSidebarOpen && <span className="pl-5 text-sm">Profile</span>}
+              {isSidebarOpen && <span className="pl-5 text-sm">Profiles</span>}
             </div>
           </div>
         </div>

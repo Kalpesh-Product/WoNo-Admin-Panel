@@ -58,22 +58,33 @@ const MyProfile = ({ handleClose, pageTitle }) => {
 
   const handleWorkDetailsChange = (field, value) => {
     setWorkDetails((prev) => ({ ...prev, [field]: value }));
+
+    console.log(field);
+    console.log(value);
   };
 
   const handleKycDetailsChange = (field, value) => {
     setKycDetails((prev) => ({ ...prev, [field]: value }));
+
+    console.log("kyc field",field);
+    console.log("kyc value",value);
+    console.log("kyc full",kycDetails);
   };
 
   const handleBankDetailsChange = (field, value) => {
     setBankDetails((prev) => ({ ...prev, [field]: value }));
+
+    console.log(field);
+    console.log(value);
+    console.log(bankDetails);
   };
 
   const handleSubmit = async () => {
     const consolidatedFormData = {
       ...personalDetails,
       ...workDetails,
-      ...kycDetails,
-      ...bankDetails,
+      kycDetails,
+      bankDetails,
     };
 
     console.log("Submitting Form Data:", consolidatedFormData);
@@ -88,7 +99,7 @@ const MyProfile = ({ handleClose, pageTitle }) => {
       );
       toast.success(response.data.message);
       setIsEditable(false);
-      return response.data;
+      // return response.data;
     } catch (error) {
       toast.error(error.message);
     }
@@ -122,12 +133,11 @@ const MyProfile = ({ handleClose, pageTitle }) => {
       try {
         const userId = auth.user._id;
         const response = await api.get(
-         `/api/users/fetch-single-user/${userId}`
+          `/api/users/fetch-single-user/${userId}`
         );
         const fetchedUser = response.data.user || {};
 
         // Update all states based on fetched data
-
         const roles = await fetchRoles();
         const departments = await fetchDepartments();
 
@@ -145,9 +155,15 @@ const MyProfile = ({ handleClose, pageTitle }) => {
           motherName: fetchedUser.motherName,
         });
 
+        // Get current role and department from auth.user
+        const currentRole = auth.user.role.roleTitle; // "Master-Admin"
+        const currentDepartment = auth.user.department[0].name; // "TopManagement"
+
         setWorkDetails({
-          role: roles,
-          department: departments || [],
+          role: currentRole, // Current role from auth
+          roles: roles || [], // All available roles
+          department: currentDepartment, // Current department from auth
+          departments: departments || [], // All available departments
           designation: fetchedUser.workDetails?.designation || "",
           workLocation: fetchedUser.workLocation || "",
           workType: fetchedUser?.workType || "",
@@ -181,8 +197,8 @@ const MyProfile = ({ handleClose, pageTitle }) => {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <span className="text-title font-pmedium">{pageTitle}</span>
+      <div className="flex items-center justify-between pb-4">
+        <span className="text-title font-pmedium text-primary">{pageTitle}</span>
         <PrimaryButton
           title={isEditable ? "Cancel" : "Edit"}
           handleSubmit={handleEditClick}

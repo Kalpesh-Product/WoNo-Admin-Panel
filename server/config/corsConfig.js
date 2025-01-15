@@ -1,6 +1,6 @@
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://client-beta-beryl.vercel.app",
+  "https://wono-admin-panel.vercel.app",
 ];
 
 const corsConfig = {

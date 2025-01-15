@@ -20,47 +20,57 @@ const ManageTickets = () => {
       widgets: [
         <div className=" rounded-md flex  gap-4">
           <div className="border-default border-borderGray rounded-md w-full">
-            <WidgetSection layout={3} title={"Department Recieved Tickets"} titleDataColor={"red"} titleData={"25"}>
+            <WidgetSection
+              layout={3}
+              title={"Department Pending Tickets"}
+              titleDataColor={"red"}
+              titleData={"25"}
+            >
+              <Card
+                title={"Recieved Tickets"}
+                titleColor={"#1E3D73"}
+                data={"45"}
+                fontColor={"#1E3D73"}
+                fontFamily={"Poppins-Bold"}
+              />
               <Card
                 title={"Open Tickets"}
                 titleColor={"#1E3D73"}
-                data={"100"}
-                fontColor={"red"}
+                data={"05"}
+                fontColor={"#FFBF42"}
                 fontFamily={"Poppins-Bold"}
               />
               <Card
                 title={"Closed Tickets"}
                 titleColor={"#1E3D73"}
-                data={"75"}
+                data={"15"}
                 fontColor={"#52CE71"}
-                fontFamily={"Poppins-Bold"}
-              />
-              <Card
-                title={"Pending Tickets"}
-                titleColor={"#1E3D73"}
-                data={"200"}
-                fontColor={"#FFBF42"}
                 fontFamily={"Poppins-Bold"}
               />
             </WidgetSection>
           </div>
           <div className="border-default border-borderGray rounded-md w-full">
-            <WidgetSection layout={3} title={"Personal Pending Tickets"} titleDataColor={"black"} titleData={"06"}>
+            <WidgetSection
+              layout={3}
+              title={"Personal Pending Tickets"}
+              titleDataColor={"black"}
+              titleData={"06"}
+            >
               <Card
                 title={"Accepted Tickets"}
-                data={"106"}
+                data={"03"}
                 fontColor={"black"}
                 fontFamily={"Poppins-Bold"}
               />
               <Card
                 title={"Assigned Tickets"}
-                data={"65"}
+                data={"01"}
                 fontColor={"black"}
                 fontFamily={"Poppins-Bold"}
               />
               <Card
                 title={"Escalated Tickets"}
-                data={"50"}
+                data={"02"}
                 fontColor={"black"}
                 fontFamily={"Poppins-Bold"}
               />
@@ -118,53 +128,79 @@ const ManageTickets = () => {
             },
           }}
         >
-          <Tab label={<div className="flex flex-col gap-2 text-center">
-            <span className="text-content">Recieved Tickets</span>
-            <span className="text-small">Department</span>
-          </div>} />
-          <Tab label={<div className="flex flex-col gap-2 text-center">
-            <span className="text-content">Accepted Tickets</span>
-            <span className="text-small">Personal</span>
-          </div>} />
-          <Tab label={<div className="flex flex-col gap-2 text-center">
-            <span className="text-content">Support Tickets</span>
-            <span className="text-small">Personal</span>
-          </div>} />
-          <Tab label={<div className="flex flex-col gap-2 text-center">
-            <span className="text-content">Escalated Tickets</span>
-            <span className="text-small">Personal</span>
-          </div>} />
+          <Tab
+            label={
+              <div className="flex flex-col gap-2 text-center">
+                <span className="text-content">Recieved Tickets</span>
+                <span className="text-small">Department</span>
+              </div>
+            }
+          />
+          <Tab
+            label={
+              <div className="flex flex-col gap-2 text-center">
+                <span className="text-content">Accepted Tickets</span>
+                <span className="text-small">Personal</span>
+              </div>
+            }
+          />
+          <Tab
+            label={
+              <div className="flex flex-col gap-2 text-center">
+                <span className="text-content">Support Tickets</span>
+                <span className="text-small">Personal</span>
+              </div>
+            }
+          />
+          <Tab
+            label={
+              <div className="flex flex-col gap-2 text-center">
+                <span className="text-content">Escalated Tickets</span>
+                <span className="text-small">Personal</span>
+              </div>
+            }
+          />
 
-          <Tab label={<div className="flex flex-col gap-2 text-center">
-            <span className="text-content">Closed Tickets</span>
-            <span className="text-small">Personal</span>
-          </div>} />
+          <Tab
+            label={
+              <div className="flex flex-col gap-2 text-center">
+                <span className="text-content">Closed Tickets</span>
+                <span className="text-small">Personal</span>
+              </div>
+            }
+          />
         </Tabs>
 
         <div className="py-4 bg-white">
-          {activeTab === 0 && (<div className="">
-            <RecievedTickets title={"Department Ticket Recieved"}/>
-          </div>)}
+          {activeTab === 0 && (
+            <div className="">
+              <RecievedTickets title={"Department Ticket Recieved"} />
+            </div>
+          )}
           {activeTab === 1 && (
             <div>
-              <AcceptedTickets  title={"Accepted & Assigned Tickets"}/>
+              <AcceptedTickets title={"Accepted & Assigned Tickets"} />
             </div>
-            )}
+          )}
           {activeTab === 2 && (
             <div>
-              <SupportTickets  title={"Need Support or Pass/Unresolve Tickets "}/>
+              <SupportTickets
+                title={"Need Support or Pass/Unresolve Tickets "}
+              />
             </div>
-            )}
+          )}
           {activeTab === 3 && (
             <div>
-              <EscalatedTickets title={"Need Support or Pass/Unresolve Tickets "}/>
+              <EscalatedTickets
+                title={"Need Support or Pass/Unresolve Tickets "}
+              />
             </div>
-            )}
+          )}
           {activeTab === 4 && (
             <div>
-              <ClosedTickets title={"Close / Resolve Tickets"}/>
+              <ClosedTickets title={"Close / Resolve Tickets"} />
             </div>
-            )}
+          )}
           {activeTab === 5 && <div></div>}
         </div>
       </div>

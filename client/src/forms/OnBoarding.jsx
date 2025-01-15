@@ -43,12 +43,7 @@ export const PersonalDetails = ({ formData, handleChange, isEditable }) => {
           value={formData.dob}
           onChange={(newValue) => handleChange("dob", newValue)}
           renderInput={(params) => (
-            <TextField
-              size="small"
-              {...params}
-              fullWidth
-              required
-            />
+            <TextField size="small" {...params} fullWidth required />
           )}
         />
         <TextField
@@ -73,7 +68,6 @@ export const PersonalDetails = ({ formData, handleChange, isEditable }) => {
 };
 
 export const WorkDetails = ({ formData, handleChange, isEditable }) => {
-  console.log("workdetails:", formData.department);
   return (
     <div>
       <h3 className="text-subtitle font-pmedium my-4">Work Details</h3>
@@ -95,30 +89,29 @@ export const WorkDetails = ({ formData, handleChange, isEditable }) => {
               />
             )}
           />
-          <FormControl size="small" fullWidth disabled={!isEditable}>
+          <FormControl size="small" fullWidth disabled={true}>
             <InputLabel>Department</InputLabel>
             <Select
               value={formData.department || ""}
               onChange={(e) => handleChange("department", e.target.value)}>
               <MenuItem value="">Select Department</MenuItem>
-              {formData.department.length > 0 &&
-                formData.department.map((department) => (
-                  <MenuItem key={department.name} value={department.name}>
-                    {department.name}
+              {formData.departments &&
+                formData.departments.map((dept) => (
+                  <MenuItem key={dept._id} value={dept.name}>
+                    {dept.name}
                   </MenuItem>
                 ))}
             </Select>
           </FormControl>
-          <FormControl size="small" fullWidth disabled={!isEditable}>
+          <FormControl size="small" fullWidth disabled={true}>
             <InputLabel>Role</InputLabel>
             <Select
               value={formData.role || ""}
               onChange={(e) => handleChange("role", e.target.value)}>
               <MenuItem value="">Select Role</MenuItem>
-              {/* Add role options dynamically */}
-              {formData.role.length > 0 &&
-                formData.role.map((role) => (
-                  <MenuItem key={role.roleTitle} value={role.roleTitle}>
+              {formData.roles &&
+                formData.roles.map((role) => (
+                  <MenuItem key={role._id} value={role.roleTitle}>
                     {role.roleTitle}
                   </MenuItem>
                 ))}
@@ -131,6 +124,7 @@ export const WorkDetails = ({ formData, handleChange, isEditable }) => {
 };
 
 export const KycDetails = ({ formData, handleChange, isEditable }) => {
+  console.log(formData?.aadhaar)
   return (
     <div>
       <h3 className="text-subtitle font-pmedium my-4">KYC Details</h3>
@@ -140,12 +134,7 @@ export const KycDetails = ({ formData, handleChange, isEditable }) => {
           disabled={!isEditable}
           label="Aadhaar Number"
           value={formData?.aadhaar || ""}
-          onChange={(e) =>
-            handleChange("kycDetails", {
-              ...formData,
-              aadhaar: e.target.value,
-            })
-          }
+          onChange={(e) => handleChange("aadhaar", e.target.value)}
           fullWidth
           required
         />
@@ -154,12 +143,7 @@ export const KycDetails = ({ formData, handleChange, isEditable }) => {
           disabled={!isEditable}
           label="PAN Number"
           value={formData?.pan || ""}
-          onChange={(e) =>
-            handleChange("kycDetails", {
-              ...formData,
-              pan: e.target.value,
-            })
-          }
+          onChange={(e) => handleChange("pan", e.target.value)}
           fullWidth
           required
         />
@@ -178,12 +162,7 @@ export const BankDetails = ({ formData, handleChange, isEditable }) => {
           disabled={!isEditable}
           label="Bank Name"
           value={formData?.bankName || ""}
-          onChange={(e) =>
-            handleChange("bankDetails", {
-              ...formData,
-              bankName: e.target.value,
-            })
-          }
+          onChange={(e) => handleChange("bankName", e.target.value)}
           fullWidth
           required
         />
@@ -192,12 +171,7 @@ export const BankDetails = ({ formData, handleChange, isEditable }) => {
           disabled={!isEditable}
           label="Account Number"
           value={formData?.accountNumber || ""}
-          onChange={(e) =>
-            handleChange("bankDetails", {
-              ...formData,
-              accountNumber: e.target.value,
-            })
-          }
+          onChange={(e) => handleChange("accountNumber", e.target.value)}
           fullWidth
           required
         />
@@ -206,12 +180,7 @@ export const BankDetails = ({ formData, handleChange, isEditable }) => {
           disabled={!isEditable}
           label="IFSC Code"
           value={formData?.ifsc || ""}
-          onChange={(e) =>
-            handleChange("bankDetails", {
-              ...formData,
-              ifsc: e.target.value,
-            })
-          }
+          onChange={(e) => handleChange("ifsc", e.target.value)}
           fullWidth
           required
         />

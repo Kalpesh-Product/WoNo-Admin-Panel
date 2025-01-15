@@ -35,7 +35,7 @@ const TicketDashboard = () => {
           centerLabel={"Tickets"}
         />,
         <DonutChart
-          title={"Department Tickets"}
+          title={"Department Tickets (Last Month)"}
           series={[30, 44, 50]}
           labels={["IT", "Maintainance", "Admin"]}
           colors={["#86D1DE", "#67B6DB", "#00CDD1"]}
@@ -48,7 +48,7 @@ const TicketDashboard = () => {
       widgets: [
         <div className="border-default border-borderGray  rounded-md">
           <div className="">
-            <WidgetSection layout={2} title={"Basic Priority Dashboard"}>
+            <WidgetSection layout={2} title={"Basic Priority Dashboard"} >
               <Card
                 title={"MT. AV. Performance"}
                 bgcolor={"#60A5F9"}
