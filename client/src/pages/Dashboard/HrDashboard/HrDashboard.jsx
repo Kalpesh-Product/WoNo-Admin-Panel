@@ -53,7 +53,8 @@ const HrDashboard = () => {
   }));
   
   // Combine both series
-  const series = [...totalSeries, ...completedSeries];
+  const series = [totalSeries, completedSeries];
+  console.log(series)
   
   const options = {
     chart: {
@@ -63,7 +64,7 @@ const HrDashboard = () => {
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth: '45%',
+        columnWidth: '70%',
       },
     },
     xaxis: {
