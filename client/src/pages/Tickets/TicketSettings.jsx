@@ -11,12 +11,15 @@ const TicketSettings = () => {
   const [expandedRow, setExpandedRow] = useState({});
 
   const toggleRowExpansion = (rowId) => {
+
+    console.log('RowId',rowId);
     setExpandedRow((prevState) => ({
       ...prevState,
       [rowId]: !prevState[rowId], // Toggle the specific row
     })); // Toggle expanded row
   };
   const laptopColumns = [
+    { field:"Id",headerName:"ID",},
     { field: "RaisedBy", headerName: "Raised By", flex: 1 },
     { field: "FromDepartment", headerName: "From Department", flex: 1 },
     { field: "TicketTitle", headerName: "Ticket Title", flex: 1 },
@@ -54,10 +57,10 @@ const TicketSettings = () => {
       headerName: "Action",
       flex: 1,
       cellRenderer: (params) => {
-        const isExpanded = expandedRow[params.data?.id] || false;
+        const isExpanded = expandedRow[params.data?.Id] || false;
 
         return (
-          <IconButton onClick={() => toggleRowExpansion(params.data?.id)}>
+          <IconButton onClick={() => toggleRowExpansion(params.data.Id)}>
             {isExpanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         );
@@ -66,31 +69,36 @@ const TicketSettings = () => {
   ];
 
   const rows = [
-    {
+    { 
+      Id:"1",
       RaisedBy: "Abrar Shaikh",
       FromDepartment: "IT",
       TicketTitle: "Laptop Screen Malfunctioning",
       Status: "Pending",
     },
     {
+      Id:"2",
       RaisedBy: "Abrar Shaikh",
       FromDepartment: "IT",
       TicketTitle: "Laptop Screen Malfunctioning",
       Status: "Pending",
     },
     {
+      Id:"3",
       RaisedBy: "Abrar Shaikh",
       FromDepartment: "IT",
       TicketTitle: "Laptop is not working",
       Status: "Pending",
     },
     {
+      Id:"4",
       RaisedBy: "Abrar Shaikh",
       FromDepartment: "IT",
       TicketTitle: "Wifi is slow",
       Status: "Pending",
     },
     {
+      Id:"5",
       RaisedBy: "Abrar Shaikh",
       FromDepartment: "IT",
       TicketTitle: "Laptop Screen Malfunctioning",
