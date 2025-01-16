@@ -37,19 +37,19 @@ const TeamMembers = () => {
   };
   const laptopColumns = [
    
-    { field: "name", headerName: "NAME", cellRenderer: AvatarCellRenderer, },
-    { field: "role", headerName: "ROLE", flex: 1 },
-    { field: "assignedToday", headerName: "ASSIGNED TODAY", flex: 1 },
-    { field: "totalassigned", headerName: "TOTAL ASSIGNED", flex: 1 },
+    { field: "name", headerName: "Name", cellRenderer: AvatarCellRenderer, },
+    { field: "Department", headerName: "Role", flex: 1 },
+    { field: "assignedToday", headerName: "Assigned Today", flex: 1 },
+    { field: "totalassigned", headerName: "Total Assigned", flex: 1 },
 
-    { field: "totalresolved", headerName: "TOTAL RESOLVED", flex: 1 },
-    { field: "resolutiontime", headerName: "RESOLUTION TIME", flex: 1 },
+    { field: "totalresolved", headerName: "Total Resolved", flex: 1 },
+    { field: "resolutiontime", headerName: "Resolution Time", flex: 1 },
     
   ];
   const rows = [
     {
       name:"Kalpesh Naik",
-      role:"Tech",
+      department:"Tech",
       assignedToday: "80",
       totalassigned: "1203",
       totalresolved: "2204",

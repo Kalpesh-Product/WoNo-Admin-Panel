@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import AgTable from "../../../components/AgTable";
-import { Chip } from "@mui/material";
+import { Chip, ListItem } from "@mui/material";
 import MuiModal from "../../../components/MuiModal";
 import Button from "@mui/material";
 
@@ -14,30 +14,35 @@ const RecievedTickets = ({ title }) => {
 
   const handleClose = () => setOpen(false);
 
+  const assignees = [
+    "AiwinRaj",
+    "Anushri Bhagat",
+    "Allen Silvera",
+    "Sankalp Kalangutkar",
+    "Muskan Dodmani",
+  ];
+
   const viewChildren = (
     <>
       <ul>
-        <li>Anushri Bhagat</li>
-        <li>Aiwin</li>
-        <li>Sankalp Kalangutkar</li>
-        <li>Allen Silvera</li>
+        {assignees.map((key, items) => {
+          return (
+            <>
+              <div className="flex flex-row gap-6">
+                <input type="checkbox"></input>
+                <li key={items}>{key}</li>
+              </div>
+            </>
+          );
+        })}
       </ul>
+      <div className="flex items-center justify-center mb-4">
+        <button className="p-2 bg-primary align-middle text-white rounded-md">
+          Assign 
+        </button>
+      </div>
     </>
   );
-
-  const viewChildrens = () => {
-    return (
-      <>
-        
-        <ul>
-          <li>Anushri Bhagat</li>
-          <li>Aiwin</li>
-          <li>Sankalp Kalangutkar</li>
-          <li>Allen Silvera</li>
-        </ul>
-      </>
-    );
-  };
 
   const recievedTicketsColumns = [
     { field: "raisedBy", headerName: "Raised By" },
@@ -161,10 +166,16 @@ const RecievedTickets = ({ title }) => {
         open={open}
         onClose={handleClose}
         title="Assign Tickets"
-        children={viewChildrens()}
+        children={viewChildren}
         btnTitle="Assign"
         // Pass your desired background color
-      ></MuiModal>
+      >
+        {/* <div className="flex items-center justify-center mb-10">
+          <button className="p-4 bg-primary align-middle text-white rounded-md">
+            Assign Ticket
+          </button>
+        </div> */}
+      </MuiModal>
     </div>
   );
 };

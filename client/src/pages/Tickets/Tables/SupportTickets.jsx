@@ -15,19 +15,35 @@ const SupportTickets = ({title}) => {
     setopenModal(false);
   }
 
-  const viewChildrens = () => {
-    return (
-      <>
-        
-        <ul>
-          <li>Anushri Bhagat</li>
-          <li>Aiwin</li>
-          <li>Sankalp Kalangutkar</li>
-          <li>Allen Silvera</li>
-        </ul>
-      </>
-    );
-  };
+  const assignees = [
+    "AiwinRaj",
+    "Anushri Bhagat",
+    "Allen Silvera",
+    "Sankalp Kalangutkar",
+    "Muskan Dodmani",
+  ];
+
+  const viewChildren = (
+    <>
+      <ul>
+        {assignees.map((key, items) => {
+          return (
+            <>
+              <div className="flex flex-row gap-6">
+                <input type="checkbox"></input>
+                <li key={items}>{key}</li>
+              </div>
+            </>
+          );
+        })}
+      </ul>
+      <div className="flex items-center justify-center mb-4">
+        <button className="p-2 bg-primary align-middle text-white rounded-md">
+          Assign 
+        </button>
+      </div>
+    </>
+  );
 
   const recievedTicketsColumns = [
     { field: "raisedBy", headerName: "Raised By" },
@@ -172,6 +188,9 @@ const SupportTickets = ({title}) => {
       status: "pending",
     },
   ];
+
+  
+
   return (
     <div className="p-4 border-default border-borderGray rounded-md">
       <div className="pb-4">
@@ -180,7 +199,7 @@ const SupportTickets = ({title}) => {
       <div className="w-full">
         <AgTable data={rows} columns={recievedTicketsColumns} />
       </div>
-      <MuiModal open={openModal} onClose={handleCloseModal} title="Re Assign Ticket" children={viewChildrens()} btnTitle='Re Assign'  />
+      <MuiModal open={openModal} onClose={handleCloseModal} title="Re Assign Ticket" children={viewChildren} btnTitle='Re Assign'  />
     </div>
   );
 };

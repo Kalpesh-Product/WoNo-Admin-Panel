@@ -27,7 +27,7 @@ const MuiModal = ({ open, onClose, title, children, headerBackground,btnTitle })
           </IconButton>
         </div>
         <div className="p-4">{children}</div>
-        <button className="p-4 bg-primary flex items-center justify-center text-white">{btnTitle}</button>
+        
       </Box>
     </Modal>
   );
