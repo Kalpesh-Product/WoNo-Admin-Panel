@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const supportTicket = new mongoose.Schema(
+const supportTicketSchema = new mongoose.Schema(
   {
     ticket: {
       type: mongoose.Schema.Types.ObjectId,
@@ -20,5 +20,5 @@ const supportTicket = new mongoose.Schema(
   { timestamps: true }
 );
 
-const supportTicketRequest = mongoose.model("SupportTicket", supportTicket);
-module.exports = supportTicketRequest;
+const SupportTicket = mongoose.model("SupportTicket", supportTicketSchema);
+module.exports = SupportTicket;

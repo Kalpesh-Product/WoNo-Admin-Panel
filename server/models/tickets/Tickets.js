@@ -16,6 +16,7 @@ const ticketsSchema = new mongoose.Schema(
     },
     status: {
       type: String,
+      enum: ["Pending", "In Progress", "Closed"],
       default: "Pending",
     },
     assignees: [
