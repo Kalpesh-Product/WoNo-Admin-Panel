@@ -1,20 +1,48 @@
 import React, { useState } from "react";
 import AgTable from "../../../components/AgTable";
-import { Chip } from "@mui/material";
+import { Chip, ListItem } from "@mui/material";
 import MuiModal from "../../../components/MuiModal";
 import Button from "@mui/material";
 
 const RecievedTickets = ({ title }) => {
-  const [open,setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
-  const openModal = ()=>{
+  const openModal = () => {
     console.log("I am Clicked");
     setOpen(true);
-
-
-  }
+  };
 
   const handleClose = () => setOpen(false);
+
+  const assignees = [
+    "AiwinRaj",
+    "Anushri Bhagat",
+    "Allen Silvera",
+    "Sankalp Kalangutkar",
+    "Muskan Dodmani",
+  ];
+
+  const viewChildren = (
+    <>
+      <ul>
+        {assignees.map((key, items) => {
+          return (
+            <>
+              <div className="flex flex-row gap-6">
+                <input type="checkbox"></input>
+                <li key={items}>{key}</li>
+              </div>
+            </>
+          );
+        })}
+      </ul>
+      <div className="flex items-center justify-center mb-4">
+        <button className="p-2 bg-primary align-middle text-white rounded-md">
+          Assign 
+        </button>
+      </div>
+    </>
+  );
 
   const recievedTicketsColumns = [
     { field: "raisedBy", headerName: "Raised By" },
@@ -77,7 +105,6 @@ const RecievedTickets = ({ title }) => {
                 borderRadius: "4px",
                 cursor: "pointer",
               }}
-
               onClick={openModal}
             >
               Assign
@@ -127,18 +154,6 @@ const RecievedTickets = ({ title }) => {
     },
   ];
 
-  const viewChildren = ()=>{
-    return(
-      <>
-      <ul>
-        <li>Anushri Bhagat</li>
-        <li>Aiwin</li>
-        <li>Sankalp Kalangutkar</li>
-        <li>Allen Silvera</li>
-      </ul>
-      </>
-    )
-  }
   return (
     <div className="p-4 border-default border-borderGray rounded-md">
       <div className="pb-4">
@@ -152,12 +167,14 @@ const RecievedTickets = ({ title }) => {
         onClose={handleClose}
         title="Assign Tickets"
         children={viewChildren}
+        btnTitle="Assign"
         // Pass your desired background color
       >
-        <p>Team Members...</p>
-        <button variant="contained" color="secondary" onClick={handleClose}>
-          Close
-        </button>
+        {/* <div className="flex items-center justify-center mb-10">
+          <button className="p-4 bg-primary align-middle text-white rounded-md">
+            Assign Ticket
+          </button>
+        </div> */}
       </MuiModal>
     </div>
   );

@@ -110,7 +110,7 @@ function Row(props) {
                 <Button
                   variant="contained"
                   sx={{
-                    backgroundColor: "#ec7063",
+                    backgroundColor: "#FF7F7F",
                     color: "#c0392b",
                     paddingLeft: "5px",
                     paddingRight: "5px",
