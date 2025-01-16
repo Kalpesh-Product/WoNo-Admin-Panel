@@ -69,6 +69,31 @@ const Sidebar = () => {
           title: "Finance Dashboard",
           icon: <TbCashRegister />,
         },
+        {
+          id: 5,
+          title: "Sales Dashboard",
+          icon: <TbCashRegister />,
+        },
+        {
+          id: 6,
+          title: "Admin Dashboard",
+          icon: <TbCashRegister />,
+        },
+        {
+          id: 7,
+          title: "Maintainance Dashboard",
+          icon: <TbCashRegister />,
+        },
+        {
+          id: 8,
+          title: "Cafe Dashboard",
+          icon: <TbCashRegister />,
+        },
+        {
+          id: 9,
+          title: "IT Dashboard",
+          icon: <TbCashRegister />,
+        },
       ],
     },
   ];
