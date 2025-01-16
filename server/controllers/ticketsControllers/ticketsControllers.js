@@ -33,7 +33,11 @@ const createTicket = async (req, res) => {
     // Get the sent-in data from the request body
     const raisedByFromRequestBody = req.body.raisedBy;
     const descriptionFromRequestBody = req.body.description;
-    const selectedDepartmentFromRequestBody = req.body.selectedDepartment;
+    const selectedDepartment = req.body.selectedDepartment;
+    const ticketTilte = req.body.ticketTilte;
+    const {ticketTilte,raisedBy,description,selectedDepartment
+      
+    }
 
     // Create a ticket with the provided data
     const ourCreatedTicket = await Ticket.create({
