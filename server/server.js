@@ -59,7 +59,7 @@ app.use("/api/departments", departmentsRoutes);
 app.use("/api/designations", designationRoutes);
 app.use("/api/assets", assetsRoutes);
 app.use("/api/meetings", meetingsRoutes);
-app.use("/api/tickets", ticketsRoutes);
+app.use("/api/tickets",verifyJwt, ticketsRoutes);
 app.use("/api/leaves", leaveRoutes);
 app.use("/api/employee-agreements", employeeAgreementRoutes);
 app.use("/api/sops", sopRoutes);
