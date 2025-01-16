@@ -3,91 +3,81 @@ import WidgetSection from "../../../components/WidgetSection";
 import LayerBarGraph from "../../../components/graphs/LayerBarGraph";
 
 const HrDashboard = () => {
-
-  const financialYear = [
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-    'January',
-    'February',
-    'March',
+  const series = [
+    {
+      name: "Tech Total",
+      data: [45, 50, 40, 55, 60, 50, 65, 60, 70, 75, 80, 85],
+      group:'total'
+    },
+    {
+      name: "Sales Total",
+      data: [40, 45, 35, 50, 55, 45, 60, 55, 65, 70, 75, 80],
+      group:'total'
+    },
+    {
+      name: "Tech Completed",
+      data: [45, 40, 30, 45, 50, 40, 55, 50, 60, 65, 70, 75],
+      group:'completed'
+    },
+    {
+      name: "Sales Completed",
+      data: [40, 45, 25, 40, 45, 35, 50, 45, 55, 60, 65, 70],
+      group:'completed'
+    },
   ];
-  
-  // Example department task data
-  const departmentData = {
-    Tech: [10, 20, 40, 25, 30, 20, 35, 40, 45, 50, 55, 60],
-    Sales: [15, 25, 20, 30, 35, 25, 40, 45, 50, 55, 60, 65],
-    Finance: [20, 30, 25, 35, 40, 30, 45, 50, 55, 60, 65, 70],
-  };
-  
-  // Example completed task data
-  const completedData = {
-    Tech: [8, 18, 38, 20, 28, 18, 30, 35, 40, 48, 50, 58],
-    Sales: [12, 22, 18, 27, 32, 23, 35, 42, 45, 52, 58, 60],
-    Finance: [18, 28, 20, 33, 38, 25, 40, 48, 50, 55, 60, 65],
-  };
-  
-  // Calculate the total tasks for each month
-  const totalTasks = financialYear.map((_, index) =>
-    Object.values(departmentData).reduce((sum, dept) => sum + dept[index], 0)
-  );
-  
-  // Prepare series data for total tasks (stacked)
-  const totalSeries = Object.keys(departmentData).map((department) => ({
-    name: department,
-    group: 'total',
-    data: departmentData[department].map((tasks, index) => Math.round((tasks / totalTasks[index]) * 100)),
-  }));
-  
-  // Prepare series data for completed tasks (stacked)
-  const completedSeries = Object.keys(completedData).map((department) => ({
-    name: department,
-    group: 'completed',
-    data: completedData[department].map((tasks, index) => Math.round((tasks / totalTasks[index]) * 100)),
-  }));
-  
-  // Combine both series
-  const series = [...totalSeries, ...completedSeries];
-  
+
   const options = {
     chart: {
-      type: 'bar',
+      type: "bar",
       stacked: true,
     },
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth: '45%',
+        columnWidth: "55%",
       },
     },
-    xaxis: {
-      categories: financialYear,
+    dataLabels: {
+      enabled: false,
     },
-    tooltip: {
-      y: {
-        formatter: (value, { seriesIndex, dataPointIndex, w }) => {
-          const total = totalTasks[dataPointIndex];
-          return `${value}% (Total: ${total})`;
-        },
+    xaxis: {
+      categories: [
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+        "January",
+        "February",
+        "March",
+      ],
+      title: {
+        text: "Months of Financial Year",
       },
     },
     yaxis: {
-      max: 100,
-      labels: {
-        formatter: (value) => `${Math.round(value)}%`,
+      title: {
+        text: "Number of Tasks",
       },
     },
+    fill: {
+      opacity: 1,
+    },
     legend: {
-      show: true,
-      position: 'top',
+      position: "top",
+    },
+    tooltip: {
+      y: {
+        formatter: (val) => `${val}`,
+      },
     },
   };
+
+  
   const hrWidgets = [
     {
       layout: 1,

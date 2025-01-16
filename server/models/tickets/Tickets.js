@@ -4,7 +4,7 @@ const ticketsSchema = new mongoose.Schema(
   {
     ticket: {
       type: mongoose.Schema.Types.ObjectId,
-      ref:"TicketIssue"
+      ref: "TicketIssue",
     },
     raisedToDepartment:{
      type: mongoose.Schema.Types.ObjectId,
