@@ -41,7 +41,9 @@ const FrontendDashboard = () => {
       bar: {
         horizontal: false,
         columnWidth: "45%",
-        borderRadius: 8,
+        borderRadius:8,
+        borderRadiusWhenStacked:'all',
+        borderRadiusApplication:'end',
       },
     },
     colors: ["#00FF00", "#0000FF", "#FF0000"], // Colors for the series
