@@ -1,38 +1,95 @@
-import React,{useState} from "react";
+import React, { useState } from "react";
 import AgTable from "../../components/AgTable";
-import { Chip } from "@mui/material";
+import { Button, TextField, MenuItem } from "@mui/material";
+import MuiAside from "../../components/MuiAside";
+import PrimaryButton from "../../components/PrimaryButton";
+import { IoFilterCircleOutline } from "react-icons/io5";
 
 const Reports = () => {
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    RaisedBy: "",
+    SelectedDepartment: "All",
+    TicketTitle: "",
+    Priority: "All",
+  });
+  const [filteredRows, setFilteredRows] = useState(null); // Null to differentiate between initial state and no data
+
+  const departments = ["All", "IT", "Admin", "Tech"];
+  const priorities = ["All", "High", "Medium", "Low"];
+
+  const rows = [
+    {
+      RaisedBy: "Abrar Shaikh",
+      SelectedDepartment: "IT",
+      TicketTitle: "Wifi is not working",
+      Priority: "High",
+    },
+    {
+      RaisedBy: "Abrar Shaikh",
+      SelectedDepartment: "Admin",
+      TicketTitle: "Ac is not working",
+      Priority: "Medium",
+    },
+    {
+      RaisedBy: "Abrar Shaikh",
+      SelectedDepartment: "Admin",
+      TicketTitle: "Need more chairs in Baga Room",
+      Priority: "Medium",
+    },
+    {
+      RaisedBy: "Abrar Shaikh",
+      SelectedDepartment: "Admin",
+      TicketTitle: "Need water bottles on the bottle",
+      Priority: "High",
+    },
+    {
+      RaisedBy: "Abrar Shaikh",
+      SelectedDepartment: "Tech",
+      TicketTitle: "Website is taking time to load",
+      Priority: "High",
+    },
+  ];
+
+  const handleFilterChange = (field, value) => {
+    setFilters((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const applyFilters = () => {
+    const filtered = rows.filter((row) => {
+      return (
+        (!filters.RaisedBy ||
+          row.RaisedBy.toLowerCase().includes(
+            filters.RaisedBy.toLowerCase()
+          )) &&
+        (filters.SelectedDepartment === "All" ||
+          row.SelectedDepartment === filters.SelectedDepartment) &&
+        (!filters.TicketTitle ||
+          row.TicketTitle.toLowerCase().includes(
+            filters.TicketTitle.toLowerCase()
+          )) &&
+        (filters.Priority === "All" || row.Priority === filters.Priority)
+      );
+    });
+
+    setFilteredRows(filtered.length > 0 ? filtered : []); // Set to [] if no matches
+    setFilterOpen(false);
+  };
 
   const PriorityCellRenderer = (params) => {
     const { value } = params;
-  
-    // Determine the color based on priority
-    let color = '';
-    switch (value) {
-      case 'High':
-        color = 'red';
-        break;
-      case 'Medium':
-        color = 'yellow';
-        break;
-      case 'Low':
-        color = 'green';
-        break;
-      default:
-        color = 'black'; // Fallback color
-    }
-  
+    const color =
+      value === "High" ? "red" : value === "Medium" ? "yellow" : "green";
     return (
-      <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div style={{ display: "flex", alignItems: "center" }}>
         <span
           style={{
-            width: '10px',
-            height: '10px',
-            borderRadius: '50%',
+            width: "10px",
+            height: "10px",
+            borderRadius: "50%",
             backgroundColor: color,
-            display: 'inline-block',
-            marginRight: '8px',
+            display: "inline-block",
+            marginRight: "8px",
           }}
         ></span>
         {value}
@@ -40,138 +97,108 @@ const Reports = () => {
     );
   };
 
-  const [selectedRows, setSelectedRows] = useState([]);
-
-
-  const onSelectionChanged = (event) => {
-    const selectedNodes = event.api.getSelectedNodes();
-    const selectedData = selectedNodes.map((node) => node.data);
-    setSelectedRows(selectedData);
-  };
-
   const laptopColumns = [
+    { field: "RaisedBy", headerName: "Raised By", flex: 1 },
+    { field: "SelectedDepartment", headerName: "Selected Department", flex: 1 },
+    { field: "TicketTitle", headerName: "Ticket Title", flex: 1 },
     {
-      headerCheckboxSelection: true, // Adds a checkbox in the header for select-all
-      checkboxSelection: true, // Adds a checkbox before each row
-      width: 50,
-    },
-    
-     
-    { field: "ticketid", headerName: "TICKET ID" },
-    {
-      headerName: '"PRIORITY',
-      field: 'priority',
-      cellRenderer: PriorityCellRenderer, // Use the custom cell renderer
-    },
-  
-    { field: "clientname", headerName: "CLIENT NAME" },
-    {
-      field: "status",
-      headerName: "status",
-      cellRenderer: (params) => {
-        const statusColorMap = {
-          Unassigned: { backgroundColor: "#FFECC5", color: "#CC8400" }, // Light orange bg, dark orange font
-          "in-progress": { backgroundColor: "#ADD8E6", color: "#00008B" }, // Light blue bg, dark blue font
-          Assigned: { backgroundColor: "#90EE90", color: "#006400" }, // Light green bg, dark green font
-          Open: { backgroundColor: "#E6E6FA", color: "#4B0082" }, // Light purple bg, dark purple font
-          Closed: { backgroundColor: "#D3D3D3", color: "#696969" }, // Light gray bg, dark gray font
-        };
-
-        const { backgroundColor, color } = statusColorMap[params.value] || {
-          backgroundColor: "gray",
-          color: "white",
-        };
-        return (
-          <>
-            <Chip
-              label={params.value}
-              style={{
-                backgroundColor,
-                color,
-              }}
-            />
-          </>
-        );
-      },
-    },
-    { field: "dueby", headerName: "DUE BY" },
-    { field: "type", headerName: "TYPE" },
-    { field: "solvedby", headerName: "SOLVED BY" },
-  ];
-
-  const rows = [
-    {
-      ticketid: "TID094678",
-      priority: "Low",
-      clientname: "xyz",
-      status: "Open",
-      dueby: "22 Dec 2024",
-      type: "Technical",
-      solvedby: "Shekar Khan",
-    },
-    {
-      ticketid: "TID456789",
-      priority: "Medium",
-      clientname: "xyz",
-      status: "Closed",
-      dueby: "22 Dec 2024",
-      type: "Technical",
-      solvedby: "Shekar Khan",
-    },
-    {
-      ticketid: "TID234896",
-      priority: "Low",
-      clientname: "xyz",
-      status: "Paused",
-      dueby: "22 Dec 2024",
-      type: "Technical",
-      solvedby: "Shekar Khan",
-    },
-    {
-      ticketid: "TID234839",
-      priority: "Medium",
-      clientname: "xyz",
-      status: "Assigned",
-      dueby: "22 Dec 2024",
-      type: "Technical",
-      solvedby: "Shekar Khan",
-    },
-    {
-      ticketid: "TID234567",
-      priority: "High",
-      clientname: "xyz",
-      status: "Unassigned",
-      dueby: "22 Dec 2024",
-      type: "Technical",
-      solvedby: "Shekar Khan",
-    },
-    {
-      ticketid: "TID956234",
-      priority: "High",
-      clientname: "xyz",
-      status: "Unassigned",
-      dueby: "22 Dec 2024",
-      type: "Technical",
-      solvedby: "Shekar Khan",
+      field: "Priority",
+      headerName: "Priority",
+      flex: 1,
+      cellRenderer: PriorityCellRenderer,
     },
   ];
+
+  const displayedRows = filteredRows !== null ? filteredRows : rows;
+
   return (
     <div>
       <div className="w-full rounded-md bg-white p-4 ">
-        <div className="flex flex-row justify-between mb-4">
-          <div>Tickets Reports</div>
+        <div className="flex justify-end items-center pb-4">
+          <Button sx={{ fontSize: "2rem" }} onClick={() => setFilterOpen(true)}>
+            <IoFilterCircleOutline />
+          </Button>
         </div>
-        <div className=" w-full">
-          <AgTable
-            data={rows}
-            columns={laptopColumns}
-            paginationPageSize={10}
-            rowSelection="multiple"
-            onSelectionChanged={onSelectionChanged} // Enables multiple row selection
-            domLayout="autoHeight"
-          />
+        <div className="w-full">
+          {displayedRows.length > 0 ? (
+            <AgTable
+              data={displayedRows}
+              columns={laptopColumns}
+              paginationPageSize={10}
+            />
+          ) : (
+            <div className="text-center text-gray-500">No data available</div>
+          )}
         </div>
       </div>
+
+      {/* Sidebar for Filtering */}
+      <MuiAside
+        title={"Filter Options"}
+        open={filterOpen}
+        onClose={() => setFilterOpen(false)}
+      >
+        <TextField
+          label="Raised By"
+          size="small"
+          variant="outlined"
+          fullWidth
+          margin="normal"
+          value={filters.RaisedBy}
+          onChange={(e) => handleFilterChange("RaisedBy", e.target.value)}
+        />
+        <TextField
+          label="Selected Department"
+          size="small"
+          variant="outlined"
+          fullWidth
+          margin="normal"
+          select
+          value={filters.SelectedDepartment}
+          onChange={(e) =>
+            handleFilterChange("SelectedDepartment", e.target.value)
+          }
+        >
+          {departments.map((department) => (
+            <MenuItem key={department} value={department}>
+              {department}
+            </MenuItem>
+          ))}
+        </TextField>
+        <TextField
+          label="Ticket Title"
+          size="small"
+          variant="outlined"
+          fullWidth
+          margin="normal"
+          value={filters.TicketTitle}
+          onChange={(e) => handleFilterChange("TicketTitle", e.target.value)}
+        />
+        <TextField
+          label="Priority"
+          size="small"
+          variant="outlined"
+          fullWidth
+          margin="normal"
+          select
+          value={filters.Priority}
+          onChange={(e) => handleFilterChange("Priority", e.target.value)}
+        >
+          {priorities.map((priority) => (
+            <MenuItem key={priority} value={priority}>
+              {priority}
+            </MenuItem>
+          ))}
+        </TextField>
+
+        <div className="flex justify-center w-full pt-2">
+          <PrimaryButton
+            title={"Apply Filter"}
+            externalStyles={"w-full"}
+            handleSubmit={applyFilters}
+          />
+        </div>
+      </MuiAside>
     </div>
   );
 };

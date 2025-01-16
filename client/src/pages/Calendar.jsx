@@ -17,6 +17,7 @@ import {
 import { Checkbox, FormControlLabel, FormGroup } from "@mui/material";
 import dayjs from "dayjs";
 import { IoMdClose } from "react-icons/io";
+import MuiModal from "../components/MuiModal";
 
 const Calender = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -24,6 +25,7 @@ const Calender = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [events, setEvents] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
+  const [headerBackground, setHeaderBackground] = useState("");
   const [newEvent, setNewEvent] = useState({
     title: "",
     start: "",
@@ -70,9 +72,20 @@ const Calender = () => {
   const todaysEvents = getTodaysEvents();
 
   const handleEventClick = (clickInfo) => {
-    setSelectedEvent(clickInfo.event);
+    const event = clickInfo.event;
+    const type = event.extendedProps?.type.toLowerCase();
+
+    const colors = {
+      holiday: "#4caf50",
+      event: "#ff9800",
+    };
+
+    const headerBackground = colors[type] || ""; // Fallback to empty if type doesn't match
+
+    setSelectedEvent(event);
     setDrawerMode("view");
     setIsDrawerOpen(true);
+    setHeaderBackground(headerBackground); // Set the background color
   };
 
   const handleDateClick = (info) => {
@@ -210,87 +223,90 @@ const Calender = () => {
           </div>
         </div>
 
-        <Drawer anchor="right" open={isDrawerOpen} onClose={closeDrawer}>
-          <Box sx={{ width: 350, padding: 3 }}>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <Typography variant="h6">
-                {drawerMode === "view" ? "Event Details" : "Add New Event"}
-              </Typography>
-              <IconButton onClick={closeDrawer}>
-                <IoMdClose />
-              </IconButton>
-            </Box>
-
-            {drawerMode === "view" && selectedEvent && (
-              <Box mt={2}>
-                <Typography variant="subtitle1">
-                  <strong>Title:</strong> {selectedEvent.title}
-                </Typography>
-                <Typography variant="body2">
-                  <strong>Start Date:</strong>{" "}
-                  {dayjs(selectedEvent.start).format("YYYY-MM-DD")}
-                </Typography>
+        <MuiModal
+          open={isDrawerOpen}
+          onClose={closeDrawer}
+          headerBackground={headerBackground}
+          title="Event Details"
+        >
+          {drawerMode === "view" && selectedEvent && (
+            <div>
+              <div className="flex flex-col gap-2">
+                <span className="text-content flex items-center">
+                  <span className="w-[30%]">Title</span>
+                  <span>:</span>
+                  <span className="text-content font-pmedium w-full justify-start pl-4">
+                    {selectedEvent.title}
+                  </span>
+                </span>
+                <span className="text-content flex  items-center">
+                  <span className="w-[30%]"> Start Date </span>
+                  <span>:</span>
+                  <span className="text-content font-pmedium w-full justify-start pl-4">
+                    {dayjs(selectedEvent.start).format("YYYY-MM-DD")}
+                  </span>{" "}
+                </span>{" "}
                 {selectedEvent.extendedProps.description && (
-                  <Typography variant="body2" mt={1}>
-                    <strong>Description:</strong>{" "}
-                    {selectedEvent.extendedProps.description}
-                  </Typography>
-                )}
-              </Box>
-            )}
+                  <div>
+                    <span className="text-content flex  items-start">
+                      <span className="w-[30%]"> Description</span>
+                      <span>:</span>
 
-            {drawerMode === "add" && (
-              <Box mt={2}>
-                <TextField
-                  label="Title"
-                  variant="outlined"
-                  fullWidth
-                  value={newEvent.title}
-                  onChange={(e) =>
-                    setNewEvent((prev) => ({ ...prev, title: e.target.value }))
-                  }
-                  sx={{ mb: 2 }}
-                />
-                <TextField
-                  label="Start Date"
-                  variant="outlined"
-                  fullWidth
-                  value={newEvent.start}
-                  disabled
-                  sx={{ mb: 2 }}
-                />
-                <TextField
-                  label="Description"
-                  variant="outlined"
-                  multiline
-                  rows={3}
-                  fullWidth
-                  value={newEvent.description}
-                  onChange={(e) =>
-                    setNewEvent((prev) => ({
-                      ...prev,
-                      description: e.target.value,
-                    }))
-                  }
-                  sx={{ mb: 2 }}
-                />
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleSaveEvent}
-                >
-                  Save Event
-                </Button>
-              </Box>
-            )}
-          </Box>
-        </Drawer>
+                      <span className="text-content font-pmedium w-full justify-start pl-4">
+                        {selectedEvent.extendedProps.description}
+                      </span>
+                    </span>{" "}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {drawerMode === "add" && (
+            <Box>
+              <TextField
+                label="Title"
+                variant="outlined"
+                fullWidth
+                value={newEvent.title}
+                onChange={(e) =>
+                  setNewEvent((prev) => ({ ...prev, title: e.target.value }))
+                }
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                label="Start Date"
+                variant="outlined"
+                fullWidth
+                value={newEvent.start}
+                disabled
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                label="Description"
+                variant="outlined"
+                multiline
+                rows={3}
+                fullWidth
+                value={newEvent.description}
+                onChange={(e) =>
+                  setNewEvent((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
+                sx={{ mb: 2 }}
+              />
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSaveEvent}
+              >
+                Save Event
+              </Button>
+            </Box>
+          )}
+        </MuiModal>
       </div>
     </div>
   );

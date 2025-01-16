@@ -1,9 +1,9 @@
 import React from 'react'
 
-const PrimaryButton = ({title, handleSubmit, type}) => {
+const PrimaryButton = ({title, handleSubmit, type, fontSize, externalStyles}) => {
   return (
     <div>
-      <button type={type} className=' px-8 py-2 bg-primary text-white rounded-md text-content' onClick={handleSubmit}>
+      <button type={type} className={`px-8 py-2 bg-primary text-white rounded-md ${fontSize ? fontSize : "text-content" } ${externalStyles}`} onClick={handleSubmit}>
         {title}
       </button>
     </div>

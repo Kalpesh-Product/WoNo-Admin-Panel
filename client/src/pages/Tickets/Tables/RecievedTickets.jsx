@@ -1,8 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import AgTable from "../../../components/AgTable";
 import { Chip } from "@mui/material";
+import MuiModal from "../../../components/MuiModal";
+import Button from "@mui/material";
 
 const RecievedTickets = ({ title }) => {
+  const [open,setOpen] = useState(false);
+
+  const openModal = ()=>{
+    console.log("I am Clicked");
+    setOpen(true);
+
+
+  }
+
+  const handleClose = () => setOpen(false);
+
   const recievedTicketsColumns = [
     { field: "raisedBy", headerName: "Raised By" },
     { field: "fromDepartment", headerName: "From Department" },
@@ -64,6 +77,8 @@ const RecievedTickets = ({ title }) => {
                 borderRadius: "4px",
                 cursor: "pointer",
               }}
+
+              onClick={openModal}
             >
               Assign
             </button>
@@ -111,6 +126,19 @@ const RecievedTickets = ({ title }) => {
       status: "pending",
     },
   ];
+
+  const viewChildren = ()=>{
+    return(
+      <>
+      <ul>
+        <li>Anushri Bhagat</li>
+        <li>Aiwin</li>
+        <li>Sankalp Kalangutkar</li>
+        <li>Allen Silvera</li>
+      </ul>
+      </>
+    )
+  }
   return (
     <div className="p-4 border-default border-borderGray rounded-md">
       <div className="pb-4">
@@ -119,6 +147,18 @@ const RecievedTickets = ({ title }) => {
       <div className="w-full">
         <AgTable data={rows} columns={recievedTicketsColumns} />
       </div>
+      <MuiModal
+        open={open}
+        onClose={handleClose}
+        title="Assign Tickets"
+        children={viewChildren}
+        // Pass your desired background color
+      >
+        <p>Team Members...</p>
+        <button variant="contained" color="secondary" onClick={handleClose}>
+          Close
+        </button>
+      </MuiModal>
     </div>
   );
 };

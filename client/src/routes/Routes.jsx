@@ -17,6 +17,8 @@ import TeamMembers from "../pages/Tickets/TeamMembers";
 import Reportss from "../pages/Tickets/Reports";
 import RaiseTicket from "../pages/Tickets/RaiseTicket";
 import TicketSettings from "../pages/Tickets/TicketSettings";
+import TicketSettingsnew from "../pages/Tickets/TicketSettingsnew";
+import TestPage from "../pages/Test/TestPage";
 
 export const routes = createBrowserRouter([
   {
@@ -80,7 +82,7 @@ export const routes = createBrowserRouter([
               },
               {
                 path: "tickets/ticket-settings",
-                element: <TicketSettings />,
+                element: <TicketSettingsnew />,
               },
               {
                 path: "tickets/team-members",
@@ -94,6 +96,10 @@ export const routes = createBrowserRouter([
               {
                 path: "chat",
                 element: <Chat />,
+              },
+              {
+                path: "test",
+                element: <TestPage />,
               },
               {
                 path: "profile",
