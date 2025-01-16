@@ -13,20 +13,27 @@ const raiseATicket = async (req, res, next) => {
         .json({ message: "Invalid deaprtment ID provided" });
     }
     if (
-      typeof description !== "string" &&
-      description.length &&
+      typeof description !== "string" ||
+      !description.length ||
       description?.replace(/\s/g, "")?.length > 100
     ) {
       return res.status(400).json({ message: "Invalid description provided" });
     }
+    let foundIssue;
     if (mongoose.Types.ObjectId.isValid(issue)) {
-      const foundIssue = await TicketIssues.findOne({ _id: issue })
-        .lean()
-        .exec();
+      foundIssue = await TicketIssues.findOne({ _id: issue }).lean().exec();
       if (!foundIssue) {
         return res.status(400).json({ message: "Invalid Issue ID provided" });
       }
     }
+    const foundUser = await User.findOne({ _id: user })
+      .select("-refreshToken -password")
+      .lean()
+      .exec();
+    const newTicket = new Tickets({
+      ticketTitle: foundIssue ? foundIssue?.title : issue,
+      
+    });
   } catch (error) {
     next(error);
   }
