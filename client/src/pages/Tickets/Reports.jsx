@@ -13,7 +13,7 @@ const Reports = () => {
     TicketTitle: "",
     Priority: "All",
   });
-  const [filteredRows, setFilteredRows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState(null); // Null to differentiate between initial state and no data
 
   const departments = ["All", "IT", "Admin", "Tech"];
   const priorities = ["All", "High", "Medium", "Low"];
@@ -51,24 +51,35 @@ const Reports = () => {
     },
   ];
 
+  const handleFilterChange = (field, value) => {
+    setFilters((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const applyFilters = () => {
+    const filtered = rows.filter((row) => {
+      return (
+        (!filters.RaisedBy ||
+          row.RaisedBy.toLowerCase().includes(
+            filters.RaisedBy.toLowerCase()
+          )) &&
+        (filters.SelectedDepartment === "All" ||
+          row.SelectedDepartment === filters.SelectedDepartment) &&
+        (!filters.TicketTitle ||
+          row.TicketTitle.toLowerCase().includes(
+            filters.TicketTitle.toLowerCase()
+          )) &&
+        (filters.Priority === "All" || row.Priority === filters.Priority)
+      );
+    });
+
+    setFilteredRows(filtered.length > 0 ? filtered : []); // Set to [] if no matches
+    setFilterOpen(false);
+  };
+
   const PriorityCellRenderer = (params) => {
     const { value } = params;
-
-    let color = "";
-    switch (value) {
-      case "High":
-        color = "red";
-        break;
-      case "Medium":
-        color = "yellow";
-        break;
-      case "Low":
-        color = "green";
-        break;
-      default:
-        color = "black";
-    }
-
+    const color =
+      value === "High" ? "red" : value === "Medium" ? "yellow" : "green";
     return (
       <div style={{ display: "flex", alignItems: "center" }}>
         <span
@@ -98,44 +109,20 @@ const Reports = () => {
     },
   ];
 
-  const handleFilterChange = (field, value) => {
-    setFilters((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const applyFilters = () => {
-    const filtered = rows.filter((row) => {
-      return (
-        (!filters.RaisedBy ||
-          row.RaisedBy.toLowerCase().includes(
-            filters.RaisedBy.toLowerCase()
-          )) &&
-        (filters.SelectedDepartment === "All" ||
-          row.SelectedDepartment === filters.SelectedDepartment) &&
-        (!filters.TicketTitle ||
-          row.TicketTitle.toLowerCase().includes(
-            filters.TicketTitle.toLowerCase()
-          )) &&
-        (filters.Priority === "All" || row.Priority === filters.Priority)
-      );
-    });
-    setFilteredRows(filtered);
-    setFilterOpen(false);
-  };
+  const displayedRows = filteredRows !== null ? filteredRows : rows;
 
   return (
     <div>
       <div className="w-full rounded-md bg-white p-4 ">
         <div className="flex justify-end items-center pb-4">
           <Button sx={{ fontSize: "2rem" }} onClick={() => setFilterOpen(true)}>
-            <span className="text-primary font-pregular">
-              <IoFilterCircleOutline />
-            </span>
+            <IoFilterCircleOutline />
           </Button>
         </div>
         <div className="w-full">
-          {filteredRows.length > 0 ? (
+          {displayedRows.length > 0 ? (
             <AgTable
-              data={filteredRows.length > 0 ? filteredRows : rows}
+              data={displayedRows}
               columns={laptopColumns}
               paginationPageSize={10}
             />
@@ -146,7 +133,11 @@ const Reports = () => {
       </div>
 
       {/* Sidebar for Filtering */}
-      <MuiAside title={"Filter Options"} open={filterOpen} onClose={() => setFilterOpen(false)}>
+      <MuiAside
+        title={"Filter Options"}
+        open={filterOpen}
+        onClose={() => setFilterOpen(false)}
+      >
         <TextField
           label="Raised By"
           size="small"
@@ -155,10 +146,6 @@ const Reports = () => {
           margin="normal"
           value={filters.RaisedBy}
           onChange={(e) => handleFilterChange("RaisedBy", e.target.value)}
-          slotProps={{
-            input: { style: { fontSize: "0.875rem" } },
-            inputLabel: { style: { fontSize: "0.875rem" } },
-          }}
         />
         <TextField
           label="Selected Department"
@@ -171,16 +158,9 @@ const Reports = () => {
           onChange={(e) =>
             handleFilterChange("SelectedDepartment", e.target.value)
           }
-          slotProps={{
-            input: { style: { fontSize: "0.875rem" } },
-            inputLabel: { style: { fontSize: "0.875rem" } },
-          }}
         >
           {departments.map((department) => (
-            <MenuItem
-              key={department}
-              value={department}
-            >
+            <MenuItem key={department} value={department}>
               {department}
             </MenuItem>
           ))}
@@ -193,10 +173,6 @@ const Reports = () => {
           margin="normal"
           value={filters.TicketTitle}
           onChange={(e) => handleFilterChange("TicketTitle", e.target.value)}
-          slotProps={{
-            input: { style: { fontSize: "0.875rem" } },
-            inputLabel: { style: { fontSize: "0.875rem" } },
-          }}
         />
         <TextField
           label="Priority"
@@ -207,19 +183,9 @@ const Reports = () => {
           select
           value={filters.Priority}
           onChange={(e) => handleFilterChange("Priority", e.target.value)}
-          slotProps={{
-            input: { style: { fontSize: "0.875rem" } },
-            inputLabel: { style: { fontSize: "0.875rem" } },
-          }}
         >
           {priorities.map((priority) => (
-            <MenuItem
-              key={priority}
-              value={priority}
-              sx={{
-                ".MuiInputBase-input": { fontSize: "0.875rem" },
-              }}
-            >
+            <MenuItem key={priority} value={priority}>
               {priority}
             </MenuItem>
           ))}
