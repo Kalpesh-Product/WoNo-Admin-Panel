@@ -1,8 +1,34 @@
-import React from "react";
+import React, { useState } from "react";
 import AgTable from "../../../components/AgTable";
+import MuiModal from "../../../components/MuiModal";
 import { Chip } from "@mui/material";
 
 const SupportTickets = ({title}) => {
+  const [openModal, setopenModal] = useState(false);
+
+  const handleOpenModal = ()=>{
+    setopenModal(true);
+    
+  }
+
+  const handleCloseModal = ()=>{
+    setopenModal(false);
+  }
+
+  const viewChildrens = () => {
+    return (
+      <>
+        
+        <ul>
+          <li>Anushri Bhagat</li>
+          <li>Aiwin</li>
+          <li>Sankalp Kalangutkar</li>
+          <li>Allen Silvera</li>
+        </ul>
+      </>
+    );
+  };
+
   const recievedTicketsColumns = [
     { field: "raisedBy", headerName: "Raised By" },
     { field: "selectedDepartment", headerName: "Selected Department", width:100 },
@@ -92,6 +118,7 @@ const SupportTickets = ({title}) => {
                   borderRadius: "4px",
                   cursor: "pointer",
                 }}
+                onClick={handleOpenModal}
               >
                 Re-Assign
               </button>
@@ -153,6 +180,7 @@ const SupportTickets = ({title}) => {
       <div className="w-full">
         <AgTable data={rows} columns={recievedTicketsColumns} />
       </div>
+      <MuiModal open={openModal} onClose={handleCloseModal} title="Re Assign Ticket" children={viewChildrens()} btnTitle='Re Assign'  />
     </div>
   );
 };

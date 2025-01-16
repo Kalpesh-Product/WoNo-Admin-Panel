@@ -1,62 +1,60 @@
-import React,{useState} from "react";
+import React, { useState } from "react";
 import AgTable from "../../components/AgTable";
 import { Chip } from "@mui/material";
 
 const Reports = () => {
-
   const PriorityCellRenderer = (params) => {
     const { value } = params;
-  
+
     // Determine the color based on priority
-    let color = '';
+    let color = "";
+    let fontcolor = ""
     switch (value) {
-      case 'High':
-        color = 'red';
+      case "High":
+        color = "#ffbac2"
+        fontcolor = "#8B0000";
         break;
-      case 'Medium':
-        color = 'yellow';
+      case "Medium":
+        color = "#FFECC5"
+        fontcolor="#ffa500";
         break;
-      case 'Low':
-        color = 'green';
+      case "Low":
+        color = "green";
         break;
       default:
-        color = 'black'; // Fallback color
+        color = "black"; // Fallback color
     }
-  
+
     return (
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <span
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <Chip
+          label={value}
           style={{
-            width: '10px',
-            height: '10px',
-            borderRadius: '50%',
-            backgroundColor: color,
-            display: 'inline-block',
-            marginRight: '8px',
+             backgroundColor:color,
+             color:fontcolor,
+            
           }}
-        ></span>
-        {value}
+        />
       </div>
     );
   };
 
-  
-
-  
-
   const laptopColumns = [
-    
-     
-    { field: "RaisedBy", headerName: "Raised By",flex:1 },
-    { field: "SelectedDepartment", headerName:"Selected Department",flex:1},
-    { field:"TicketTitle",headerName:"Ticket Title",flex:1},
-    { field:"Priority",headerName:"Priority",flex:1, cellRenderer: PriorityCellRenderer,},
+    { field: "RaisedBy", headerName: "Raised By", flex: 1 },
+    { field: "SelectedDepartment", headerName: "Selected Department", flex: 1 },
+    { field: "TicketTitle", headerName: "Ticket Title", flex: 1 },
+    {
+      field: "Priority",
+      headerName: "Priority",
+      flex: 1,
+      cellRenderer: PriorityCellRenderer,
+    },
     // {
     //   headerName: '"PRIORITY',
     //   field: 'priority',
     //   cellRenderer: PriorityCellRenderer, // Use the custom cell renderer
     // },
-  
+
     // { field: "clientname", headerName: "CLIENT NAME" },
     // {
     //   field: "status",
@@ -94,47 +92,44 @@ const Reports = () => {
 
   const rows = [
     {
-      RaisedBy:"Abrar Shaikh",
-      SelectedDepartment:"IT",
-      TicketTitle:"Wifi is not working",
-      Priority:"High"
+      RaisedBy: "Abrar Shaikh",
+      SelectedDepartment: "IT",
+      TicketTitle: "Wifi is not working",
+      Priority: "High",
     },
     {
-      RaisedBy:"Abrar Shaikh",
-      SelectedDepartment:"Admin",
-      TicketTitle:"Ac is not working",
-      Priority:"Medium"
+      RaisedBy: "Abrar Shaikh",
+      SelectedDepartment: "Admin",
+      TicketTitle: "Ac is not working",
+      Priority: "Medium",
     },
     {
-      RaisedBy:"Abrar Shaikh",
-      SelectedDepartment:"Admin",
-      TicketTitle:"Need more chairs in Baga Room",
-      Priority:"Medium"
+      RaisedBy: "Abrar Shaikh",
+      SelectedDepartment: "Admin",
+      TicketTitle: "Need more chairs in Baga Room",
+      Priority: "Medium",
     },
     {
-      RaisedBy:"Abrar Shaikh",
-      SelectedDepartment:"Admin",
-      TicketTitle:"Need water bottles on the bottle",
-      Priority:"High"
+      RaisedBy: "Abrar Shaikh",
+      SelectedDepartment: "Admin",
+      TicketTitle: "Need water bottles on the bottle",
+      Priority: "High",
     },
     {
-      RaisedBy:"Abrar Shaikh",
-      SelectedDepartment:"Tech",
-      TicketTitle:"Website is taking time to load",
-      Priority:"High"
-    }
-    
+      RaisedBy: "Abrar Shaikh",
+      SelectedDepartment: "Tech",
+      TicketTitle: "Website is taking time to load",
+      Priority: "High",
+    },
   ];
   return (
     <div>
       <div className="w-full rounded-md bg-white p-4 ">
-        
         <div className=" w-full">
           <AgTable
             data={rows}
             columns={laptopColumns}
             paginationPageSize={10}
-           
           />
         </div>
       </div>
