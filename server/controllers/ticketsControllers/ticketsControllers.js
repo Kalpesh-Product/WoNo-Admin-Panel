@@ -32,8 +32,14 @@ const raiseATicket = async (req, res, next) => {
       .exec();
     const newTicket = new Tickets({
       ticketTitle: foundIssue ? foundIssue?.title : issue,
-      
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const assignATicket = async (req, res, next) => {
+  try {
   } catch (error) {
     next(error);
   }
