@@ -16,12 +16,12 @@ const HrDashboard = () => {
     },
     {
       name: "Tech Completed",
-      data: [35, 40, 30, 45, 50, 40, 55, 50, 60, 65, 70, 75],
+      data: [45, 40, 30, 45, 50, 40, 55, 50, 60, 65, 70, 75],
       group:'completed'
     },
     {
       name: "Sales Completed",
-      data: [30, 35, 25, 40, 45, 35, 50, 45, 55, 60, 65, 70],
+      data: [40, 45, 25, 40, 45, 35, 50, 45, 55, 60, 65, 70],
       group:'completed'
     },
   ];
