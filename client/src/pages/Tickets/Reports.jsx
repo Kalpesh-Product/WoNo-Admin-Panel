@@ -4,6 +4,7 @@ import { Button, TextField, MenuItem } from "@mui/material";
 import MuiAside from "../../components/MuiAside";
 import PrimaryButton from "../../components/PrimaryButton";
 import { IoFilterCircleOutline } from "react-icons/io5";
+import { Chip } from "@mui/material";
 
 const Reports = () => {
   const [filterOpen, setFilterOpen] = useState(false);
