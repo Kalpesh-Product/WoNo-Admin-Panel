@@ -3,99 +3,133 @@ import WidgetSection from "../../../components/WidgetSection";
 import LayerBarGraph from "../../../components/graphs/LayerBarGraph";
 
 const HrDashboard = () => {
+  // Original data
+  const rawSeries = [
 
-  const financialYear = [
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-    'January',
-    'February',
-    'March',
+    {
+      name: "Sales Total",
+      data: [40, 45, 35, 50, 55, 45, 60, 55, 65, 70, 75, 80],
+      group: "total",
+    },
+    {
+      name: "Tech Total",
+      data: [45, 50, 40, 55, 60, 50, 65, 60, 70, 75, 80, 85],
+      group: "total",
+    },
+    {
+      name: "Space Total",
+      data: [],
+      group: "space",
+    },
+
+    {
+      name: "Sales Completed",
+      data: [40, 45, 25, 40, 45, 35, 50, 45, 55, 60, 65, 70],
+      group: "completed",
+    },
+    {
+      name: "Tech Completed",
+      data: [45, 40, 30, 45, 50, 40, 55, 50, 60, 65, 70, 75],
+      group: "completed",
+    },
   ];
-  
-  // Example department task data
-  const departmentData = {
-    Tech: [10, 20, 40, 25, 30, 20, 35, 40, 45, 50, 55, 60],
-    Sales: [15, 25, 20, 30, 35, 25, 40, 45, 50, 55, 60, 65],
-    Finance: [20, 30, 25, 35, 40, 30, 45, 50, 55, 60, 65, 70],
+
+  // Function to normalize data to percentage
+  const normalizeToPercentage = (series) => {
+    const months = series[0].data.length;
+    const normalizedSeries = [];
+
+    for (let i = 0; i < months; i++) {
+      const totalForMonth = series
+        .filter((s) => s.group === "total")
+        .reduce((sum, s) => sum + s.data[i], 0);
+
+      series.forEach((s) => {
+        if (!normalizedSeries.some((ns) => ns.name === s.name)) {
+          normalizedSeries.push({ name: s.name, data: [], group: s.group });
+        }
+
+        const percentage = totalForMonth
+          ? (s.data[i] / totalForMonth) * 100
+          : 0;
+
+        normalizedSeries.find((ns) => ns.name === s.name).data.push(percentage);
+      });
+    }
+
+    return normalizedSeries;
   };
-  
-  // Example completed task data
-  const completedData = {
-    Tech: [8, 18, 38, 20, 28, 18, 30, 35, 40, 48, 50, 58],
-    Sales: [12, 22, 18, 27, 32, 23, 35, 42, 45, 52, 58, 60],
-    Finance: [18, 28, 20, 33, 38, 25, 40, 48, 50, 55, 60, 65],
-  };
-  
-  // Calculate the total tasks for each month
-  const totalTasks = financialYear.map((_, index) =>
-    Object.values(departmentData).reduce((sum, dept) => sum + dept[index], 0)
-  );
-  
-  // Prepare series data for total tasks (stacked)
-  const totalSeries = Object.keys(departmentData).map((department) => ({
-    name: department,
-    group: 'total',
-    data: departmentData[department].map((tasks, index) => Math.round((tasks / totalTasks[index]) * 100)),
-  }));
-  
-  // Prepare series data for completed tasks (stacked)
-  const completedSeries = Object.keys(completedData).map((department) => ({
-    name: department,
-    group: 'completed',
-    data: completedData[department].map((tasks, index) => Math.round((tasks / totalTasks[index]) * 100)),
-  }));
-  
-  // Combine both series
-  const series = [...totalSeries, ...completedSeries];
-  
+
+  // Normalize data
+  const series = normalizeToPercentage(rawSeries);
+
   const options = {
     chart: {
-      type: 'bar',
+      type: "bar",
       stacked: true,
+      fontFamily: 'Poppins-Regular, Arial, sans-serif'
     },
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth: '45%',
+        columnWidth: "55%",
+        borderRadius: [5], // Radius for rounded corners
+      borderRadiusWhenStacked: "all", // Apply borderRadius consistently
+      borderRadiusApplication: "end", // Apply only to the top of the stack
       },
     },
+    dataLabels: {
+      enabled: false,
+    },
     xaxis: {
-      categories: financialYear,
+      categories: [
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+        "January",
+        "February",
+        "March",
+      ],
+    },
+    yaxis: {
+      max:100,
+      labels: {
+        formatter: (val) => `${Math.round(val)}%`
+      },
+    },
+    fill: {
+      opacity: 1,
+    },
+    legend: {
+      show:false,
+      position: "top",
     },
     tooltip: {
       y: {
-        formatter: (value, { seriesIndex, dataPointIndex, w }) => {
-          const total = totalTasks[dataPointIndex];
-          return `${value}% (Total: ${total})`;
+        formatter: (val, { seriesIndex, dataPointIndex }) => {
+          const rawData = rawSeries[seriesIndex]?.data[dataPointIndex]; // Access the original count
+          return `${rawData}`; // Show the count in the tooltip
         },
       },
     },
-    yaxis: {
-      max: 100,
-      labels: {
-        formatter: (value) => `${Math.round(value)}%`,
-      },
-    },
-    legend: {
-      show: true,
-      position: 'top',
-    },
   };
+
   const hrWidgets = [
     {
       layout: 1,
-      widgets: [<LayerBarGraph
-        title="Department-Wise Task Achievement"
-        data={series}
-        options={options}
-      />],
+      widgets: [
+        <LayerBarGraph
+          title="Department-Wise Task Achievement"
+          data={series}
+          options={options}
+        />,
+      ],
     },
   ];
   return (
