@@ -2,8 +2,9 @@
 import React from "react";
 import { Modal, Box, Typography, IconButton } from "@mui/material";
 import { IoMdClose } from "react-icons/io";
+import { blue } from "@mui/material/colors";
 
-const MuiModal = ({ open, onClose, title, children, headerBackground }) => {
+const MuiModal = ({ open, onClose, title, children, headerBackground,btnTitle }) => {
   return (
     <Modal open={open} onClose={onClose}>
       <Box
@@ -26,6 +27,7 @@ const MuiModal = ({ open, onClose, title, children, headerBackground }) => {
           </IconButton>
         </div>
         <div className="p-4">{children}</div>
+        
       </Box>
     </Modal>
   );
