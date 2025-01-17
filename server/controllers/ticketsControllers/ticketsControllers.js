@@ -41,9 +41,10 @@ const raiseTicket = async (req, res, next) => {
     }
 
     const newTicket = new Ticket({
-      ticket: foundIssue?.title,
-      raisedToDepartment: departmentId,
+      ticket: foundIssue?._id,
       description,
+      raisedToDepartment: departmentId,
+      raisedBy:foundUser?._id
     });
 
     await newTicket.save();
