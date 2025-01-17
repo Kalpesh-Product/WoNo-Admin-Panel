@@ -109,7 +109,20 @@ const HrDashboard = () => {
         <Card icon={<SiGoogleadsense />} title="Data" route={"app/hr/data"}/>,
         <Card icon={<MdMiscellaneousServices />} title="Settings" route={"app/hr/settings"} />,
       ],
+    },
+    {
+      layout: 3,
+      widgets: [
+        <Card  title="On Boarding" data="28"  />,
+        <Card icon={<LuHardDriveUpload />} title="Compliance" route={"app/hr/compliance"} />,
+        <Card icon={<SiCashapp />} title="Finance" route={"app/hr/finance"}/>,
+        <Card icon={<CgWebsite />} title="Performance" route={"app/hr/performanec"} />,
+        <Card icon={<SiGoogleadsense />} title="Data" route={"app/hr/data"}/>,
+        <Card icon={<MdMiscellaneousServices />} title="Settings" route={"app/hr/settings"} />,
+      ],
+
     }
+
   ];
 
   return (
