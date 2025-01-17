@@ -4,6 +4,7 @@ import { Button, TextField, MenuItem } from "@mui/material";
 import MuiAside from "../../components/MuiAside";
 import PrimaryButton from "../../components/PrimaryButton";
 import { IoFilterCircleOutline } from "react-icons/io5";
+import { Chip } from "@mui/material";
 
 const Reports = () => {
   const [filterOpen, setFilterOpen] = useState(false);
@@ -78,21 +79,36 @@ const Reports = () => {
 
   const PriorityCellRenderer = (params) => {
     const { value } = params;
-    const color =
-      value === "High" ? "red" : value === "Medium" ? "yellow" : "green";
+
+    // Determine the color based on priority
+    let color = "";
+    let fontcolor = ""
+    switch (value) {
+      case "High":
+        color = "#ffbac2"
+        fontcolor = "#8B0000";
+        break;
+      case "Medium":
+        color = "#FFECC5"
+        fontcolor="#ffa500";
+        break;
+      case "Low":
+        color = "green";
+        break;
+      default:
+        color = "black"; // Fallback color
+    }
+
     return (
       <div style={{ display: "flex", alignItems: "center" }}>
-        <span
+        <Chip
+          label={value}
           style={{
-            width: "10px",
-            height: "10px",
-            borderRadius: "50%",
-            backgroundColor: color,
-            display: "inline-block",
-            marginRight: "8px",
+             backgroundColor:color,
+             color:fontcolor,
+            
           }}
-        ></span>
-        {value}
+        />
       </div>
     );
   };

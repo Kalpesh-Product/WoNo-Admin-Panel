@@ -1,8 +1,50 @@
-import React from "react";
+import React, { useState } from "react";
 import AgTable from "../../../components/AgTable";
+import MuiModal from "../../../components/MuiModal";
 import { Chip } from "@mui/material";
 
 const SupportTickets = ({title}) => {
+  const [openModal, setopenModal] = useState(false);
+
+  const handleOpenModal = ()=>{
+    setopenModal(true);
+    
+  }
+
+  const handleCloseModal = ()=>{
+    setopenModal(false);
+  }
+
+  const assignees = [
+    "AiwinRaj",
+    "Anushri Bhagat",
+    "Allen Silvera",
+    "Sankalp Kalangutkar",
+    "Muskan Dodmani",
+  ];
+
+  const viewChildren = (
+    <>
+      <ul>
+        {assignees.map((key, items) => {
+          return (
+            <>
+              <div className="flex flex-row gap-6">
+                <input type="checkbox"></input>
+                <li key={items}>{key}</li>
+              </div>
+            </>
+          );
+        })}
+      </ul>
+      <div className="flex items-center justify-center mb-4">
+        <button className="p-2 bg-primary align-middle text-white rounded-md">
+          Assign 
+        </button>
+      </div>
+    </>
+  );
+
   const recievedTicketsColumns = [
     { field: "raisedBy", headerName: "Raised By" },
     { field: "selectedDepartment", headerName: "Selected Department", width:100 },
@@ -92,6 +134,7 @@ const SupportTickets = ({title}) => {
                   borderRadius: "4px",
                   cursor: "pointer",
                 }}
+                onClick={handleOpenModal}
               >
                 Re-Assign
               </button>
@@ -145,6 +188,9 @@ const SupportTickets = ({title}) => {
       status: "pending",
     },
   ];
+
+  
+
   return (
     <div className="p-4 border-default border-borderGray rounded-md">
       <div className="pb-4">
@@ -153,6 +199,7 @@ const SupportTickets = ({title}) => {
       <div className="w-full">
         <AgTable data={rows} columns={recievedTicketsColumns} />
       </div>
+      <MuiModal open={openModal} onClose={handleCloseModal} title="Re Assign Ticket" children={viewChildren} btnTitle='Re Assign'  />
     </div>
   );
 };

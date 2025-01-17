@@ -19,17 +19,14 @@ const RaiseTicket = () => {
     message: "",
   });
 
- 
-
   const handleChange = (field, value) => {
     setDetails((prev) => ({ ...prev, [field]: value }));
   };
 
- 
   const laptopColumns = [
     { field: "RaisedBy", headerName: "Raised By" },
     { field: "SelectedDepartment", headerName: "Selected Department" },
-    { field: "TicketTitle", headerName: "Ticket Title", flex:1 },
+    { field: "TicketTitle", headerName: "Ticket Title", flex: 1 },
     {
       field: "Priority",
       headerName: "Priority",
@@ -93,74 +90,69 @@ const RaiseTicket = () => {
     },
   ];
 
-  
-  
-  const [rows,setRows] = useState([
-    
-      {
-        RaisedBy: "Abrar Shaikh",
-        SelectedDepartment: "IT",
-        TicketTitle: "Laptop Screen Malfunctioning",
-        Priority: "High",
-        Status: "In Process",
-      },
-      {
-        RaisedBy: "Abrar Shaikh",
-        SelectedDepartment: "IT",
-        TicketTitle: "Request for new stationary Supplies",
-        Priority: "High",
-        Status: "Pending",
-      },
-      {
-        RaisedBy: "Abrar Shaikh",
-        SelectedDepartment: "IT",
-        TicketTitle: "Domain Expired",
-        Priority: "High",
-        Status: "Pending",
-      },
-      {
-        RaisedBy: "Abrar Shaikh",
-        SelectedDepartment: "IT",
-        TicketTitle: "Salary Not Revceived",
-        Priority: "High",
-        Status: "Closed",
-      },
-      {
-        RaisedBy: "Abrar Shaikh",
-        SelectedDepartment: "IT",
-        TicketTitle: "Wifi is Not Working",
-        Priority: "High",
-        Status: "Pending",
-      },
-    ])
+  const [rows, setRows] = useState([
+    {
+      RaisedBy: "Abrar Shaikh",
+      SelectedDepartment: "IT",
+      TicketTitle: "Laptop Screen Malfunctioning",
+      Priority: "High",
+      Status: "In Process",
+    },
+    {
+      RaisedBy: "Abrar Shaikh",
+      SelectedDepartment: "IT",
+      TicketTitle: "Request for new stationary Supplies",
+      Priority: "High",
+      Status: "Pending",
+    },
+    {
+      RaisedBy: "Abrar Shaikh",
+      SelectedDepartment: "IT",
+      TicketTitle: "Domain Expired",
+      Priority: "High",
+      Status: "Pending",
+    },
+    {
+      RaisedBy: "Abrar Shaikh",
+      SelectedDepartment: "IT",
+      TicketTitle: "Salary Not Revceived",
+      Priority: "High",
+      Status: "Closed",
+    },
+    {
+      RaisedBy: "Abrar Shaikh",
+      SelectedDepartment: "IT",
+      TicketTitle: "Wifi is Not Working",
+      Priority: "High",
+      Status: "Pending",
+    },
+  ]);
 
-    const submitData = (e)=>{
-      console.log("hello");
-     e.preventDefault();
+  const submitData = (e) => {
+    console.log("hello");
+    e.preventDefault();
     setRows((prevRows) => [
       ...prevRows,
       {
         RaisedBy: "Abrar Shaikh",
-        SelectedDepartment:details.department,
+        SelectedDepartment: details.department,
         TicketTitle: details.ticketTitle || details.otherReason,
         Priority: "High",
         Status: "Pending",
-      }
+      },
     ]);
 
     // Reset the form values after adding the new row
     setDetails({
       RaisedBy: "",
-      SelectedDepartment: "" ,
+      SelectedDepartment: "",
       TicketTitle: "",
       Priority: "",
-      message:"",
+      message: "",
       Status: "",
     });
+  };
 
-    }
-
-    
   return (
     <div className="p-4 flex flex-col gap-4">
       <div className="p-4 bg-white border-2 rounded-md">
@@ -175,7 +167,7 @@ const RaiseTicket = () => {
           >
             <InputLabel>Department</InputLabel>
             <Select
-            label="Department"
+              label="Department"
               value={details.department || ""}
               onChange={(e) => handleChange("department", e.target.value)}
             >
@@ -198,24 +190,33 @@ const RaiseTicket = () => {
               onChange={(e) => handleChange("ticketTitle", e.target.value)}
             >
               <MenuItem value="">Select Ticket Title</MenuItem>
-              <MenuItem value="Wifi is not working">Wifi is not working</MenuItem>
-              <MenuItem value="payroll is not working">Payroll is not working</MenuItem>
+              <MenuItem value="Wifi is not working">
+                Wifi is not working
+              </MenuItem>
+              <MenuItem value="payroll is not working">
+                Payroll is not working
+              </MenuItem>
               <MenuItem value="website is taking time to load">
                 Website is taking time to load
               </MenuItem>
               <MenuItem value="Others">Others</MenuItem>
             </Select>
           </FormControl>
-
+        </div>
+        <div className="mt-4">
           {details.ticketTitle === "Others" && (
             <TextField
               size="small"
               label="Please specify the reason"
               value={details.otherReason}
               onChange={(e) => handleChange("otherReason", e.target.value)}
+              multiline
+              maxRows={4}
               fullWidth
             />
           )}
+          </div>
+          <div className="grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 gap-4 mt-4">
 
           <TextField
             size="small"
