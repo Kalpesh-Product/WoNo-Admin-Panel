@@ -107,8 +107,6 @@ const Sidebar = () => {
     setExpandedModule((prev) => (prev === index ? null : index));
   };
 
-  console.log(expandedModule);
-
   const isActive = (path) => location.pathname.includes(path);
 
   return (

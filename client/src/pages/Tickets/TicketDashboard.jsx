@@ -7,6 +7,7 @@ import { RiArchiveDrawerLine } from "react-icons/ri";
 import { RiPagesLine } from "react-icons/ri";
 import { MdFormatListBulleted } from "react-icons/md";
 import { CgProfile } from "react-icons/cg";
+import { Outlet } from "react-router-dom";
 
 const TicketDashboard = () => {
   const ticketWidgets = [
