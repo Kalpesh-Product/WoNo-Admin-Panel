@@ -10,6 +10,10 @@ const ticketsSchema = new mongoose.Schema(
      type: mongoose.Schema.Types.ObjectId,
       ref: "Department",
      },
+     raisedBy:{
+      type: mongoose.Schema.Types.ObjectId,
+       ref: "User",
+      },
     description: {
       type: String,
       required: true,
