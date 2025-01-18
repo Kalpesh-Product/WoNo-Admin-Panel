@@ -9,14 +9,14 @@ const BreadCrumbComponent = () => {
   // Extract and process the path, excluding 'app' for display purposes
   const pathSegments = location.pathname
     .split("/") // Split the path into segments
-    .filter((segment) => segment && segment !== "app"); // Remove empty segments and exclude '/app'
+    .filter((segment) => segment && segment !== "app" && segment !== "dashboard"); // Remove empty segments and exclude '/app'
 
   // Generate breadcrumb links
   const breadcrumbs = pathSegments.map((segment, index) => {
     const isLast = index === pathSegments.length - 1;
 
     // Add `/app` back to the navigation path
-    const path = `/app/${pathSegments.slice(0, index + 1).join("/")}`;
+    const path = `/app/dashboard/${pathSegments.slice(0, index + 1).join("/")}`;
 
     // Capitalize for display
     const displayText = segment

@@ -1,6 +1,17 @@
 import React from "react";
 import WidgetSection from "../../../components/WidgetSection";
 import LayerBarGraph from "../../../components/graphs/LayerBarGraph";
+import Card from "../../../components/Card";
+import { MdRebaseEdit } from "react-icons/md";
+import { LuHardDriveUpload } from "react-icons/lu";
+import { CgWebsite } from "react-icons/cg";
+import { SiCashapp } from "react-icons/si";
+import { SiGoogleadsense } from "react-icons/si";
+import { MdMiscellaneousServices } from "react-icons/md";
+import { useLocation } from "react-router-dom";
+import DataCard from "../../../components/DataCard";
+import BarGraph from "../../../components/graphs/BarGraph";
+import PayRollExpenseGraph from "../../../components/HrDashboardGraph/PayRollExpenseGraph";
 
 const HrDashboard = () => {
   // Original data
@@ -34,6 +45,9 @@ const HrDashboard = () => {
     },
   ];
 
+
+
+
   // Function to normalize data to percentage
   const normalizeToPercentage = (series) => {
     const months = series[0].data.length;
@@ -56,9 +70,12 @@ const HrDashboard = () => {
         normalizedSeries.find((ns) => ns.name === s.name).data.push(percentage);
       });
     }
-
     return normalizedSeries;
   };
+
+
+
+
 
   // Normalize data
   const series = normalizeToPercentage(rawSeries);
@@ -131,16 +148,55 @@ const HrDashboard = () => {
         />,
       ],
     },
+    {
+      layout: 6,
+      widgets: [
+        <Card icon={<CgWebsite />} title="On Boarding" route={"onboarding"} />,
+        <Card icon={<LuHardDriveUpload />} title="Compliance" route={"compliances"} />,
+        <Card icon={<SiCashapp />} title="Finance" route={"#"}/>,
+        <Card icon={<CgWebsite />} title="Performance" route={"#"} />,
+        <Card icon={<SiGoogleadsense />} title="Data" route={"#"}/>,
+        <Card icon={<MdMiscellaneousServices />} title="Settings" route={"#"} />,
+      ],
+    },
+    {
+      layout: 3,
+      widgets: [
+        <DataCard  title="On Boarding" data="28" description="Current Headcount" />,
+        <DataCard  title="Compliance" data="52K" description="salary" />,
+        <DataCard  title="Finance" data="25" description="Monthly Employees"/>,
+        <DataCard  title="Performance" data="4%" description="Monthly Iteration" />,
+        <DataCard  title="Data" data="92%" description="Attendance"/>,
+        <DataCard  title="Settings" data="8.1hr" description="Working Hours"/>,
+      ],
+    },
+    {
+      layout:1,
+      widgets:[
+        <LayerBarGraph
+          title="Department-Wise Task Achievement"
+          data={series}
+          options={options}
+        />,
+      ]
+    }
+    
+
   ];
+
   return (
     <>
-      {hrWidgets.map((widget, index) => (
-        <divj>
-          <WidgetSection layout={widget.layout} key={index}>
-            {widget.widgets}
-          </WidgetSection>
-        </divj>
-      ))}
+      <PayRollExpenseGraph />
+      <div>
+        {hrWidgets.map((widget, index) => (
+          <div>
+            <WidgetSection layout={widget.layout} key={index}>
+              {widget.widgets}
+            </WidgetSection>
+          </div>
+        ))}
+      </div>
+      
     </>
   );
 };

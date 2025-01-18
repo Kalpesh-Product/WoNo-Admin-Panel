@@ -56,13 +56,13 @@ const Sidebar = () => {
           id: 2,
           title: "Frontend Dashboard",
           icon: <CgWebsite />,
-          route: "frontend-dashboard",
+          route: "/app/dashboard/frontend-dashboard",
         },
         {
           id: 3,
           title: "HR Dashboard",
           icon: <RiAdminFill />,
-          route: "hr-dashboard",
+          route: "/app/dashboard/hr-dashboard",
         },
         {
           id: 4,
@@ -106,8 +106,6 @@ const Sidebar = () => {
   const toggleModule = (index) => {
     setExpandedModule((prev) => (prev === index ? null : index));
   };
-
-  console.log(expandedModule);
 
   const isActive = (path) => location.pathname.includes(path);
 
