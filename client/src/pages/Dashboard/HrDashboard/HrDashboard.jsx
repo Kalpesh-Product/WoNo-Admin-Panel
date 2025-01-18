@@ -45,6 +45,9 @@ const HrDashboard = () => {
     },
   ];
 
+
+
+
   // Function to normalize data to percentage
   const normalizeToPercentage = (series) => {
     const months = series[0].data.length;
@@ -67,9 +70,12 @@ const HrDashboard = () => {
         normalizedSeries.find((ns) => ns.name === s.name).data.push(percentage);
       });
     }
-
     return normalizedSeries;
   };
+
+
+
+
 
   // Normalize data
   const series = normalizeToPercentage(rawSeries);
@@ -156,15 +162,25 @@ const HrDashboard = () => {
     {
       layout: 3,
       widgets: [
-        <Card  title="On Boarding" data="28"  />,
-        <Card icon={<LuHardDriveUpload />} title="Compliance" route={"app/hr/compliance"} />,
-        <Card icon={<SiCashapp />} title="Finance" route={"app/hr/finance"}/>,
-        <Card icon={<CgWebsite />} title="Performance" route={"app/hr/performanec"} />,
-        <Card icon={<SiGoogleadsense />} title="Data" route={"app/hr/data"}/>,
-        <Card icon={<MdMiscellaneousServices />} title="Settings" route={"app/hr/settings"} />,
+        <DataCard  title="On Boarding" data="28" description="Current Headcount" />,
+        <DataCard  title="Compliance" data="52K" description="salary" />,
+        <DataCard  title="Finance" data="25" description="Monthly Employees"/>,
+        <DataCard  title="Performance" data="4%" description="Monthly Iteration" />,
+        <DataCard  title="Data" data="92%" description="Attendance"/>,
+        <DataCard  title="Settings" data="8.1hr" description="Working Hours"/>,
       ],
-
+    },
+    {
+      layout:1,
+      widgets:[
+        <LayerBarGraph
+          title="Department-Wise Task Achievement"
+          data={series}
+          options={options}
+        />,
+      ]
     }
+    
 
   ];
 
