@@ -3,6 +3,7 @@ const TicketIssues = require("../../models/tickets/TicketIssues");
 const User = require("../../models/User");
 const mongoose = require("mongoose");
 const Ticket = require("../../models/tickets/Tickets");
+const Department = require("../../models/Departments");
 
 const raiseTicket = async (req, res, next) => {
   try {
@@ -138,6 +139,55 @@ const assignTicket = async (req, res, next) => {
   }
 };
 
+const escalateTicket = async (req, res, next) => {
+  try {
+    const { user } = req;
+    const { ticketId,departmentId } = req.body;
+
+    const foundUser = await User.findOne({ _id: user })
+      .select("-refreshToken -password")
+      .lean()
+      .exec();
+
+    if (!foundUser) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(departmentId)) {
+        return res.status(400).json({ message: "Invalid Department ID provided" });
+    }
+
+    const foundDepartment = await Department.findOne({ _id: departmentId })
+      .lean()
+      .exec();
+
+      if(!foundDepartment){
+        return res.status(400).json({ message: "Department doesn't exists" });
+      }
+
+    if (!mongoose.Types.ObjectId.isValid(ticketId)) {
+        return res.status(400).json({ message: "Invalid ticket ID provided" });
+    }
+
+    const foundTicket = await Tickets.findOne({ _id: ticketId })
+    .lean()
+    .exec();
+
+    if(!foundTicket){
+      return res.status(400).json({ message: "Ticket doesn't exists" });
+    }
+
+    await Tickets.findByIdAndUpdate(
+      { _id: ticketId }, 
+      { $push : {escalatedTo: departmentId} }
+    );
+
+    return res.status(200).json({ message: "Ticket escalated successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const closeTicket = async (req, res, next) => {
   try {
     const { user } = req;
@@ -174,5 +224,6 @@ module.exports = {
   raiseTicket,
   acceptTicket,
   assignTicket,
+  escalateTicket,
   closeTicket,
 };

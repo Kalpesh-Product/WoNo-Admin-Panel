@@ -3,6 +3,7 @@ const {
   acceptTicket,
   assignTicket,
   closeTicket,
+  escalateTicket,
 } = require("../controllers/ticketsControllers/ticketsControllers");
 
 const {
@@ -20,6 +21,7 @@ router.get("/get-ticket-issue", getTicketIssue);
 router.post("/raise-ticket", raiseTicket);
 router.post("/accept-ticket", acceptTicket);
 router.post("/assign-ticket", assignTicket);
+router.post("/escalate-ticket", escalateTicket);
 router.post("/close-ticket", closeTicket);
 router.post("/support-ticket", supportTicket);
 
