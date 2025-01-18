@@ -9,7 +9,7 @@ import {
   WorkDetails,
   KycDetails,
   BankDetails,
-} from "../../forms/OnBoarding";
+} from "../../forms/ProfileDetail";
 import SecondaryButton from "../../components/SecondaryButton";
 import useAuth from "../../hooks/useAuth";
 import { api } from "../../utils/axios";

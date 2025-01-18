@@ -33,6 +33,17 @@ import HrLayout from "../pages/Dashboard/HrDashboard/HrLayout";
 import ViewEmployees from '../pages/Dashboard/HrDashboard/Complaince/ViewEmployees'
 import CompanyHandbook from '../pages/Dashboard/HrDashboard/Complaince/CompanyHandbook'
 import HoildaysEvents from '../pages/Dashboard/HrDashboard/Complaince/HoildaysEvents'
+import OnBoarding from "../pages/Dashboard/HrDashboard/OnBoarding/OnBoarding";
+import EmployeeOnboard from "../pages/Dashboard/HrDashboard/OnBoarding/EmployeeOnboard";
+import MemberOnboard from "../pages/Dashboard/HrDashboard/OnBoarding/MemberOnboard";
+import VendorOnboard from "../pages/Dashboard/HrDashboard/OnBoarding/VendorOnboard";
+import EmployeeDetail from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/EmployeeDetails";
+import EditDetails from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/EditDetails";
+import Attendance from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/Attendance";
+import Leaves from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/Leaves";
+import Agreements from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/Agreements";
+import KPI from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/KPI";
+import KRA from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/KRA";
 
 export const routes = createBrowserRouter([
   {
@@ -80,6 +91,36 @@ export const routes = createBrowserRouter([
                             element: <ViewEmployees />,
                           },
                           {
+                            path: "view-employees/:id", // Move dynamic route to the same level as view-employees
+                            element: <EmployeeDetail />,
+                            children:[
+                              {
+                                path: "edit-details",
+                                element: <EditDetails />
+                              },
+                              {
+                                path: "attendance",
+                                element: <Attendance />
+                              },
+                              {
+                                path: "leaves",
+                                element: <Leaves />
+                              },
+                              {
+                                path: "agreements",
+                                element: <Agreements />
+                              },
+                              {
+                                path: "kpi",
+                                element: <KPI />
+                              },
+                              {
+                                path: "kra",
+                                element: <KRA />
+                              }
+                            ]
+                          },
+                          {
                             path: "company-handbook",
                             element: <CompanyHandbook />,
                           },
@@ -88,6 +129,28 @@ export const routes = createBrowserRouter([
                             element: (
                               <HoildaysEvents
                                 title={"Holiday & Event Listing"}
+                              />
+                            ),
+                          },
+                        ],
+                      },
+                      {
+                        path: "onboarding",
+                        element: <OnBoarding />,
+                        children: [
+                          {
+                            path: "employee-onboarding",
+                            index:true,
+                            element: <EmployeeOnboard />,
+                          },
+                          {
+                            path: "vendor-onboarding",
+                            element: <VendorOnboard />,
+                          },
+                          {
+                            path: "member-onboarding",
+                            element: (
+                              <MemberOnboard
                               />
                             ),
                           },
