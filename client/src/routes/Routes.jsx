@@ -26,8 +26,13 @@ import TicketSettingsnew from "../pages/Tickets/TicketSettingsnew";
 import TestPage from "../pages/Test/TestPage";
 import TicketLayout from "../pages/Tickets/TicketLayout";
 import Compliances from "../pages/Dashboard/HrDashboard/Complaince/Compliances";
-
-
+import DashboardLayout from "../pages/Dashboard/DashboardLayout";
+import FrontendDashboard from "../pages/Dashboard/FrontendDashboard/FrontendDashboard";
+import HrDashboard from "../pages/Dashboard/HrDashboard/HrDashboard";
+import HrLayout from "../pages/Dashboard/HrDashboard/HrLayout";
+import ViewEmployees from '../pages/Dashboard/HrDashboard/Complaince/ViewEmployees'
+import CompanyHandbook from '../pages/Dashboard/HrDashboard/Complaince/CompanyHandbook'
+import HoildaysEvents from '../pages/Dashboard/HrDashboard/Complaince/HoildaysEvents'
 
 export const routes = createBrowserRouter([
   {
@@ -45,22 +50,54 @@ export const routes = createBrowserRouter([
             element: <MainLayout />,
             children: [
               {
-                path: "frontend-dashboard",
-                element: <Dashboard />,
-                index: true,
+                path: "dashboard",
+                element: <DashboardLayout />,
+                children: [
+                  {
+                    path: "frontend-dashboard",
+                    element: <FrontendDashboard />,
+                    index: true,
+                  },
+                  {
+                    path: "finance-dashboard",
+                    element: <Dashboard />,
+                  },
+                  {
+                    path: "hr-dashboard",
+                    element: <HrLayout />,
+                    children: [
+                      {
+                        path: "",
+                        element: <HrDashboard />,
+                      },
+                      {
+                        path: "compliances",
+                        element: <Compliances />,
+                        children: [
+                          {
+                            path: "view-employees",
+                            index:true,
+                            element: <ViewEmployees />,
+                          },
+                          {
+                            path: "company-handbook",
+                            element: <CompanyHandbook />,
+                          },
+                          {
+                            path: "holidays-events",
+                            element: (
+                              <HoildaysEvents
+                                title={"Holiday & Event Listing"}
+                              />
+                            ),
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
               },
-              {
-                path: "finance-dashboard",
-                element: <Dashboard />,
-              },
-              {
-                path: "hr-dashboard",
-                element: <Dashboard />,
-              },
-              {
-                path: "hr-dashboard/compliances",
-                element: <Compliances />,
-              },
+
               {
                 path: "reports",
                 element: <Reports />,

@@ -91,7 +91,8 @@ const AgTable = React.memo(
                 label={`Search by ${searchColumn}`}
                 variant="outlined"
                 size="small"
-                sx={{ minWidth: "15rem" }}
+               
+                fullWidth
                 value={searchQuery}
                 onChange={handleSearch}
                 placeholder={`Search ${searchColumn}`}
