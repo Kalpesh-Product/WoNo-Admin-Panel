@@ -44,7 +44,7 @@ const raiseTicket = async (req, res, next) => {
       ticket: foundIssue?._id,
       description,
       raisedToDepartment: departmentId,
-      raisedBy:foundUser?._id
+      raisedBy: foundUser?._id,
     });
 
     await newTicket.save();
@@ -55,6 +55,17 @@ const raiseTicket = async (req, res, next) => {
   }
 };
 
+const getTickets = async (req, res, next) => {
+  try {
+    const allTickets = await Ticket.find()
+      .populate("ticket raisedBy raisedToDepartment")
+      .lean()
+      .exec();
+    res.status(200).json(allTickets);
+  } catch (error) {
+    next(error);
+  }
+};
 const acceptTicket = async (req, res, next) => {
   try {
     const { user } = req;
