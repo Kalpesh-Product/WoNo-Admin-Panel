@@ -51,6 +51,8 @@ const MyAssets = ({ pageTitle }) => {
       warranty: "2",
     },
   ];
+
+  
   return (
     <>
       <div className="flex items-center justify-between pb-4">
