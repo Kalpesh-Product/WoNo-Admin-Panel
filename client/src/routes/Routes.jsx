@@ -2,23 +2,32 @@ import { createBrowserRouter } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
 import AuthLayout from "../layouts/AuthLayout";
 import LoginPage from "../pages/LoginPage/LoginPage";
-import Reports from "../pages/Reports";
+import PersistLogin from "../layouts/PersistLogin";
+
+// Import main pages
 import Dashboard from "../pages/Dashboard/Dashboard";
+import Reports from "../pages/Reports";
 import Calender from "../pages/Calendar";
 import Access from "../pages/Access/Access";
-import Chat from "../pages/Chat";
-import Profile from "../pages/Profile/Profile";
 import AccessProfile from "../pages/Access/AccessProfile";
 import Notifications from "../pages/Notifications";
+import Chat from "../pages/Chat";
+import Profile from "../pages/Profile/Profile";
+
+// Import tickets pages
 import TicketDashboard from "../pages/Tickets/TicketDashboard";
 import ManageTickets from "../pages/Tickets/ManageTickets";
-import PersistLogin from "../layouts/PersistLogin";
 import TeamMembers from "../pages/Tickets/TeamMembers";
-import Reportss from "../pages/Tickets/Reports";
+import TicketReports from "../pages/Tickets/TicketReports";
 import RaiseTicket from "../pages/Tickets/RaiseTicket";
-import TicketSettings from "../pages/Tickets/TicketSettings";
 import TicketSettingsnew from "../pages/Tickets/TicketSettingsnew";
+
+// Test page
 import TestPage from "../pages/Test/TestPage";
+import TicketLayout from "../pages/Tickets/TicketLayout";
+import Compliances from "../pages/Dashboard/HrDashboard/Complaince/Compliances";
+
+
 
 export const routes = createBrowserRouter([
   {
@@ -36,29 +45,25 @@ export const routes = createBrowserRouter([
             element: <MainLayout />,
             children: [
               {
-                path: "frontend-dashboard", // Accessible at /frontend-dashboard
+                path: "frontend-dashboard",
                 element: <Dashboard />,
                 index: true,
               },
               {
-                path: "finance-dashboard", // Accessible at /finance-dashboard
+                path: "finance-dashboard",
                 element: <Dashboard />,
               },
               {
-                path: "hr-dashboard", // Accessible at /hr-dashboard
+                path: "hr-dashboard",
                 element: <Dashboard />,
               },
               {
-                
-
+                path: "hr-dashboard/compliances",
+                element: <Compliances />,
               },
               {
                 path: "reports",
                 element: <Reports />,
-              },
-              {
-                path: "tickets",
-                element: <TicketDashboard />,
               },
               {
                 path: "calendar",
@@ -69,51 +74,61 @@ export const routes = createBrowserRouter([
                 element: <Access />,
               },
               {
-                path: "notifications",
-                element: <Notifications />,
-              },
-              {
                 path: "access/permissions",
                 element: <AccessProfile />,
               },
               {
-                path: "tickets/raise-ticket",
-                element: <RaiseTicket />,
-              },
-              {
-                path: "tickets/manage-tickets",
-                element: <ManageTickets />,
-              },
-              {
-                path: "tickets/ticket-settings",
-                element: <TicketSettingsnew />,
-              },
-              {
-                path: "tickets/team-members",
-                element: <TeamMembers />,
-              },
-
-              {
-                path: "tickets/Reports",
-                element: <Reportss />,
+                path: "notifications",
+                element: <Notifications />,
               },
               {
                 path: "chat",
                 element: <Chat />,
               },
               {
+                path: "profile",
+                element: <Profile />,
+              },
+              {
                 path: "test",
                 element: <TestPage />,
               },
+
               {
-                path: "profile",
-                element: <Profile />,
+                path: "tickets", // Parent path
+                element: <TicketLayout />, // Parent component for tickets
+                children: [
+                  {
+                    path: "", // Default route for /app/tickets
+                    element: <TicketDashboard />, // Dashboard is rendered by default
+                    index: true,
+                  },
+                  {
+                    path: "raise-ticket",
+                    element: <RaiseTicket />,
+                  },
+                  {
+                    path: "manage-tickets",
+                    element: <ManageTickets />,
+                  },
+                  {
+                    path: "ticket-settings",
+                    element: <TicketSettingsnew />,
+                  },
+                  {
+                    path: "team-members",
+                    element: <TeamMembers />,
+                  },
+                  {
+                    path: "reports",
+                    element: <TicketReports />,
+                  },
+                ],
               },
             ],
           },
         ],
       },
-      {},
     ],
   },
 ]);

@@ -107,8 +107,6 @@ const Sidebar = () => {
     setExpandedModule((prev) => (prev === index ? null : index));
   };
 
-  console.log(expandedModule);
-
   const isActive = (path) => location.pathname.includes(path);
 
   return (
@@ -118,7 +116,7 @@ const Sidebar = () => {
       <div
         className={`${
           isSidebarOpen ? "w-60" : "w-16"
-        } bg-white  text-black flex flex-shrink-0 h-screen overflow-y-auto transition-all duration-100 z-[1]`}
+        } bg-white  text-black flex flex-shrink-0 h-[85vh] overflow-y-auto transition-all duration-100 z-[1]`}
       >
         <div className="flex relative w-full">
           <div className="p-0 flex flex-col gap-2 w-full">
