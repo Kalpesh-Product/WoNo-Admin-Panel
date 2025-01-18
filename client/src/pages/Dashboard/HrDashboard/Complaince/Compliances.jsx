@@ -1,18 +1,34 @@
 import { Tab, Tabs } from "@mui/material";
-import React, { useState } from "react";
-import ViewEmployees from "./ViewEmployees";
+import React, { useEffect } from "react";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const Compliances = () => {
-  const [activeTab, setActiveTab] = useState(0);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const handleTabChange = (event, newValue) => {
-    setActiveTab(newValue);
-  };
+  // Map routes to tabs
+  const tabs = [
+    { label: "View Employees", path: "view-employees" },
+    { label: "Company Handbook", path: "company-handbook" },
+    { label: "Holidays / Events", path: "holidays-events" },
+  ];
+
+  // Redirect to "view-employees" if the current path is "/hr-dashboard/compliances"
+  useEffect(() => {
+    if (location.pathname === "/app/dashboard/hr-dashboard/compliances") {
+      navigate("/app/dashboard/hr-dashboard/compliances/view-employees", { replace: true });
+    }
+  }, [location, navigate]);
+
+  // Determine active tab based on location
+  const activeTab = tabs.findIndex((tab) =>
+    location.pathname.includes(tab.path)
+  );
+
   return (
     <div className="p-4">
       <Tabs
         value={activeTab}
-        onChange={handleTabChange}
         variant="fullWidth"
         TabIndicatorProps={{ style: { display: "none" } }}
         sx={{
@@ -31,27 +47,29 @@ const Compliances = () => {
           },
         }}
       >
-        <Tab label="View Employees" />
-        <Tab label="Company Handbook" />
-        <Tab label="Holidays / Events" />
+        {tabs.map((tab, index) => (
+          <NavLink
+            key={index}
+            className={"border-r-[1px] border-borderGray"}
+            to={tab.path}
+            style={({ isActive }) => ({
+              textDecoration: "none",
+              color: isActive ? "white" : "#1E3D73",
+              flex: 1,
+              textAlign: "center",
+              padding: "12px 16px",
+              display: "block",
+              backgroundColor: isActive ? "#1E3D73" : "white",
+            })}
+          >
+            {tab.label}
+          </NavLink>
+        ))}
       </Tabs>
 
       <div className="py-4 bg-white">
-        {activeTab === 0 && (
-          <div className="">
-          <ViewEmployees />
-          </div>
-        )}
-        {activeTab === 1 && (
-          <div>
-           Company Handbook
-          </div>
-        )}
-        {activeTab === 2 && (
-          <div>
-           Holidays / Events
-          </div>
-        )}
+        {/* Render the nested routes */}
+        <Outlet />
       </div>
     </div>
   );

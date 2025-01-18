@@ -91,7 +91,7 @@ const ViewEmployees = () => {
   return (
     <div>
       <div className="w-full">
-        <AgTable search={true} searchColumn="Employee Name" data={rows} columns={viewEmployeeColumns} />
+        <AgTable search={true} searchColumn="Email" data={rows} columns={viewEmployeeColumns} />
       </div>
     </div>
   );

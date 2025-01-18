@@ -169,7 +169,7 @@ const renderTreeNodes = (users, parentId, navigate) => {
     ));
 };
 
-const HierarchyTree = () => {
+const HierarchyTree = ({height}) => {
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
   const navigate = useNavigate(); // Initialize useNavigate once
 
@@ -178,7 +178,9 @@ const HierarchyTree = () => {
       <div
         className={`${
           isSidebarOpen ? "w-[78vw]" : "w-[90vw]"
-        } h-[90vh] overflow-y-auto overflow-x-auto `}
+        }  overflow-y-auto overflow-x-auto `}
+
+        style={{height:height ? height : '90vh'}}
       >
         <Tree
           lineWidth={"2px"}
