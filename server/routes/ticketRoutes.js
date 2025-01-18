@@ -10,11 +10,13 @@ const {
 } = require("../controllers/ticketsControllers/supportTicketsController");
 const {
   addTicketIssue,
+  getTicketIssue,
 } = require("../controllers/ticketsControllers/ticketIssueController");
 
 const router = require("express").Router();
 
 router.post("/add-ticket-issue", addTicketIssue);
+router.get("/get-ticket-issue", getTicketIssue);
 router.post("/raise-ticket", raiseTicket);
 router.post("/accept-ticket", acceptTicket);
 router.post("/assign-ticket", assignTicket);
