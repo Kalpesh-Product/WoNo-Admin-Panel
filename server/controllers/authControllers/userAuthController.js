@@ -11,6 +11,7 @@ const login = async (req, res, next) => {
     const ipAddress = req.ip;
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const { email, password } = req.body;
+    console.log(email,password)
 
     if (!emailRegex.test(email)) {
       await registerLogs({

@@ -4,6 +4,7 @@ const {
   assignTicket,
   closeTicket,
   escalateTicket,
+  getTickets,
 } = require("../controllers/ticketsControllers/ticketsControllers");
 
 const {
@@ -18,6 +19,7 @@ const router = require("express").Router();
 
 router.post("/add-ticket-issue", addTicketIssue);
 router.get("/get-ticket-issue", getTicketIssue);
+router.get("/get-tickets", getTickets);
 router.post("/raise-ticket", raiseTicket);
 router.post("/accept-ticket", acceptTicket);
 router.post("/assign-ticket", assignTicket);

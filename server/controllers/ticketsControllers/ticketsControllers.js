@@ -58,11 +58,38 @@ const raiseTicket = async (req, res, next) => {
 
 const getTickets = async (req, res, next) => {
   try {
+    const { user } = req;
+    const loggedInUser = await User.findOne({ _id: user }).lean().exec();
     const allTickets = await Ticket.find()
-      .populate("ticket raisedBy raisedToDepartment")
+      .populate([
+        { path: "ticket" },
+        { path: "raisedBy", select: "-refreshToken -password" },
+      ])
       .lean()
       .exec();
-    res.status(200).json(allTickets);
+
+    for (let ticket of allTickets) {
+      if (
+        loggedInUser.department.some((dept) =>
+          dept.equals(ticket.raisedToDepartment)
+        )
+      ) {
+        const filteredTickets = allTickets.filter((tkt) =>
+          loggedInUser.department.some((dept) =>
+            dept.equals(tkt.raisedToDepartment)
+          )
+        );
+        console.log(filteredTickets.length);
+        return res.status(200).json(filteredTickets);
+      }
+      for (let dept of loggedInUser.department) {
+        if (ticket.escalatedTo.includes(dept)) {
+          return res.status(200).json(allTickets);
+        }
+      }
+    }
+
+    return res.sendStatus(403);
   } catch (error) {
     next(error);
   }
@@ -153,7 +180,7 @@ const assignTicket = async (req, res, next) => {
 const escalateTicket = async (req, res, next) => {
   try {
     const { user } = req;
-    const { ticketId,departmentId } = req.body;
+    const { ticketId, departmentId } = req.body;
 
     const foundUser = await User.findOne({ _id: user })
       .select("-refreshToken -password")
@@ -165,32 +192,32 @@ const escalateTicket = async (req, res, next) => {
     }
 
     if (!mongoose.Types.ObjectId.isValid(departmentId)) {
-        return res.status(400).json({ message: "Invalid Department ID provided" });
+      return res
+        .status(400)
+        .json({ message: "Invalid Department ID provided" });
     }
 
     const foundDepartment = await Department.findOne({ _id: departmentId })
       .lean()
       .exec();
 
-      if(!foundDepartment){
-        return res.status(400).json({ message: "Department doesn't exists" });
-      }
-
-    if (!mongoose.Types.ObjectId.isValid(ticketId)) {
-        return res.status(400).json({ message: "Invalid ticket ID provided" });
+    if (!foundDepartment) {
+      return res.status(400).json({ message: "Department doesn't exists" });
     }
 
-    const foundTicket = await Tickets.findOne({ _id: ticketId })
-    .lean()
-    .exec();
+    if (!mongoose.Types.ObjectId.isValid(ticketId)) {
+      return res.status(400).json({ message: "Invalid ticket ID provided" });
+    }
 
-    if(!foundTicket){
+    const foundTicket = await Tickets.findOne({ _id: ticketId }).lean().exec();
+
+    if (!foundTicket) {
       return res.status(400).json({ message: "Ticket doesn't exists" });
     }
 
     await Tickets.findByIdAndUpdate(
-      { _id: ticketId }, 
-      { $push : {escalatedTo: departmentId} }
+      { _id: ticketId },
+      { $push: { escalatedTo: departmentId } }
     );
 
     return res.status(200).json({ message: "Ticket escalated successfully" });
@@ -233,6 +260,7 @@ const closeTicket = async (req, res, next) => {
 
 module.exports = {
   raiseTicket,
+  getTickets,
   acceptTicket,
   assignTicket,
   escalateTicket,
