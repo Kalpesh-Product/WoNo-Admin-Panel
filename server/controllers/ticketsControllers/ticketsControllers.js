@@ -79,7 +79,6 @@ const getTickets = async (req, res, next) => {
             dept.equals(tkt.raisedToDepartment)
           )
         );
-        console.log(filteredTickets.length);
         return res.status(200).json(filteredTickets);
       }
       for (let dept of loggedInUser.department) {
