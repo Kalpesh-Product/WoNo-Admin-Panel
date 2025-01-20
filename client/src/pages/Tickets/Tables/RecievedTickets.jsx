@@ -14,6 +14,8 @@ const RecievedTickets = ({ title }) => {
 
   const handleClose = () => setOpen(false);
 
+
+
   const assignees = [
     "AiwinRaj",
     "Anushri Bhagat",
@@ -93,6 +95,7 @@ const RecievedTickets = ({ title }) => {
                 borderRadius: "4px",
                 cursor: "pointer",
               }}
+              onClick={handleAccept}
             >
               Accept
             </button>
