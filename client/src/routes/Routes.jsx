@@ -44,6 +44,12 @@ import Leaves from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/Lea
 import Agreements from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/Agreements";
 import KPI from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/KPI";
 import KRA from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/KRA";
+import Data from "../pages/Dashboard/HrDashboard/Data/HRData";
+import JobApplicationList from "../pages/Dashboard/HrDashboard/Data/JobApplicationList";
+import Templates from "../pages/Dashboard/HrDashboard/Data/Templates";
+import HrFinance from "../pages/Dashboard/HrDashboard/Finance/HrFinance";
+import HrBudget from "../pages/Dashboard/HrDashboard/Finance/HrBudget";
+import HrPayment from "../pages/Dashboard/HrDashboard/Finance/HrPayment";
 
 export const routes = createBrowserRouter([
   {
@@ -153,6 +159,39 @@ export const routes = createBrowserRouter([
                               <MemberOnboard
                               />
                             ),
+                          },
+                        ],
+                      },
+                      {
+                        path:"data",
+                        element:<Data/>,
+                        children: [
+                          {
+                            path: "job-application-list",
+                            index:true,
+                            element: <JobApplicationList />,
+                          },
+                         
+                          {
+                            path: "templates",
+                            element: <Templates />,
+                          },
+                          
+                        ],
+
+                      },
+                      {
+                        path: "finance",
+                        element: <HrFinance />,
+                        children: [
+                          {
+                            path: "budget",
+                            index:true,
+                            element: <HrBudget />,
+                          },
+                          {
+                            path: "payment-schedule",
+                            element: <HrPayment />,
                           },
                         ],
                       },

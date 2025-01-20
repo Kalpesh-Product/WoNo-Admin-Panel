@@ -4,7 +4,6 @@ import HierarchyTree from "../../../../components/HierarchyTree";
 import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
 import {
   IoIosArrowDown,
-  IoIosArrowDropright,
   IoIosArrowForward,
 } from "react-icons/io";
 

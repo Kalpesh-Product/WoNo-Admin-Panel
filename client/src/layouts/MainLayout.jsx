@@ -15,11 +15,11 @@ const MainLayout = () => {
           <Sidebar />
         </aside>
         <div className="w-full">
-          <main className="w-full bg-[#F7F8FA] h-[95vh] overflow-y-auto p-3 flex flex-col gap-2">
+          <main className="w-full bg-[#F7F8FA] p-3 flex flex-col gap-2">
             <div className=" p-4  rounded-t-md bg-white">
               <BreadCrumbComponent />
             </div>
-            <div className="bg-white">
+            <div className="bg-white h-[80vh] overflow-y-auto">
               <Outlet />
             </div>
           </main>

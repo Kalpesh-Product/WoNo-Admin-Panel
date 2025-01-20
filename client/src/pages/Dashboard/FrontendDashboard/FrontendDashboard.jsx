@@ -87,6 +87,24 @@ const FrontendDashboard = () => {
     },
   };
 
+
+  //Bar graph data 
+
+  const financialYears = [
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+    "January",
+    "February",
+    "March",
+  ];
+
   const techWidgets = [
     {
       layout: 1,
@@ -121,28 +139,30 @@ const FrontendDashboard = () => {
         <DataCard title={"Requested"} data={6000} description={"Pending"} />,
       ],
     },
-    {
-      layout: 2,
-      widgets: [
-        <BarGraph
-          data={[
-            150,
-            320,
-            450,
-            720,
-            880,
-            910,
-            960,
-            990,
-            1000,
-            1110,
-            1200,
-            1450, // Example random values
-          ]}
-          title={"Unique Companies"}
-        />,
-      ],
-    },
+    // {
+    //   layout: 2,
+    //   widgets: [
+    //     <BarGraph
+    //     maxValue={1500}
+    //     categories={financialYears}
+    //       data={[
+    //         150,
+    //         320,
+    //         450,
+    //         720,
+    //         880,
+    //         910,
+    //         960,
+    //         990,
+    //         1000,
+    //         1110,
+    //         1200,
+    //         1450, // Example random values
+    //       ]}
+    //       title={"Unique Companies"}
+    //     />,
+    //   ],
+    // },
   ];
 
   // Map departments to widget arrays
