@@ -32,8 +32,7 @@ const addTicketIssue = async (req, res, next) => {
 
 const getTicketIssue = async (req, res, next) => {
   try {
-
-    const {department} = req.query
+    const { department } = req.query;
 
     if (!mongoose.Types.ObjectId.isValid(department)) {
       return res
@@ -41,21 +40,26 @@ const getTicketIssue = async (req, res, next) => {
         .json({ message: "Invalid department ID provided" });
     }
 
-    const departmentExists = await Department.findOne({_id:department}) 
+    const departmentExists = await Department.findOne({ _id: department })
+      .lean()
+      .exec();
 
-    if(!departmentExists){
+    if (!departmentExists) {
       return res.status(400).json({ message: "Department doesn't exists" });
     }
 
-    const ticketIssues = await TicketIssues.find({department: {$in: [department]}});
+    const ticketIssues = await TicketIssues.find({
+      department: { $in: [department] },
+    })
+      .lean()
+      .exec();
 
-    if(ticketIssues.length === 0){
+    if (ticketIssues.length === 0) {
       return res.status(204).send();
     }
 
-    console.log('tickets:',ticketIssues)
-    return res.status(200).json({data:ticketIssues});
-
+    console.log("tickets:", ticketIssues);
+    return res.status(200).json({ data: ticketIssues });
   } catch (error) {
     next(error);
   }
