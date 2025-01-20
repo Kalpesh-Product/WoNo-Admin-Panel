@@ -72,7 +72,10 @@ const getTickets = async (req, res, next) => {
     for (let ticket of allTickets) {
       if (
         loggedInUser.department.some((dept) =>
-          dept.equals(ticket.raisedToDepartment)
+        {
+          console.log(dept,'===',ticket.raisedToDepartment)
+          return dept.equals(ticket.raisedToDepartment)
+        }
         )
       ) {
          filteredTickets = allTickets.filter((tkt) =>
@@ -92,7 +95,6 @@ const getTickets = async (req, res, next) => {
 
         if(escalatedTickets.length>0){
            const totalTickets = [...filteredTickets,...escalatedTickets]
-           console.log('object:',filteredTickets)
            return res.status(200).json(totalTickets);
         }
       
