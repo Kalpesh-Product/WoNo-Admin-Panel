@@ -28,6 +28,8 @@ const RecievedTickets = ({ title,data }) => {
 
   const handleClose = () => setOpen(false);
 
+
+
   const assignees = [
     "AiwinRaj",
     "Anushri Bhagat",
@@ -107,6 +109,7 @@ const RecievedTickets = ({ title,data }) => {
                 borderRadius: "4px",
                 cursor: "pointer",
               }}
+              
             >
               Accept
             </button>
