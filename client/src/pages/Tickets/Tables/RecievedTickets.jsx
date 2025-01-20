@@ -1,18 +1,34 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import AgTable from "../../../components/AgTable";
 import { Chip, ListItem } from "@mui/material";
 import MuiModal from "../../../components/MuiModal";
 import Button from "@mui/material";
 
-const RecievedTickets = ({ title }) => {
+const RecievedTickets = ({ title,data }) => {
   const [open, setOpen] = useState(false);
+
 
   const openModal = () => {
     console.log("I am Clicked");
     setOpen(true);
   };
 
+  const transformTicketsData = (tickets) => {
+    return tickets.map((ticket) => ({
+      id: ticket._id,
+      raisedBy: ticket.raisedBy?.name || "Unknown",
+      fromDepartment: ticket.raisedToDepartment.name || "N/A",
+      ticketTitle: ticket.ticket?.title || "No Title",
+      status: ticket.status || "Pending",
+    }));
+  };
+  
+  // Example usage
+  const rows = transformTicketsData(data);
+
   const handleClose = () => setOpen(false);
+
+
 
   const assignees = [
     "AiwinRaj",
@@ -93,6 +109,7 @@ const RecievedTickets = ({ title }) => {
                 borderRadius: "4px",
                 cursor: "pointer",
               }}
+              
             >
               Accept
             </button>
@@ -115,44 +132,45 @@ const RecievedTickets = ({ title }) => {
     },
   ];
 
-  const rows = [
-    {
-      raisedBy: "Abrar Shaikh",
-      fromDepartment: "IT",
-      ticketTitle: "Monitor dead pixel",
-      status: "pending",
-    },
-    {
-      raisedBy: "John Doe",
-      fromDepartment: "HR",
-      ticketTitle: "System login issue",
-      status: "pending",
-    },
-    {
-      raisedBy: "Jane Smith",
-      fromDepartment: "Finance",
-      ticketTitle: "Printer not working",
-      status: "pending",
-    },
-    {
-      raisedBy: "Mike Brown",
-      fromDepartment: "Operations",
-      ticketTitle: "Software installation request",
-      status: "pending",
-    },
-    {
-      raisedBy: "Emily Davis",
-      fromDepartment: "Marketing",
-      ticketTitle: "Email access problem",
-      status: "pending",
-    },
-    {
-      raisedBy: "Chris Johnson",
-      fromDepartment: "Admin",
-      ticketTitle: "Air conditioner maintenance",
-      status: "pending",
-    },
-  ];
+
+  // const rows = [
+  //   {
+  //     raisedBy: "Abrar Shaikh",
+  //     fromDepartment: "IT",
+  //     ticketTitle: "Monitor dead pixel",
+  //     status: "pending",
+  //   },
+  //   {
+  //     raisedBy: "John Doe",
+  //     fromDepartment: "HR",
+  //     ticketTitle: "System login issue",
+  //     status: "pending",
+  //   },
+  //   {
+  //     raisedBy: "Jane Smith",
+  //     fromDepartment: "Finance",
+  //     ticketTitle: "Printer not working",
+  //     status: "pending",
+  //   },
+  //   {
+  //     raisedBy: "Mike Brown",
+  //     fromDepartment: "Operations",
+  //     ticketTitle: "Software installation request",
+  //     status: "pending",
+  //   },
+  //   {
+  //     raisedBy: "Emily Davis",
+  //     fromDepartment: "Marketing",
+  //     ticketTitle: "Email access problem",
+  //     status: "pending",
+  //   },
+  //   {
+  //     raisedBy: "Chris Johnson",
+  //     fromDepartment: "Admin",
+  //     ticketTitle: "Air conditioner maintenance",
+  //     status: "pending",
+  //   },
+  // ];
 
   return (
     <div className="p-4 border-default border-borderGray rounded-md">
@@ -160,7 +178,7 @@ const RecievedTickets = ({ title }) => {
         <span className="text-subtitle">{title}</span>
       </div>
       <div className="w-full">
-        <AgTable data={rows} columns={recievedTicketsColumns} />
+        <AgTable key={rows.length} data={rows} columns={recievedTicketsColumns} />
       </div>
       <MuiModal
         open={open}

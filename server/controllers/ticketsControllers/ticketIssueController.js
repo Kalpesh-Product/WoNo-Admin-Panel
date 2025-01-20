@@ -57,9 +57,8 @@ const getTicketIssue = async (req, res, next) => {
     if (ticketIssues.length === 0) {
       return res.status(204).send();
     }
-
-    console.log("tickets:", ticketIssues);
-    return res.status(200).json(ticketIssues);
+ 
+    return res.status(200).json({ data: ticketIssues });
   } catch (error) {
     next(error);
   }

@@ -77,12 +77,11 @@ const getTickets = async (req, res, next) => {
         { escalatedTo:  { $in: userDepartments } },
       ],
     })
-      .populate([{ path: "ticket" }, { path: "raisedBy", select: "name" }])
+      .populate([{ path: "ticket" }, { path: "raisedBy", select: "name" }, {path:"raisedToDepartment",select:"name"}])
       .lean()
       .exec();
 
     if (matchingTickets.length > 0) {
-      console.log(matchingTickets.length)
       return res.status(200).json(matchingTickets);
     }
 
