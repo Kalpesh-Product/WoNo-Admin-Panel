@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useState} from "react";
 import WidgetSection from "../../../components/WidgetSection";
 import LayerBarGraph from "../../../components/graphs/LayerBarGraph";
 import Card from "../../../components/Card";
@@ -12,6 +12,7 @@ import { useLocation } from "react-router-dom";
 import DataCard from "../../../components/DataCard";
 import BarGraph from "../../../components/graphs/BarGraph";
 import PayRollExpenseGraph from "../../../components/HrDashboardGraph/PayRollExpenseGraph";
+import MuiTable from "../../../components/Tables/MuiTable";
 
 const HrDashboard = () => {
   // Original data
@@ -137,14 +138,126 @@ const HrDashboard = () => {
     },
   };
 
+  const utilisedData = [125, 150, 99, 85, 70, 50, 80, 95, 100, 65, 50, 120];
+  const defaultData = utilisedData.map((value) =>
+    Math.max(100 - Math.min(value, 100), 0)
+  );
+  const utilisedStack = utilisedData.map((value) => Math.min(value, 100));
+  const exceededData = utilisedData.map((value) =>
+    value > 100 ? value - 100 : 0
+  );
+
+  const data = [
+    { name: "Utilised Budget", data: utilisedStack },
+    { name: "Default Budget", data: defaultData },
+    { name: "Exceeded Budget", data: exceededData },
+  ];
+
+  const optionss = {
+    chart: {
+      type: "bar",
+      stacked: true,
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: "45%",
+        borderRadius:8,
+        borderRadiusWhenStacked:'all',
+        borderRadiusApplication:'end',
+      },
+    },
+    colors: ["#00FF00", "#0000FF", "#FF0000"], // Colors for the series
+    dataLabels: {
+      enabled: true,
+      formatter: (value, { seriesIndex }) => {
+        if (seriesIndex === 1) return "";
+        return `${value}%`;
+      },
+    },
+    xaxis: {
+      categories: [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ],
+    },
+    yaxis: {
+      max: 150,
+      labels: {
+        formatter: (value) => `${value}%`,
+      },
+    },
+    tooltip: {
+      y: {
+        formatter: (value) => `${value}%`,
+      },
+    },
+    legend: {
+      show: true,
+      position: "top",
+    },
+  };
+
+  const columns = [
+    { id: 'name', label: 'Name', align: 'left' },
+    { id: 'age', label: 'Age', align: 'center' },
+    { id:'gender',label:'gender',align:'center'},
+    { id: 'city', label: 'city', align: 'center' },
+
+  ];
+
+  const rows = [
+    { id: 1, name: 'John Doe', age: 30,gender:'Male',city:"Panaji" },
+    { id: 1, name: 'John Doe', age: 30,gender:'Male',city:"Panaji" },
+    { id: 1, name: 'John Doe', age: 30,gender:'Male',city:"Panaji" },
+    { id: 1, name: 'John Doe', age: 30,gender:'Male',city:"Panaji" },
+  ];
+
+  const columns2 = [
+    { id: 'date', label: 'Date', align: 'left' },
+    { id: 'holiday_event', label: 'Holiday/Event', align: 'center' },
+    { id:'region',label:'Region',align:'center'},
+    
+  ];
+
+  const rows2 = [
+    { id: 1, name: '2024-12-04', holiday_event: "Indian Navy day",region:'India'},
+    { id: 1, name: '2024-12-04', holiday_event: "Indian Navy day",region:'India'},
+    
+  ];
+
+
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  const handlePageChange = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleRowsPerPageChange = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+
   const hrWidgets = [
     {
       layout: 1,
       widgets: [
         <LayerBarGraph
-          title="Department-Wise Task Achievement"
-          data={series}
-          options={options}
+          title="Budget v/s Achievements"
+          data={data}
+          options={optionss}
         />,
       ],
     },
@@ -155,7 +268,7 @@ const HrDashboard = () => {
         <Card icon={<LuHardDriveUpload />} title="Compliance" route={"compliances"} />,
         <Card icon={<SiCashapp />} title="Finance" route={"#"}/>,
         <Card icon={<CgWebsite />} title="Performance" route={"#"} />,
-        <Card icon={<SiGoogleadsense />} title="Data" route={"#"}/>,
+        <Card icon={<SiGoogleadsense />} title="Data" route={"data"}/>,
         <Card icon={<MdMiscellaneousServices />} title="Settings" route={"#"} />,
       ],
     },
@@ -179,7 +292,46 @@ const HrDashboard = () => {
           options={options}
         />,
       ]
+    },
+    {
+      layout:2,
+      widgets:[
+        <MuiTable
+        columns={columns}
+        rows={rows}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={handleRowsPerPageChange}
+        />,
+        <MuiTable
+        columns={columns}
+        rows={rows}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={handleRowsPerPageChange}
+        />,
+        <MuiTable
+        columns={columns}
+        rows={rows}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={handleRowsPerPageChange}
+        />,
+        <MuiTable
+        columns={columns}
+        rows={rows}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={handleRowsPerPageChange}
+        />,
+      ]
+
     }
+
     
 
   ];
