@@ -5,7 +5,7 @@ import AgTable from '../../../../components/AgTable'
 const JobApplicationList = () => {
 
     const leavesColumn = [
-        { field: "jobposition", headerName: "Job Position", width:300 },
+        { field: "jobposition", headerName: "Job Position", width:200 },
         { field: "name", headerName: "Name", flex:1, width:200 },
         { field: "email", headerName: "Email", width:200},
         { field: "dateofbirth", headerName: "Date Of Birth",flex:1, width:200 },
@@ -13,7 +13,11 @@ const JobApplicationList = () => {
         { field: "location", headerName: "Location", flex: 1, width:200 },
         { field: "submissiondate", headerName: "Submission Date", flex: 1 },
         { field: "SubmissionTime", headerName: "Submission Time", flex: 1 },
-        { field: "ResumeLink", headerName: "Resume Link", flex: 1 },
+        { field: "ResumeLink", headerName: "Resume Link", flex: 1, cellRenderer: (params) => {
+            const pdfPath = params.value; // Assuming `link` field has the folder URL
+            return <a href={`${pdfPath}" target="blank" style="color:blue; text-decoration:underline;`}>Resume Link</a>;
+          },
+        },
       ];
     
       const rows = [
@@ -25,7 +29,8 @@ const JobApplicationList = () => {
           mobilenumber: "1234523678",
           location: "Maharashtra",
           submissiondate:"03-01-2024",
-          SubmissionTime:"17.35.56"
+          SubmissionTime:"17.35.56",
+          ResumeLink:"client/public/_Resume_Anushri Bhagat.pdf"
 
 
         },
@@ -37,7 +42,9 @@ const JobApplicationList = () => {
             mobilenumber: "1234523678",
             location: "Maharashtra",
             submissiondate:"03-01-2024",
-            SubmissionTime:"17.35.56"
+            SubmissionTime:"17.35.56",
+            ResumeLink:"client\public\_Resume_Anushri Bhagat.pdf"
+            
         },
         {
             jobposition: "Jr Network Engineer",
@@ -47,7 +54,8 @@ const JobApplicationList = () => {
             mobilenumber: "1234523678",
             location: "Maharashtra",
             submissiondate:"03-01-2024",
-            SubmissionTime:"17.35.56"
+            SubmissionTime:"17.35.56",
+            ResumeLink:"client\public\_Resume_Anushri Bhagat.pdf"
         },
         {
             jobposition: "Jr Network Engineer",
@@ -57,7 +65,8 @@ const JobApplicationList = () => {
             mobilenumber: "1234523678",
             location: "Maharashtra",
             submissiondate:"03-01-2024",
-            SubmissionTime:"17.35.56"
+            SubmissionTime:"17.35.56",
+            ResumeLink:"client\public\_Resume_Anushri Bhagat.pdf"
         },
         {
             jobposition: "Jr Network Engineer",
@@ -67,7 +76,8 @@ const JobApplicationList = () => {
             mobilenumber: "1234523678",
             location: "Maharashtra",
             submissiondate:"03-01-2024",
-            SubmissionTime:"17.35.56"
+            SubmissionTime:"17.35.56",
+            ResumeLink:"client\public\_Resume_Anushri Bhagat.pdf"
         },
       ];
     
