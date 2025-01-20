@@ -77,7 +77,7 @@ const getTickets = async (req, res, next) => {
         { escalatedTo:  { $in: userDepartments } },
       ],
     })
-      .populate([{ path: "ticket" }, { path: "raisedBy", select: "name" }])
+      .populate([{ path: "ticket" }, { path: "raisedBy", select: "name" }, {path:"raisedToDepartment",select:"name"}])
       .lean()
       .exec();
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import WidgetSection from "../../components/WidgetSection";
 import Card from "../../components/Card";
 import { Tab, Tabs } from "@mui/material";
@@ -7,9 +7,31 @@ import AcceptedTickets from "./Tables/AcceptedTickets";
 import SupportTickets from "./Tables/SupportTickets";
 import EscalatedTickets from "./Tables/EscalatedTickets";
 import ClosedTickets from "./Tables/ClosedTickets";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import useAuth from "../../hooks/useAuth";
+import { toast } from "sonner";
 
 const ManageTickets = () => {
+  const { auth } = useAuth();
+  const axios = useAxiosPrivate();
   const [activeTab, setActiveTab] = useState(0);
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const getTickets = async () => {
+      try {
+        setLoading(true);
+        const tickets = await axios.get("/api/tickets/get-tickets");
+        setTickets(tickets.data);
+      } catch (error) {
+        toast.error(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    getTickets();
+  }, []);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -61,21 +83,21 @@ const ManageTickets = () => {
                 data={"03"}
                 fontColor={"#1E3D73"}
                 fontFamily={"Poppins-Bold"}
-                titleColor={'#1E3D73'}
+                titleColor={"#1E3D73"}
               />
               <Card
                 title={"Assigned Tickets"}
                 data={"01"}
                 fontColor={"#1E3D73"}
                 fontFamily={"Poppins-Bold"}
-                titleColor={'#1E3D73'}
+                titleColor={"#1E3D73"}
               />
               <Card
                 title={"Escalated Tickets"}
                 data={"02"}
                 fontColor={"#1E3D73"}
                 fontFamily={"Poppins-Bold"}
-                titleColor={'#1E3D73'}
+                titleColor={"#1E3D73"}
               />
             </WidgetSection>
           </div>
@@ -84,19 +106,6 @@ const ManageTickets = () => {
     },
   ];
 
-  const laptopColumns = [
-    { field: "id", headerName: "ID", flex: 1 },
-    { field: "department", headerName: "Department", flex: 1 },
-    { field: "assetNumber", headerName: "Asset Number", flex: 1 },
-    { field: "category", headerName: "Category", flex: 1 },
-
-    { field: "brandName", headerName: "Brand", flex: 1 },
-    { field: "price", headerName: "Price", flex: 1 },
-    { field: "quantity", headerName: "Quantity", flex: 1 },
-
-    { field: "purchaseDate", headerName: "Purchase Date", flex: 1 },
-    { field: "warranty", headerName: "Warranty (Months)", flex: 1 },
-  ];
   return (
     <div>
       <div>
@@ -177,7 +186,7 @@ const ManageTickets = () => {
         <div className="py-4 bg-white">
           {activeTab === 0 && (
             <div className="">
-              <RecievedTickets title={"Department Ticket Recieved"} />
+              <RecievedTickets data={tickets} title={"Department Ticket Recieved"} />
             </div>
           )}
           {activeTab === 1 && (

@@ -22,8 +22,7 @@ const RaiseTicket = () => {
     message: "",
   });
   const [departments, setDepartments] = useState([]); // State for departments
-  const [selectedDepartment, setSelectedDepartment] = useState("")
-  const [issues, setIssues] = useState([]);
+  const [selectedDepartment, setSelectedDepartment] = useState("");
   const [ticketIssues, setTicketIssues] = useState([]); // State for ticket issues
   const [loading, setLoading] = useState(false);
   const axios = useAxiosPrivate();
@@ -164,22 +163,25 @@ const RaiseTicket = () => {
     },
   ]);
 
-  const submitData = (e) => {
+  const submitData = async (e) => {
     e.preventDefault();
     setRows((prevRows) => [
       ...prevRows,
       {
         RaisedBy: auth.user._id,
         SelectedDepartment: selectedDepartment,
-        TicketTitle: details.ticketTitle || details.otherReason,
+        TicketTitle: details._id,
       },
     ]);
     try {
-      
+      const response = await axios.post("/api/tickets/raise-ticket", {
+        departmentId: selectedDepartment,
+        issue: details.ticketTitle,
+        description: details.message,
+      });
+      toast.success(response.data.message);
     } catch (error) {
-      
-    } finally{
-
+      toast.error(error?.message);
     }
 
     // Reset the form values after adding the new row
@@ -197,7 +199,7 @@ const RaiseTicket = () => {
     try {
       const response = await axios.get(`/api/tickets/get-ticket-issue/${e}`);
       setTicketIssues(response.data);
-      setSelectedDepartment(e)
+      setSelectedDepartment(e);
     } catch (error) {
       toast.error(error?.message);
     }
@@ -214,8 +216,7 @@ const RaiseTicket = () => {
             <InputLabel>Department</InputLabel>
             <Select
               label="Department"
-              
-              onChange={(e=>handleDepartmentSelect(e.target.value))}
+              onChange={(e) => handleDepartmentSelect(e.target.value)}
             >
               <MenuItem value="">Select Department</MenuItem>
               {loading ? (
@@ -238,7 +239,7 @@ const RaiseTicket = () => {
             >
               <MenuItem value="">Select Ticket Title</MenuItem>
               {ticketIssues.map((issue) => (
-                <MenuItem key={issue.id} value={issue.title}>
+                <MenuItem key={issue._id} value={issue._id}>
                   {issue.title}
                 </MenuItem>
               ))}
