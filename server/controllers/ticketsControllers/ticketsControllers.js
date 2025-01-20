@@ -74,10 +74,14 @@ const getTickets = async (req, res, next) => {
     const matchingTickets = await Ticket.find({
       $or: [
         { raisedToDepartment: { $in: userDepartments } },
-        { escalatedTo:  { $in: userDepartments } },
+        { escalatedTo: { $in: userDepartments } },
       ],
     })
-      .populate([{ path: "ticket" }, { path: "raisedBy", select: "name" }, {path:"raisedToDepartment",select:"name"}])
+      .populate([
+        { path: "ticket" },
+        { path: "raisedBy", select: "name" },
+        { path: "raisedToDepartment", select: "name" },
+      ])
       .lean()
       .exec();
 
@@ -121,6 +125,30 @@ const acceptTicket = async (req, res, next) => {
     );
 
     return res.status(200).json({ message: "Ticket accepted successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const fetchAcceptedTickets = async (req, res, next) => {
+  try {
+    const { user } = req;
+    const loggedInUser = await User.findOne({ _id: user })
+      .select("-refreshToken -password")
+      .lean()
+      .exec();
+    if (!loggedInUser) {
+      return res.status(404).json({ message: "No such user found" });
+    }
+    const userId = mongoose.Types.ObjectId(user);
+
+    const acceptedTickets = await Tickets.find({
+      accepted: userId,
+    })
+      .populate([{ path: "ticket" }, { path: "raisedBy", select: "name" }])
+      .lean()
+      .exec();
+    return res.status(200).json(acceptedTickets);
   } catch (error) {
     next(error);
   }
@@ -255,6 +283,39 @@ const closeTicket = async (req, res, next) => {
   }
 };
 
+const fetchClosedTickets = async (req, res, next) => {
+  try {
+    const { user } = req;
+    const loggedInUser = await User.findOne({ _id: user })
+      .select("-refreshToken -password")
+      .lean()
+      .exec();
+    if (!loggedInUser) {
+      return res.status(400).json({ message: "No such user found" });
+    }
+    const userDepartments = loggedInUser.department.map((dept) =>
+      dept.toString()
+    );
+    const closedTickets = await Tickets.find({
+      $and: [
+        { $where: { status: "Closed" } },
+        ,
+        { raisedToDepartment: { $in: userDepartments } },
+      ],
+    })
+      .populate([
+        { path: "ticket" },
+        { path: "raisedBy", select: "name" },
+        { path: "raisedToDepartment", select: "name" },
+      ])
+      .lean()
+      .exec();
+    return res.status(200).json(closedTickets);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   raiseTicket,
   getTickets,
@@ -262,4 +323,6 @@ module.exports = {
   assignTicket,
   escalateTicket,
   closeTicket,
+  fetchAcceptedTickets,
+  fetchClosedTickets,
 };

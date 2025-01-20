@@ -5,6 +5,8 @@ const {
   closeTicket,
   escalateTicket,
   getTickets,
+  fetchClosedTickets,
+  fetchAcceptedTickets,
 } = require("../controllers/ticketsControllers/ticketsControllers");
 
 const {
@@ -26,5 +28,7 @@ router.post("/assign-ticket", assignTicket);
 router.post("/escalate-ticket", escalateTicket);
 router.post("/close-ticket", closeTicket);
 router.post("/support-ticket", supportTicket);
+router.get("/accepted-tickets", fetchAcceptedTickets);
+router.get("/closed-tickets", fetchClosedTickets);
 
 module.exports = router;
