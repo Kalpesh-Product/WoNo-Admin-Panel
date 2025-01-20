@@ -10,7 +10,7 @@ const Templates = () => {
     <div class="p-6  min-h-screen">
   
   <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-pregular text-primary">Templates</h1>
+    <h1 class="font-pmedium text-primary text-title ">Templates</h1>
     <button class="bg-primary text-white px-4 py-2 rounded-md hover:bg-blue-700">Add Template</button>
   </div>
 

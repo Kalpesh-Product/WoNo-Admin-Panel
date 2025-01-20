@@ -217,10 +217,11 @@ const HrDashboard = () => {
   ];
 
   const rows = [
-    { id: 1, name: 'John Doe', age: 30,gender:'Male',city:"Panaji" },
-    { id: 1, name: 'John Doe', age: 30,gender:'Male',city:"Panaji" },
-    { id: 1, name: 'John Doe', age: 30,gender:'Male',city:"Panaji" },
-    { id: 1, name: 'John Doe', age: 30,gender:'Male',city:"Panaji" },
+    { id: 1, name: 'Anushri Bhagat', age: 24,gender:'Female',city:"Marcela" },
+    { id: 1, name: 'Aiwin', age: 23,gender:'Male',city:"Panaji" },
+    { id: 1, name: 'Allen Silvera', age: 25,gender:'Male',city:"Margao" },
+    { id: 1, name: 'Muskan Dodmani', age: 22,gender:'Female',city:"St Inez" },
+    { id: 1, name: 'Sankalp Kalangutkar', age: 22,gender:'Male',city:"Margao" },
   ];
 
   const columns2 = [
@@ -233,6 +234,9 @@ const HrDashboard = () => {
   const rows2 = [
     { id: 1, date: '2024-12-10', holiday_event: "Indian Navy day",region:'India'},
     { id: 1, date: '2025-25-01', holiday_event: "Muskan Birthday",region:'India'},
+    { id: 1, date: '2025-26-01', holiday_event: "Rebuplic Day",region:'India'},
+    { id: 1, date: '2025-14-02', holiday_event: "Valentines day",region:'India'},
+    { id: 1, date: '2025-14-03', holiday_event: "Holi",region:'India'},
     
   ];
 
