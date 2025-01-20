@@ -179,7 +179,7 @@ export const routes = createBrowserRouter([
                           
                         ],
 
-                      }
+                      },
                       {
                         path: "finance",
                         element: <HrFinance />,
