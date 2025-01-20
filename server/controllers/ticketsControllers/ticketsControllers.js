@@ -82,6 +82,7 @@ const getTickets = async (req, res, next) => {
         return res.status(200).json(filteredTickets);
       }
       for (let dept of loggedInUser.department) {
+        console.log("something");
         if (ticket.escalatedTo.includes(dept)) {
           return res.status(200).json(allTickets);
         }
