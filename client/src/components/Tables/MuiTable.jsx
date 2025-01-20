@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 
 const MuiTable = ({
+  Title,
   columns,
   rows,
   page,
@@ -22,6 +23,7 @@ const MuiTable = ({
 }) => {
   return (
     <div>
+      <div className="font-pregular text-subtitle mb-5">{Title}</div>
       <Paper>
         <TableContainer>
           <Table>
