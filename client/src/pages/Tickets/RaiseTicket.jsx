@@ -174,6 +174,13 @@ const RaiseTicket = () => {
         TicketTitle: details.ticketTitle || details.otherReason,
       },
     ]);
+    try {
+      
+    } catch (error) {
+      
+    } finally{
+
+    }
 
     // Reset the form values after adding the new row
     setDetails({
