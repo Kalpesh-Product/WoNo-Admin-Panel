@@ -7,6 +7,7 @@ import MuiAside from "./MuiAside";
 import { IoIosSearch } from "react-icons/io";
 import PrimaryButton from "./PrimaryButton";
 import SecondaryButton from "./SecondaryButton";
+import { MdFilterAlt, MdFilterAltOff } from "react-icons/md";
 
 const AgTable = React.memo(
   ({
@@ -18,6 +19,9 @@ const AgTable = React.memo(
     rowSelection,
     search,
     searchColumn,
+    tableTitle,
+    handleClick,
+    buttonTitle,
   }) => {
     const [filteredData, setFilteredData] = useState(data);
     const [searchQuery, setSearchQuery] = useState("");
@@ -91,7 +95,6 @@ const AgTable = React.memo(
                 label={`Search by ${searchColumn}`}
                 variant="outlined"
                 size="small"
-               
                 fullWidth
                 value={searchQuery}
                 onChange={handleSearch}
@@ -110,15 +113,15 @@ const AgTable = React.memo(
             </div>
           )}
           {/* Filter Button */}
-          <div className="flex gap-2 items-center">
+          <div className="flex items-center">
             <PrimaryButton
-              title={"Filter"}
+              title={<MdFilterAlt />}
               handleSubmit={() => setFilterDrawerOpen(true)}
             >
               Filter
             </PrimaryButton>
             <SecondaryButton
-              title={"Clear Filter"}
+              title={<MdFilterAltOff />}
               handleSubmit={() => {
                 setFilters({}); // Clear all filters
                 setSearchQuery(""); // Clear search query
@@ -126,6 +129,15 @@ const AgTable = React.memo(
               }}
             />
           </div>
+        </div>
+
+        <div className="flex items-center justify-between py-4">
+          <span className="font-pmedium text-title text-primary">{tableTitle}</span>
+          {buttonTitle ? (
+            <PrimaryButton title={buttonTitle} handleSubmit={handleClick} />
+          ) : (
+            ""
+          )}
         </div>
 
         {/* Filter Drawer */}

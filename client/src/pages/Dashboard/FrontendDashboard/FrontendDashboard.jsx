@@ -87,6 +87,24 @@ const FrontendDashboard = () => {
     },
   };
 
+
+  //Bar graph data 
+
+  const financialYears = [
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+    "January",
+    "February",
+    "March",
+  ];
+
   const techWidgets = [
     {
       layout: 1,
@@ -125,6 +143,8 @@ const FrontendDashboard = () => {
       layout: 2,
       widgets: [
         <BarGraph
+        maxValue={1500}
+        categories={financialYears}
           data={[
             150,
             320,
