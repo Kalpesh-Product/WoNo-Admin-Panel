@@ -215,7 +215,7 @@ const Calender = () => {
               dayMaxEvents={2}
               eventDisplay="block"
               eventClick={handleEventClick}
-              dateClick={handleDateClick}
+              contentHeight={520}
               plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
               initialView="dayGridMonth"
               events={filteredEvents}
@@ -262,50 +262,7 @@ const Calender = () => {
             </div>
           )}
 
-          {drawerMode === "add" && (
-            <Box>
-              <TextField
-                label="Title"
-                variant="outlined"
-                fullWidth
-                value={newEvent.title}
-                onChange={(e) =>
-                  setNewEvent((prev) => ({ ...prev, title: e.target.value }))
-                }
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                label="Start Date"
-                variant="outlined"
-                fullWidth
-                value={newEvent.start}
-                disabled
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                label="Description"
-                variant="outlined"
-                multiline
-                rows={3}
-                fullWidth
-                value={newEvent.description}
-                onChange={(e) =>
-                  setNewEvent((prev) => ({
-                    ...prev,
-                    description: e.target.value,
-                  }))
-                }
-                sx={{ mb: 2 }}
-              />
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSaveEvent}
-              >
-                Save Event
-              </Button>
-            </Box>
-          )}
+          
         </MuiModal>
       </div>
     </div>
