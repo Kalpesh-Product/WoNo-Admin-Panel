@@ -3,6 +3,7 @@ const TicketIssues = require("../../models/tickets/TicketIssues");
 const User = require("../../models/User");
 const mongoose = require("mongoose");
 const Ticket = require("../../models/tickets/Tickets");
+const Department = require("../../models/Departments");
 
 const raiseTicket = async (req, res, next) => {
   try {
@@ -44,12 +45,48 @@ const raiseTicket = async (req, res, next) => {
       ticket: foundIssue?._id,
       description,
       raisedToDepartment: departmentId,
-      raisedBy:foundUser?._id
+      raisedBy: foundUser?._id,
     });
 
     await newTicket.save();
 
     return res.status(201).json({ message: "Ticket raised successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getTickets = async (req, res, next) => {
+  try {
+    const { user } = req;
+    const loggedInUser = await User.findOne({ _id: user }).lean().exec();
+
+    if (!loggedInUser || !loggedInUser.department) {
+      return res.sendStatus(403); // User not found or doesn't belong to any department
+    }
+
+    // Extract department IDs from the user's department array
+    const userDepartments = loggedInUser.department.map((dept) =>
+      dept.toString()
+    );
+
+    // Fetch tickets that match either raisedToDepartment or escalatedTo
+    const matchingTickets = await Ticket.find({
+      $or: [
+        { raisedToDepartment: { $in: userDepartments } },
+        { escalatedTo:  { $in: userDepartments } },
+      ],
+    })
+      .populate([{ path: "ticket" }, { path: "raisedBy", select: "name" }])
+      .lean()
+      .exec();
+
+    if (matchingTickets.length > 0) {
+      console.log(matchingTickets.length)
+      return res.status(200).json(matchingTickets);
+    }
+
+    return res.sendStatus(403); // No matching tickets found
   } catch (error) {
     next(error);
   }
@@ -138,6 +175,55 @@ const assignTicket = async (req, res, next) => {
   }
 };
 
+const escalateTicket = async (req, res, next) => {
+  try {
+    const { user } = req;
+    const { ticketId, departmentId } = req.body;
+
+    const foundUser = await User.findOne({ _id: user })
+      .select("-refreshToken -password")
+      .lean()
+      .exec();
+
+    if (!foundUser) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(departmentId)) {
+      return res
+        .status(400)
+        .json({ message: "Invalid Department ID provided" });
+    }
+
+    const foundDepartment = await Department.findOne({ _id: departmentId })
+      .lean()
+      .exec();
+
+    if (!foundDepartment) {
+      return res.status(400).json({ message: "Department doesn't exists" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(ticketId)) {
+      return res.status(400).json({ message: "Invalid ticket ID provided" });
+    }
+
+    const foundTicket = await Tickets.findOne({ _id: ticketId }).lean().exec();
+
+    if (!foundTicket) {
+      return res.status(400).json({ message: "Ticket doesn't exists" });
+    }
+
+    await Tickets.findByIdAndUpdate(
+      { _id: ticketId },
+      { $push: { escalatedTo: departmentId } }
+    );
+
+    return res.status(200).json({ message: "Ticket escalated successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const closeTicket = async (req, res, next) => {
   try {
     const { user } = req;
@@ -172,7 +258,9 @@ const closeTicket = async (req, res, next) => {
 
 module.exports = {
   raiseTicket,
+  getTickets,
   acceptTicket,
   assignTicket,
+  escalateTicket,
   closeTicket,
 };
