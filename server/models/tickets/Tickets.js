@@ -23,6 +23,12 @@ const ticketsSchema = new mongoose.Schema(
       enum: ["Pending", "In Progress", "Closed"],
       default: "Pending",
     },
+    escalatedTo: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Department",
+      },
+    ],
     assignees: [
       {
         type: mongoose.Schema.Types.ObjectId,
