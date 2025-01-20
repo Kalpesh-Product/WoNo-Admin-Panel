@@ -96,10 +96,10 @@ const AgTable = React.memo(
                 label={`Search by ${searchColumn}`}
                 variant="outlined"
                 size="small"
-                fullWidth
+                sx={{maxWidth:'25rem'}}
                 value={searchQuery}
                 onChange={handleSearch}
-                placeholder={`Search ${searchColumn}`}
+                placeholder={`${searchColumn}`}
                 slotProps={{
                   input: {
                     disableUnderline: true,
