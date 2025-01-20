@@ -22,7 +22,7 @@ const BarGraph = ({ data, title, categories, minValue, maxValue, colors }) => {
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth: "40%",
+        columnWidth: "30%",
         borderRadius: 8,
         dataLabels: {
           enabled: true, // Enable data labels

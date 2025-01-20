@@ -266,7 +266,7 @@ const HrDashboard = () => {
       widgets: [
         <Card icon={<CgWebsite />} title="On Boarding" route={"onboarding"} />,
         <Card icon={<LuHardDriveUpload />} title="Compliance" route={"compliances"} />,
-        <Card icon={<SiCashapp />} title="Finance" route={"#"}/>,
+        <Card icon={<SiCashapp />} title="Finance" route={"finance"}/>,
         <Card icon={<CgWebsite />} title="Performance" route={"#"} />,
         <Card icon={<SiGoogleadsense />} title="Data" route={"data"}/>,
         <Card icon={<MdMiscellaneousServices />} title="Settings" route={"#"} />,

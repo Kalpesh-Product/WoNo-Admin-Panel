@@ -22,6 +22,7 @@ const AgTable = React.memo(
     tableTitle,
     handleClick,
     buttonTitle,
+    tableHeight
   }) => {
     const [filteredData, setFilteredData] = useState(data);
     const [searchQuery, setSearchQuery] = useState("");
@@ -169,7 +170,7 @@ const AgTable = React.memo(
           className="ag-theme-quartz border-none w-full"
           style={{
             width: "100%",
-            height: 500,
+            height: tableHeight ? tableHeight : 500,
             overflowY: "auto",
             fontFamily: "Poppins-Regular",
             borderWidth: 0,
