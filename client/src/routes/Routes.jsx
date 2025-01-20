@@ -50,6 +50,15 @@ import Templates from "../pages/Dashboard/HrDashboard/Data/Templates";
 import HrFinance from "../pages/Dashboard/HrDashboard/Finance/HrFinance";
 import HrBudget from "../pages/Dashboard/HrDashboard/Finance/HrBudget";
 import HrPayment from "../pages/Dashboard/HrDashboard/Finance/HrPayment";
+import HrSettings from "../pages/Dashboard/HrDashboard/HrSettings/HrSettings";
+import CompanyLogo from "../pages/Dashboard/HrDashboard/HrSettings/CompanyLogo";
+import HrSettingsDepartments from "../pages/Dashboard/HrDashboard/HrSettings/HrSettingsDepartments";
+import WorkLocations from "../pages/Dashboard/HrDashboard/HrSettings/WorkLocations";
+import LeaveType from "../pages/Dashboard/HrDashboard/HrSettings/LeaveType";
+import HrSettingsPolicies from "../pages/Dashboard/HrDashboard/HrSettings/HrSettingsPolicies";
+import HrSOP from "../pages/Dashboard/HrDashboard/HrSettings/HrSOP";
+import EmployeeType from "../pages/Dashboard/HrDashboard/HrSettings/EmployeeType";
+import Shifts from "../pages/Dashboard/HrDashboard/HrSettings/Shifts";
 
 export const routes = createBrowserRouter([
   {
@@ -192,6 +201,45 @@ export const routes = createBrowserRouter([
                           {
                             path: "payment-schedule",
                             element: <HrPayment />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "settings",
+                        element: <HrSettings />,
+                        children: [
+                          {
+                            path: "company-logo",
+                            index:true,
+                            element: <CompanyLogo />,
+                          },
+                          {
+                            path: "departments",
+                            element: <HrSettingsDepartments />,
+                          },
+                          {
+                            path: "work-locations",
+                            element: <WorkLocations />,
+                          },
+                          {
+                            path: "leave-type",
+                            element: <LeaveType />,
+                          },
+                          {
+                            path: "policies",
+                            element: <HrSettingsPolicies />,
+                          },
+                          {
+                            path: "sops",
+                            element: <HrSOP />,
+                          },
+                          {
+                            path: "employee-type",
+                            element: <EmployeeType />,
+                          },
+                          {
+                            path: "shifts",
+                            element: <Shifts />,
                           },
                         ],
                       },

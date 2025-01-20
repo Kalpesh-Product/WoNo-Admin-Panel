@@ -305,7 +305,7 @@ const HrDashboard = () => {
         <Card icon={<SiCashapp />} title="Finance" route={"finance"}/>,
         <Card icon={<CgWebsite />} title="Performance" route={"#"} />,
         <Card icon={<SiGoogleadsense />} title="Data" route={"data"}/>,
-        <Card icon={<MdMiscellaneousServices />} title="Settings" route={"#"} />,
+        <Card icon={<MdMiscellaneousServices />} title="Settings" route={"settings"} />,
       ],
     },
     {
