@@ -63,30 +63,41 @@ const getTickets = async (req, res, next) => {
     const allTickets = await Ticket.find()
       .populate([
         { path: "ticket" },
-        { path: "raisedBy", select: "-refreshToken -password" },
+        { path: "raisedBy", select: "name" },
       ])
       .lean()
       .exec();
 
+      let filteredTickets = []
     for (let ticket of allTickets) {
       if (
         loggedInUser.department.some((dept) =>
           dept.equals(ticket.raisedToDepartment)
         )
       ) {
-        const filteredTickets = allTickets.filter((tkt) =>
+         filteredTickets = allTickets.filter((tkt) =>
           loggedInUser.department.some((dept) =>
             dept.equals(tkt.raisedToDepartment)
           )
         );
-        console.log(filteredTickets.length);
-        return res.status(200).json(filteredTickets);
+        
       }
       for (let dept of loggedInUser.department) {
-        if (ticket.escalatedTo.includes(dept)) {
-          return res.status(200).json(allTickets);
+        const escalatedTickets = allTickets.filter((ticket) =>
+       
+          ticket.escalatedTo?.length>0 && ticket.escalatedTo.some((escalateToDept) =>
+          escalateToDept.equals(dept)
+          ) 
+        );
+
+        if(escalatedTickets.length>0){
+           const totalTickets = [...filteredTickets,...escalatedTickets]
+           console.log('object:',filteredTickets)
+           return res.status(200).json(totalTickets);
         }
+      
       }
+        
     }
 
     return res.sendStatus(403);
@@ -164,7 +175,7 @@ const assignTicket = async (req, res, next) => {
       if (!foundTicket) {
         return res.status(400).json({ message: "Invalid ticket ID provided" });
       }
-    }
+    } 
 
     await Tickets.findByIdAndUpdate(
       { _id: ticketId },
