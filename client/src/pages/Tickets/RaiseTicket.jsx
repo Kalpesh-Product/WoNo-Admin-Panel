@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import AgTable from "../../components/AgTable";
 import PrimaryButton from "../../components/PrimaryButton";
 import { Chip } from "@mui/material";
+import { toast } from "sonner";
 
 import {
   TextField,
@@ -10,6 +11,8 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import useAuth from "../../hooks/useAuth";
 
 const RaiseTicket = () => {
   const [details, setDetails] = useState({
@@ -18,6 +21,39 @@ const RaiseTicket = () => {
     otherReason: "",
     message: "",
   });
+  const [departments, setDepartments] = useState([]); // State for departments
+  const [selectedDepartment, setSelectedDepartment] = useState("")
+  const [issues, setIssues] = useState([]);
+  const [ticketIssues, setTicketIssues] = useState([]); // State for ticket issues
+  const [loading, setLoading] = useState(false);
+  const axios = useAxiosPrivate();
+  const { auth } = useAuth();
+
+  // Fetch departments and ticket issues in the same useEffect
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [departmentsResponse] = await Promise.all([
+          axios.get("api/departments/get-departments"),
+        ]);
+
+        // Set departments and ticket issues
+        setDepartments(departmentsResponse?.data?.departments || []); // Ensure fallback to an empty array
+
+        console.log(
+          "Fetched Departments:",
+          departmentsResponse?.data?.departments
+        );
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [axios]);
 
   const handleChange = (field, value) => {
     setDetails((prev) => ({ ...prev, [field]: value }));
@@ -129,16 +165,13 @@ const RaiseTicket = () => {
   ]);
 
   const submitData = (e) => {
-    console.log("hello");
     e.preventDefault();
     setRows((prevRows) => [
       ...prevRows,
       {
-        RaisedBy: "Abrar Shaikh",
-        SelectedDepartment: details.department,
+        RaisedBy: auth.user._id,
+        SelectedDepartment: selectedDepartment,
         TicketTitle: details.ticketTitle || details.otherReason,
-        Priority: "High",
-        Status: "Pending",
       },
     ]);
 
@@ -153,6 +186,16 @@ const RaiseTicket = () => {
     });
   };
 
+  const handleDepartmentSelect = async (e) => {
+    try {
+      const response = await axios.get(`/api/tickets/get-ticket-issue/${e}`);
+      setTicketIssues(response.data);
+      setSelectedDepartment(e)
+    } catch (error) {
+      toast.error(error?.message);
+    }
+  };
+
   return (
     <div className="p-4 flex flex-col gap-4">
       <div className="p-4 bg-white border-2 rounded-md">
@@ -160,45 +203,38 @@ const RaiseTicket = () => {
           Raise A Ticket
         </h3>
         <div className="grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 gap-4">
-          <FormControl
-            size="small"
-            fullWidth
-            //
-          >
+          <FormControl size="small" fullWidth>
             <InputLabel>Department</InputLabel>
             <Select
               label="Department"
-              value={details.department || ""}
-              onChange={(e) => handleChange("department", e.target.value)}
+              
+              onChange={(e=>handleDepartmentSelect(e.target.value))}
             >
               <MenuItem value="">Select Department</MenuItem>
-              <MenuItem value="Male">IT</MenuItem>
-              <MenuItem value="Female">Tech</MenuItem>
-              <MenuItem value="Other">Admin</MenuItem>
+              {loading ? (
+                <MenuItem>Loading...</MenuItem>
+              ) : (
+                departments?.map((dept) => (
+                  <MenuItem key={dept._id} value={dept._id}>
+                    {dept.name}
+                  </MenuItem>
+                ))
+              )}
             </Select>
           </FormControl>
 
-          <FormControl
-            size="small"
-            fullWidth
-            //
-          >
+          <FormControl size="small" fullWidth>
             <InputLabel>Ticket Title</InputLabel>
             <Select
               label="Ticket Title"
-              value={details.ticketTitle || ""}
               onChange={(e) => handleChange("ticketTitle", e.target.value)}
             >
               <MenuItem value="">Select Ticket Title</MenuItem>
-              <MenuItem value="Wifi is not working">
-                Wifi is not working
-              </MenuItem>
-              <MenuItem value="payroll is not working">
-                Payroll is not working
-              </MenuItem>
-              <MenuItem value="website is taking time to load">
-                Website is taking time to load
-              </MenuItem>
+              {ticketIssues.map((issue) => (
+                <MenuItem key={issue.id} value={issue.title}>
+                  {issue.title}
+                </MenuItem>
+              ))}
               <MenuItem value="Others">Others</MenuItem>
             </Select>
           </FormControl>
@@ -215,9 +251,8 @@ const RaiseTicket = () => {
               fullWidth
             />
           )}
-          </div>
-          <div className="grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 gap-4 mt-4">
-
+        </div>
+        <div className="grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 gap-4 mt-4">
           <TextField
             size="small"
             //   disabled={!isEditable}

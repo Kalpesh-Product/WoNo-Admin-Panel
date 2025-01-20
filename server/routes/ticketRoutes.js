@@ -18,7 +18,7 @@ const {
 const router = require("express").Router();
 
 router.post("/add-ticket-issue", addTicketIssue);
-router.get("/get-ticket-issue", getTicketIssue);
+router.get("/get-ticket-issue/:department", getTicketIssue);
 router.get("/get-tickets", getTickets);
 router.post("/raise-ticket", raiseTicket);
 router.post("/accept-ticket", acceptTicket);

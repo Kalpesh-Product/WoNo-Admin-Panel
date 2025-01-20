@@ -32,7 +32,7 @@ const addTicketIssue = async (req, res, next) => {
 
 const getTicketIssue = async (req, res, next) => {
   try {
-    const { department } = req.query;
+    const { department } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(department)) {
       return res
@@ -59,7 +59,7 @@ const getTicketIssue = async (req, res, next) => {
     }
 
     console.log("tickets:", ticketIssues);
-    return res.status(200).json({ data: ticketIssues });
+    return res.status(200).json(ticketIssues);
   } catch (error) {
     next(error);
   }
