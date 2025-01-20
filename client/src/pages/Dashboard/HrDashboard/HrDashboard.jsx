@@ -217,10 +217,11 @@ const HrDashboard = () => {
   ];
 
   const rows = [
-    { id: 1, name: 'John Doe', age: 30,gender:'Male',city:"Panaji" },
-    { id: 1, name: 'John Doe', age: 30,gender:'Male',city:"Panaji" },
-    { id: 1, name: 'John Doe', age: 30,gender:'Male',city:"Panaji" },
-    { id: 1, name: 'John Doe', age: 30,gender:'Male',city:"Panaji" },
+    { id: 1, name: 'Anushri Bhagat', age: 24,gender:'Female',city:"Marcela" },
+    { id: 1, name: 'Aiwin', age: 23,gender:'Male',city:"Panaji" },
+    { id: 1, name: 'Allen Silvera', age: 25,gender:'Male',city:"Margao" },
+    { id: 1, name: 'Muskan Dodmani', age: 22,gender:'Female',city:"St Inez" },
+    { id: 1, name: 'Sankalp Kalangutkar', age: 22,gender:'Male',city:"Margao" },
   ];
 
   const columns2 = [
@@ -231,10 +232,49 @@ const HrDashboard = () => {
   ];
 
   const rows2 = [
-    { id: 1, name: '2024-12-04', holiday_event: "Indian Navy day",region:'India'},
-    { id: 1, name: '2024-12-04', holiday_event: "Indian Navy day",region:'India'},
+    { id: 1, date: '2024-12-10', holiday_event: "Indian Navy day",region:'India'},
+    { id: 1, date: '2025-25-01', holiday_event: "Muskan Birthday",region:'India'},
+    { id: 1, date: '2025-26-01', holiday_event: "Rebuplic Day",region:'India'},
+    { id: 1, date: '2025-14-02', holiday_event: "Valentines day",region:'India'},
+    { id: 1, date: '2025-14-03', holiday_event: "Holi",region:'India'},
     
   ];
+
+  const columns3 = [
+    { id: 'employeeName', label: 'Employee name', align: 'left' },
+    { id: 'department', label: 'Department', align: 'center' },
+    { id:'performance (%)',label:'Performance',align:'center'},
+    
+  ];
+
+  const columns4 = [
+    { id: 'employeeName', label: 'Employee name', align: 'left' },
+    { id: 'department', label: 'Department', align: 'center' },
+    { id:'performance (%)',label:'Performance',align:'center'},
+    
+  ];
+
+
+  const rows3 = [
+    { id: 1, employeeName:"Aiwin",department:"Tech",performance:"97"},
+    { id: 1, employeeName:"Allen Silvera",department:"Tech",performance:"90"},
+    { id: 1, employeeName:"Sankalp Kalangutkar",department:"Tech",performance:"80"},
+    
+  ];
+
+  const rows4 = [
+    { id: 1, employeeName:"Anushri Bhagat",department:"Tech",performance:"40"},
+    { id: 1, employeeName:"Sumera Naik",department:"Tech",performance:"43"},
+    { id: 1, employeeName:"Sunaina Bharve",department:"Tech",performance:"45"},
+    
+  ];
+
+
+
+
+
+
+
 
 
   const [page, setPage] = useState(0);
@@ -297,6 +337,7 @@ const HrDashboard = () => {
       layout:2,
       widgets:[
         <MuiTable
+        Title="Current Months Birthday List"
         columns={columns}
         rows={rows}
         page={page}
@@ -305,24 +346,27 @@ const HrDashboard = () => {
         onRowsPerPageChange={handleRowsPerPageChange}
         />,
         <MuiTable
-        columns={columns}
-        rows={rows}
+        Title="Current Months Holidays and Events List"
+        columns={columns2}
+        rows={rows2}
         page={page}
         rowsPerPage={rowsPerPage}
         onPageChange={handlePageChange}
         onRowsPerPageChange={handleRowsPerPageChange}
         />,
         <MuiTable
-        columns={columns}
-        rows={rows}
+        Title="Top 3 Performers"
+        columns={columns3}
+        rows={rows3}
         page={page}
         rowsPerPage={rowsPerPage}
         onPageChange={handlePageChange}
         onRowsPerPageChange={handleRowsPerPageChange}
         />,
         <MuiTable
-        columns={columns}
-        rows={rows}
+        Title="Under 3 Performed List"
+        columns={columns4}
+        rows={rows4}
         page={page}
         rowsPerPage={rowsPerPage}
         onPageChange={handlePageChange}

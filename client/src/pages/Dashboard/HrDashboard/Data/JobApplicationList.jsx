@@ -86,7 +86,7 @@ const JobApplicationList = () => {
         <AgTable
           search={true}
           searchColumn={"Leave Type"}
-          tableTitle={"Aiwin's Leave List"}
+          tableTitle={"Job Applications"}
           buttonTitle={"Add Requested Leave"}
           data={rows}
           columns={leavesColumn}
