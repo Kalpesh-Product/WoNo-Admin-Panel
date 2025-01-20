@@ -14,10 +14,11 @@ const Leaves = () => {
   const leavesColumn = [
     { field: "fromDate", headerName: "From Date" },
     { field: "toDate", headerName: "To Date" },
-    { field: "leaveType", headerName: "Leave Type", flex: 1 },
-    { field: "leavePeriod", headerName: "Leave Period", flex: 1 },
-    { field: "hours", headerName: "Hours", flex: 1 },
-    { field: "description", headerName: "Description", flex: 1 },
+    { field: "leaveType", headerName: "Leave Type" },
+    { field: "leavePeriod", headerName: "Leave Period" },
+    { field: "hours", headerName: "Hours" },
+    { field: "description", headerName: "Description" },
+    { field: "status", headerName: "Status", },
   ];
 
   const rows = [
@@ -29,6 +30,7 @@ const Leaves = () => {
       leavePeriod: "Full Day",
       hours: 8,
       description: "New Year Vacation",
+      status: "Approved",
     },
     {
       id: 2,
@@ -38,6 +40,7 @@ const Leaves = () => {
       leavePeriod: "Half Day",
       hours: 4,
       description: "Fever",
+      status: "Approved",
     },
     {
       id: 3,
@@ -47,6 +50,7 @@ const Leaves = () => {
       leavePeriod: "Full Day",
       hours: 8,
       description: "Personal Work",
+      status: "Approved",
     },
     {
       id: 4,
@@ -56,6 +60,7 @@ const Leaves = () => {
       leavePeriod: "3 Days",
       hours: 24,
       description: "Family Vacation",
+      status: "Approved",
     },
     {
       id: 5,
@@ -65,6 +70,7 @@ const Leaves = () => {
       leavePeriod: "Full Day",
       hours: 8,
       description: "Overtime Compensation",
+      status: "Approved",
     },
   ];
 

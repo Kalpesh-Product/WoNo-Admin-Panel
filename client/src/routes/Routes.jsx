@@ -44,6 +44,9 @@ import Leaves from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/Lea
 import Agreements from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/Agreements";
 import KPI from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/KPI";
 import KRA from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/KRA";
+import HrFinance from "../pages/Dashboard/HrDashboard/Finance/HrFinance";
+import HrBudget from "../pages/Dashboard/HrDashboard/Finance/HrBudget";
+import HrPayment from "../pages/Dashboard/HrDashboard/Finance/HrPayment";
 
 export const routes = createBrowserRouter([
   {
@@ -153,6 +156,21 @@ export const routes = createBrowserRouter([
                               <MemberOnboard
                               />
                             ),
+                          },
+                        ],
+                      },
+                      {
+                        path: "finance",
+                        element: <HrFinance />,
+                        children: [
+                          {
+                            path: "budget",
+                            index:true,
+                            element: <HrBudget />,
+                          },
+                          {
+                            path: "payment-schedule",
+                            element: <HrPayment />,
                           },
                         ],
                       },
