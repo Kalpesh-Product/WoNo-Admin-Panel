@@ -60,53 +60,38 @@ const getTickets = async (req, res, next) => {
   try {
     const { user } = req;
     const loggedInUser = await User.findOne({ _id: user }).lean().exec();
-    const allTickets = await Ticket.find()
-      .populate([
-        { path: "ticket" },
-        { path: "raisedBy", select: "name" },
-      ])
+
+    if (!loggedInUser || !loggedInUser.department) {
+      return res.sendStatus(403); // User not found or doesn't belong to any department
+    }
+
+    // Extract department IDs from the user's department array
+    const userDepartments = loggedInUser.department.map((dept) =>
+      dept.toString()
+    );
+
+    // Fetch tickets that match either raisedToDepartment or escalatedTo
+    const matchingTickets = await Ticket.find({
+      $or: [
+        { raisedToDepartment: { $in: userDepartments } },
+        { escalatedTo: { $elemMatch: { $in: userDepartments } } },
+      ],
+    })
+      .populate([{ path: "ticket" }, { path: "raisedBy", select: "name" }])
       .lean()
       .exec();
 
-      let filteredTickets = []
-    for (let ticket of allTickets) {
-      if (
-        loggedInUser.department.some((dept) =>
-        {
-          console.log(dept,'===',ticket.raisedToDepartment)
-          return dept.equals(ticket.raisedToDepartment)
-        }
-        )
-      ) {
-         filteredTickets = allTickets.filter((tkt) =>
-          loggedInUser.department.some((dept) =>
-            dept.equals(tkt.raisedToDepartment)
-          )
-        );
-        
-      }
-      for (let dept of loggedInUser.department) {
-        const escalatedTickets = allTickets.filter((ticket) =>
-       
-          ticket.escalatedTo?.length>0 && ticket.escalatedTo.some((escalateToDept) =>
-          escalateToDept.equals(dept)
-          ) 
-        );
-
-        if(escalatedTickets.length>0){
-           const totalTickets = [...filteredTickets,...escalatedTickets]
-           return res.status(200).json(totalTickets);
-        }
-      
-      }
-        
+    if (matchingTickets.length > 0) {
+      console.log(matchingTickets.length)
+      return res.status(200).json(matchingTickets);
     }
 
-    return res.sendStatus(403);
+    return res.sendStatus(403); // No matching tickets found
   } catch (error) {
     next(error);
   }
 };
+
 const acceptTicket = async (req, res, next) => {
   try {
     const { user } = req;
@@ -177,7 +162,7 @@ const assignTicket = async (req, res, next) => {
       if (!foundTicket) {
         return res.status(400).json({ message: "Invalid ticket ID provided" });
       }
-    } 
+    }
 
     await Tickets.findByIdAndUpdate(
       { _id: ticketId },
