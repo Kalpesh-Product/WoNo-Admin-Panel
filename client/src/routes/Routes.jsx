@@ -44,7 +44,7 @@ import Leaves from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/Lea
 import Agreements from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/Agreements";
 import KPI from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/KPI";
 import KRA from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/KRA";
-import Data from "../pages/Dashboard/HrDashboard/Data/Data";
+import Data from "../pages/Dashboard/HrDashboard/Data/HRData";
 import JobApplicationList from "../pages/Dashboard/HrDashboard/Data/JobApplicationList";
 import Templates from "../pages/Dashboard/HrDashboard/Data/Templates";
 
@@ -164,13 +164,13 @@ export const routes = createBrowserRouter([
                         element:<Data/>,
                         children: [
                           {
-                            path: "JobApplicationList",
+                            path: "job-application-list",
                             index:true,
                             element: <JobApplicationList />,
                           },
                          
                           {
-                            path: "Templates",
+                            path: "templates",
                             element: <Templates />,
                           },
                           
