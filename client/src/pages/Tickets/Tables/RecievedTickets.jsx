@@ -95,7 +95,7 @@ const RecievedTickets = ({ title }) => {
                 borderRadius: "4px",
                 cursor: "pointer",
               }}
-              onClick={handleAccept}
+              
             >
               Accept
             </button>
