@@ -1,11 +1,11 @@
 import React from 'react'
 
-const MuiTable = () => {
+const HrSOP = () => {
   return (
     <div>
-        
+HrSOP
     </div>
   )
 }
 
-export default MuiTable
+export default HrSOP

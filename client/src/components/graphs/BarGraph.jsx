@@ -1,27 +1,19 @@
 import React from "react";
 import Chart from "react-apexcharts";
 
-const BarGraph = ({ data, title }) => {
-  // Array of random data for the bar graph
-  const financialYears = [
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-    "January",
-    "February",
-    "March",
-  ];
+const BarGraph = ({ data, title, categories, minValue, maxValue, colors }) => {
 
+  console.log('colors are : ', colors)
+
+  const series = [
+    {
+      data: data, // Pass data as is
+    },
+  ];
   const options = {
     chart: {
       type: "bar",
-      offsetY : 8,
+      offsetY: 8,
       toolbar: {
         show: true, // Hide the toolbar for simplicity
       },
@@ -30,7 +22,7 @@ const BarGraph = ({ data, title }) => {
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth: "80%",
+        columnWidth: "30%",
         borderRadius: 8,
         dataLabels: {
           enabled: true, // Enable data labels
@@ -45,13 +37,12 @@ const BarGraph = ({ data, title }) => {
       },
     },
     xaxis: {
-      categories: financialYears,
+       categories: data.map((item) => item.x),
     },
     yaxis: {
-      min: 0,
-      max: 1500,
+      min: minValue ? minValue : 0,
+      max: maxValue,
     },
-    colors: ["#1E90FF"], // Set bar color
     tooltip: {
       y: {
         formatter: (value) => `${value}`, // Format tooltip
@@ -59,12 +50,7 @@ const BarGraph = ({ data, title }) => {
     },
   };
 
-  const series = [
-    {
-      name: "Unique Companies",
-      data: data, // Use the random data array here
-    },
-  ];
+
 
   return (
     <div className="bg-white border-default border-borderGray rounded-md">
