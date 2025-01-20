@@ -198,7 +198,7 @@ const RaiseTicket = () => {
   const handleDepartmentSelect = async (e) => {
     try {
       const response = await axios.get(`/api/tickets/get-ticket-issue/${e}`);
-      setTicketIssues(response.data);
+      setTicketIssues(response.data.data);
       setSelectedDepartment(e);
     } catch (error) {
       toast.error(error?.message);
