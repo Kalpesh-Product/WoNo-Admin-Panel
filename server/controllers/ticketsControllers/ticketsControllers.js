@@ -74,7 +74,7 @@ const getTickets = async (req, res, next) => {
     const matchingTickets = await Ticket.find({
       $or: [
         { raisedToDepartment: { $in: userDepartments } },
-        { escalatedTo: { $elemMatch: { $in: userDepartments } } },
+        { escalatedTo:  { $in: userDepartments } },
       ],
     })
       .populate([{ path: "ticket" }, { path: "raisedBy", select: "name" }])
