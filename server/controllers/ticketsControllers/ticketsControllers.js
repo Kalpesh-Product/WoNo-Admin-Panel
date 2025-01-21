@@ -4,6 +4,7 @@ const User = require("../../models/User");
 const mongoose = require("mongoose");
 const Ticket = require("../../models/tickets/Tickets");
 const Department = require("../../models/Departments");
+const { filterCloseTickets, filterAcceptTickets } = require("../../utils/filterTickets");
 
 const raiseTicket = async (req, res, next) => {
   try {
@@ -125,30 +126,6 @@ const acceptTicket = async (req, res, next) => {
     );
 
     return res.status(200).json({ message: "Ticket accepted successfully" });
-  } catch (error) {
-    next(error);
-  }
-};
-
-const fetchAcceptedTickets = async (req, res, next) => {
-  try {
-    const { user } = req;
-    const loggedInUser = await User.findOne({ _id: user })
-      .select("-refreshToken -password")
-      .lean()
-      .exec();
-    if (!loggedInUser) {
-      return res.status(404).json({ message: "No such user found" });
-    }
-    const userId = mongoose.Types.ObjectId(user);
-
-    const acceptedTickets = await Tickets.find({
-      accepted: userId,
-    })
-      .populate([{ path: "ticket" }, { path: "raisedBy", select: "name" }])
-      .lean()
-      .exec();
-    return res.status(200).json(acceptedTickets);
   } catch (error) {
     next(error);
   }
@@ -282,10 +259,13 @@ const closeTicket = async (req, res, next) => {
     next(error);
   }
 };
-
-const fetchClosedTickets = async (req, res, next) => {
+ 
+const fetchFilteredTickets = async (req, res, next) => {
   try {
     const { user } = req;
+
+    const {flag} = req.params
+
     const loggedInUser = await User.findOne({ _id: user })
       .select("-refreshToken -password")
       .lean()
@@ -293,28 +273,41 @@ const fetchClosedTickets = async (req, res, next) => {
     if (!loggedInUser) {
       return res.status(400).json({ message: "No such user found" });
     }
+
     const userDepartments = loggedInUser.department.map((dept) =>
       dept.toString()
     );
-    const closedTickets = await Tickets.find({
-      $and: [
-        { $where: { status: "Closed" } },
-        ,
-        { raisedToDepartment: { $in: userDepartments } },
-      ],
-    })
-      .populate([
-        { path: "ticket" },
-        { path: "raisedBy", select: "name" },
-        { path: "raisedToDepartment", select: "name" },
-      ])
-      .lean()
-      .exec();
-    return res.status(200).json(closedTickets);
+
+    if (!userDepartments || !Array.isArray(userDepartments) || userDepartments.length === 0) {
+      return res.status(400).json("Invalid or empty userDepartments array");
+    }
+
+    let filteredTickets = []
+    if(flag === 'accept'){
+      filteredTickets = await filterAcceptTickets(user)
+    }
+    else if(flag === 'assign'){
+      filteredTickets = filterCloseTickets()
+    }
+    else if(flag === 'close'){
+      filteredTickets = await filterCloseTickets(userDepartments)
+    }
+    else if(flag === 'support'){
+      filteredTickets = filterCloseTickets()
+    }
+    else if(flag === 'escalate'){
+      filteredTickets = filterCloseTickets()
+    }
+
+    return res.status(200).json(filteredTickets);
   } catch (error) {
     next(error);
   }
 };
+
+
+
+ 
 
 module.exports = {
   raiseTicket,
@@ -322,7 +315,6 @@ module.exports = {
   acceptTicket,
   assignTicket,
   escalateTicket,
-  closeTicket,
-  fetchAcceptedTickets,
-  fetchClosedTickets,
+  closeTicket, 
+  fetchFilteredTickets
 };
