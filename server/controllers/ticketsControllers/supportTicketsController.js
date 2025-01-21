@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const SupportTicket = require("../../models/tickets/supportTickets");
 const User = require("../../models/User");
+const Ticket = require("../../models/tickets/Tickets");
 
 const supportTicket = async (req, res, next) => {
   try {
@@ -21,7 +22,7 @@ const supportTicket = async (req, res, next) => {
     }
 
     if (mongoose.Types.ObjectId.isValid(ticketId)) {
-      const foundTicket = await Tickets.findOne({ _id: ticketId })
+      const foundTicket = await Ticket.findOne({ _id: ticketId })
         .lean()
         .exec();
 
@@ -30,6 +31,18 @@ const supportTicket = async (req, res, next) => {
       }
     }
 
+    const userDepartments = loggedInUser.department.map((dept) =>
+      dept.toString()
+    );
+
+    const foundTickets = await Ticket.find({raisedToDepartment: { $in: userDepartments }})
+
+    if (!foundTickets) {
+      return res.status(400).json({ message: "Tickets not found" });
+    }
+
+    await Ticket.findByIdAndUpdate({ _id: ticketId }, { status: "Closed" });
+
     const supportTicket = new SupportTicket({
       ticket: ticketId,
       user,
@@ -37,6 +50,8 @@ const supportTicket = async (req, res, next) => {
     });
 
     await supportTicket.save();
+
+
 
     return res.status(201).json({ message: "Support request sent" });
   } catch (error) {

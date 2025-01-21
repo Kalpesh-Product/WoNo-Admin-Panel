@@ -140,16 +140,40 @@ const createUser = async (req, res, next) => {
 };
 
 const fetchUser = async (req, res) => {
+  const { deptId } = req.params;
   try {
+    if (deptId) {
+      const users = await User.find({
+        department: { $elemMatch: { $eq: deptId } },
+      })
+        .select("-password")
+        .populate([
+          { path: "reportsTo", select: "name email" },
+          { path: "department", select: "name" },
+          { path: "company", select: "name" },
+          { path: "role", select: "roleTitle modulePermissions" },
+        ]);
+      res.status(200).json({
+        message: "Users data fetched",
+        users,
+      });
+    }
     const users = await User.find()
       .select("-password")
-      .populate("reportsTo", "name email")
-      .populate("department", "name")
-      .populate("company", "name")
-      .populate("role", "roleTitle modulePermissions");
+      .populate([
+        { path: "reportsTo", select: "name email" },
+        { path: "department", select: "name" },
+        { path: "company", select: "name" },
+        { path: "role", select: "roleTitle modulePermissions" },
+      ])
+      .lean()
+      .exec();
+    if (!users) {
+      return res.status(404).json({ message: "User not found" });
+    }
     res.status(200).json({
-      message: "Users data fetched",
-      users,
+      message: "User data fetched",
+      user,
     });
   } catch (error) {
     console.log("Error fetching users : ", error);
@@ -161,11 +185,13 @@ const fetchSingleUser = async (req, res) => {
   try {
     const { id } = req.params; // Extract user ID from request parameters
     const user = await User.findById(id)
-      .select("-password") // Exclude the password field
-      .populate("reportsTo", "name email")
-      .populate("department", "name")
-      .populate("company", "name")
-      .populate("role", "roleTitle modulePermissions")
+      .select("-password")
+      .populate([
+        { path: "reportsTo", select: "name email" },
+        { path: "department", select: "name" },
+        { path: "company", select: "name" },
+        { path: "role", select: "roleTitle modulePermissions" },
+      ])
       .lean()
       .exec();
 
@@ -188,7 +214,6 @@ const updateSingleUser = async (req, res) => {
     const { id } = req.params; // Extract user ID from request parameters
     const updateData = req.body; // Data to update comes from the request body
 
-
     // Define a whitelist of updatable fields, including nested objects
     const allowedFields = [
       "name",
@@ -202,10 +227,8 @@ const updateSingleUser = async (req, res) => {
       "bankDetails.ifsc",
     ];
 
-
     // Filter the updateData to include only allowed fields
     const filteredUpdateData = {};
-
 
     Object.keys(updateData).forEach((key) => {
       if (allowedFields.includes(key)) {
@@ -232,11 +255,9 @@ const updateSingleUser = async (req, res) => {
       }
     });
 
-
     if (Object.keys(filteredUpdateData).length === 0) {
       return res.status(400).json({ message: "No valid fields to update" });
     }
-
 
     // Perform the update operation
     const updatedUser = await User.findByIdAndUpdate(
@@ -250,11 +271,9 @@ const updateSingleUser = async (req, res) => {
       .populate("company", "name")
       .populate("role", "roleTitle modulePermissions");
 
-
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
     }
-
 
     res.status(200).json({
       message: "User data updated successfully",
@@ -265,7 +284,5 @@ const updateSingleUser = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
-
 
 module.exports = { createUser, fetchUser, fetchSingleUser, updateSingleUser };
