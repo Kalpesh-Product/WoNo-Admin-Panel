@@ -5,7 +5,7 @@ const PieChartMui = ({ data, title }) => {
 
   return (
     <div className='border-default border-borderGray rounded-md'>
-    <div className="gray-underline p-2 mb-4 ">
+    <div className="gray-underline p-4">
       <h1 className="text-xl">{title}</h1>
     </div>
     <div style={{ width: "100%", margin: "0" }}>
