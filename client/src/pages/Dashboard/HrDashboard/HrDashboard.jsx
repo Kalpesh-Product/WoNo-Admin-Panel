@@ -391,16 +391,16 @@ const colorsForLegend = rawSeries
   ];
 
   const techIndiaVisitors = [
-    { id: 0, value: 40, name: "Male",color:'#0056B3' },
-    { id: 1, value: 60, name: "Female",color:"#FD507E" },
+    { id: 0, value: 40, label: "Male",color:'#0056B3' },
+    { id: 1, value: 60, label: "Female",color:"#FD507E" },
     
   ];
   const techGoaVisitors = [
-    { id: 0, value: 5, name: "Panaji" },
-    { id: 1, value: 2, name: "Margao" },
-    { id: 2, value: 3, name: "Mapusa" },
-    { id: 3, value: 3, name: "Ponda" },
-    { id: 4, value: 6, name: "Verna" },
+    { id: 0, value: 5, label: "Panaji" },
+    { id: 1, value: 2, label: "Margao" },
+    { id: 2, value: 3, label: "Mapusa" },
+    { id: 3, value: 3, label: "Ponda" },
+    { id: 4, value: 6, label: "Verna" },
   ];
 
 

@@ -66,19 +66,23 @@ const getTickets = async (req, res, next) => {
     const loggedInUser = await User.findOne({ _id: user }).lean().exec();
 
     if (!loggedInUser || !loggedInUser.department) {
-      return res.sendStatus(403); // User not found or doesn't belong to any department
+      return res.sendStatus(403);
     }
 
-    // Extract department IDs from the user's department array
     const userDepartments = loggedInUser.department.map((dept) =>
       dept.toString()
     );
 
-    // Fetch tickets that match either raisedToDepartment or escalatedTo
     const matchingTickets = await Ticket.find({
-      $or: [
-        { raisedToDepartment: { $in: userDepartments } },
-        { escalatedTo: { $in: userDepartments } },
+      $and: [
+        {
+          $or: [
+            { raisedToDepartment: { $in: userDepartments } },
+            { escalatedTo: { $in: userDepartments } },
+          ],
+        },
+        { "ticket.accepted": { $exists: false } },
+        { raisedBy: { $ne: loggedInUser._id } },
       ],
     })
       .populate([
@@ -123,8 +127,6 @@ const acceptTicket = async (req, res, next) => {
     }
 
     const userDepartments = foundUser.department.map((dept) => dept.toString());
-
-    const ticket = await Ticket.findOne({ _id: ticketId });
 
     const ticketInDepartment = userDepartments.some((id) =>
       foundTicket.raisedToDepartment.equals(id)
