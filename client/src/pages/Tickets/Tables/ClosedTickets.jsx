@@ -1,8 +1,42 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import AgTable from "../../../components/AgTable";
 import { Chip } from "@mui/material";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
 const ClosedTickets = ({title}) => {
+  const axios = useAxiosPrivate();
+  const [closedTickets, setClosedTickets] = useState([])
+
+  useEffect(()=>{
+    const fetchClosedTickets = async()=>{
+      try {
+        const response = await axios.get('/api/tickets/filtered-tickets/close');
+        setClosedTickets(response.data)
+      } catch (error) {
+        console.log(error.message)
+      }
+     
+    }
+
+    fetchClosedTickets()
+  },[])
+
+    useEffect(() => {
+      console.log("Closed tickets : ", closedTickets);
+    }, [closedTickets]);
+
+  const transformTicketsData = (tickets) => {
+    return tickets.map((ticket) => ({
+      id: ticket._id,
+      raisedBy: ticket.raisedBy?.name || "Unknown",
+      fromDepartment: ticket.raisedToDepartment.name || "N/A",
+      ticketTitle: ticket.ticket?.title || "No Title",
+      status: ticket.status || "Pending",
+    }));
+  };
+  
+  // Example usage
+  const rows = transformTicketsData(closedTickets);
   const recievedTicketsColumns = [
     { field: "raisedBy", headerName: "Raised By" },
     { field: "fromDepartment", headerName: "From Department" },
@@ -39,44 +73,44 @@ const ClosedTickets = ({title}) => {
     },
   ];
 
-  const rows = [
-    {
-      raisedBy: "Abrar Shaikh",
-      fromDepartment: "IT",
-      ticketTitle: "Monitor dead pixel",
-      status: "Closed",
-    },
-    {
-      raisedBy: "John Doe",
-      fromDepartment: "HR",
-      ticketTitle: "System login issue",
-      status: "Closed",
-    },
-    {
-      raisedBy: "Jane Smith",
-      fromDepartment: "Finance",
-      ticketTitle: "Printer not working",
-      status: "Closed",
-    },
-    {
-      raisedBy: "Mike Brown",
-      fromDepartment: "Operations",
-      ticketTitle: "Software installation request",
-      status: "Closed",
-    },
-    {
-      raisedBy: "Emily Davis",
-      fromDepartment: "Marketing",
-      ticketTitle: "Email access problem",
-      status: "Closed",
-    },
-    {
-      raisedBy: "Chris Johnson",
-      fromDepartment: "Admin",
-      ticketTitle: "Air conditioner maintenance",
-      status: "Closed",
-    },
-  ];
+  // const rows = [
+  //   {
+  //     raisedBy: "Abrar Shaikh",
+  //     fromDepartment: "IT",
+  //     ticketTitle: "Monitor dead pixel",
+  //     status: "Closed",
+  //   },
+  //   {
+  //     raisedBy: "John Doe",
+  //     fromDepartment: "HR",
+  //     ticketTitle: "System login issue",
+  //     status: "Closed",
+  //   },
+  //   {
+  //     raisedBy: "Jane Smith",
+  //     fromDepartment: "Finance",
+  //     ticketTitle: "Printer not working",
+  //     status: "Closed",
+  //   },
+  //   {
+  //     raisedBy: "Mike Brown",
+  //     fromDepartment: "Operations",
+  //     ticketTitle: "Software installation request",
+  //     status: "Closed",
+  //   },
+  //   {
+  //     raisedBy: "Emily Davis",
+  //     fromDepartment: "Marketing",
+  //     ticketTitle: "Email access problem",
+  //     status: "Closed",
+  //   },
+  //   {
+  //     raisedBy: "Chris Johnson",
+  //     fromDepartment: "Admin",
+  //     ticketTitle: "Air conditioner maintenance",
+  //     status: "Closed",
+  //   },
+  // ];
   return (
     <div className="p-4 border-default border-borderGray rounded-md">
       <div className="pb-4">

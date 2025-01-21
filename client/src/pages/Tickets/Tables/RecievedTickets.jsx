@@ -5,6 +5,7 @@ import MuiModal from "../../../components/MuiModal";
 import Button from "@mui/material";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import { toast } from "sonner";
+import PrimaryButton from "../../../components/PrimaryButton";
 
 const RecievedTickets = ({ title,data }) => {
   const [open, setOpen] = useState(false);
@@ -54,27 +55,6 @@ const RecievedTickets = ({ title,data }) => {
     "Muskan Dodmani",
   ];
 
-  const viewChildren = (
-    <>
-      <ul>
-        {assignees.map((key, items) => {
-          return (
-            <>
-              <div className="flex flex-row gap-6">
-                <input type="checkbox"></input>
-                <li key={items}>{key}</li>
-              </div>
-            </>
-          );
-        })}
-      </ul>
-      <div className="flex items-center justify-center mb-4">
-        <button className="p-2 bg-primary align-middle text-white rounded-md">
-          Assign 
-        </button>
-      </div>
-    </>
-  );
 
   const recievedTicketsColumns = [
     { field: "raisedBy", headerName: "Raised By" },
@@ -163,15 +143,24 @@ const RecievedTickets = ({ title,data }) => {
         open={open}
         onClose={handleClose}
         title="Assign Tickets"
-        children={viewChildren}
-        btnTitle="Assign"
-        // Pass your desired background color
       >
-        {/* <div className="flex items-center justify-center mb-10">
-          <button className="p-4 bg-primary align-middle text-white rounded-md">
-            Assign Ticket
-          </button>
-        </div> */}
+    <>
+      <ul>
+        {assignees.map((key, items) => {
+          return (
+            <>
+              <div className="flex flex-row gap-6">
+                <input type="checkbox"></input>
+                <li key={items}>{key}</li>
+              </div>
+            </>
+          );
+        })}
+      </ul>
+      <div className="flex items-center justify-center mb-4">
+        <PrimaryButton title={"Assign"} />
+      </div>
+    </>
       </MuiModal>
     </div>
   );

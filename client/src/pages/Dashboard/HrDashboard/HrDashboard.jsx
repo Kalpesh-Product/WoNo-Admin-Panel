@@ -23,6 +23,11 @@ const HrDashboard = () => {
       group: "total",
     },
     {
+      name: "IT Total",
+      data: [40, 45, 35, 50, 55, 45, 60, 55, 65, 70, 75, 80],
+      group: "total",
+    },
+    {
       name: "Tech Total",
       data: [45, 50, 40, 55, 60, 50, 65, 60, 70, 75, 80, 85],
       group: "total",
@@ -35,6 +40,11 @@ const HrDashboard = () => {
 
     {
       name: "Sales Completed",
+      data: [40, 45, 25, 40, 45, 35, 50, 45, 55, 60, 65, 70],
+      group: "completed",
+    },
+    {
+      name: "IT Completed",
       data: [40, 45, 25, 40, 45, 35, 50, 45, 55, 60, 65, 70],
       group: "completed",
     },
@@ -88,6 +98,7 @@ const HrDashboard = () => {
         borderRadiusApplication: "end", // Apply only to the top of the stack
       },
     },
+    colors: ["#00FF00", "#0000FF", "#FF0000"],
     dataLabels: {
       enabled: false,
     },
@@ -129,6 +140,10 @@ const HrDashboard = () => {
       },
     },
   };
+
+
+
+  //firstgraph
 
   const utilisedData = [125, 150, 99, 85, 70, 50, 80, 95, 100, 65, 50, 120];
   const defaultData = utilisedData.map((value) =>
