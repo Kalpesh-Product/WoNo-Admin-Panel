@@ -26,7 +26,6 @@ const RaiseTicket = () => {
   const [ticketIssues, setTicketIssues] = useState([]); // State for ticket issues
   const [loading, setLoading] = useState(false);
    const [tickets, setTickets] = useState([]);
-   const [tickets, setTickets] = useState([]);
   const axios = useAxiosPrivate();
   const { auth } = useAuth();
 
@@ -57,23 +56,24 @@ const RaiseTicket = () => {
   }, [axios]);
 
     // Reusable function to fetch tickets
-    const getTickets = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get("/api/tickets/get-tickets");
-        const filteredTickets = response.data.filter(
-          (ticket) => !ticket.accepted
-        );
-        setTickets(filteredTickets);
-      } catch (error) {
-        toast.error(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+    
   
     // Initial data fetch when the component mounts
     useEffect(() => {
+      const getTickets = async () => {
+        try {
+          setLoading(true);
+          const response = await axios.get("/api/tickets/get-tickets");
+          const filteredTickets = response.data.filter(
+            (ticket) => !ticket.accepted
+          );
+          setTickets(filteredTickets);
+        } catch (error) {
+          toast.error(error.message);
+        } finally {
+          setLoading(false);
+        }
+      };
       getTickets();
     }, []);
 
@@ -91,77 +91,6 @@ const RaiseTicket = () => {
     // Example usage
     const rows = transformTicketsData(tickets);
 
-   
-  
-    // Initial data fetch when the component mounts
-    useEffect(() => {
-       // Reusable function to fetch tickets
-    const getTickets = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get("/api/tickets/get-tickets");
-        const filteredTickets = response.data.filter(
-          (ticket) => !ticket.accepted
-        );
-        setTickets(filteredTickets);
-      } catch (error) {
-        toast.error(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-      getTickets();
-    }, []);
-
-
-    const transformTicketsData = (tickets) => {
-      return tickets.map((ticket) => ({
-        id: ticket._id,
-        raisedBy: ticket.raisedBy?.name || "Unknown",
-        fromDepartment: ticket.raisedToDepartment.name || "N/A",
-        ticketTitle: ticket.ticket?.title || "No Title",
-        status: ticket.status || "Pending",
-      }));
-    };
-  
-    // Example usage
-    const rows = transformTicketsData(tickets);
-
-   
-  
-    // Initial data fetch when the component mounts
-    useEffect(() => {
-       // Reusable function to fetch tickets
-    const getTickets = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get("/api/tickets/get-tickets");
-        const filteredTickets = response.data.filter(
-          (ticket) => !ticket.accepted
-        );
-        setTickets(filteredTickets);
-      } catch (error) {
-        toast.error(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-      getTickets();
-    }, []);
-
-
-    const transformTicketsData = (tickets) => {
-      return tickets.map((ticket) => ({
-        id: ticket._id,
-        raisedBy: ticket.raisedBy?.name || "Unknown",
-        fromDepartment: ticket.raisedToDepartment.name || "N/A",
-        ticketTitle: ticket.ticket?.title || "No Title",
-        status: ticket.status || "Pending",
-      }));
-    };
-  
-    // Example usage
-    const rows = transformTicketsData(tickets);
 
   const handleChange = (field, value) => {
     setDetails((prev) => ({ ...prev, [field]: value }));
