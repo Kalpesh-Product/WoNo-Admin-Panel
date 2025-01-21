@@ -7,31 +7,9 @@ import AcceptedTickets from "./Tables/AcceptedTickets";
 import SupportTickets from "./Tables/SupportTickets";
 import EscalatedTickets from "./Tables/EscalatedTickets";
 import ClosedTickets from "./Tables/ClosedTickets";
-import useAxiosPrivate from "../../hooks/useAxiosPrivate";
-import useAuth from "../../hooks/useAuth";
-import { toast } from "sonner";
 
 const ManageTickets = () => {
-  const { auth } = useAuth();
-  const axios = useAxiosPrivate();
   const [activeTab, setActiveTab] = useState(0);
-  const [tickets, setTickets] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const getTickets = async () => {
-      try {
-        setLoading(true);
-        const tickets = await axios.get("/api/tickets/get-tickets");
-        setTickets(tickets.data);
-      } catch (error) {
-        toast.error(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    getTickets();
-  }, []);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -186,7 +164,7 @@ const ManageTickets = () => {
         <div className="py-4 bg-white">
           {activeTab === 0 && (
             <div className="">
-              <RecievedTickets data={tickets} title={"Department Ticket Recieved"} />
+              <RecievedTickets title={"Department Ticket Recieved"} />
             </div>
           )}
           {activeTab === 1 && (

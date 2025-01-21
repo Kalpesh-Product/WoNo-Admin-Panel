@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 const AcceptedTickets = ({ title }) => {
   const [acceptedTickets, setAcceptedTickets] = useState([]);
+  
   const axios = useAxiosPrivate();
 
   useEffect(() => {
@@ -29,10 +30,16 @@ const AcceptedTickets = ({ title }) => {
         ticketId: closedTicket.id,
       });
       toast.success(response.data.message);
+  
+      // Update the state to remove the closed ticket
+      setAcceptedTickets((prevTickets) =>
+        prevTickets.filter((ticket) => ticket._id !== closedTicket.id)
+      );
     } catch (error) {
       toast.error(error.message);
     }
   };
+  
 
   useEffect(() => {
     console.log("Accepted tickets : ", acceptedTickets);
@@ -147,52 +154,8 @@ const AcceptedTickets = ({ title }) => {
 
   // Example usage
   const rows = transformTicketsData(acceptedTickets);
-  console.log(rows);
 
-  // const rows = [
-  //   {
-  //     raisedBy: "Abrar Shaikh",
-  //     selectedDepartment: "IT",
-  //     ticketTitle: "Monitor dead pixel",
-  //     tickets: "Accepted Ticket",
-  //     status: "pending",
-  //   },
-  //   {
-  //     raisedBy: "John Doe",
-  //     selectedDepartment: "HR",
-  //     ticketTitle: "System login issue",
-  //     tickets: "Accepted Ticket",
-  //     status: "pending",
-  //   },
-  //   {
-  //     raisedBy: "Jane Smith",
-  //     selectedDepartment: "Finance",
-  //     ticketTitle: "Printer not working",
-  //     tickets: "Accepted Ticket",
-  //     status: "pending",
-  //   },
-  //   {
-  //     raisedBy: "Mike Brown",
-  //     selectedDepartment: "Operations",
-  //     ticketTitle: "Software installation request",
-  //     tickets: "Assigned Ticket",
-  //     status: "pending",
-  //   },
-  //   {
-  //     raisedBy: "Emily Davis",
-  //     selectedDepartment: "Marketing",
-  //     ticketTitle: "Email access problem",
-  //     tickets: "Accepted Ticket",
-  //     status: "pending",
-  //   },
-  //   {
-  //     raisedBy: "Chris Johnson",
-  //     selectedDepartment: "Admin",
-  //     ticketTitle: "Air conditioner maintenance",
-  //     tickets: "Assigned Ticket",
-  //     status: "pending",
-  //   },
-  // ];
+
   return (
     <div className="p-4 border-default border-borderGray rounded-md">
       <div className="pb-4">

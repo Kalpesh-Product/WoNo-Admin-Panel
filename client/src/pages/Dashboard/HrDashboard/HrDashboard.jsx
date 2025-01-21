@@ -13,10 +13,14 @@ import DataCard from "../../../components/DataCard";
 import BarGraph from "../../../components/graphs/BarGraph";
 import PayRollExpenseGraph from "../../../components/HrDashboardGraph/PayRollExpenseGraph";
 import MuiTable from "../../../components/Tables/MuiTable";
+import PieChartMui from "../../../components/graphs/PieChartMui";
 
 const HrDashboard = () => {
-  // Original data
+
+  
+  
   const rawSeries = [
+
     {
       name: "Sales Total",
       data: [40, 45, 35, 50, 55, 45, 60, 55, 65, 70, 75, 80],
@@ -32,12 +36,22 @@ const HrDashboard = () => {
       data: [45, 50, 40, 55, 60, 50, 65, 60, 70, 75, 80, 85],
       group: "total",
     },
+    
     {
-      name: "Space Total",
-      data: [],
+      name: "Admin Total",
+      data: [45, 50, 40, 55, 60, 50, 65, 60, 70, 75, 80, 85],
+      group: "total",
+    },
+    {
+      name: "Maintainance Total",
+      data: [45, 50, 40, 55, 60, 50, 65, 60, 70, 75, 80, 85],
+      group: "total",
+    },
+    {
+      name: "Space Completed",
+      data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       group: "space",
     },
-
     {
       name: "Sales Completed",
       data: [40, 45, 25, 40, 45, 35, 50, 45, 55, 60, 65, 70],
@@ -48,41 +62,99 @@ const HrDashboard = () => {
       data: [40, 45, 25, 40, 45, 35, 50, 45, 55, 60, 65, 70],
       group: "completed",
     },
+   
+
     {
       name: "Tech Completed",
       data: [45, 40, 30, 45, 50, 40, 55, 50, 60, 65, 70, 75],
       group: "completed",
     },
+    {
+      name: "Admin Completed",
+      data: [40, 30, 40, 52, 46, 40, 60, 59, 50, 70, 75, 80],
+      group: "completed",
+    },
+    {
+      name: "Maintainance Completed",
+      data: [45, 50, 40, 55, 60, 50, 65, 60, 70, 75, 80, 85],
+      group: "completed",
+    },
   ];
-
-  // Function to normalize data to percentage
+  
+  // Normalize to percentage
   const normalizeToPercentage = (series) => {
     const months = series[0].data.length;
     const normalizedSeries = [];
-
+  
     for (let i = 0; i < months; i++) {
       const totalForMonth = series
         .filter((s) => s.group === "total")
         .reduce((sum, s) => sum + s.data[i], 0);
-
+  
       series.forEach((s) => {
         if (!normalizedSeries.some((ns) => ns.name === s.name)) {
           normalizedSeries.push({ name: s.name, data: [], group: s.group });
         }
-
-        const percentage = totalForMonth
-          ? (s.data[i] / totalForMonth) * 100
-          : 0;
-
-        normalizedSeries.find((ns) => ns.name === s.name).data.push(percentage);
+  
+        const percentage = totalForMonth ? (s.data[i] / totalForMonth) * 100 : 0;
+  
+        normalizedSeries
+          .find((ns) => ns.name === s.name)
+          .data.push(percentage);
       });
     }
     return normalizedSeries;
   };
+  
+  // Adjust data for spacing
+  const adjustDataWithSpacing = (series) => {
+    const adjustedSeries = [];
+    const groups = [...new Set(series.map((s) => s.group))];
+    groups.forEach((group) => {
+      const groupSeries = series.filter((s) => s.group === group);
+      groupSeries.forEach((s) => {
+        adjustedSeries.push({
+          ...s,
+          data: s.data.map((val) => (val === 0 ? null : val)),
+        });
+      });
+    });
+    return adjustedSeries;
+  };
+  
+  // Generate colors
+  const generateColorsWithSpacing = (series) => {
+    const departmentColorMapping = {
+      Sales: "#99a7ca", 
+      IT: "#0056b3", 
+      Tech: "#0aa8ef", // Red
+      Admin: '#99f6ca',
+      Maintainance: "#00cdd1",
+      Space: "#FFA500", // Orange
+    };
+  
+    return series.map((s) => {
+      const department = s.name.split(" ")[0];
+      return departmentColorMapping[department] || "#000000";
+    });
+  };
+  
+  // Generate colors and adjusted series
+  const colors = generateColorsWithSpacing(rawSeries);
+  const adjustedSeries = adjustDataWithSpacing(rawSeries);
 
+  // Extract custom legend items for "Total" series
+const customLegendItems = rawSeries
+.filter((series) => series.group === "total") // Filter only "Total" group
+.map((series) => series.name.split(" ")[0]); // Extract department name (e.g., "Sales", "IT")
+
+const colorsForLegend = rawSeries
+.filter((series) => series.group === "total") // Filter only "Total" group
+.map((series, index) => colors[index]); // Use the same colors for "Total" series
+  
   // Normalize data
-  const series = normalizeToPercentage(rawSeries);
-
+  const series = normalizeToPercentage(adjustedSeries);
+  
   const options = {
     chart: {
       type: "bar",
@@ -93,14 +165,23 @@ const HrDashboard = () => {
       bar: {
         horizontal: false,
         columnWidth: "55%",
-        borderRadius: [5], // Radius for rounded corners
-        borderRadiusWhenStacked: "all", // Apply borderRadius consistently
-        borderRadiusApplication: "end", // Apply only to the top of the stack
+        borderRadius: [5],
+        borderRadiusWhenStacked: "all",
+        borderRadiusApplication: "end",
       },
     },
-    colors: ["#00FF00", "#0000FF", "#FF0000"],
+    colors, // Use generated colors
     dataLabels: {
-      enabled: false,
+      enabled: true, // Enable data labels
+      formatter: function (val, opts) {
+        const rawData = rawSeries[opts.seriesIndex]?.data[opts.dataPointIndex];
+        return rawData ? `${rawData}` : ""; // Display the raw value
+      },
+      style: {
+        fontSize: "9px",
+        fontFamily: "Poppins-Regular, Arial, sans-serif",
+        colors: ["#000000"], // Color of the data labels
+      },
     },
     xaxis: {
       categories: [
@@ -129,18 +210,17 @@ const HrDashboard = () => {
     },
     legend: {
       show: false,
-      position: "top",
     },
+  
     tooltip: {
       y: {
         formatter: (val, { seriesIndex, dataPointIndex }) => {
-          const rawData = rawSeries[seriesIndex]?.data[dataPointIndex]; // Access the original count
-          return `${rawData}`; // Show the count in the tooltip
+          const rawData = rawSeries[seriesIndex]?.data[dataPointIndex];
+          return `${rawData}`;
         },
       },
     },
   };
-
 
 
   //firstgraph
@@ -174,7 +254,7 @@ const HrDashboard = () => {
         borderRadiusApplication: "end",
       },
     },
-    colors: ["#00FF00", "#0000FF", "#FF0000"], // Colors for the series
+    colors: ["#80bf01", "#01411C", "#FF0000"], // Colors for the series
     dataLabels: {
       enabled: true,
       formatter: (value, { seriesIndex }) => {
@@ -263,8 +343,8 @@ const HrDashboard = () => {
     },
     {
       id: 1,
-      date: "2025-25-01",
-      holiday_event: "Muskan Birthday",
+      date: "2025-24-01",
+      holiday_event: "Republic day Celebrations",
       region: "India",
     },
     {
@@ -275,61 +355,59 @@ const HrDashboard = () => {
     },
     {
       id: 1,
-      date: "2025-14-02",
-      holiday_event: "Valentines day",
+      date: "2025-10-03",
+      holiday_event: "Maha Shiv-ratri",
       region: "India",
     },
     { id: 1, date: "2025-14-03", holiday_event: "Holi", region: "India" },
   ];
 
   const columns3 = [
-    { id: "employeeName", label: "Employee name", align: "left" },
-    { id: "department", label: "Department", align: "center" },
-    { id: "performance (%)", label: "Performance", align: "center" },
+    { id: 'employeeName', label: 'Employee name', align: 'left' },
+    { id: 'department', label: 'Department', align: 'center' },
+    { id:'Performance (%)',label:'Performance (%)',align:'center'},
+    
   ];
 
   const columns4 = [
-    { id: "employeeName", label: "Employee name", align: "left" },
-    { id: "department", label: "Department", align: "center" },
-    { id: "performance (%)", label: "Performance", align: "center" },
+    { id: 'employeeName', label: 'Employee name', align: 'left' },
+    { id: 'department', label: 'Department', align: 'center' },
+    { id:'Performance (%)',label:'Performance (%)',align:'center'},
+    
   ];
 
   const rows3 = [
-    { id: 1, employeeName: "Aiwin", department: "Tech", performance: "97" },
-    {
-      id: 1,
-      employeeName: "Allen Silvera",
-      department: "Tech",
-      performance: "90",
-    },
-    {
-      id: 1,
-      employeeName: "Sankalp Kalangutkar",
-      department: "Tech",
-      performance: "80",
-    },
+    { id: 1, employeeName:"Aiwin",department:"Tech","Performance (%)":"97"},
+    { id: 1, employeeName:"Allen Silvera",department:"Tech","Performance (%)":"90"},
+    { id: 1, employeeName:"Sankalp Kalangutkar",department:"Tech","Performance (%)":"80"},
+    
   ];
 
   const rows4 = [
-    {
-      id: 1,
-      employeeName: "Anushri Bhagat",
-      department: "Tech",
-      performance: "40",
-    },
-    {
-      id: 1,
-      employeeName: "Sumera Naik",
-      department: "Tech",
-      performance: "43",
-    },
-    {
-      id: 1,
-      employeeName: "Sunaina Bharve",
-      department: "Tech",
-      performance: "45",
-    },
+    { id: 1, employeeName:"Anushri Bhagat",department:"Tech","Performance (%)":"40"},
+    { id: 1, employeeName:"Sumera Naik",department:"Tech","Performance (%)":"43"},
+    { id: 1, employeeName:"Sunaina Bharve",department:"Tech","Performance (%)":"45"},
+    
   ];
+
+  const techIndiaVisitors = [
+    { id: 0, value: 40, name: "Male",color:'#0056B3' },
+    { id: 1, value: 60, name: "Female",color:"#FD507E" },
+    
+  ];
+  const techGoaVisitors = [
+    { id: 0, value: 5, name: "Panaji" },
+    { id: 1, value: 2, name: "Margao" },
+    { id: 2, value: 3, name: "Mapusa" },
+    { id: 3, value: 3, name: "Ponda" },
+    { id: 4, value: 6, name: "Verna" },
+  ];
+
+
+
+
+
+
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -348,7 +426,7 @@ const HrDashboard = () => {
       layout: 1,
       widgets: [
         <LayerBarGraph
-          title="Budget v/s Achievements"
+          title="Payroll Expense Graph"
           data={data}
           options={optionss}
         />,
@@ -376,30 +454,40 @@ const HrDashboard = () => {
     {
       layout: 3,
       widgets: [
-        <DataCard
-          title="On Boarding"
-          data="28"
-          description="Current Headcount"
-        />,
-        <DataCard title="Compliance" data="52K" description="salary" />,
-        <DataCard title="Finance" data="25" description="Monthly Employees" />,
-        <DataCard
-          title="Performance"
-          data="4%"
-          description="Monthly Iteration"
-        />,
-        <DataCard title="Data" data="92%" description="Attendance" />,
-        <DataCard title="Settings" data="8.1hr" description="Working Hours" />,
+        <DataCard  title="Active" data="28" description="Current Headcount" />,
+        <DataCard  title="Average" data="52K" description="salary" />,
+        <DataCard  title="Average" data="25" description="Monthly Employees"/>,
+        <DataCard  title="Average" data="4%" description="Monthly Iteration" />,
+        <DataCard  title="Average" data="92%" description="Attendance"/>,
+        <DataCard  title="Average" data="8.1hr" description="Working Hours"/>,
       ],
     },
     {
       layout: 1,
       widgets: [
         <LayerBarGraph
-          title="Department-Wise Task Achievement"
+          title="Department Wise Tasks% Vs Achievements in %"
           data={series}
           options={options}
         />,
+      ],
+    },
+    {
+      layout : 2,
+      heading: " Site Visitor Analytics",
+      widgets: [
+        
+        <PieChartMui
+          title={"Gender Data"}
+          data={techIndiaVisitors}
+        />,
+        
+        
+        <PieChartMui
+          title={"City Wise Employees"}
+          data={techGoaVisitors}
+        />,
+        
       ],
     },
     {

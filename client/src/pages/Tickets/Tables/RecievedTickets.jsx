@@ -7,11 +7,48 @@ import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import { toast } from "sonner";
 import PrimaryButton from "../../../components/PrimaryButton";
 
-const RecievedTickets = ({ title,data }) => {
+const RecievedTickets = ({ title, data }) => {
   const [open, setOpen] = useState(false);
-  const axios = useAxiosPrivate()
+  const axios = useAxiosPrivate();
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(false);
 
+  // Reusable function to fetch tickets
+  const getTickets = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get("/api/tickets/get-tickets");
+      const filteredTickets = response.data.filter(
+        (ticket) => !ticket.accepted
+      );
+      setTickets(filteredTickets);
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  // Initial data fetch when the component mounts
+  useEffect(() => {
+    getTickets();
+  }, []);
+
+  const handleAccept = async (ticket) => {
+    console.log("Ticket details : ", ticket);
+    try {
+      const response = await axios.post("/api/tickets/accept-ticket", {
+        ticketId: ticket.id,
+      });
+
+      toast.success(response.data.message);
+
+      // Re-fetch the updated data after accepting the ticket
+      await getTickets();
+    } catch (error) {
+      toast.error(error.message || "Something went wrong");
+    }
+  };
 
   const openModal = () => {
     console.log("I am Clicked");
@@ -27,25 +64,11 @@ const RecievedTickets = ({ title,data }) => {
       status: ticket.status || "Pending",
     }));
   };
-  
+
   // Example usage
-  const rows = transformTicketsData(data);
+  const rows = transformTicketsData(tickets);
 
   const handleClose = () => setOpen(false);
-  const handleAccept = async(ticket) =>{
-    console.log("Ticket details : ", ticket)
-    try {
-      const response = await axios.post('/api/tickets/accept-ticket',{
-        ticketId : ticket.id
-      });
-      toast.success(response.data.message)
-    } catch (error) {
-      toast.error(error)
-    }
-    
-  } 
-
-
 
   const assignees = [
     "AiwinRaj",
@@ -54,7 +77,6 @@ const RecievedTickets = ({ title,data }) => {
     "Sankalp Kalangutkar",
     "Muskan Dodmani",
   ];
-
 
   const recievedTicketsColumns = [
     { field: "raisedBy", headerName: "Raised By" },
@@ -97,7 +119,7 @@ const RecievedTickets = ({ title,data }) => {
         <>
           <div className="p-2 mb-2 flex gap-2">
             <button
-            onClick={(e) => handleAccept(params.data)}
+              onClick={(e) => handleAccept(params.data)}
               style={{
                 backgroundColor: "red",
                 color: "white",
@@ -106,7 +128,6 @@ const RecievedTickets = ({ title,data }) => {
                 borderRadius: "4px",
                 cursor: "pointer",
               }}
-              
             >
               Accept
             </button>
@@ -129,38 +150,36 @@ const RecievedTickets = ({ title,data }) => {
     },
   ];
 
-
-
   return (
     <div className="p-4 border-default border-borderGray rounded-md">
       <div className="pb-4">
         <span className="text-subtitle">{title}</span>
       </div>
       <div className="w-full">
-        <AgTable key={rows.length} data={rows} columns={recievedTicketsColumns} />
+        <AgTable
+          key={rows.length}
+          data={rows}
+          columns={recievedTicketsColumns}
+        />
       </div>
-      <MuiModal
-        open={open}
-        onClose={handleClose}
-        title="Assign Tickets"
-      >
-    <>
-      <ul>
-        {assignees.map((key, items) => {
-          return (
-            <>
-              <div className="flex flex-row gap-6">
-                <input type="checkbox"></input>
-                <li key={items}>{key}</li>
-              </div>
-            </>
-          );
-        })}
-      </ul>
-      <div className="flex items-center justify-center mb-4">
-        <PrimaryButton title={"Assign"} />
-      </div>
-    </>
+      <MuiModal open={open} onClose={handleClose} title="Assign Tickets">
+        <>
+          <ul>
+            {assignees.map((key, items) => {
+              return (
+                <>
+                  <div className="flex flex-row gap-6">
+                    <input type="checkbox"></input>
+                    <li key={items}>{key}</li>
+                  </div>
+                </>
+              );
+            })}
+          </ul>
+          <div className="flex items-center justify-center mb-4">
+            <PrimaryButton title={"Assign"} />
+          </div>
+        </>
       </MuiModal>
     </div>
   );
