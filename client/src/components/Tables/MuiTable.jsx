@@ -23,7 +23,7 @@ const MuiTable = ({
 }) => {
   return (
     <div>
-      <div className="font-pregular text-subtitle mb-5">{Title}</div>
+      <div className="font-pregular text-subtitle mb-5 border-b">{Title}</div>
       <Paper>
         <TableContainer>
           <Table>

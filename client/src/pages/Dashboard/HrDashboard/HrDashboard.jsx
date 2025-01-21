@@ -233,9 +233,9 @@ const HrDashboard = () => {
 
   const rows2 = [
     { id: 1, date: '2024-12-10', holiday_event: "Indian Navy day",region:'India'},
-    { id: 1, date: '2025-25-01', holiday_event: "Muskan Birthday",region:'India'},
+    { id: 1, date: '2025-15-08', holiday_event: "Muskan Birthday",region:'India'},
     { id: 1, date: '2025-26-01', holiday_event: "Rebuplic Day",region:'India'},
-    { id: 1, date: '2025-14-02', holiday_event: "Valentines day",region:'India'},
+    { id: 1, date: '2025-01-05', holiday_event: "Labour day",region:'India'},
     { id: 1, date: '2025-14-03', holiday_event: "Holi",region:'India'},
     
   ];
@@ -256,16 +256,16 @@ const HrDashboard = () => {
 
 
   const rows3 = [
-    { id: 1, employeeName:"Aiwin",department:"Tech",performance:"97"},
-    { id: 1, employeeName:"Allen Silvera",department:"Tech",performance:"90"},
-    { id: 1, employeeName:"Sankalp Kalangutkar",department:"Tech",performance:"80"},
+    { id: 1, employeeName:"Aiwin",department:"Tech",Performance:"97"},
+    { id: 1, employeeName:"Allen Silvera",department:"Tech",Performance:"90"},
+    { id: 1, employeeName:"Sankalp Kalangutkar",department:"Tech",Performance:"80"},
     
   ];
 
   const rows4 = [
-    { id: 1, employeeName:"Anushri Bhagat",department:"Tech",performance:"40"},
-    { id: 1, employeeName:"Sumera Naik",department:"Tech",performance:"43"},
-    { id: 1, employeeName:"Sunaina Bharve",department:"Tech",performance:"45"},
+    { id: 1, employeeName:"Anushri Bhagat",department:"Tech",Performance:"40"},
+    { id: 1, employeeName:"Sumera Naik",department:"Tech",Performance:"43"},
+    { id: 1, employeeName:"Sunaina Bharve",department:"Tech",Performance:"45"},
     
   ];
 
