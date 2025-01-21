@@ -120,6 +120,16 @@ const acceptTicket = async (req, res, next) => {
       }
     }
 
+    const userDepartments = foundUser.department.map((dept) =>
+      dept.toString()
+    );
+
+    const foundTickets = await Ticket.find({raisedToDepartment: { $in: userDepartments }})
+
+    if (!foundTickets) {
+      return res.status(403);
+    }
+
     await Tickets.findByIdAndUpdate(
       { _id: ticketId },
       { accepted: user, status: "In Progress" }
@@ -166,6 +176,16 @@ const assignTicket = async (req, res, next) => {
       if (!foundTicket) {
         return res.status(400).json({ message: "Invalid ticket ID provided" });
       }
+    }
+
+    const userDepartments = foundUser.department.map((dept) =>
+      dept.toString()
+    );
+
+    const foundTickets = await Ticket.find({raisedToDepartment: { $in: userDepartments }})
+
+    if (!foundTickets) {
+      return res.status(403);
     }
 
     await Tickets.findByIdAndUpdate(
@@ -217,6 +237,16 @@ const escalateTicket = async (req, res, next) => {
       return res.status(400).json({ message: "Ticket doesn't exists" });
     }
 
+    const userDepartments = foundUser.department.map((dept) =>
+      dept.toString()
+    );
+
+    const foundTickets = await Ticket.find({raisedToDepartment: { $in: userDepartments }})
+
+    if (!foundTickets) {
+      return res.status(403);
+    }
+
     await Tickets.findByIdAndUpdate(
       { _id: ticketId },
       { $push: { escalatedTo: departmentId } }
@@ -250,6 +280,16 @@ const closeTicket = async (req, res, next) => {
       if (!foundTicket) {
         return res.status(400).json({ message: "Invalid ticket ID provided" });
       }
+    }
+
+    const userDepartments = foundUser.department.map((dept) => dept.toString());
+    
+    const foundTickets = await Ticket.find({
+      raisedToDepartment: { $in: userDepartments.map(id => new mongoose.Types.ObjectId(id))  },
+    });
+    
+    if (!foundTickets.length) {
+      return res.status(403);
     }
 
     await Tickets.findByIdAndUpdate({ _id: ticketId }, { status: "Closed" });
@@ -286,17 +326,12 @@ const fetchFilteredTickets = async (req, res, next) => {
     if(flag === 'accept'){
       filteredTickets = await filterAcceptTickets(user)
     }
-    else if(flag === 'assign'){
-      filteredTickets = filterCloseTickets()
-    }
     else if(flag === 'close'){
       filteredTickets = await filterCloseTickets(userDepartments)
     }
-    else if(flag === 'support'){
-      filteredTickets = filterCloseTickets()
-    }
-    else if(flag === 'escalate'){
-      filteredTickets = filterCloseTickets()
+   
+    if(filteredTickets.length === 0){
+      return res.status(404).json({message:'Tickets not found'});
     }
 
     return res.status(200).json(filteredTickets);
