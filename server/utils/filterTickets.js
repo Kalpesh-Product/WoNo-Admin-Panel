@@ -14,7 +14,7 @@ async function filterCloseTickets(userDepartments) {
       ])
       .lean()
       .exec();
-  
+
     return closedTickets;
   }
 
@@ -29,7 +29,8 @@ async function filterCloseTickets(userDepartments) {
           ])
           .lean()
           .exec();
-      
+
+
         return acceptedTickets;
       }
 
