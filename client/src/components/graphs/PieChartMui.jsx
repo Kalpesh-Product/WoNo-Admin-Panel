@@ -7,7 +7,7 @@ const PieChartMui = ({ data, title }) => {
       <div className="gray-underline p-4">
         <h1 className="text-xl">{title}</h1>
       </div>
-      <div style={{ width: "100%", margin: "0" }}>
+      <div className="w-full m-0 flex p-4">
         <PieChart
           series={[
             {

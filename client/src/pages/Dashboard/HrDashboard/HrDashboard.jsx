@@ -16,6 +16,8 @@ import MuiTable from "../../../components/Tables/MuiTable";
 import PieChartMui from "../../../components/graphs/PieChartMui";
 
 const HrDashboard = () => {
+
+  
   
   const rawSeries = [
 
@@ -127,7 +129,7 @@ const HrDashboard = () => {
       IT: "#0056b3", 
       Tech: "#0aa8ef", // Red
       Admin: '#99f6ca',
-      Maintainance: "#67a688",
+      Maintainance: "#00cdd1",
       Space: "#FFA500", // Orange
     };
   
@@ -140,6 +142,15 @@ const HrDashboard = () => {
   // Generate colors and adjusted series
   const colors = generateColorsWithSpacing(rawSeries);
   const adjustedSeries = adjustDataWithSpacing(rawSeries);
+
+  // Extract custom legend items for "Total" series
+const customLegendItems = rawSeries
+.filter((series) => series.group === "total") // Filter only "Total" group
+.map((series) => series.name.split(" ")[0]); // Extract department name (e.g., "Sales", "IT")
+
+const colorsForLegend = rawSeries
+.filter((series) => series.group === "total") // Filter only "Total" group
+.map((series, index) => colors[index]); // Use the same colors for "Total" series
   
   // Normalize data
   const series = normalizeToPercentage(adjustedSeries);
@@ -199,8 +210,8 @@ const HrDashboard = () => {
     },
     legend: {
       show: false,
-      position: "top",
     },
+  
     tooltip: {
       y: {
         formatter: (val, { seriesIndex, dataPointIndex }) => {
@@ -332,8 +343,8 @@ const HrDashboard = () => {
     },
     {
       id: 1,
-      date: "2025-25-01",
-      holiday_event: "Muskan Birthday",
+      date: "2025-24-01",
+      holiday_event: "Republic day Celebrations",
       region: "India",
     },
     {
@@ -344,8 +355,8 @@ const HrDashboard = () => {
     },
     {
       id: 1,
-      date: "2025-14-02",
-      holiday_event: "Valentines day",
+      date: "2025-10-03",
+      holiday_event: "Maha Shiv-ratri",
       region: "India",
     },
     { id: 1, date: "2025-14-03", holiday_event: "Holi", region: "India" },
