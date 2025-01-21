@@ -75,12 +75,12 @@ const HrBudget = () => {
         text: "Budget (in Lakhs)",
       },
       labels: {
-        formatter: (value) => `${value}L`,
+        formatter: (value) => `\u20B9{value}L`,
       },
     },
     tooltip: {
       y: {
-        formatter: (value) => `${value} Lakhs`,
+        formatter: (value) => `\u20B9{value} Lakhs`,
       },
     },
     legend: {
@@ -98,7 +98,7 @@ const HrBudget = () => {
   const financialData = [
     {
       month: "April 2025",
-      amount: "$15000",
+      amount: "\u20B915000",
       tableData: {
         columns: [
           { field: "department", headerName: "Department", flex: 1 },
@@ -107,18 +107,18 @@ const HrBudget = () => {
           { field: "status", headerName: "Status", flex: 1 },
         ],
         rows: [
-          { id: 1, department: "HR", payment: "$2500", paymentDate: "2025-04-10", status: "Paid" },
-          { id: 2, department: "Finance", payment: "$2500", paymentDate: "2025-04-15", status: "Pending" },
-          { id: 3, department: "Sales", payment: "$2500", paymentDate: "2025-04-15", status: "Pending" },
-          { id: 4, department: "Tech", payment: "$2500", paymentDate: "2025-04-10", status: "Paid" },
-          { id: 5, department: "IT", payment: "$2500", paymentDate: "2025-03-15", status: "Pending" },
-          { id: 6, department: "Admin", payment: "$2500", paymentDate: "2025-04-10", status: "Pending" },
+          { id: 1, department: "HR", payment: `\u20B92500`, paymentDate: "2025-04-10", status: "Paid" },
+          { id: 2, department: "Finance", payment: "\u20B92500", paymentDate: "2025-04-15", status: "Pending" },
+          { id: 3, department: "Sales", payment: "\u20B92500", paymentDate: "2025-04-15", status: "Pending" },
+          { id: 4, department: "Tech", payment: "\u20B92500", paymentDate: "2025-04-10", status: "Paid" },
+          { id: 5, department: "IT", payment: "\u20B92500", paymentDate: "2025-03-15", status: "Pending" },
+          { id: 6, department: "Admin", payment: "\u20B92500", paymentDate: "2025-04-10", status: "Pending" },
         ],
       },
     },
     {
       month: "May 2025",
-      amount: "$45000",
+      amount: "\u20B945000",
       tableData: {
         columns: [
           { field: "department", headerName: "Department", flex: 1 },
@@ -127,18 +127,18 @@ const HrBudget = () => {
           { field: "status", headerName: "Status", flex: 1 },
         ],
         rows: [
-          { id: 1, department: "Marketing", payment: "$7500", paymentDate: "2025-05-05", status: "Paid" },
-          { id: 2, department: "Sales", payment: "$7500", paymentDate: "2025-05-20", status: "Pending" },
-          { id: 3, department: "Finance", payment: "$7500", paymentDate: "2025-04-25", status: "Pending" },
-          { id: 4, department: "Tech", payment: "$7500", paymentDate: "2025-04-10", status: "Paid" },
-          { id: 5, department: "IT", payment: "$7500", paymentDate: "2025-03-15", status: "Pending" },
-          { id: 6, department: "Admin", payment: "$7500", paymentDate: "2025-04-10", status: "Pending" },
+          { id: 1, department: "Marketing", payment: "\u20B97500", paymentDate: "2025-05-05", status: "Paid" },
+          { id: 2, department: "Sales", payment: "\u20B97500", paymentDate: "2025-05-20", status: "Pending" },
+          { id: 3, department: "Finance", payment: "\u20B97500", paymentDate: "2025-04-25", status: "Pending" },
+          { id: 4, department: "Tech", payment: "\u20B97500", paymentDate: "2025-04-10", status: "Paid" },
+          { id: 5, department: "IT", payment: "\u20B97500", paymentDate: "2025-03-15", status: "Pending" },
+          { id: 6, department: "Admin", payment: "\u20B97500", paymentDate: "2025-04-10", status: "Pending" },
         ],
       },
     },
     {
       month: "June 2025",
-      amount: "$50,000",
+      amount: "\u20B950,000",
       tableData: {
         columns: [
           { field: "department", headerName: "Department", flex: 1 },
@@ -147,19 +147,19 @@ const HrBudget = () => {
           { field: "status", headerName: "Status", flex: 1 },
         ],
         rows: [
-          { id: 1, department: "Marketing", payment: "$8,333.3", paymentDate: "2025-05-05", status: "Paid" },
-          { id: 2, department: "Sales", payment: "$8,333.3", paymentDate: "2025-05-20", status: "Pending" },
-          { id: 3, department: "Finance", payment: "$8,333.3", paymentDate: "2025-04-25", status: "Pending" },
-          { id: 4, department: "Tech", payment: "$8,333.3", paymentDate: "2025-04-10", status: "Paid" },
-          { id: 5, department: "IT", payment: "$8,333,3", paymentDate: "2025-03-15", status: "Pending" },
-          { id: 6, department: "Admin", payment: "$8,333.3", paymentDate: "2025-04-10", status: "Pending" },
+          { id: 1, department: "Marketing", payment: "\u20B98,333.3", paymentDate: "2025-05-05", status: "Paid" },
+          { id: 2, department: "Sales", payment: "\u20B98,333.3", paymentDate: "2025-05-20", status: "Pending" },
+          { id: 3, department: "Finance", payment: "\u20B98,333.3", paymentDate: "2025-04-25", status: "Pending" },
+          { id: 4, department: "Tech", payment: "\u20B98,333.3", paymentDate: "2025-04-10", status: "Paid" },
+          { id: 5, department: "IT", payment: "\u20B98,333,3", paymentDate: "2025-03-15", status: "Pending" },
+          { id: 6, department: "Admin", payment: "\u20B98,333.3", paymentDate: "2025-04-10", status: "Pending" },
         ],
       },
 
     },
     {
       month: "July 2025",
-      amount: "$60,000",
+      amount: "\u20B960,000",
       tableData: {
         columns: [
           { field: "department", headerName: "Department", flex: 1 },
@@ -168,19 +168,19 @@ const HrBudget = () => {
           { field: "status", headerName: "Status", flex: 1 },
         ],
         rows: [
-          { id: 1, department: "Marketing", payment: "$10000", paymentDate: "2025-05-05", status: "Paid" },
-          { id: 2, department: "Sales", payment: "$10000", paymentDate: "2025-05-20", status: "Pending" },
-          { id: 3, department: "Finance", payment: "$10000", paymentDate: "2025-04-25", status: "Pending" },
-          { id: 4, department: "Tech", payment: "$10000", paymentDate: "2025-04-10", status: "Paid" },
-          { id: 5, department: "IT", payment: "$10000", paymentDate: "2025-03-15", status: "Pending" },
-          { id: 6, department: "Admin", payment: "$10000", paymentDate: "2025-04-10", status: "Pending" },
+          { id: 1, department: "Marketing", payment: "&#837710000", paymentDate: "2025-05-05", status: "Paid" },
+          { id: 2, department: "Sales", payment: "&#837710000", paymentDate: "2025-05-20", status: "Pending" },
+          { id: 3, department: "Finance", payment: "&#837710000", paymentDate: "2025-04-25", status: "Pending" },
+          { id: 4, department: "Tech", payment: "&#837710000", paymentDate: "2025-04-10", status: "Paid" },
+          { id: 5, department: "IT", payment: "&#837710000", paymentDate: "2025-03-15", status: "Pending" },
+          { id: 6, department: "Admin", payment: "&#837710000", paymentDate: "2025-04-10", status: "Pending" },
         ],
       },
 
     },
     {
       month: "August 2025",
-      amount: "$70000",
+      amount: "\u20B970000",
       tableData: {
         columns: [
           { field: "department", headerName: "Department", flex: 1 },
@@ -189,19 +189,19 @@ const HrBudget = () => {
           { field: "status", headerName: "Status", flex: 1 },
         ],
         rows: [
-          { id: 1, department: "Marketing", payment: "$11,666", paymentDate: "2025-05-05", status: "Paid" },
-          { id: 2, department: "Sales", payment: "$11,666", paymentDate: "2025-05-20", status: "Pending" },
-          { id: 3, department: "Finance", payment: "$11,666", paymentDate: "2025-04-25", status: "Pending" },
-          { id: 4, department: "Tech", payment: "$11,666", paymentDate: "2025-04-10", status: "Paid" },
-          { id: 5, department: "IT", payment: "$11,666", paymentDate: "2025-03-15", status: "Pending" },
-          { id: 6, department: "Admin", payment: "$11,666", paymentDate: "2025-04-10", status: "Pending" },
+          { id: 1, department: "Marketing", payment: "\u20B911,666", paymentDate: "2025-05-05", status: "Paid" },
+          { id: 2, department: "Sales", payment: "\u20B911,666", paymentDate: "2025-05-20", status: "Pending" },
+          { id: 3, department: "Finance", payment: "\u20B911,666", paymentDate: "2025-04-25", status: "Pending" },
+          { id: 4, department: "Tech", payment: "\u20B911,666", paymentDate: "2025-04-10", status: "Paid" },
+          { id: 5, department: "IT", payment: "\u20B911,666", paymentDate: "2025-03-15", status: "Pending" },
+          { id: 6, department: "Admin", payment: "\u20B911,666", paymentDate: "2025-04-10", status: "Pending" },
         ],
       },
 
     },
     {
       month: "September 2025",
-      amount: "$80,000",
+      amount: "\u20B980,000",
       tableData: {
         columns: [
           { field: "department", headerName: "Department", flex: 1 },
@@ -210,12 +210,12 @@ const HrBudget = () => {
           { field: "status", headerName: "Status", flex: 1 },
         ],
         rows: [
-          { id: 1, department: "Marketing", payment: "$13,333.33", paymentDate: "2025-05-05", status: "Paid" },
-          { id: 2, department: "Sales", payment: "$13,333.33", paymentDate: "2025-05-20", status: "Pending" },
-          { id: 3, department: "Finance", payment: "$13,333.33", paymentDate: "2025-04-25", status: "Pending" },
-          { id: 4, department: "Tech", payment: "$13,333.33", paymentDate: "2025-04-10", status: "Paid" },
-          { id: 5, department: "IT", payment: "$13,333.33", paymentDate: "2025-03-15", status: "Pending" },
-          { id: 6, department: "Admin", payment: "$13,333.33", paymentDate: "2025-04-10", status: "Pending" },
+          { id: 1, department: "Marketing", payment: "\u20B913,333.33", paymentDate: "2025-05-05", status: "Paid" },
+          { id: 2, department: "Sales", payment: "\u20B913,333.33", paymentDate: "2025-05-20", status: "Pending" },
+          { id: 3, department: "Finance", payment: "\u20B913,333.33", paymentDate: "2025-04-25", status: "Pending" },
+          { id: 4, department: "Tech", payment: "\u20B913,333.33", paymentDate: "2025-04-10", status: "Paid" },
+          { id: 5, department: "IT", payment: "\u20B913,333.33", paymentDate: "2025-03-15", status: "Pending" },
+          { id: 6, department: "Admin", payment: "\u20B913,333.33", paymentDate: "2025-04-10", status: "Pending" },
         ],
       },
 
@@ -242,20 +242,20 @@ const HrBudget = () => {
           <Accordion key={index} className="py-4">
             <AccordionSummary
               expandIcon={<IoIosArrowDown />}
-              aria-controls={`panel${index}-content`}
-              id={`panel${index}-header`}
+              aria-controls={`panel\u20B9{index}-content`}
+              id={`panel\u20B9{index}-header`}
               className="border-b-[1px] border-borderGray"
             >
               <div className="flex justify-between items-center w-full px-4">
-                <span>{data.month}</span>
-                <span>{data.amount}</span>
+                <span className="text-subtitle font-pmedium">{data.month}</span>
+                <span className="text-subtitle font-pmedium">{data.amount}</span>
               </div>
             </AccordionSummary>
             <AccordionDetails>
             <AgTable
               search={true}
               searchColumn={"Department"}
-              tableTitle={`Budget Details for ${data.month}`}
+              tableTitle={`${data.month}`}
               data={data.tableData.rows}
               columns={data.tableData.columns}
               tableHeight={250}

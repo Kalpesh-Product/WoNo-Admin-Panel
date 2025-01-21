@@ -16,35 +16,31 @@ import MuiTable from "../../../components/Tables/MuiTable";
 import PieChartMui from "../../../components/graphs/PieChartMui";
 
 const HrDashboard = () => {
-
-  
-  
   const rawSeries = [
-
     {
       name: "Sales Total",
-      data: [40, 45, 35, 50, 55, 45, 60, 55, 65, 70, 75, 80],
+      data: [40, 45, 35, 50, 55, 45, 60, 55, 65, 70, 0, 0],
       group: "total",
     },
     {
       name: "IT Total",
-      data: [40, 45, 35, 50, 55, 45, 60, 55, 65, 70, 75, 80],
+      data: [40, 45, 35, 50, 55, 45, 60, 55, 65, 70, 0, 0],
       group: "total",
     },
     {
       name: "Tech Total",
-      data: [45, 50, 40, 55, 60, 50, 65, 60, 70, 75, 80, 85],
+      data: [45, 50, 40, 55, 60, 50, 65, 60, 70, 75, 0, 0],
       group: "total",
     },
-    
+
     {
       name: "Admin Total",
-      data: [45, 50, 40, 55, 60, 50, 65, 60, 70, 75, 80, 85],
+      data: [45, 50, 40, 55, 60, 50, 65, 60, 70, 75, 0, 0],
       group: "total",
     },
     {
       name: "Maintainance Total",
-      data: [45, 50, 40, 55, 60, 50, 65, 60, 70, 75, 80, 85],
+      data: [45, 50, 40, 55, 60, 50, 65, 60, 70, 75, 0, 0],
       group: "total",
     },
     {
@@ -54,58 +50,57 @@ const HrDashboard = () => {
     },
     {
       name: "Sales Completed",
-      data: [40, 45, 25, 40, 45, 35, 50, 45, 55, 60, 65, 70],
+      data: [40, 45, 25, 40, 45, 35, 50, 45, 55, 60, 0, 0],
       group: "completed",
     },
     {
       name: "IT Completed",
-      data: [40, 45, 25, 40, 45, 35, 50, 45, 55, 60, 65, 70],
+      data: [40, 45, 25, 40, 45, 35, 50, 45, 55, 60, 0, 0],
       group: "completed",
     },
-   
 
     {
       name: "Tech Completed",
-      data: [45, 40, 30, 45, 50, 40, 55, 50, 60, 65, 70, 75],
+      data: [45, 40, 30, 45, 50, 40, 55, 50, 60, 65, 0, 0],
       group: "completed",
     },
     {
       name: "Admin Completed",
-      data: [40, 30, 40, 52, 46, 40, 60, 59, 50, 70, 75, 80],
+      data: [40, 30, 40, 52, 46, 40, 60, 59, 50, 70, 0, 0],
       group: "completed",
     },
     {
       name: "Maintainance Completed",
-      data: [45, 50, 40, 55, 60, 50, 65, 60, 70, 75, 80, 85],
+      data: [45, 50, 40, 55, 60, 50, 65, 60, 70, 75, 0, 0],
       group: "completed",
     },
   ];
-  
+
   // Normalize to percentage
   const normalizeToPercentage = (series) => {
     const months = series[0].data.length;
     const normalizedSeries = [];
-  
+
     for (let i = 0; i < months; i++) {
       const totalForMonth = series
         .filter((s) => s.group === "total")
         .reduce((sum, s) => sum + s.data[i], 0);
-  
+
       series.forEach((s) => {
         if (!normalizedSeries.some((ns) => ns.name === s.name)) {
           normalizedSeries.push({ name: s.name, data: [], group: s.group });
         }
-  
-        const percentage = totalForMonth ? (s.data[i] / totalForMonth) * 100 : 0;
-  
-        normalizedSeries
-          .find((ns) => ns.name === s.name)
-          .data.push(percentage);
+
+        const percentage = totalForMonth
+          ? (s.data[i] / totalForMonth) * 100
+          : 0;
+
+        normalizedSeries.find((ns) => ns.name === s.name).data.push(percentage);
       });
     }
     return normalizedSeries;
   };
-  
+
   // Adjust data for spacing
   const adjustDataWithSpacing = (series) => {
     const adjustedSeries = [];
@@ -121,40 +116,40 @@ const HrDashboard = () => {
     });
     return adjustedSeries;
   };
-  
+
   // Generate colors
   const generateColorsWithSpacing = (series) => {
     const departmentColorMapping = {
-      Sales: "#99a7ca", 
-      IT: "#0056b3", 
+      Sales: "#99a7ca",
+      IT: "#0056b3",
       Tech: "#0aa8ef", // Red
-      Admin: '#99f6ca',
+      Admin: "#99f6ca",
       Maintainance: "#00cdd1",
       Space: "#FFA500", // Orange
     };
-  
+
     return series.map((s) => {
       const department = s.name.split(" ")[0];
       return departmentColorMapping[department] || "#000000";
     });
   };
-  
+
   // Generate colors and adjusted series
   const colors = generateColorsWithSpacing(rawSeries);
   const adjustedSeries = adjustDataWithSpacing(rawSeries);
 
   // Extract custom legend items for "Total" series
-const customLegendItems = rawSeries
-.filter((series) => series.group === "total") // Filter only "Total" group
-.map((series) => series.name.split(" ")[0]); // Extract department name (e.g., "Sales", "IT")
+  const customLegendItems = rawSeries
+    .filter((series) => series.group === "total") // Filter only "Total" group
+    .map((series) => series.name.split(" ")[0]); // Extract department name (e.g., "Sales", "IT")
 
-const colorsForLegend = rawSeries
-.filter((series) => series.group === "total") // Filter only "Total" group
-.map((series, index) => colors[index]); // Use the same colors for "Total" series
-  
+  const colorsForLegend = rawSeries
+    .filter((series) => series.group === "total") // Filter only "Total" group
+    .map((series, index) => colors[index]); // Use the same colors for "Total" series
+
   // Normalize data
   const series = normalizeToPercentage(adjustedSeries);
-  
+
   const options = {
     chart: {
       type: "bar",
@@ -164,7 +159,7 @@ const colorsForLegend = rawSeries
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth: "55%",
+        columnWidth: "65%",
         borderRadius: [5],
         borderRadiusWhenStacked: "all",
         borderRadiusApplication: "end",
@@ -211,7 +206,7 @@ const colorsForLegend = rawSeries
     legend: {
       show: false,
     },
-  
+
     tooltip: {
       y: {
         formatter: (val, { seriesIndex, dataPointIndex }) => {
@@ -221,7 +216,6 @@ const colorsForLegend = rawSeries
       },
     },
   };
-
 
   //firstgraph
 
@@ -363,37 +357,62 @@ const colorsForLegend = rawSeries
   ];
 
   const columns3 = [
-    { id: 'employeeName', label: 'Employee name', align: 'left' },
-    { id: 'department', label: 'Department', align: 'center' },
-    { id:'Performance (%)',label:'Performance (%)',align:'center'},
-    
+    { id: "employeeName", label: "Employee name", align: "left" },
+    { id: "department", label: "Department", align: "center" },
+    { id: "Performance (%)", label: "Performance (%)", align: "center" },
   ];
 
   const columns4 = [
-    { id: 'employeeName', label: 'Employee name', align: 'left' },
-    { id: 'department', label: 'Department', align: 'center' },
-    { id:'Performance (%)',label:'Performance (%)',align:'center'},
-    
+    { id: "employeeName", label: "Employee name", align: "left" },
+    { id: "department", label: "Department", align: "center" },
+    { id: "Performance (%)", label: "Performance (%)", align: "center" },
   ];
 
   const rows3 = [
-    { id: 1, employeeName:"Aiwin",department:"Tech","Performance (%)":"97"},
-    { id: 1, employeeName:"Allen Silvera",department:"Tech","Performance (%)":"90"},
-    { id: 1, employeeName:"Sankalp Kalangutkar",department:"Tech","Performance (%)":"80"},
-    
+    {
+      id: 1,
+      employeeName: "Aiwin",
+      department: "Tech",
+      "Performance (%)": "97",
+    },
+    {
+      id: 1,
+      employeeName: "Allen Silvera",
+      department: "Tech",
+      "Performance (%)": "90",
+    },
+    {
+      id: 1,
+      employeeName: "Sankalp Kalangutkar",
+      department: "Tech",
+      "Performance (%)": "80",
+    },
   ];
 
   const rows4 = [
-    { id: 1, employeeName:"Anushri Bhagat",department:"Tech","Performance (%)":"40"},
-    { id: 1, employeeName:"Sumera Naik",department:"Tech","Performance (%)":"43"},
-    { id: 1, employeeName:"Sunaina Bharve",department:"Tech","Performance (%)":"45"},
-    
+    {
+      id: 1,
+      employeeName: "Anushri Bhagat",
+      department: "Tech",
+      "Performance (%)": "40",
+    },
+    {
+      id: 1,
+      employeeName: "Sumera Naik",
+      department: "Tech",
+      "Performance (%)": "43",
+    },
+    {
+      id: 1,
+      employeeName: "Sunaina Bharve",
+      department: "Tech",
+      "Performance (%)": "45",
+    },
   ];
 
   const techIndiaVisitors = [
-    { id: 0, value: 40, name: "Male",color:'#0056B3' },
-    { id: 1, value: 60, name: "Female",color:"#FD507E" },
-    
+    { id: 0, value: 40, name: "Male", color: "#0056B3" },
+    { id: 1, value: 60, name: "Female", color: "#FD507E" },
   ];
   const techGoaVisitors = [
     { id: 0, value: 5, name: "Panaji" },
@@ -402,12 +421,6 @@ const colorsForLegend = rawSeries
     { id: 3, value: 3, name: "Ponda" },
     { id: 4, value: 6, name: "Verna" },
   ];
-
-
-
-
-
-
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -454,12 +467,12 @@ const colorsForLegend = rawSeries
     {
       layout: 3,
       widgets: [
-        <DataCard  title="Active" data="28" description="Current Headcount" />,
-        <DataCard  title="Average" data="52K" description="salary" />,
-        <DataCard  title="Average" data="25" description="Monthly Employees"/>,
-        <DataCard  title="Average" data="4%" description="Monthly Iteration" />,
-        <DataCard  title="Average" data="92%" description="Attendance"/>,
-        <DataCard  title="Average" data="8.1hr" description="Working Hours"/>,
+        <DataCard title="Active" data="28" description="Current Headcount" />,
+        <DataCard title="Average" data="52K" description="salary" />,
+        <DataCard title="Average" data="25" description="Monthly Employees" />,
+        <DataCard title="Average" data="4%" description="Monthly Iteration" />,
+        <DataCard title="Average" data="92%" description="Attendance" />,
+        <DataCard title="Average" data="8.1hr" description="Working Hours" />,
       ],
     },
     {
@@ -473,21 +486,12 @@ const colorsForLegend = rawSeries
       ],
     },
     {
-      layout : 2,
+      layout: 2,
       heading: " Site Visitor Analytics",
       widgets: [
-        
-        <PieChartMui
-          title={"Gender Data"}
-          data={techIndiaVisitors}
-        />,
-        
-        
-        <PieChartMui
-          title={"City Wise Employees"}
-          data={techGoaVisitors}
-        />,
-        
+        <PieChartMui title={"Gender Data"} data={techIndiaVisitors} />,
+
+        <PieChartMui title={"City Wise Employees"} data={techGoaVisitors} />,
       ],
     },
     {
