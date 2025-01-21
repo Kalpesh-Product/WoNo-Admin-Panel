@@ -284,17 +284,7 @@ const closeTicket = async (req, res, next) => {
         return res.status(400).json({ message: "Invalid ticket ID provided" });
       }
     }
-
-    // const userDepartments = foundUser.department.map((dept) => dept.toString());
-    
-    // const foundTickets = await Ticket.find({
-    //   raisedToDepartment: { $in: userDepartments.map(id => new mongoose.Types.ObjectId(id))  },
-    // });
-    
-    // if (!foundTickets.length) {
-    //   return res.sendStatus(403);
-    // }
-
+ 
     const userDepartments = foundUser.department.map((dept) => dept.toString());
 
     const ticketInDepartment = userDepartments.some((id)=> foundTicket.raisedToDepartment.equals(id))

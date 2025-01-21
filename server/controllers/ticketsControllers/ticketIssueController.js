@@ -58,7 +58,7 @@ const getTicketIssue = async (req, res, next) => {
       return res.status(204).send();
     } 
  
-    return res.status(200).json({ data: ticketIssues });
+    return res.status(200).json(ticketIssues);
   } catch (error) {
     next(error);
   }

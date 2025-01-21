@@ -31,7 +31,7 @@ const supportTicket = async (req, res, next) => {
       }
     }
 
-    const userDepartments = loggedInUser.department.map((dept) =>
+    const userDepartments = foundUser.department.map((dept) =>
       dept.toString()
     );
 
