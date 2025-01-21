@@ -1,8 +1,18 @@
 import React from "react";
 import AgTable from "../../../components/AgTable";
 import { Chip } from "@mui/material";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
 const AcceptedTickets = ({ title }) => {
+  const axios = useAxiosPrivate()
+  const handleClose = async()=>{
+    try {
+      const response = await axios.get('/api/tickets')
+    } catch (error) {
+      
+    }
+  }
+
   const recievedTicketsColumns = [
     { field: "raisedBy", headerName: "Raised By" },
     {
@@ -70,6 +80,7 @@ const AcceptedTickets = ({ title }) => {
         <>
           <div className="p-2 mb-2 flex gap-2">
             <button
+              onClick={e=>handleClose(params.data)}
               style={{
                 backgroundColor: "red",
                 color: "white",
