@@ -332,7 +332,7 @@ const fetchFilteredTickets = async (req, res, next) => {
     }
    
     if(filteredTickets.length === 0){
-      return res.status(404).json({message:'Tickets not found'});
+      return res.status(204).json({message:'Tickets not found'});
     }
 
     return res.status(200).json(filteredTickets);
