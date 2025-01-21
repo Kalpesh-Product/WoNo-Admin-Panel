@@ -5,6 +5,7 @@ const {
   closeTicket,
   escalateTicket,
   getTickets,
+  fetchFilteredTickets,
 } = require("../controllers/ticketsControllers/ticketsControllers");
 
 const {
@@ -26,5 +27,6 @@ router.post("/assign-ticket", assignTicket);
 router.post("/escalate-ticket", escalateTicket);
 router.post("/close-ticket", closeTicket);
 router.post("/support-ticket", supportTicket);
+router.get("/filtered-tickets/:flag", fetchFilteredTickets);
 
 module.exports = router;

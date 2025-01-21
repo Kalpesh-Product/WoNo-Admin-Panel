@@ -8,7 +8,7 @@ const DataCard = ({data, title, description}) => {
             <div className={`text-5xl font-pmedium text-black `}>{data}</div>
             <div className="text-center">
                 <div className="font-pmedium text-3xl">{title}</div>
-                <div><span className="text-md text-gray-400">({description})</span></div>
+                <div><span className="text-md text-gray-400">{description}</span></div>
             </div>
         </div>
       </div>

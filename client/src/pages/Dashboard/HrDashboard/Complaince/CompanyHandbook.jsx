@@ -143,6 +143,9 @@ const CompanyHandbook = () => {
 
       <div>
         <div className="w-full shadow-md p-4 rounded-md">
+          <div className="py-4">
+            <span className="text-title text-primary font-pmedium">Departments</span>
+          </div>
           {accordionData.map((item) => (
             <Accordion sx={{boxShadow:'none', border:'1px solid #d1d5db'}}  key={item.id}>
               <AccordionSummary

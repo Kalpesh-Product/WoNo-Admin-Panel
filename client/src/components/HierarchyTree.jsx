@@ -177,7 +177,7 @@ const HierarchyTree = ({height}) => {
     <div className="w-full">
       <div
         className={`${
-          isSidebarOpen ? "w-[78vw]" : "w-[90vw]"
+          isSidebarOpen ? "w-[78vw]" : "w-[85vw]"
         }  overflow-y-auto overflow-x-auto `}
 
         style={{height:height ? height : '90vh'}}
