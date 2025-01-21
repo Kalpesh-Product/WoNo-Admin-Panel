@@ -120,13 +120,16 @@ const acceptTicket = async (req, res, next) => {
       }
     }
 
-    const userDepartments = foundUser.department.map((dept) =>
-      dept.toString()
-    );
+    const userDepartments = foundUser.department.map((dept) => dept.toString());
+    
 
-    const foundTickets = await Ticket.find({raisedToDepartment: { $in: userDepartments }})
+    const ticket = await Ticket.findOne({_id:ticketId});
 
-    if (!foundTickets) {
+
+    const ticketInDepartment = userDepartments.some((id)=> ticket.raisedToDepartment.equals(id))
+ 
+    
+    if (!ticketInDepartment) {
       return res.status(403);
     }
 
@@ -178,20 +181,20 @@ const assignTicket = async (req, res, next) => {
       }
     }
 
-    const userDepartments = foundUser.department.map((dept) =>
-      dept.toString()
-    );
+    const userDepartments = foundUser.department.map((dept) => dept.toString());
+    
+    const ticket = await Ticket.findOne({_id:ticketId});
 
-    const foundTickets = await Ticket.find({raisedToDepartment: { $in: userDepartments }})
-
-    if (!foundTickets) {
-      return res.status(403);
-    }
+    const ticketInDepartment = userDepartments.some((id)=> ticket.raisedToDepartment.equals(id))
 
     await Tickets.findByIdAndUpdate(
       { _id: ticketId },
       { $push: { assignees: assignee }, status: "In Progress" }
     );
+
+    if (!ticketInDepartment) {
+      return res.sendStatus(403);
+    }
 
     return res.status(200).json({ message: "Ticket assigned successfully" });
   } catch (error) {
@@ -237,13 +240,13 @@ const escalateTicket = async (req, res, next) => {
       return res.status(400).json({ message: "Ticket doesn't exists" });
     }
 
-    const userDepartments = foundUser.department.map((dept) =>
-      dept.toString()
-    );
-
-    const foundTickets = await Ticket.find({raisedToDepartment: { $in: userDepartments }})
-
-    if (!foundTickets) {
+    const userDepartments = foundUser.department.map((dept) => dept.toString());
+    
+    const foundTickets = await Ticket.find({
+      raisedToDepartment: { $in: userDepartments.map(id => new mongoose.Types.ObjectId(id))  },
+    });
+    
+    if (!foundTickets.length) {
       return res.status(403);
     }
 
@@ -289,7 +292,7 @@ const closeTicket = async (req, res, next) => {
     });
     
     if (!foundTickets.length) {
-      return res.status(403);
+      return res.sendStatus(403);
     }
 
     await Tickets.findByIdAndUpdate({ _id: ticketId }, { status: "Closed" });
