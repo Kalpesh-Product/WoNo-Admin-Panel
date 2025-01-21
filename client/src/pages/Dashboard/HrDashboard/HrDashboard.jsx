@@ -391,8 +391,8 @@ const colorsForLegend = rawSeries
   ];
 
   const techIndiaVisitors = [
-    { id: 0, value: 40, name: "Male",color:'#0056B3' },
-    { id: 1, value: 60, name: "Female",color:"#FD507E" },
+    { id: 0, value: 40, label: "Male",color:'#0056B3' },
+    { id: 1, value: 60, label: "Female",color:"#FD507E" },
     
   ];
   const techGoaVisitors = [
