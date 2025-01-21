@@ -25,6 +25,7 @@ const RaiseTicket = () => {
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [ticketIssues, setTicketIssues] = useState([]); // State for ticket issues
   const [loading, setLoading] = useState(false);
+   const [tickets, setTickets] = useState([]);
   const axios = useAxiosPrivate();
   const { auth } = useAuth();
 
@@ -54,48 +55,52 @@ const RaiseTicket = () => {
     fetchData();
   }, [axios]);
 
+    // Reusable function to fetch tickets
+    const getTickets = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get("/api/tickets/get-tickets");
+        const filteredTickets = response.data.filter(
+          (ticket) => !ticket.accepted
+        );
+        setTickets(filteredTickets);
+      } catch (error) {
+        toast.error(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    // Initial data fetch when the component mounts
+    useEffect(() => {
+      getTickets();
+    }, []);
+
+
+    const transformTicketsData = (tickets) => {
+      return tickets.map((ticket) => ({
+        id: ticket._id,
+        raisedBy: ticket.raisedBy?.name || "Unknown",
+        fromDepartment: ticket.raisedToDepartment.name || "N/A",
+        ticketTitle: ticket.ticket?.title || "No Title",
+        status: ticket.status || "Pending",
+      }));
+    };
+  
+    // Example usage
+    const rows = transformTicketsData(tickets);
+
   const handleChange = (field, value) => {
     setDetails((prev) => ({ ...prev, [field]: value }));
   };
 
-  const laptopColumns = [
-    { field: "RaisedBy", headerName: "Raised By" },
-    { field: "SelectedDepartment", headerName: "Selected Department" },
-    { field: "TicketTitle", headerName: "Ticket Title", flex: 1 },
-    {
-      field: "Priority",
-      headerName: "Priority",
-      cellRenderer: (params) => {
-        const statusColorMap = {
-          High: { backgroundColor: "#ffbac2", color: "#ed0520" }, // Light orange bg, dark orange font
-          Medium: { backgroundColor: "#ADD8E6", color: "#00008B" }, // Light blue bg, dark blue font
-          Low: { backgroundColor: "#90EE90", color: "#006400" }, // Light green bg, dark green font
-          open: { backgroundColor: "#E6E6FA", color: "#4B0082" }, // Light purple bg, dark purple font
-          Closed: { backgroundColor: "#D3D3D3", color: "#696969" }, // Light gray bg, dark gray font
-        };
-
-        const { backgroundColor, color } = statusColorMap[params.value] || {
-          backgroundColor: "gray",
-          color: "white",
-        };
-
-        return (
-          <>
-            <Chip
-              label={params.value}
-              style={{
-                backgroundColor,
-                color,
-              }}
-            />
-          </>
-        );
-      },
-      flex: 1,
-    },
+  const recievedTicketsColumns = [
+    { field: "raisedBy", headerName: "Raised By" },
+    { field: "fromDepartment", headerName: "From Department" },
+    { field: "ticketTitle", headerName: "Ticket Title", flex: 1 },
 
     {
-      field: "Status",
+      field: "status",
       headerName: "Status",
       cellRenderer: (params) => {
         const statusColorMap = {
@@ -103,7 +108,7 @@ const RaiseTicket = () => {
           "in-progress": { backgroundColor: "#ADD8E6", color: "#00008B" }, // Light blue bg, dark blue font
           resolved: { backgroundColor: "#90EE90", color: "#006400" }, // Light green bg, dark green font
           open: { backgroundColor: "#E6E6FA", color: "#4B0082" }, // Light purple bg, dark purple font
-          Closed: { backgroundColor: "#D3D3D3", color: "#696969" }, // Light gray bg, dark gray font
+          completed: { backgroundColor: "#D3D3D3", color: "#696969" }, // Light gray bg, dark gray font
         };
 
         const { backgroundColor, color } = statusColorMap[params.value] || {
@@ -125,54 +130,9 @@ const RaiseTicket = () => {
     },
   ];
 
-  const [rows, setRows] = useState([
-    {
-      RaisedBy: "Abrar Shaikh",
-      SelectedDepartment: "IT",
-      TicketTitle: "Laptop Screen Malfunctioning",
-      Priority: "High",
-      Status: "In Process",
-    },
-    {
-      RaisedBy: "Abrar Shaikh",
-      SelectedDepartment: "IT",
-      TicketTitle: "Request for new stationary Supplies",
-      Priority: "High",
-      Status: "Pending",
-    },
-    {
-      RaisedBy: "Abrar Shaikh",
-      SelectedDepartment: "IT",
-      TicketTitle: "Domain Expired",
-      Priority: "High",
-      Status: "Pending",
-    },
-    {
-      RaisedBy: "Abrar Shaikh",
-      SelectedDepartment: "IT",
-      TicketTitle: "Salary Not Revceived",
-      Priority: "High",
-      Status: "Closed",
-    },
-    {
-      RaisedBy: "Abrar Shaikh",
-      SelectedDepartment: "IT",
-      TicketTitle: "Wifi is Not Working",
-      Priority: "High",
-      Status: "Pending",
-    },
-  ]);
 
   const submitData = async (e) => {
     e.preventDefault();
-    setRows((prevRows) => [
-      ...prevRows,
-      {
-        RaisedBy: auth.user._id,
-        SelectedDepartment: selectedDepartment,
-        TicketTitle: details._id,
-      },
-    ]);
     try {
       const response = await axios.post("/api/tickets/raise-ticket", {
         departmentId: selectedDepartment,
@@ -289,8 +249,9 @@ const RaiseTicket = () => {
         </div>
         <div className=" w-full">
           <AgTable
+          key={rows.length}
             data={rows}
-            columns={laptopColumns}
+            columns={recievedTicketsColumns}
             paginationPageSize={10}
           />
         </div>
