@@ -34,6 +34,16 @@ const HrDashboard = () => {
       group: "total",
     },
     {
+      name: "Admin Total",
+      data: [45, 50, 40, 55, 60, 50, 65, 60, 70, 75, 80, 85],
+      group: "total",
+    },
+    {
+      name: "Maintainance Total",
+      data: [45, 50, 40, 55, 60, 50, 65, 60, 70, 75, 80, 85],
+      group: "total",
+    },
+    {
       name: "Space Completed",
       data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       group: "space",
@@ -51,6 +61,16 @@ const HrDashboard = () => {
     {
       name: "Tech Completed",
       data: [45, 40, 30, 45, 50, 40, 55, 50, 60, 65, 70, 75],
+      group: "completed",
+    },
+    {
+      name: "Admin Completed",
+      data: [40, 30, 40, 52, 46, 40, 60, 59, 50, 70, 75, 80],
+      group: "completed",
+    },
+    {
+      name: "Maintainance Completed",
+      data: [45, 50, 40, 55, 60, 50, 65, 60, 70, 75, 80, 85],
       group: "completed",
     },
   ];
@@ -99,9 +119,11 @@ const HrDashboard = () => {
   // Generate colors
   const generateColorsWithSpacing = (series) => {
     const departmentColorMapping = {
-      Sales: "#00FF00", // Green
-      IT: "#0000FF", // Blue
-      Tech: "#FF0000", // Red
+      Sales: "#99a7ca", 
+      IT: "#0056b3", 
+      Tech: "#0aa8ef", // Red
+      Admin: '#99f6ca',
+      Maintainance: "#67a688",
       Space: "#FFA500", // Orange
     };
   
@@ -135,7 +157,16 @@ const HrDashboard = () => {
     },
     colors, // Use generated colors
     dataLabels: {
-      enabled: false,
+      enabled: true, // Enable data labels
+      formatter: function (val, opts) {
+        const rawData = rawSeries[opts.seriesIndex]?.data[opts.dataPointIndex];
+        return rawData ? `${rawData}` : ""; // Display the raw value
+      },
+      style: {
+        fontSize: "9px",
+        fontFamily: "Poppins-Regular, Arial, sans-serif",
+        colors: ["#000000"], // Color of the data labels
+      },
     },
     xaxis: {
       categories: [
