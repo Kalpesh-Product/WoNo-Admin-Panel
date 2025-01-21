@@ -41,7 +41,7 @@ const supportTicket = async (req, res, next) => {
       return res.status(400).json({ message: "Tickets not found" });
     }
 
-    await Ticket.findByIdAndUpdate({ _id: ticketId }, { status: "Closed" });
+    await Ticket.findByIdAndUpdate({ _id: ticketId }, { status: "Pending" });
 
     const supportTicket = new SupportTicket({
       ticket: ticketId,
