@@ -90,16 +90,6 @@ const EditDetails = () => {
               </Avatar>
             </div>
             <div className="flex flex-col gap-6">
-              <span className="text-title flex items-center gap-3">
-                {/* {user.name}{" "} */}
-                <Chip
-                  label={"Active"}
-                  sx={{
-                    // backgroundColor: user.status === "Active" ? "green" : "grey",
-                    color: "white",
-                  }}
-                />
-              </span>
               <span className="text-content">
                 {/* {user.role} - {user.department} */}
                 Upload Image
@@ -432,7 +422,7 @@ const EditDetails = () => {
 
             <div className="flex items-center justify-center gap-2 py-4">
               <PrimaryButton
-                title={isEditing ? "Save" : "Edit"}
+                title={isEditing ? "Submit" : "Edit"}
                 handleSubmit={
                   isEditing ? handleSubmit(onSubmit) : handleEditToggle
                 }

@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 
 const MuiTable = ({
+  Title,
   columns,
   rows,
   page,
@@ -21,14 +22,16 @@ const MuiTable = ({
   rowKey = "id",
 }) => {
   return (
-    <div>
+    <div className='border-default border-borderGray rounded-md'>
+      <div className="font-pregular text-subtitle p-4 border-b">{Title}</div>
       <Paper>
         <TableContainer>
           <Table>
             <TableHead>
               <TableRow>
                 {columns.map((column) => (
-                  <TableCell key={column.id} align={column.align || "left"}>
+                  <TableCell key={column.id} align={column.align || "left"}
+                  style={{ fontWeight: "bold" }}>
                     {column.label}
                   </TableCell>
                 ))}

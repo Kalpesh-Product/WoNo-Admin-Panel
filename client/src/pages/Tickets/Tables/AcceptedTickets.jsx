@@ -1,12 +1,54 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import AgTable from "../../../components/AgTable";
 import { Chip } from "@mui/material";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import { toast } from "sonner";
 
 const AcceptedTickets = ({ title }) => {
+  const [acceptedTickets, setAcceptedTickets] = useState([]);
+  
+  const axios = useAxiosPrivate();
+
+  useEffect(() => {
+    const getAcceptedTickets = async () => {
+      try {
+        const response = await axios.get(
+          "/api/tickets/filtered-tickets/accept"
+        );
+        setAcceptedTickets(response.data);
+      } catch (error) {
+        toast.error(error.message);
+      }
+    };
+
+    getAcceptedTickets();
+  }, []);
+
+  const handleClose = async (closedTicket) => {
+    try {
+      const response = await axios.post("/api/tickets/close-ticket", {
+        ticketId: closedTicket.id,
+      });
+      toast.success(response.data.message);
+  
+      // Update the state to remove the closed ticket
+      setAcceptedTickets((prevTickets) =>
+        prevTickets.filter((ticket) => ticket._id !== closedTicket.id)
+      );
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+  
+
+  useEffect(() => {
+    console.log("Accepted tickets : ", acceptedTickets);
+  }, [acceptedTickets]);
+
   const recievedTicketsColumns = [
     { field: "raisedBy", headerName: "Raised By" },
     {
-      field: "selectedDepartment",
+      field: "raisedToDepartment",
       headerName: "Selected Department",
       width: 100,
     },
@@ -70,6 +112,7 @@ const AcceptedTickets = ({ title }) => {
         <>
           <div className="p-2 mb-2 flex gap-2">
             <button
+              onClick={(e) => handleClose(params.data)}
               style={{
                 backgroundColor: "red",
                 color: "white",
@@ -99,57 +142,31 @@ const AcceptedTickets = ({ title }) => {
     },
   ];
 
-  const rows = [
-    {
-      raisedBy: "Abrar Shaikh",
-      selectedDepartment: "IT",
-      ticketTitle: "Monitor dead pixel",
-      tickets: "Accepted Ticket",
-      status: "pending",
-    },
-    {
-      raisedBy: "John Doe",
-      selectedDepartment: "HR",
-      ticketTitle: "System login issue",
-      tickets: "Accepted Ticket",
-      status: "pending",
-    },
-    {
-      raisedBy: "Jane Smith",
-      selectedDepartment: "Finance",
-      ticketTitle: "Printer not working",
-      tickets: "Accepted Ticket",
-      status: "pending",
-    },
-    {
-      raisedBy: "Mike Brown",
-      selectedDepartment: "Operations",
-      ticketTitle: "Software installation request",
-      tickets: "Assigned Ticket",
-      status: "pending",
-    },
-    {
-      raisedBy: "Emily Davis",
-      selectedDepartment: "Marketing",
-      ticketTitle: "Email access problem",
-      tickets: "Accepted Ticket",
-      status: "pending",
-    },
-    {
-      raisedBy: "Chris Johnson",
-      selectedDepartment: "Admin",
-      ticketTitle: "Air conditioner maintenance",
-      tickets: "Assigned Ticket",
-      status: "pending",
-    },
-  ];
+  const transformTicketsData = (tickets) => {
+    return tickets.map((ticket) => ({
+      id: ticket._id,
+      raisedBy: ticket.raisedBy?.name || "Unknown",
+      fromDepartment: ticket.raisedToDepartment.name || "N/A",
+      ticketTitle: ticket.ticket?.title || "No Title",
+      status: ticket.status || "Pending",
+    }));
+  };
+
+  // Example usage
+  const rows = transformTicketsData(acceptedTickets);
+
+
   return (
     <div className="p-4 border-default border-borderGray rounded-md">
       <div className="pb-4">
         <span className="text-subtitle">{title}</span>
       </div>
       <div className="w-full">
-        <AgTable data={rows} columns={recievedTicketsColumns} />
+        <AgTable
+          key={rows.length}
+          data={rows}
+          columns={recievedTicketsColumns}
+        />
       </div>
     </div>
   );

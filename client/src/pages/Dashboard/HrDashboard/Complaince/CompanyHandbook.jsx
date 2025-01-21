@@ -39,7 +39,7 @@ const CompanyHandbook = () => {
     },
     {
       id: 2,
-      title: "IT",
+      title: "Networking & IT",
       content: (
         <div className="flex flex-col gap-4">
           <div className="flex justify-between items-center">
@@ -67,9 +67,56 @@ const CompanyHandbook = () => {
     },
     {
       id: 3,
-      title: "Accordion 3",
+      title: "Finance",
       content: "Content for Accordion 3",
     },
+    {
+      id: 4,
+      title: "Human Resource & EA",
+      content: "Content for Accordion 3",
+
+    },
+    {
+      id: 5,
+      title: "Sales & Business Development",
+      content: "Content for Accordion 3",
+
+    },
+    {
+      id: 6,
+      title: "Marketing",
+      content: "Content for Accordion 3",
+    },
+    {
+      id: 7,
+      title: "Civil & Maintainance",
+      content: "Content for Accordion 3",
+    },
+    {
+      id: 8,
+      title: "Legal",
+      content: "Content for Accordion 3",
+    },
+    {
+      id: 9,
+      title: "Administartion & Front Office",
+      content: "Content for Accordion 3",
+    },
+    {
+      id: 10,
+      title: "Service & Maintainance",
+      content: "Content for Accordion 3",
+    },
+    {
+      id: 11,
+      title: "Kaffe & Operation",
+      content: "Content for Accordion 3",
+    },
+    {
+      id: 12,
+      title: "Kaffe Kitchen",
+      content: "Content for Accordion 3",
+    }
   ];
 
   return (
@@ -96,6 +143,9 @@ const CompanyHandbook = () => {
 
       <div>
         <div className="w-full shadow-md p-4 rounded-md">
+          <div className="py-4">
+            <span className="text-title text-primary font-pmedium">Departments</span>
+          </div>
           {accordionData.map((item) => (
             <Accordion sx={{boxShadow:'none', border:'1px solid #d1d5db'}}  key={item.id}>
               <AccordionSummary
