@@ -114,7 +114,7 @@ const acceptTicket = async (req, res, next) => {
       const foundTicket = await Tickets.findOne({ _id: ticketId })
         .lean()
         .exec();
-
+      console.log(foundTicket)
       if (!foundTicket) {
         return res.status(400).json({ message: "Invalid ticket ID provided" });
       }

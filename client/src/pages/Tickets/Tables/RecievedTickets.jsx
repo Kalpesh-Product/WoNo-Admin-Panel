@@ -3,9 +3,14 @@ import AgTable from "../../../components/AgTable";
 import { Chip, ListItem } from "@mui/material";
 import MuiModal from "../../../components/MuiModal";
 import Button from "@mui/material";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import { toast } from "sonner";
+import PrimaryButton from "../../../components/PrimaryButton";
 
 const RecievedTickets = ({ title,data }) => {
   const [open, setOpen] = useState(false);
+  const axios = useAxiosPrivate()
+
 
 
   const openModal = () => {
@@ -27,6 +32,18 @@ const RecievedTickets = ({ title,data }) => {
   const rows = transformTicketsData(data);
 
   const handleClose = () => setOpen(false);
+  const handleAccept = async(ticket) =>{
+    console.log("Ticket details : ", ticket)
+    try {
+      const response = await axios.post('/api/tickets/accept-ticket',{
+        ticketId : ticket.id
+      });
+      toast.success(response.data.message)
+    } catch (error) {
+      toast.error(error)
+    }
+    
+  } 
 
 
 
@@ -38,27 +55,6 @@ const RecievedTickets = ({ title,data }) => {
     "Muskan Dodmani",
   ];
 
-  const viewChildren = (
-    <>
-      <ul>
-        {assignees.map((key, items) => {
-          return (
-            <>
-              <div className="flex flex-row gap-6">
-                <input type="checkbox"></input>
-                <li key={items}>{key}</li>
-              </div>
-            </>
-          );
-        })}
-      </ul>
-      <div className="flex items-center justify-center mb-4">
-        <button className="p-2 bg-primary align-middle text-white rounded-md">
-          Assign 
-        </button>
-      </div>
-    </>
-  );
 
   const recievedTicketsColumns = [
     { field: "raisedBy", headerName: "Raised By" },
@@ -70,7 +66,7 @@ const RecievedTickets = ({ title,data }) => {
       headerName: "Status",
       cellRenderer: (params) => {
         const statusColorMap = {
-          pending: { backgroundColor: "#FFECC5", color: "#CC8400" }, // Light orange bg, dark orange font
+          Pending: { backgroundColor: "#FFECC5", color: "#CC8400" }, // Light orange bg, dark orange font
           "in-progress": { backgroundColor: "#ADD8E6", color: "#00008B" }, // Light blue bg, dark blue font
           resolved: { backgroundColor: "#90EE90", color: "#006400" }, // Light green bg, dark green font
           open: { backgroundColor: "#E6E6FA", color: "#4B0082" }, // Light purple bg, dark purple font
@@ -101,6 +97,7 @@ const RecievedTickets = ({ title,data }) => {
         <>
           <div className="p-2 mb-2 flex gap-2">
             <button
+            onClick={(e) => handleAccept(params.data)}
               style={{
                 backgroundColor: "red",
                 color: "white",
@@ -133,44 +130,6 @@ const RecievedTickets = ({ title,data }) => {
   ];
 
 
-  // const rows = [
-  //   {
-  //     raisedBy: "Abrar Shaikh",
-  //     fromDepartment: "IT",
-  //     ticketTitle: "Monitor dead pixel",
-  //     status: "pending",
-  //   },
-  //   {
-  //     raisedBy: "John Doe",
-  //     fromDepartment: "HR",
-  //     ticketTitle: "System login issue",
-  //     status: "pending",
-  //   },
-  //   {
-  //     raisedBy: "Jane Smith",
-  //     fromDepartment: "Finance",
-  //     ticketTitle: "Printer not working",
-  //     status: "pending",
-  //   },
-  //   {
-  //     raisedBy: "Mike Brown",
-  //     fromDepartment: "Operations",
-  //     ticketTitle: "Software installation request",
-  //     status: "pending",
-  //   },
-  //   {
-  //     raisedBy: "Emily Davis",
-  //     fromDepartment: "Marketing",
-  //     ticketTitle: "Email access problem",
-  //     status: "pending",
-  //   },
-  //   {
-  //     raisedBy: "Chris Johnson",
-  //     fromDepartment: "Admin",
-  //     ticketTitle: "Air conditioner maintenance",
-  //     status: "pending",
-  //   },
-  // ];
 
   return (
     <div className="p-4 border-default border-borderGray rounded-md">
@@ -184,15 +143,24 @@ const RecievedTickets = ({ title,data }) => {
         open={open}
         onClose={handleClose}
         title="Assign Tickets"
-        children={viewChildren}
-        btnTitle="Assign"
-        // Pass your desired background color
       >
-        {/* <div className="flex items-center justify-center mb-10">
-          <button className="p-4 bg-primary align-middle text-white rounded-md">
-            Assign Ticket
-          </button>
-        </div> */}
+    <>
+      <ul>
+        {assignees.map((key, items) => {
+          return (
+            <>
+              <div className="flex flex-row gap-6">
+                <input type="checkbox"></input>
+                <li key={items}>{key}</li>
+              </div>
+            </>
+          );
+        })}
+      </ul>
+      <div className="flex items-center justify-center mb-4">
+        <PrimaryButton title={"Assign"} />
+      </div>
+    </>
       </MuiModal>
     </div>
   );

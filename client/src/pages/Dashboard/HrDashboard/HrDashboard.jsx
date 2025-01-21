@@ -1,4 +1,4 @@
-import React,{useState} from "react";
+import React, { useState } from "react";
 import WidgetSection from "../../../components/WidgetSection";
 import LayerBarGraph from "../../../components/graphs/LayerBarGraph";
 import Card from "../../../components/Card";
@@ -17,9 +17,13 @@ import MuiTable from "../../../components/Tables/MuiTable";
 const HrDashboard = () => {
   // Original data
   const rawSeries = [
-
     {
       name: "Sales Total",
+      data: [40, 45, 35, 50, 55, 45, 60, 55, 65, 70, 75, 80],
+      group: "total",
+    },
+    {
+      name: "IT Total",
       data: [40, 45, 35, 50, 55, 45, 60, 55, 65, 70, 75, 80],
       group: "total",
     },
@@ -40,14 +44,16 @@ const HrDashboard = () => {
       group: "completed",
     },
     {
+      name: "IT Completed",
+      data: [40, 45, 25, 40, 45, 35, 50, 45, 55, 60, 65, 70],
+      group: "completed",
+    },
+    {
       name: "Tech Completed",
       data: [45, 40, 30, 45, 50, 40, 55, 50, 60, 65, 70, 75],
       group: "completed",
     },
   ];
-
-
-
 
   // Function to normalize data to percentage
   const normalizeToPercentage = (series) => {
@@ -74,10 +80,6 @@ const HrDashboard = () => {
     return normalizedSeries;
   };
 
-
-
-
-
   // Normalize data
   const series = normalizeToPercentage(rawSeries);
 
@@ -85,17 +87,18 @@ const HrDashboard = () => {
     chart: {
       type: "bar",
       stacked: true,
-      fontFamily: 'Poppins-Regular, Arial, sans-serif'
+      fontFamily: "Poppins-Regular, Arial, sans-serif",
     },
     plotOptions: {
       bar: {
         horizontal: false,
         columnWidth: "55%",
         borderRadius: [5], // Radius for rounded corners
-      borderRadiusWhenStacked: "all", // Apply borderRadius consistently
-      borderRadiusApplication: "end", // Apply only to the top of the stack
+        borderRadiusWhenStacked: "all", // Apply borderRadius consistently
+        borderRadiusApplication: "end", // Apply only to the top of the stack
       },
     },
+    colors: ["#00FF00", "#0000FF", "#FF0000"],
     dataLabels: {
       enabled: false,
     },
@@ -116,16 +119,16 @@ const HrDashboard = () => {
       ],
     },
     yaxis: {
-      max:100,
+      max: 100,
       labels: {
-        formatter: (val) => `${Math.round(val)}%`
+        formatter: (val) => `${Math.round(val)}%`,
       },
     },
     fill: {
       opacity: 1,
     },
     legend: {
-      show:false,
+      show: false,
       position: "top",
     },
     tooltip: {
@@ -137,6 +140,10 @@ const HrDashboard = () => {
       },
     },
   };
+
+
+
+  //firstgraph
 
   const utilisedData = [125, 150, 99, 85, 70, 50, 80, 95, 100, 65, 50, 120];
   const defaultData = utilisedData.map((value) =>
@@ -162,9 +169,9 @@ const HrDashboard = () => {
       bar: {
         horizontal: false,
         columnWidth: "45%",
-        borderRadius:8,
-        borderRadiusWhenStacked:'all',
-        borderRadiusApplication:'end',
+        borderRadius: 8,
+        borderRadiusWhenStacked: "all",
+        borderRadiusApplication: "end",
       },
     },
     colors: ["#00FF00", "#0000FF", "#FF0000"], // Colors for the series
@@ -209,33 +216,120 @@ const HrDashboard = () => {
   };
 
   const columns = [
-    { id: 'name', label: 'Name', align: 'left' },
-    { id: 'age', label: 'Age', align: 'center' },
-    { id:'gender',label:'gender',align:'center'},
-    { id: 'city', label: 'city', align: 'center' },
-
+    { id: "name", label: "Name", align: "left" },
+    { id: "age", label: "Age", align: "center" },
+    { id: "gender", label: "gender", align: "center" },
+    { id: "city", label: "city", align: "center" },
   ];
 
   const rows = [
-    { id: 1, name: 'John Doe', age: 30,gender:'Male',city:"Panaji" },
-    { id: 1, name: 'John Doe', age: 30,gender:'Male',city:"Panaji" },
-    { id: 1, name: 'John Doe', age: 30,gender:'Male',city:"Panaji" },
-    { id: 1, name: 'John Doe', age: 30,gender:'Male',city:"Panaji" },
+    {
+      id: 1,
+      name: "Anushri Bhagat",
+      age: 24,
+      gender: "Female",
+      city: "Marcela",
+    },
+    { id: 1, name: "Aiwin", age: 23, gender: "Male", city: "Panaji" },
+    { id: 1, name: "Allen Silvera", age: 25, gender: "Male", city: "Margao" },
+    {
+      id: 1,
+      name: "Muskan Dodmani",
+      age: 22,
+      gender: "Female",
+      city: "St Inez",
+    },
+    {
+      id: 1,
+      name: "Sankalp Kalangutkar",
+      age: 22,
+      gender: "Male",
+      city: "Margao",
+    },
   ];
 
   const columns2 = [
-    { id: 'date', label: 'Date', align: 'left' },
-    { id: 'holiday_event', label: 'Holiday/Event', align: 'center' },
-    { id:'region',label:'Region',align:'center'},
-    
+    { id: "date", label: "Date", align: "left" },
+    { id: "holiday_event", label: "Holiday/Event", align: "center" },
+    { id: "region", label: "Region", align: "center" },
   ];
 
   const rows2 = [
-    { id: 1, name: '2024-12-04', holiday_event: "Indian Navy day",region:'India'},
-    { id: 1, name: '2024-12-04', holiday_event: "Indian Navy day",region:'India'},
-    
+    {
+      id: 1,
+      date: "2024-12-10",
+      holiday_event: "Indian Navy day",
+      region: "India",
+    },
+    {
+      id: 1,
+      date: "2025-25-01",
+      holiday_event: "Muskan Birthday",
+      region: "India",
+    },
+    {
+      id: 1,
+      date: "2025-26-01",
+      holiday_event: "Rebuplic Day",
+      region: "India",
+    },
+    {
+      id: 1,
+      date: "2025-14-02",
+      holiday_event: "Valentines day",
+      region: "India",
+    },
+    { id: 1, date: "2025-14-03", holiday_event: "Holi", region: "India" },
   ];
 
+  const columns3 = [
+    { id: "employeeName", label: "Employee name", align: "left" },
+    { id: "department", label: "Department", align: "center" },
+    { id: "performance (%)", label: "Performance", align: "center" },
+  ];
+
+  const columns4 = [
+    { id: "employeeName", label: "Employee name", align: "left" },
+    { id: "department", label: "Department", align: "center" },
+    { id: "performance (%)", label: "Performance", align: "center" },
+  ];
+
+  const rows3 = [
+    { id: 1, employeeName: "Aiwin", department: "Tech", performance: "97" },
+    {
+      id: 1,
+      employeeName: "Allen Silvera",
+      department: "Tech",
+      performance: "90",
+    },
+    {
+      id: 1,
+      employeeName: "Sankalp Kalangutkar",
+      department: "Tech",
+      performance: "80",
+    },
+  ];
+
+  const rows4 = [
+    {
+      id: 1,
+      employeeName: "Anushri Bhagat",
+      department: "Tech",
+      performance: "40",
+    },
+    {
+      id: 1,
+      employeeName: "Sumera Naik",
+      department: "Tech",
+      performance: "43",
+    },
+    {
+      id: 1,
+      employeeName: "Sunaina Bharve",
+      department: "Tech",
+      performance: "45",
+    },
+  ];
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -248,7 +342,6 @@ const HrDashboard = () => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-
 
   const hrWidgets = [
     {
@@ -265,75 +358,91 @@ const HrDashboard = () => {
       layout: 6,
       widgets: [
         <Card icon={<CgWebsite />} title="On Boarding" route={"onboarding"} />,
-        <Card icon={<LuHardDriveUpload />} title="Compliance" route={"compliances"} />,
-        <Card icon={<SiCashapp />} title="Finance" route={"finance"}/>,
+        <Card
+          icon={<LuHardDriveUpload />}
+          title="Compliance"
+          route={"compliances"}
+        />,
+        <Card icon={<SiCashapp />} title="Finance" route={"finance"} />,
         <Card icon={<CgWebsite />} title="Performance" route={"#"} />,
-        <Card icon={<SiGoogleadsense />} title="Data" route={"data"}/>,
-        <Card icon={<MdMiscellaneousServices />} title="Settings" route={"settings"} />,
+        <Card icon={<SiGoogleadsense />} title="Data" route={"data"} />,
+        <Card
+          icon={<MdMiscellaneousServices />}
+          title="Settings"
+          route={"settings"}
+        />,
       ],
     },
     {
       layout: 3,
       widgets: [
-        <DataCard  title="On Boarding" data="28" description="Current Headcount" />,
-        <DataCard  title="Compliance" data="52K" description="salary" />,
-        <DataCard  title="Finance" data="25" description="Monthly Employees"/>,
-        <DataCard  title="Performance" data="4%" description="Monthly Iteration" />,
-        <DataCard  title="Data" data="92%" description="Attendance"/>,
-        <DataCard  title="Settings" data="8.1hr" description="Working Hours"/>,
+        <DataCard
+          title="On Boarding"
+          data="28"
+          description="Current Headcount"
+        />,
+        <DataCard title="Compliance" data="52K" description="salary" />,
+        <DataCard title="Finance" data="25" description="Monthly Employees" />,
+        <DataCard
+          title="Performance"
+          data="4%"
+          description="Monthly Iteration"
+        />,
+        <DataCard title="Data" data="92%" description="Attendance" />,
+        <DataCard title="Settings" data="8.1hr" description="Working Hours" />,
       ],
     },
     {
-      layout:1,
-      widgets:[
+      layout: 1,
+      widgets: [
         <LayerBarGraph
           title="Department-Wise Task Achievement"
           data={series}
           options={options}
         />,
-      ]
+      ],
     },
     {
-      layout:2,
-      widgets:[
+      layout: 2,
+      widgets: [
         <MuiTable
-        columns={columns}
-        rows={rows}
-        page={page}
-        rowsPerPage={rowsPerPage}
-        onPageChange={handlePageChange}
-        onRowsPerPageChange={handleRowsPerPageChange}
+          Title="Current Months Birthday List"
+          columns={columns}
+          rows={rows}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onPageChange={handlePageChange}
+          onRowsPerPageChange={handleRowsPerPageChange}
         />,
         <MuiTable
-        columns={columns}
-        rows={rows}
-        page={page}
-        rowsPerPage={rowsPerPage}
-        onPageChange={handlePageChange}
-        onRowsPerPageChange={handleRowsPerPageChange}
+          Title="Current Months Holidays and Events List"
+          columns={columns2}
+          rows={rows2}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onPageChange={handlePageChange}
+          onRowsPerPageChange={handleRowsPerPageChange}
         />,
         <MuiTable
-        columns={columns}
-        rows={rows}
-        page={page}
-        rowsPerPage={rowsPerPage}
-        onPageChange={handlePageChange}
-        onRowsPerPageChange={handleRowsPerPageChange}
+          Title="Top 3 Performers"
+          columns={columns3}
+          rows={rows3}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onPageChange={handlePageChange}
+          onRowsPerPageChange={handleRowsPerPageChange}
         />,
         <MuiTable
-        columns={columns}
-        rows={rows}
-        page={page}
-        rowsPerPage={rowsPerPage}
-        onPageChange={handlePageChange}
-        onRowsPerPageChange={handleRowsPerPageChange}
+          Title="Under 3 Performed List"
+          columns={columns4}
+          rows={rows4}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onPageChange={handlePageChange}
+          onRowsPerPageChange={handleRowsPerPageChange}
         />,
-      ]
-
-    }
-
-    
-
+      ],
+    },
   ];
 
   return (
@@ -348,7 +457,6 @@ const HrDashboard = () => {
           </div>
         ))}
       </div>
-      
     </>
   );
 };
