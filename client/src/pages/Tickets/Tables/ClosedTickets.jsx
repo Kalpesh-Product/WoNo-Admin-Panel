@@ -117,7 +117,7 @@ const ClosedTickets = ({title}) => {
         <span className="text-subtitle">{title}</span>
       </div>
       <div className="w-full">
-        <AgTable data={rows} columns={recievedTicketsColumns} />
+        <AgTable key={rows.length} data={rows} columns={recievedTicketsColumns} />
       </div>
     </div>
   );

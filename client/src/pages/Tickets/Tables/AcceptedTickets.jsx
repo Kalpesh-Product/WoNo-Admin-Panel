@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 const AcceptedTickets = ({ title }) => {
   const [acceptedTickets, setAcceptedTickets] = useState([]);
+  
   const axios = useAxiosPrivate();
 
   useEffect(() => {

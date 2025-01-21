@@ -15,8 +15,9 @@ import PayRollExpenseGraph from "../../../components/HrDashboardGraph/PayRollExp
 import MuiTable from "../../../components/Tables/MuiTable";
 
 const HrDashboard = () => {
-  // Original data
+  
   const rawSeries = [
+
     {
       name: "Sales Total",
       data: [40, 45, 35, 50, 55, 45, 60, 55, 65, 70, 75, 80],
@@ -33,11 +34,10 @@ const HrDashboard = () => {
       group: "total",
     },
     {
-      name: "Space Total",
-      data: [],
+      name: "Space Completed",
+      data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       group: "space",
     },
-
     {
       name: "Sales Completed",
       data: [40, 45, 25, 40, 45, 35, 50, 45, 55, 60, 65, 70],
@@ -54,35 +54,70 @@ const HrDashboard = () => {
       group: "completed",
     },
   ];
-
-  // Function to normalize data to percentage
+  
+  // Normalize to percentage
   const normalizeToPercentage = (series) => {
     const months = series[0].data.length;
     const normalizedSeries = [];
-
+  
     for (let i = 0; i < months; i++) {
       const totalForMonth = series
         .filter((s) => s.group === "total")
         .reduce((sum, s) => sum + s.data[i], 0);
-
+  
       series.forEach((s) => {
         if (!normalizedSeries.some((ns) => ns.name === s.name)) {
           normalizedSeries.push({ name: s.name, data: [], group: s.group });
         }
-
-        const percentage = totalForMonth
-          ? (s.data[i] / totalForMonth) * 100
-          : 0;
-
-        normalizedSeries.find((ns) => ns.name === s.name).data.push(percentage);
+  
+        const percentage = totalForMonth ? (s.data[i] / totalForMonth) * 100 : 0;
+  
+        normalizedSeries
+          .find((ns) => ns.name === s.name)
+          .data.push(percentage);
       });
     }
     return normalizedSeries;
   };
-
+  
+  // Adjust data for spacing
+  const adjustDataWithSpacing = (series) => {
+    const adjustedSeries = [];
+    const groups = [...new Set(series.map((s) => s.group))];
+    groups.forEach((group) => {
+      const groupSeries = series.filter((s) => s.group === group);
+      groupSeries.forEach((s) => {
+        adjustedSeries.push({
+          ...s,
+          data: s.data.map((val) => (val === 0 ? null : val)),
+        });
+      });
+    });
+    return adjustedSeries;
+  };
+  
+  // Generate colors
+  const generateColorsWithSpacing = (series) => {
+    const departmentColorMapping = {
+      Sales: "#00FF00", // Green
+      IT: "#0000FF", // Blue
+      Tech: "#FF0000", // Red
+      Space: "#FFA500", // Orange
+    };
+  
+    return series.map((s) => {
+      const department = s.name.split(" ")[0];
+      return departmentColorMapping[department] || "#000000";
+    });
+  };
+  
+  // Generate colors and adjusted series
+  const colors = generateColorsWithSpacing(rawSeries);
+  const adjustedSeries = adjustDataWithSpacing(rawSeries);
+  
   // Normalize data
-  const series = normalizeToPercentage(rawSeries);
-
+  const series = normalizeToPercentage(adjustedSeries);
+  
   const options = {
     chart: {
       type: "bar",
@@ -93,12 +128,12 @@ const HrDashboard = () => {
       bar: {
         horizontal: false,
         columnWidth: "55%",
-        borderRadius: [5], // Radius for rounded corners
-        borderRadiusWhenStacked: "all", // Apply borderRadius consistently
-        borderRadiusApplication: "end", // Apply only to the top of the stack
+        borderRadius: [5],
+        borderRadiusWhenStacked: "all",
+        borderRadiusApplication: "end",
       },
     },
-    colors: ["#00FF00", "#0000FF", "#FF0000"],
+    colors, // Use generated colors
     dataLabels: {
       enabled: false,
     },
@@ -134,13 +169,12 @@ const HrDashboard = () => {
     tooltip: {
       y: {
         formatter: (val, { seriesIndex, dataPointIndex }) => {
-          const rawData = rawSeries[seriesIndex]?.data[dataPointIndex]; // Access the original count
-          return `${rawData}`; // Show the count in the tooltip
+          const rawData = rawSeries[seriesIndex]?.data[dataPointIndex];
+          return `${rawData}`;
         },
       },
     },
   };
-
 
 
   //firstgraph
