@@ -2,15 +2,12 @@ import React, { useState } from "react";
 import WidgetSection from "../../../components/WidgetSection";
 import LayerBarGraph from "../../../components/graphs/LayerBarGraph";
 import Card from "../../../components/Card";
-import { MdRebaseEdit } from "react-icons/md";
 import { LuHardDriveUpload } from "react-icons/lu";
 import { CgWebsite } from "react-icons/cg";
 import { SiCashapp } from "react-icons/si";
 import { SiGoogleadsense } from "react-icons/si";
 import { MdMiscellaneousServices } from "react-icons/md";
-import { useLocation } from "react-router-dom";
 import DataCard from "../../../components/DataCard";
-import BarGraph from "../../../components/graphs/BarGraph";
 import PayRollExpenseGraph from "../../../components/HrDashboardGraph/PayRollExpenseGraph";
 import MuiTable from "../../../components/Tables/MuiTable";
 import PieChartMui from "../../../components/graphs/PieChartMui";
@@ -251,6 +248,7 @@ const HrDashboard = () => {
     colors: ["#01bf50", "#01411C", "#FF0000"], // Colors for the series
     dataLabels: {
       enabled: true,
+      fontSize: "10px",
       fontSize: "10px",
       formatter: (value, { seriesIndex }) => {
         if (seriesIndex === 1) return "";

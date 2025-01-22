@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import AgTable from "../../../components/AgTable";
-import { Chip,  } from "@mui/material";
+import { Chip, CircularProgress } from "@mui/material";
 import MuiModal from "../../../components/MuiModal";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import { toast } from "sonner";
@@ -27,10 +27,28 @@ const RecievedTickets = ({ title }) => {
     },
   });
 
-  const { mutate } = useMutation({
+  const { mutate: acceptMutate } = useMutation({
     mutationKey: ["accept-ticket"],
     mutationFn: async (ticket) => {
       const response = await axios.post("/api/tickets/accept-ticket", {
+        ticketId: ticket.id,
+      });
+
+      return response.data.message;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["tickets"] });
+      toast.success(data);
+    },
+    onError: (error) => {
+      toast.error(error.response.data.message);
+    },
+  });
+
+  const { mutate: assignMutate } = useMutation({
+    mutationKey: ["assign-ticket"],
+    mutationFn: async (ticket) => {
+      const response = await axios.post("/api/tickets/assign-ticket", {
         ticketId: ticket.id,
       });
 
@@ -114,7 +132,7 @@ const RecievedTickets = ({ title }) => {
         <>
           <div className="p-2 mb-2 flex gap-2">
             <button
-              onClick={() => mutate(params.data)}
+              onClick={() => acceptMutate(params.data)}
               style={{
                 backgroundColor: "red",
                 color: "white",
@@ -151,11 +169,17 @@ const RecievedTickets = ({ title }) => {
         <span className="text-subtitle">{title}</span>
       </div>
       <div className="w-full">
-        <AgTable
-          key={rows.length}
-          data={rows}
-          columns={recievedTicketsColumns}
-        />
+        {isLoading ? (
+          <div className="w-full h-full flex justify-center items-center">
+            <CircularProgress color="black" />
+          </div>
+        ) : (
+          <AgTable
+            key={rows.length}
+            data={rows}
+            columns={recievedTicketsColumns}
+          />
+        )}
       </div>
       <MuiModal open={open} onClose={handleClose} title="Assign Tickets">
         <>
