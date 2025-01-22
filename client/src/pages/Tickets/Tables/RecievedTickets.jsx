@@ -27,10 +27,28 @@ const RecievedTickets = ({ title }) => {
     },
   });
 
-  const { mutate } = useMutation({
+  const { acceptMutate } = useMutation({
     mutationKey: ["accept-ticket"],
     mutationFn: async (ticket) => {
       const response = await axios.post("/api/tickets/accept-ticket", {
+        ticketId: ticket.id,
+      });
+
+      return response.data.message;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["tickets"] });
+      toast.success(data);
+    },
+    onError: (error) => {
+      toast.error(error.response.data.message);
+    },
+  });
+
+  const { assignMutate } = useMutation({
+    mutationKey: ["assign-ticket"],
+    mutationFn: async (ticket) => {
+      const response = await axios.post("/api/tickets/assign-ticket", {
         ticketId: ticket.id,
       });
 
@@ -114,7 +132,7 @@ const RecievedTickets = ({ title }) => {
         <>
           <div className="p-2 mb-2 flex gap-2">
             <button
-              onClick={() => mutate(params.data)}
+              onClick={() => acceptMutate(params.data)}
               style={{
                 backgroundColor: "red",
                 color: "white",

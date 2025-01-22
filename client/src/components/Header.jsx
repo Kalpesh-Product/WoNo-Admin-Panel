@@ -46,7 +46,7 @@ const Header = () => {
           <div>
             <div className={`w-40 flex items-center gap-10 h-full pl-4`}>
               <img
-                onClick={() => navigate("frontend-dashboard")}
+                onClick={() => navigate("dashboard/frontend-dashboard")}
                 className="w-[70%] h-full object-contain cursor-pointer"
                 src={biznestLogo}
                 alt="logo"

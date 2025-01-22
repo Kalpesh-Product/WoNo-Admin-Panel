@@ -46,7 +46,8 @@ const CompanyHandbook = () => {
             <div>
               <span className="text-content">SOP's</span>
             </div>
-            <div>
+            <div className="flex-row">
+              
               <button className="p-2 border-default border-black rounded-md text-content">
                 <IoIosArrowForward />
               </button>

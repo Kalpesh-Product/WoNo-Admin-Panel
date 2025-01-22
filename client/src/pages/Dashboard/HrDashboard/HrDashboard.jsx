@@ -2,15 +2,12 @@ import React, { useState } from "react";
 import WidgetSection from "../../../components/WidgetSection";
 import LayerBarGraph from "../../../components/graphs/LayerBarGraph";
 import Card from "../../../components/Card";
-import { MdRebaseEdit } from "react-icons/md";
 import { LuHardDriveUpload } from "react-icons/lu";
 import { CgWebsite } from "react-icons/cg";
 import { SiCashapp } from "react-icons/si";
 import { SiGoogleadsense } from "react-icons/si";
 import { MdMiscellaneousServices } from "react-icons/md";
-import { useLocation } from "react-router-dom";
 import DataCard from "../../../components/DataCard";
-import BarGraph from "../../../components/graphs/BarGraph";
 import PayRollExpenseGraph from "../../../components/HrDashboardGraph/PayRollExpenseGraph";
 import MuiTable from "../../../components/Tables/MuiTable";
 import PieChartMui from "../../../components/graphs/PieChartMui";
@@ -242,15 +239,16 @@ const HrDashboard = () => {
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth: "45%",
-        borderRadius: 8,
+        columnWidth: "35%",
+        borderRadius: 3,
         borderRadiusWhenStacked: "all",
         borderRadiusApplication: "end",
       },
     },
-    colors: ["#80bf01", "#01411C", "#FF0000"], // Colors for the series
+    colors: ["#01bf50", "#01411C", "#FF0000"], // Colors for the series
     dataLabels: {
       enabled: true,
+      fontSize: "10px",
       formatter: (value, { seriesIndex }) => {
         if (seriesIndex === 1) return "";
         return `${value}%`;
@@ -411,9 +409,8 @@ const HrDashboard = () => {
   ];
 
   const techIndiaVisitors = [
-    { id: 0, value: 40, label: "Male",color:'#0056B3' },
-    { id: 1, value: 60, label: "Female",color:"#FD507E" },
-    
+    { id: 0, value: 40, label: "Male", color: "#0056B3" },
+    { id: 1, value: 60, label: "Female", color: "#FD507E" },
   ];
   const techGoaVisitors = [
     { id: 0, value: 5, label: "Panaji" },
