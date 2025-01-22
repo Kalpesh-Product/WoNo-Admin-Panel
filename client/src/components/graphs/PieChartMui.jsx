@@ -11,7 +11,7 @@ const PieChartMui = ({ data, title }) => {
         <PieChart
           series={[
             {
-              arcLabel: (item) => `${item.name}`,
+              arcLabel: (item) => `${item.label}`,
 
               data: data.map((item) => ({
                 ...item,

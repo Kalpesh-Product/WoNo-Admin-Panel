@@ -15,8 +15,10 @@ const BreadCrumbComponent = () => {
   const breadcrumbs = pathSegments.map((segment, index) => {
     const isLast = index === pathSegments.length - 1;
 
-    // Add `/app` back to the navigation path
-    const path = `/app/dashboard/${pathSegments.slice(0, index + 1).join("/")}`;
+    // Build the navigation path
+    const path = pathSegments.slice(0, index + 1).join("/");
+    const isDirectAppPath = location.pathname.startsWith(`/app/${path}`) && !location.pathname.includes("/dashboard");
+    const fullPath = isDirectAppPath ? `/app/${path}` : `/app/dashboard/${path}`;
 
     // Capitalize for display
     const displayText = segment
@@ -32,7 +34,7 @@ const BreadCrumbComponent = () => {
         key={index}
         underline="hover"
         color="inherit"
-        onClick={() => navigate(path)} // Navigate using the path with `/app`
+        onClick={() => navigate(fullPath)} // Navigate using the determined fullPath
         style={{ cursor: "pointer" }}
       >
         {displayText}

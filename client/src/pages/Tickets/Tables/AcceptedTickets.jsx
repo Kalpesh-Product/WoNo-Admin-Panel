@@ -53,39 +53,39 @@ const AcceptedTickets = ({ title }) => {
       width: 100,
     },
     { field: "ticketTitle", headerName: "Ticket Title", flex: 1 },
-    {
-      field: "tickets",
-      headerName: "Tickets",
-      cellRenderer: (params) => {
-        const statusColorMap = {
-          "Assigned Ticket": { backgroundColor: "#ffbac2", color: "#ed0520" }, // Light orange bg, dark orange font
-          "Accepted Ticket": { backgroundColor: "#90EE90", color: "#02730a" }, // Light green bg, dark green font
-        };
+    // {
+    //   field: "tickets",
+    //   headerName: "Tickets",
+    //   cellRenderer: (params) => {
+    //     const statusColorMap = {
+    //       "Assigned Ticket": { backgroundColor: "#ffbac2", color: "#ed0520" }, 
+    //       "Accepted Ticket": { backgroundColor: "#90EE90", color: "#02730a" },
+    //     };
 
-        const { backgroundColor, color } = statusColorMap[params.value] || {
-          backgroundColor: "gray",
-          color: "white",
-        };
-        return (
-          <>
-            <Chip
-              label={params.value}
-              style={{
-                backgroundColor,
-                color,
-              }}
-            />
-          </>
-        );
-      },
-    },
+    //     const { backgroundColor, color } = statusColorMap[params.value] || {
+    //       backgroundColor: "gray",
+    //       color: "white",
+    //     };
+    //     return (
+    //       <>
+    //         <Chip
+    //           label={params.value}
+    //           style={{
+    //             backgroundColor,
+    //             color,
+    //           }}
+    //         />
+    //       </>
+    //     );
+    //   },
+    // },
     {
       field: "status",
       headerName: "Status",
       cellRenderer: (params) => {
         const statusColorMap = {
-          pending: { backgroundColor: "#FFECC5", color: "#CC8400" }, // Light orange bg, dark orange font
-          completed: { backgroundColor: "#90EE90", color: "#006400" }, // Light green bg, dark green font
+          "In Progress": { backgroundColor: "#FFECC5", color: "#CC8400" }, // Light orange bg, dark orange font
+          Closed: { backgroundColor: "#90EE90", color: "#02730a" }, // Light green bg, dark green font
         };
 
         const { backgroundColor, color } = statusColorMap[params.value] || {
@@ -146,7 +146,7 @@ const AcceptedTickets = ({ title }) => {
     return tickets.map((ticket) => ({
       id: ticket._id,
       raisedBy: ticket.raisedBy?.name || "Unknown",
-      fromDepartment: ticket.raisedToDepartment.name || "N/A",
+      raisedToDepartment: ticket.raisedToDepartment.name || "N/A",
       ticketTitle: ticket.ticket?.title || "No Title",
       status: ticket.status || "Pending",
     }));
