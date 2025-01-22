@@ -242,15 +242,16 @@ const HrDashboard = () => {
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth: "45%",
-        borderRadius: 8,
+        columnWidth: "35%",
+        borderRadius: 3,
         borderRadiusWhenStacked: "all",
         borderRadiusApplication: "end",
       },
     },
-    colors: ["#80bf01", "#01411C", "#FF0000"], // Colors for the series
+    colors: ["#01bf50", "#01411C", "#FF0000"], // Colors for the series
     dataLabels: {
       enabled: true,
+      fontSize:'10px',
       formatter: (value, { seriesIndex }) => {
         if (seriesIndex === 1) return "";
         return `${value}%`;

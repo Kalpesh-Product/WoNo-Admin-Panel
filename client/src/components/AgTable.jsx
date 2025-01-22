@@ -114,7 +114,8 @@ const AgTable = React.memo(
             </div>
           )}
           {/* Filter Button */}
-          <div className="flex items-center">
+          
+          <div className="flex justify-end items-center w-full">
             <PrimaryButton
               title={<MdFilterAlt />}
               handleSubmit={() => setFilterDrawerOpen(true)}

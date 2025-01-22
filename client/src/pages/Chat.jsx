@@ -5,12 +5,12 @@ import { MdOutlineEmojiEmotions } from "react-icons/md";
 import initialChats from "../utils/initialChat";
 import PropTypes from "prop-types";
 import { useTheme } from "@mui/material/styles";
-import AppBar from "@mui/material/AppBar";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import { BsFillPersonFill } from "react-icons/bs";
+import { Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -46,34 +46,40 @@ function a11yProps(index) {
 }
 
 const contacts = [
-  { id: 1, name: "Mac", status: "online", previewMessage: "See you soon!", lastMessageTime:"1 hour" },
+  {
+    id: 1,
+    name: "Mac",
+    status: "online",
+    previewMessage: "See you soon!",
+    lastMessageTime: "1 hour",
+  },
   {
     id: 2,
     name: "Farzeen",
     status: "offline",
     previewMessage: "Let's catch up later.",
-    lastMessageTime:"1 hour"
+    lastMessageTime: "1 hour",
   },
   {
     id: 3,
     name: "Aaron",
     status: "online",
     previewMessage: "I'll send the files.",
-    lastMessageTime:"1 hour"
+    lastMessageTime: "1 hour",
   },
   {
     id: 4,
     name: "Kalpesh",
     status: "offline",
     previewMessage: "Got it, thanks!",
-    lastMessageTime:"1 hour"
+    lastMessageTime: "1 hour",
   },
   {
     id: 5,
     name: "BIZ Nest-admins",
     group: true,
     previewMessage: "Meeting scheduled for tomorrow.",
-    lastMessageTime:"1 hour"
+    lastMessageTime: "1 hour",
   },
   {
     id: 6,
@@ -81,35 +87,35 @@ const contacts = [
     group: true,
     subGroups: ["Zomato", "SquadStack", "Infuse"],
     previewMessage: "Project updates ready.",
-    lastMessageTime:"1 hour"
+    lastMessageTime: "1 hour",
   },
   {
     id: 7,
     name: "BIZNest All Hands",
     group: true,
     previewMessage: "The workload is divided between y'all",
-    lastMessageTime:"1 hour"
+    lastMessageTime: "1 hour",
   },
   {
     id: 8,
     name: "BIZNest Tech Dept 💻",
     group: true,
     previewMessage: "The task of fixing the backend is pending",
-    lastMessageTime:"1 hour"
+    lastMessageTime: "1 hour",
   },
   {
     id: 9,
     name: "BIZNest Finance Dept",
     group: true,
     previewMessage: "The payment has been processed",
-    lastMessageTime:"1 hour"
+    lastMessageTime: "1 hour",
   },
   {
     id: 10,
     name: "Customer Service",
     status: "online",
     previewMessage: "What can I help you with?",
-    lastMessageTime:"1 hour"
+    lastMessageTime: "1 hour",
   },
 ];
 
@@ -241,29 +247,38 @@ const Chat = () => {
   });
 
   return (
-    <div className="flex py-2 bg-white h-[80vh] overflow-y-auto">
+    <div className="flex py-2 bg-white h-[80vh] overflow-y-auto hideScrollbar">
       <div className="h-full flex flex-col w-full">
         <div className="h-[80vh]  flex flex-1">
           <aside className="w-1/4 bg-white p-4 shadow-lg border-r border-gray-300 h-[80vh] relative">
-            <div className="">
-              <select
-                className="mt-2 mb-4 w-full p-2 rounded-lg border border-gray-300 bg-gray-50"
-                value={contactFilter}
-                onChange={(e) => setContactFilter(e.target.value)}
-              >
-                <option value="All" className="self-center">
+            <div className="flex flex-col gap-4">
+              <FormControl fullWidth>
+                <InputLabel id="contact-filter-label">
                   Select Priority
-                </option>
-                <option value="BIZNest">BIZNest</option>
-                <option value="WoNo">WoNo</option>
-                <option value="Companies">Companies</option>
-              </select>
+                </InputLabel>
+                <Select
+                  labelId="contact-filter-label"
+                  value={contactFilter}
+                  size="small"
+                  onChange={(e) => setContactFilter(e.target.value)}
+                  label="Select Priority"
+                  sx={{
+                    borderRadius: "8px",
+                    backgroundColor: "#f8fafc",
+                  }}
+                >
+                  <MenuItem value="All">Select Priority</MenuItem>
+                  <MenuItem value="BIZNest">BIZNest</MenuItem>
+                  <MenuItem value="WoNo">WoNo</MenuItem>
+                  <MenuItem value="Companies">Companies</MenuItem>
+                </Select>
+              </FormControl>
               <div className="flex  relative align-middle">
                 <BsFillPersonFill className="absolute left-3 top-3" />
                 <input
                   type="search"
-                  placeholder="Search people & group"
-                  className="w-full p-2 pl-10 mb-4 rounded-lg bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-start font-pregular"
+                  placeholder="Search People & Groups"
+                  className="w-full  p-2 pl-10 rounded-lg bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-start font-pregular"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 ></input>
@@ -275,19 +290,20 @@ const Chat = () => {
                 onChange={handleTabChange}
                 TabIndicatorProps={{ style: { display: "none" } }} // Removes underline
                 sx={{
-                  minHeight: "30px !important",
-                  borderRadius: 10,
-                  border: "1px solid #d1d5db",
-
+                  "&.MuiTabs-root": {
+                    minHeight: "20px", // Adjust the height of the entire Tabs component
+                    backgroundColor: "#D1D5DB", // Optional: Set a background color
+                    borderRadius: "20px", // Optional: Add rounded corners
+                    border: "1px solid #d1d5db",
+                  },
                   "& .MuiTab-root": {
                     textTransform: "none",
                     fontWeight: "medium",
                     borderRight: "0.1px solid #d1d5db",
-                    minHeight: "35px !important",
                     backgroundColor: "#d1d5db",
-                  },
-                  "& .MuiTabs-root": {
-                    minHeight: "35px !important",
+                    minHeight: "20px", // Adjust height for individual tabs
+                    padding: "4px 8px", // Adjust padding
+                    color: "black",
                   },
                   "& .Mui-selected": {
                     backgroundColor: "white", // Highlight background color for the active tab
@@ -299,175 +315,90 @@ const Chat = () => {
                 <Tab label="Read" />
                 <Tab label="Unread" />
               </Tabs>
-              {
-                activeTab === 0 &&
-                (
-                  <div className=" h-[50vh] overflow-y-auto">
-              <ul className="space-y-2  py-4">
-              {
-                filteredContacts.map((contact) => (
-                  <li key={contact.id} className="space-y-1">
-                    <div
-                      className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all ${
-                        activeContact.id === contact.id ||
-                        (contact.subGroups &&
-                          contact.subGroups.includes(activeContact.name))
-                          ? "bg-blue-100 text-blue-700"
-                          : "hover:bg-gray-100"
-                      }`}
-                      onClick={() => {
-                        if (contact.subGroups) {
-                          setExpandedGroup(
-                            expandedGroup === contact.id ? null : contact.id
-                          );
-                        } else {
-                          setActiveContact(contact);
-                        }
-                      }}
-                    >
-                      <div
-                        className={`flex items-center justify-center w-10 h-10 rounded-full text-white font-semibold mr-3 ${getNodeColor(
-                          contact.name
-                        )}`}
-                      >
-                        {getInitials(contact.name)}
-                      </div>
-                      <div className="flex-1 truncate">
-                        <span className="font-pregular">{contact.name}</span>
-                        <div className="flex flex-row justify-between">
-                        <p className="text-sm text-gray-500 truncate font-pmedium font-small ">
-                          {contact.previewMessage}
-                        </p>
-                        <p className=" text-small ">{contact.lastMessageTime}</p>
+              {activeTab === 0 && (
+                <div className=" h-[50vh] overflow-y-auto">
+                  <ul className="space-y-2">
+                    {filteredContacts.map((contact) => (
+                      <li key={contact.id} className="space-y-1">
+                        <div
+                          className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all ${
+                            activeContact.id === contact.id ||
+                            (contact.subGroups &&
+                              contact.subGroups.includes(activeContact.name))
+                              ? "bg-blue-100 text-blue-700"
+                              : "hover:bg-gray-100"
+                          }`}
+                          onClick={() => {
+                            if (contact.subGroups) {
+                              setExpandedGroup(
+                                expandedGroup === contact.id ? null : contact.id
+                              );
+                            } else {
+                              setActiveContact(contact);
+                            }
+                          }}
+                        >
+                          <div
+                            className={`flex items-center justify-center w-10 h-10 rounded-full text-white font-semibold mr-3 ${getNodeColor(
+                              contact.name
+                            )}`}
+                          >
+                            {getInitials(contact.name)}
+                          </div>
+                          <div className="flex-1 truncate">
+                            <span className="font-pmedium text-content text-gray-600">
+                              {contact.name}
+                            </span>
+                            <div className="flex flex-row justify-between">
+                              <span className="text-small truncate font-regula text-gray-500">
+                                {contact.previewMessage}
+                              </span>
+                              <span className="text-small text-gray-500">
+                                {contact.lastMessageTime}
+                              </span>
+                            </div>
+                          </div>
+                          {contact.subGroups && (
+                            <span>
+                              {expandedGroup === contact.id ? (
+                                <IoMdArrowDropup />
+                              ) : (
+                                <IoMdArrowDropdown />
+                              )}
+                            </span>
+                          )}
                         </div>
-                      </div>
-                      {contact.subGroups && (
-                        <span>
-                          {expandedGroup === contact.id ? (
-                            <IoMdArrowDropup />
-                          ) : (
-                            <IoMdArrowDropdown />
-                          )}
-                        </span>
-                      )}
-                    </div>
-                    {contact.subGroups && expandedGroup === contact.id && (
-                      <ul className="pl-4 space-y-1">
-                        {contact.subGroups.map((subGroup, idx) => (
-                          <li
-                            key={idx}
-                            className={`p-2 rounded-lg cursor-pointer ${
-                              activeContact.name === subGroup
-                                ? "bg-blue-100 text-blue-700"
-                                : "hover:bg-gray-100"
-                            }`}
-                            onClick={() =>
-                              setActiveContact({
-                                id: `${contact.id}-${idx}`,
-                                name: subGroup,
-                              })
-                            }
-                          >
-                            {subGroup}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </li>
-                ))
-              }
-                </ul>
-                
-
+                        {contact.subGroups && expandedGroup === contact.id && (
+                          <ul className="pl-4 space-y-1">
+                            {contact.subGroups.map((subGroup, idx) => (
+                              <li
+                                key={idx}
+                                className={`p-2 rounded-lg cursor-pointer ${
+                                  activeContact.name === subGroup
+                                    ? "bg-blue-100 text-blue-700"
+                                    : "hover:bg-gray-100"
+                                }`}
+                                onClick={() =>
+                                  setActiveContact({
+                                    id: `${contact.id}-${idx}`,
+                                    name: subGroup,
+                                  })
+                                }
+                              >
+                                {subGroup}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                )
-                
-                
-
-              }
-
-              {/* -----tabs content start--- */}
-             
-
-              {/* tabs for all end !! */}
+              )}
             </div>
-            {/* <div className=" h-[50vh] overflow-y-auto">
-              <ul className="space-y-2  py-4"> */}
-                {" "}
-                {/* Set scrollable height here */}
-                {/* {
-                filteredContacts.map((contact) => (
-                  <li key={contact.id} className="space-y-1">
-                    <div
-                      className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all ${
-                        activeContact.id === contact.id ||
-                        (contact.subGroups &&
-                          contact.subGroups.includes(activeContact.name))
-                          ? "bg-blue-100 text-blue-700"
-                          : "hover:bg-gray-100"
-                      }`}
-                      onClick={() => {
-                        if (contact.subGroups) {
-                          setExpandedGroup(
-                            expandedGroup === contact.id ? null : contact.id
-                          );
-                        } else {
-                          setActiveContact(contact);
-                        }
-                      }}
-                    >
-                      <div
-                        className={`flex items-center justify-center w-10 h-10 rounded-full text-white font-semibold mr-3 ${getNodeColor(
-                          contact.name
-                        )}`}
-                      >
-                        {getInitials(contact.name)}
-                      </div>
-                      <div className="flex-1 truncate">
-                        <span className="font-pregular">{contact.name}</span>
-                        <p className="text-sm text-gray-500 truncate font-pmedium font-small">
-                          {contact.previewMessage}
-                        </p>
-                      </div>
-                      {contact.subGroups && (
-                        <span>
-                          {expandedGroup === contact.id ? (
-                            <IoMdArrowDropup />
-                          ) : (
-                            <IoMdArrowDropdown />
-                          )}
-                        </span>
-                      )}
-                    </div>
-                    {contact.subGroups && expandedGroup === contact.id && (
-                      <ul className="pl-4 space-y-1">
-                        {contact.subGroups.map((subGroup, idx) => (
-                          <li
-                            key={idx}
-                            className={`p-2 rounded-lg cursor-pointer ${
-                              activeContact.name === subGroup
-                                ? "bg-blue-100 text-blue-700"
-                                : "hover:bg-gray-100"
-                            }`}
-                            onClick={() =>
-                              setActiveContact({
-                                id: `${contact.id}-${idx}`,
-                                name: subGroup,
-                              })
-                            }
-                          >
-                            {subGroup}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </li>
-                ))} */}
-              {/* </ul>
-            </div> */}
           </aside>
 
-          <div className="w-full flex flex-col justify-between bg-white relative overflow-y-auto">
+          <div className="w-full flex flex-col justify-between bg-white relative overflow-y-hidden hideScrollbar">
             <header className="p-4 border-b flex items-center">
               <div
                 className={`flex items-center justify-center w-10 h-10 rounded-full text-white font-semibold mr-3 ${getNodeColor(
@@ -477,7 +408,9 @@ const Chat = () => {
                 {getInitials(activeContact.name)}
               </div>
               <div>
-                <h3 className="font-semibold">{activeContact.name}</h3>
+                <span className="text-subtitle font-pmedium">
+                  {activeContact.name}
+                </span>
                 <p>{activeContact.status}</p>
               </div>
             </header>
@@ -494,17 +427,19 @@ const Chat = () => {
                     ref={isLastMessage ? messageEndRef : null}
                   >
                     <div
-                      className={`max-w-xs p-3 rounded-lg ${
+                      className={`w-40 p-3 rounded-lg overflow-hidden ${
                         msg.fromMe ? "bg-blue-200" : "bg-purple-100"
                       } shadow`}
                     >
                       <p className="text-sm text-gray-700">
-                        <span className="font-semibold">{msg.sender}</span>
+                        <span className="font-pregular text-content">{msg.sender}</span>
                         <span className="text-xs text-gray-500 ml-2">
                           {msg.time}
                         </span>
                       </p>
-                      <p className="mt-1 whitespace-pre-wrap font-pregular">{msg.content}</p>
+                      <p className="mt-1 font-pregular text-content">
+                        {msg.content}
+                      </p>
                     </div>
                   </div>
                 );

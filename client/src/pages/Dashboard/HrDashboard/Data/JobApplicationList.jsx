@@ -15,7 +15,7 @@ const JobApplicationList = () => {
         { field: "SubmissionTime", headerName: "Submission Time", flex: 1 },
         { field: "ResumeLink", headerName: "Resume Link", flex: 1, cellRenderer: (params) => {
             const pdfPath = params.value; // Assuming `link` field has the folder URL
-            return <a href={`${pdfPath}" target="blank" style="color:blue; text-decoration:underline;`}>Resume Link</a>;
+            return ( <a href={pdfPath}  target="blank" style={{color:"blue", textDecoration:"underline"}}>Resume Link</a>);
           },
         },
       ];
@@ -30,54 +30,54 @@ const JobApplicationList = () => {
           location: "Maharashtra",
           submissiondate:"03-01-2024",
           SubmissionTime:"17.35.56",
-          ResumeLink:"client/public/_Resume_Anushri Bhagat.pdf"
+          ResumeLink:"/_Resume_Anushri Bhagat.pdf"
 
 
         },
         {
             jobposition: "Jr Network Engineer",
-            name: "vivek parte",
+            name: "Vivek Bhartu",
             email: "vivekparte43@gmail.com",
             dateofbirth: "1989-08-26",
             mobilenumber: "1234523678",
             location: "Maharashtra",
             submissiondate:"03-01-2024",
             SubmissionTime:"17.35.56",
-            ResumeLink:"client\public\_Resume_Anushri Bhagat.pdf"
+            ResumeLink:"/_Resume_Anushri Bhagat.pdf"
             
         },
         {
             jobposition: "Jr Network Engineer",
-            name: "vivek parte",
+            name: "Parth Negi",
             email: "vivekparte43@gmail.com",
             dateofbirth: "1989-08-26",
             mobilenumber: "1234523678",
             location: "Maharashtra",
             submissiondate:"03-01-2024",
             SubmissionTime:"17.35.56",
-            ResumeLink:"client\public\_Resume_Anushri Bhagat.pdf"
+            ResumeLink:"/_Resume_Anushri Bhagat.pdf"
         },
         {
             jobposition: "Jr Network Engineer",
-            name: "vivek parte",
+            name: "karan Mehra",
             email: "vivekparte43@gmail.com",
             dateofbirth: "1989-08-26",
             mobilenumber: "1234523678",
             location: "Maharashtra",
             submissiondate:"03-01-2024",
             SubmissionTime:"17.35.56",
-            ResumeLink:"client\public\_Resume_Anushri Bhagat.pdf"
+            ResumeLink:"/_Resume_Anushri Bhagat.pdf"
         },
         {
             jobposition: "Jr Network Engineer",
-            name: "vivek parte",
+            name: "Siddhesh Bhagat",
             email: "vivekparte43@gmail.com",
             dateofbirth: "1989-08-26",
             mobilenumber: "1234523678",
             location: "Maharashtra",
             submissiondate:"03-01-2024",
             SubmissionTime:"17.35.56",
-            ResumeLink:"client\public\_Resume_Anushri Bhagat.pdf"
+            ResumeLink:"/_Resume_Anushri Bhagat.pdf"
         },
       ];
     
@@ -85,7 +85,7 @@ const JobApplicationList = () => {
     <div>
         <AgTable
           search={true}
-          searchColumn={"Leave Type"}
+          searchColumn={"Job Position"}
           tableTitle={"Job Applications"}
           buttonTitle={"Add Requested Leave"}
           data={rows}
