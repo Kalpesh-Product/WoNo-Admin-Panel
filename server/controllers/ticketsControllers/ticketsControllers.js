@@ -60,7 +60,10 @@ const raiseTicket = async (req, res, next) => {
 const getTickets = async (req, res, next) => {
   try {
     const { user } = req;
-    const loggedInUser = await User.findOne({ _id: user }).lean().exec();
+    const loggedInUser = await User.findOne({ _id: user }) 
+    .populate({path:"role",select:"roleTitle"})
+    .lean()
+    .exec();
 
     if (!loggedInUser || !loggedInUser.department) {
       return res.sendStatus(403);
@@ -70,32 +73,57 @@ const getTickets = async (req, res, next) => {
       dept.toString()
     );
 
-    const matchingTickets = await Ticket.find({
-      $and: [
-        {
-          $or: [
-            { raisedToDepartment: { $in: userDepartments } },
-            { escalatedTo: { $in: userDepartments } },
+    
+    let matchingTickets 
+    
+    
+    if(loggedInUser.role.roleTitle === "Master-Admin"){ 
+       
+        matchingTickets = await Ticket.find({
+          $and: [
+            { accepted: { $exists: false } },
+            { raisedBy: { $ne: loggedInUser._id } },
           ],
-        },
-        { "ticket.accepted": { $exists: false } },
-        { raisedBy: { $ne: loggedInUser._id } },
-      ],
-    })
-      .populate([
+         }
+      )
+        .populate([ 
         { path: "ticket" },
         { path: "raisedBy", select: "name" },
-        { path: "raisedToDepartment", select: "name" },
+        { path: "raisedToDepartment", select: "name" }
       ])
-      .lean()
-      .exec();
+   
+    } 
+    else{
+      
+      matchingTickets = await Ticket.find({
+        $and: [
+          {
+            $or: [
+              { raisedToDepartment: { $in: userDepartments } },
+              { escalatedTo: { $in: userDepartments } },
+            ],
+          },
+          { "ticket.accepted": { $exists: false } },
+          { raisedBy: { $ne: loggedInUser._id } },
+        ],
+      })
+        .populate([
+          { path: "ticket" },
+          { path: "raisedBy", select: "name" },
+          { path: "raisedToDepartment", select: "name" },
+        ])
+        .lean()
+        .exec();
+    }
+
+     
 
     if (matchingTickets.length) {
       return res.status(200).json(matchingTickets);
     }
 
     if (!matchingTickets.length) {
-      return res.status(404).json({ message: "No tickets aviliable" });
+      return res.status(404).json({ message: "No tickets available" });
     }
     return res.sendStatus(403);
   } catch (error) {
@@ -307,7 +335,7 @@ const closeTicket = async (req, res, next) => {
 const fetchFilteredTickets = async (req, res, next) => {
   try {
     const { user } = req;
-
+ 
     const { flag } = req.params;
 
     const loggedInUser = await User.findOne({ _id: user })
@@ -318,18 +346,6 @@ const fetchFilteredTickets = async (req, res, next) => {
     if (!loggedInUser) {
       return res.status(400).json({ message: "No such user found" });
     }
-   
-
-    if(loggedInUser.role.roleTitle === "Master-Admin"){ 
-      
-      const tickets = await Ticket.find().populate([ 
-        { path: "ticket" },
-        { path: "raisedBy", select: "name" },
-        { path: "raisedToDepartment", select: "name" },
-      ])
- 
-      return res.status(200).json(tickets);
-    } 
 
 
     const userDepartments = loggedInUser.department.map((dept) =>
@@ -346,23 +362,23 @@ const fetchFilteredTickets = async (req, res, next) => {
 
     let filteredTickets = []
     if(flag === 'accept'){
-      filteredTickets = await filterAcceptTickets(user)
+      filteredTickets = await filterAcceptTickets(user,loggedInUser)
     }
     if(flag === 'assign'){
-      filteredTickets = await filterAssignedTickets(userDepartments)
+      filteredTickets = await filterAssignedTickets(userDepartments,loggedInUser)
     }
     else if(flag === 'close'){
-      filteredTickets = await filterCloseTickets(userDepartments)
+      filteredTickets = await filterCloseTickets(userDepartments,loggedInUser)
     }
     else if(flag === 'support'){
-      filteredTickets = await filterSupportTickets(user)
+      filteredTickets = await filterSupportTickets(user,loggedInUser)
     }
     else if(flag === 'escalate'){
-      filteredTickets = await filterEscalatedTickets(userDepartments)
+      filteredTickets = await filterEscalatedTickets(userDepartments,loggedInUser)
     }
    
     if(filteredTickets.length === 0){ 
-      return res.status(204).json({message:'Tickets not found'});
+      return res.status(200).json({message:'No tickets Available'});
     }
 
     return res.status(200).json(filteredTickets);
