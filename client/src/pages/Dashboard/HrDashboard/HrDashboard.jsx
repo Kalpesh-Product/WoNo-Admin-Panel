@@ -117,11 +117,11 @@ const HrDashboard = () => {
   // Generate colors
   const generateColorsWithSpacing = (series) => {
     const departmentColorMapping = {
-      Sales: "#99a7ca",
-      IT: "#0056b3",
-      Tech: "#0aa8ef", // Red
-      Admin: "#99f6ca",
-      Maintainance: "#00cdd1",
+      Sales: "#4DA5C5",
+      IT: "#4591AD",
+      Tech: "#95B4C6", // Red
+      Admin: "#608EA9",
+      Maintainance: "#87C7DE",
       Space: "#FFA500", // Orange
     };
 
@@ -172,7 +172,7 @@ const HrDashboard = () => {
       style: {
         fontSize: "9px",
         fontFamily: "Poppins-Regular, Arial, sans-serif",
-        colors: ["#000000"], // Color of the data labels
+        colors: ["#00000"], // Color of the data labels
       },
     },
     xaxis: {
