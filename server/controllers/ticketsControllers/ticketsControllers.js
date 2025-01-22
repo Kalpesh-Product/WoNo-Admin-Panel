@@ -4,7 +4,7 @@ const User = require("../../models/User");
 const mongoose = require("mongoose");
 const Ticket = require("../../models/tickets/Tickets");
 const Department = require("../../models/Departments");
-const { filterCloseTickets, filterAcceptTickets } = require("../../utils/filterTickets");
+const { filterCloseTickets, filterAcceptTickets, filterSupportTickets, filterEscalatedTickets } = require("../../utils/filterTickets");
 
 const raiseTicket = async (req, res, next) => {
   try {
@@ -309,15 +309,29 @@ const fetchFilteredTickets = async (req, res, next) => {
 
     const loggedInUser = await User.findOne({ _id: user })
       .select("-refreshToken -password")
+      .populate({path:"role",select:"roleTitle"})
       .lean()
       .exec();
     if (!loggedInUser) {
       return res.status(400).json({ message: "No such user found" });
     }
+   
+
+    if(loggedInUser.role.roleTitle === "Master-Admin"){ 
+      
+      const tickets = await Ticket.find().populate([ 
+        { path: "ticket" },
+        { path: "raisedBy", select: "name" },
+        { path: "raisedToDepartment", select: "name" },
+      ])
+ 
+      return res.status(200).json(tickets);
+    } 
+
 
     const userDepartments = loggedInUser.department.map((dept) =>
       dept.toString()
-    );
+    ); 
 
     if (!userDepartments || !Array.isArray(userDepartments) || userDepartments.length === 0) {
       return res.status(400).json("Invalid or empty userDepartments array");
@@ -330,8 +344,14 @@ const fetchFilteredTickets = async (req, res, next) => {
     else if(flag === 'close'){
       filteredTickets = await filterCloseTickets(userDepartments)
     }
+    else if(flag === 'support'){
+      filteredTickets = await filterSupportTickets(user)
+    }
+    else if(flag === 'escalate'){
+      filteredTickets = await filterEscalatedTickets(userDepartments)
+    }
    
-    if(filteredTickets.length === 0){
+    if(filteredTickets.length === 0){ 
       return res.status(204).json({message:'Tickets not found'});
     }
 
