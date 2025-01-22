@@ -4,7 +4,7 @@ const User = require("../../models/User");
 const mongoose = require("mongoose");
 const Ticket = require("../../models/tickets/Tickets");
 const Department = require("../../models/Departments");
-const { filterCloseTickets, filterAcceptTickets, filterSupportTickets, filterEscalatedTickets } = require("../../utils/filterTickets");
+const { filterCloseTickets, filterAcceptTickets, filterSupportTickets, filterEscalatedTickets, filterAssignedTickets } = require("../../utils/filterTickets");
 
 const raiseTicket = async (req, res, next) => {
   try {
@@ -340,6 +340,9 @@ const fetchFilteredTickets = async (req, res, next) => {
     let filteredTickets = []
     if(flag === 'accept'){
       filteredTickets = await filterAcceptTickets(user)
+    }
+    if(flag === 'assign'){
+      filteredTickets = await filterAssignedTickets(userDepartments)
     }
     else if(flag === 'close'){
       filteredTickets = await filterCloseTickets(userDepartments)

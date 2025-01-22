@@ -37,6 +37,25 @@ async function filterCloseTickets(userDepartments) {
         return acceptedTickets;
       }
 
+    async function filterAssignedTickets() {
+        const assignedTickets = await Tickets.find({
+            $and: [
+              { assignees: { $exists: true } },  
+    { $expr: { $gt: [{ $size: "$assignees" }, 0] } },  
+    { raisedToDepartment: { $in: userDepartments } },  
+            ],
+          })
+          .populate([
+            { path: "ticket" },
+            { path: "raisedBy", select: "name" },
+            { path: "raisedToDepartment", select: "name" },
+          ])
+          .lean()
+          .exec();
+
+        return assignedTickets;
+      }
+
     async function filterSupportTickets(userId) {
         const supportTickets = await SupportTicket.find({
             user: userId,
@@ -76,4 +95,4 @@ async function filterCloseTickets(userDepartments) {
         return escalatedTickets;
       }
 
-  module.exports = {filterCloseTickets,filterAcceptTickets,filterSupportTickets,filterEscalatedTickets}
+  module.exports = {filterCloseTickets,filterAcceptTickets,filterSupportTickets,filterEscalatedTickets,filterAssignedTickets}
