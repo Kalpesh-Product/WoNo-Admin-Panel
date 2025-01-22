@@ -3,14 +3,14 @@ const {
 } = require("../controllers/ticketsControllers/supportTicketsController");
 const SupportTicket = require("../models/tickets/supportTickets");
 const Ticket = require("../models/tickets/Tickets");
-const Tickets = require("../models/tickets/Tickets");
 
 async function filterCloseTickets(userDepartments,loggedInUser) {
 
   
   if(loggedInUser.role.roleTitle === "Master-Admin"){ 
    
-    const tickets = await Ticket.find({ status: "Closed" }).populate([ 
+    const tickets = await Ticket.find({ status: "Closed",
+      raisedBy: { $ne: loggedInUser._id } }).populate([ 
       { path: "ticket" },
       { path: "raisedBy", select: "name" },
       { path: "raisedToDepartment", select: "name" },
@@ -19,7 +19,7 @@ async function filterCloseTickets(userDepartments,loggedInUser) {
     return  tickets
   } 
 
-  const closedTickets = await Tickets.find({
+  const closedTickets = await Ticket.find({
     $and: [
       { status: "Closed" },
       { raisedToDepartment: { $in: userDepartments } },
@@ -40,7 +40,10 @@ async function filterAcceptTickets(userId,loggedInUser) {
  
   
   if(loggedInUser.role.roleTitle === "Master-Admin"){ 
-    const tickets = await Ticket.find({ status: "In Progress"  }).populate([ 
+    const tickets = await Ticket.find({$and: [
+      {status: "In Progress"},
+      { raisedBy: { $ne: loggedInUser._id }  },
+    ],}).populate([ 
       { path: "ticket" },
       { path: "raisedBy", select: "name" },
       { path: "raisedToDepartment", select: "name" },
@@ -49,7 +52,7 @@ async function filterAcceptTickets(userId,loggedInUser) {
     return  tickets
   } 
 
-  const acceptedTickets = await Tickets.find({
+  const acceptedTickets = await Ticket.find({
     accepted: userId,
     status: "In Progress" })
     .populate([
@@ -77,7 +80,7 @@ async function filterAssignedTickets(userDepartments,loggedInUser) {
   } 
 
 
-  const assignedTickets = await Tickets.find({
+  const assignedTickets = await Ticket.find({
     $and: [
       { assignees: { $exists: true, $ne: []  } },
       { raisedToDepartment: { $in: userDepartments } },
