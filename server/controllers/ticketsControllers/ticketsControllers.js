@@ -371,7 +371,6 @@ const fetchFilteredTickets = async (req, res, next) => {
     }
     else if(flag === 'close'){
       filteredTickets = await filterCloseTickets(userDepartments,loggedInUser)
-      console.log('close',filteredTickets)
     }
     else if(flag === 'support'){
       filteredTickets = await filterSupportTickets(user,loggedInUser)

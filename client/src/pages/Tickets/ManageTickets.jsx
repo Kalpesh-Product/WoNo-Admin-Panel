@@ -19,34 +19,6 @@ const ManageTickets = () => {
     setActiveTab(newValue);
   };
 
-  // const { data: tickets = [], isLoading } = useQuery({
-  //   queryKey: ["tickets"],
-  //   queryFn: async () => {
-  //     try {
-  //       const response = await axios.get("/api/tickets/get-tickets");
-  //       const personalAcceptedTickets = response.data.filter(
-  //         (ticket) => ticket.accepted === auth.user._id
-  //       );
-  //       const personalAssignedTickets = response.data.filter(
-  //         (ticket) => 
-  //           ticket.assigness.filter((assignee)=> assignee === auth.user._id)
-  //         
-  //       );
-  //       return {personalAcceptedTickets,personalAssignedTickets};
-  //     } catch (error) {
-  //       throw new Error(error.response.data.message);
-  //     }
-  //   },
-  // });
-
-
-
-
-//   useEffect(()=>{
-// console.log('tickets:',tickets)
-//   },[tickets])
-
-
   const widgets = [
     {
       layout: 1,
