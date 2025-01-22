@@ -75,35 +75,10 @@ const EditDetails = () => {
       </div>
 
       <div className="h-[51vh] overflow-y-auto">
-        <div className="flex justify-center items-center gap-8 w-full ">
-          <div className="flex gap-6 items-center">
-            <div className="w-40 h-40">
-              <Avatar
-                style={{
-                  // backgroundColor: user.avatarColor,
-                  width: "100%",
-                  height: "100%",
-                  fontSize: "5rem",
-                }}
-              >
-                {/* {user.name.charAt(0)} */}
-              </Avatar>
-            </div>
-            <div className="flex flex-col gap-6">
-              <span className="text-content">
-                {/* {user.role} - {user.department} */}
-                Upload Image
-              </span>
-              <div>
-                <PrimaryButton title={"Upload"} />
-              </div>
-            </div>
-          </div>
-        </div>
 
         <div>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="grid grid-cols-2 sm:grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 sm:grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 {/* Section: Basic Information */}
                 <div className="py-4 border-b-default border-borderGray">
@@ -139,14 +114,19 @@ const EditDetails = () => {
                           )}
                         />
                       ) : (
-                        <div className="py-2 flex items-center gap-2">
-                          <div className="w-full justify-end flex">
+                        <div className="py-2 flex justify-between items-center gap-2">
+                          <div className="w-[100%] justify-start flex">
                             <span className="font-pmedium text-gray-600 text-content">
                               {fieldKey
                                 .replace(/([A-Z])/g, " $1")
                                 .replace(/^./, (str) => str.toUpperCase())}
-                              :
+                              
                             </span>{" "}
+                          </div>
+                          <div className="">
+                            <span>
+                              :
+                            </span>
                           </div>
                           <div className="w-full">
                             <span className="text-gray-500">
@@ -195,21 +175,26 @@ const EditDetails = () => {
                           )}
                         />
                       ) : (
-                        <div className="py-2 flex items-center gap-2">
-                          <div className="w-full justify-end flex">
-                            <span className="font-pmedium text-gray-600 text-content">
-                              {fieldKey
-                                .replace(/([A-Z])/g, " $1")
-                                .replace(/^./, (str) => str.toUpperCase())}
-                              :
-                            </span>{" "}
-                          </div>
-                          <div className="w-full">
-                            <span className="text-gray-500">
-                              {control._defaultValues[fieldKey]}
-                            </span>
-                          </div>
+                        <div className="py-2 flex justify-between items-start gap-2">
+                        <div className="w-[35%] justify-start flex">
+                          <span className="font-pmedium text-gray-600 text-content">
+                            {fieldKey
+                              .replace(/([A-Z])/g, " $1")
+                              .replace(/^./, (str) => str.toUpperCase())}
+                            
+                          </span>{" "}
                         </div>
+                        <div className="">
+                          <span>
+                            :
+                          </span>
+                        </div>
+                        <div className="w-full">
+                          <span className="text-gray-500">
+                            {control._defaultValues[fieldKey]}
+                          </span>
+                        </div>
+                      </div>
                       )}
                     </div>
                   ))}
@@ -246,21 +231,26 @@ const EditDetails = () => {
                           )}
                         />
                       ) : (
-                        <div className="py-2 flex items-center gap-2">
-                          <div className="w-full justify-end flex">
-                            <span className="font-pmedium text-gray-600 text-content">
-                              {fieldKey
-                                .replace(/([A-Z])/g, " $1")
-                                .replace(/^./, (str) => str.toUpperCase())}
-                              :
-                            </span>{" "}
-                          </div>
-                          <div className="w-full">
-                            <span className="text-gray-500">
-                              {control._defaultValues[fieldKey]}
-                            </span>
-                          </div>
+                        <div className="py-2 flex justify-between items-center gap-2">
+                        <div className="w-[100%] justify-start flex">
+                          <span className="font-pmedium text-gray-600 text-content">
+                            {fieldKey
+                              .replace(/([A-Z])/g, " $1")
+                              .replace(/^./, (str) => str.toUpperCase())}
+                            
+                          </span>{" "}
                         </div>
+                        <div className="">
+                          <span>
+                            :
+                          </span>
+                        </div>
+                        <div className="w-full">
+                          <span className="text-gray-500">
+                            {control._defaultValues[fieldKey]}
+                          </span>
+                        </div>
+                      </div>
                       )}
                     </div>
                   ))}
@@ -291,21 +281,26 @@ const EditDetails = () => {
                           )}
                         />
                       ) : (
-                        <div className="py-2 flex items-center gap-2">
-                          <div className="w-full justify-end flex">
-                            <span className="font-pmedium text-gray-600 text-content">
-                              {fieldKey
-                                .replace(/([A-Z])/g, " $1")
-                                .replace(/^./, (str) => str.toUpperCase())}
-                              :
-                            </span>{" "}
-                          </div>
-                          <div className="w-full">
-                            <span className="text-gray-500">
-                              {control._defaultValues[fieldKey]}
-                            </span>
-                          </div>
+                        <div className="py-2 flex justify-between items-center gap-2">
+                        <div className="w-[100%] justify-start flex">
+                          <span className="font-pmedium text-gray-600 text-content">
+                            {fieldKey
+                              .replace(/([A-Z])/g, " $1")
+                              .replace(/^./, (str) => str.toUpperCase())}
+                            
+                          </span>{" "}
                         </div>
+                        <div className="">
+                          <span>
+                            :
+                          </span>
+                        </div>
+                        <div className="w-full">
+                          <span className="text-gray-500">
+                            {control._defaultValues[fieldKey]}
+                          </span>
+                        </div>
+                      </div>
                       )}
                     </div>
                   ))}
@@ -344,21 +339,26 @@ const EditDetails = () => {
                           )}
                         />
                       ) : (
-                        <div className="py-2 flex items-center gap-2">
-                          <div className="w-full justify-end flex">
-                            <span className="font-pmedium text-gray-600 text-content">
-                              {fieldKey
-                                .replace(/([A-Z])/g, " $1")
-                                .replace(/^./, (str) => str.toUpperCase())}
-                              :
-                            </span>{" "}
-                          </div>
-                          <div className="w-full">
-                            <span className="text-gray-500">
-                              {control._defaultValues[fieldKey]}
-                            </span>
-                          </div>
+                        <div className="py-2 flex justify-between items-center gap-2">
+                        <div className="w-[100%] justify-start flex">
+                          <span className="font-pmedium text-gray-600 text-content">
+                            {fieldKey
+                              .replace(/([A-Z])/g, " $1")
+                              .replace(/^./, (str) => str.toUpperCase())}
+                            
+                          </span>{" "}
                         </div>
+                        <div className="">
+                          <span>
+                            :
+                          </span>
+                        </div>
+                        <div className="w-full">
+                          <span className="text-gray-500">
+                            {control._defaultValues[fieldKey]}
+                          </span>
+                        </div>
+                      </div>
                       )}
                     </div>
                   ))}
@@ -398,21 +398,26 @@ const EditDetails = () => {
                           )}
                         />
                       ) : (
-                        <div className="py-2 flex items-center gap-2">
-                          <div className="w-full justify-end flex">
-                            <span className="font-pmedium text-gray-600 text-content">
-                              {fieldKey
-                                .replace(/([A-Z])/g, " $1")
-                                .replace(/^./, (str) => str.toUpperCase())}
-                              :
-                            </span>{" "}
-                          </div>
-                          <div className="w-full">
-                            <span className="text-gray-500">
-                              {control._defaultValues[fieldKey]}
-                            </span>
-                          </div>
+                        <div className="py-2 flex justify-between items-center gap-2">
+                        <div className="w-[100%] justify-start flex">
+                          <span className="font-pmedium text-gray-600 text-content">
+                            {fieldKey
+                              .replace(/([A-Z])/g, " $1")
+                              .replace(/^./, (str) => str.toUpperCase())}
+                            
+                          </span>{" "}
                         </div>
+                        <div className="">
+                          <span>
+                            :
+                          </span>
+                        </div>
+                        <div className="w-full">
+                          <span className="text-gray-500">
+                            {control._defaultValues[fieldKey]}
+                          </span>
+                        </div>
+                      </div>
                       )}
                     </div>
                   ))}

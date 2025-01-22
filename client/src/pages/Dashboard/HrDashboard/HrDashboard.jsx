@@ -251,7 +251,7 @@ const HrDashboard = () => {
     colors: ["#01bf50", "#01411C", "#FF0000"], // Colors for the series
     dataLabels: {
       enabled: true,
-      fontSize:'10px',
+      fontSize: "10px",
       formatter: (value, { seriesIndex }) => {
         if (seriesIndex === 1) return "";
         return `${value}%`;
@@ -280,10 +280,36 @@ const HrDashboard = () => {
       },
     },
     tooltip: {
-      y: {
-        formatter: (value) => `${value}%`,
+      shared: true, // Ensure all series values are shown together
+      intersect: false, // Avoid showing individual values for each series separately
+      custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+        const utilised = utilisedData[dataPointIndex] || 0;
+        const exceeded = exceededData[dataPointIndex] || 0;
+        const defaultVal = defaultData[dataPointIndex] || 0;
+
+        // Custom tooltip HTML
+        return `
+        <div style="padding: 10px; font-size: 12px; line-height: 1.5; text-align: left;">
+          <strong style="display: block; text-align: center; margin-bottom: 8px;">
+            ${w.globals.labels[dataPointIndex]}
+          </strong>
+          <div style="display: flex; gap:3rem;">
+            <span style="flex: 1; text-align: left;">Default Budget:</span>
+            <span style="flex: 1; text-align: right;">100%</span>
+          </div>
+          <div style="display: flex; gap:3rem;">
+            <span style="flex: 1; text-align: left;">Utilized Budget:</span>
+            <span style="flex: 1; text-align: right;">${utilised}%</span>
+          </div>
+          <div style="display: flex; gap:3rem;">
+            <span style="flex: 1; text-align: left;">Exceeded Budget:</span>
+            <span style="flex: 1; text-align: right;">${exceeded}%</span>
+          </div>
+        </div>
+      `;
       },
     },
+
     legend: {
       show: true,
       position: "top",
@@ -411,18 +437,125 @@ const HrDashboard = () => {
     },
   ];
 
-  const techIndiaVisitors = [
-    { id: 0, value: 40, label: "Male",color:'#0056B3' },
-    { id: 1, value: 60, label: "Female",color:"#FD507E" },
-    
+  const users = [
+    { name: "John", gender: "Male" },
+    { name: "Alice", gender: "Female" },
+    { name: "Bob", gender: "Male" },
+    { name: "Eve", gender: "Female" },
+    { name: "Charlie", gender: "Male" },
+    { name: "Charlie", gender: "Male" },
+    { name: "Diana", gender: "Female" },
+    { name: "Diana", gender: "Female" },
+    { name: "Mark", gender: "Male" },
+    { name: "James", gender: "Male" },
   ];
-  const techGoaVisitors = [
-    { id: 0, value: 5, label: "Panaji" },
-    { id: 1, value: 2, label: "Margao" },
-    { id: 2, value: 3, label: "Mapusa" },
-    { id: 3, value: 3, label: "Ponda" },
-    { id: 4, value: 6, label: "Verna" },
+  
+  // Calculate total and gender-specific counts
+  const totalUsers = users.length;
+  const maleCount = users.filter((user) => user.gender === "Male").length;
+  const femaleCount = users.filter((user) => user.gender === "Female").length;
+  
+  const genderData = [
+    {
+      id: 0,
+      value: ((maleCount / totalUsers) * 100).toFixed(2),
+      actualCount: maleCount,
+      label: "Male",
+      color: "#0056B3",
+    },
+    {
+      id: 1,
+      value: ((femaleCount / totalUsers) * 100).toFixed(2),
+      actualCount: femaleCount,
+      label: "Female",
+      color: "#FD507E",
+    },
   ];
+
+  const genderPieChart = {
+    chart: {
+      type: "pie",
+    },
+    labels: ["Male", "Female"], // Labels for the pie slices
+    colors: ["#0056B3", "#FD507E"], // Pass colors as an array
+    dataLabels: {
+      enabled: true,
+      style: {
+        fontSize: "14px", // Adjust the font size of the labels
+        fontWeight: "bold",
+      },
+      dropShadow: {
+        enabled: true,
+        top: 1,
+        left: 1,
+        blur: 1,
+        color: "#000",
+        opacity: 0.45,
+      },
+      formatter: function (val) {
+        return `${val.toFixed(0)}%`; // Show percentage value in the center
+      },
+    },
+    tooltip: {
+      enabled: true,
+      custom: function ({ series, seriesIndex }) {
+        const item = genderData[seriesIndex]; // Use genderData to fetch the correct item
+        return `
+          <div style="padding: 5px; font-size: 12px;">
+            ${item.label}: ${item.actualCount} employees
+          </div>`;
+      },
+    },
+    legend: {
+      position: "right",
+      horizontalAlign: "center",
+    },
+  };
+
+  //First pie-chart config data end
+
+//Second pie-chart config data start
+const techGoaVisitors = [
+  { id: 0, value: 5, label: "Panaji", color: "#4A90E2" }, // Light Blue
+  { id: 1, value: 2, label: "Margao", color: "#007AFF" }, // Medium Blue
+  { id: 2, value: 3, label: "Mapusa", color: "#0056B3" }, // Dark Blue
+  { id: 3, value: 3, label: "Ponda", color: "#1E90FF" }, // Dodger Blue
+  { id: 4, value: 6, label: "Verna", color: "#87CEFA" }, // Sky Blue
+];
+
+const techGoaVisitorsOptions = {
+  chart: {
+    type: "pie",
+  },
+  labels: techGoaVisitors.map((item) => item.label), // Labels for the pie slices
+  colors: techGoaVisitors.map((item) => item.color), // Assign colors to slices
+  dataLabels: {
+    enabled: true,
+    style: {
+      fontSize: "14px",
+      fontWeight: "bold",
+    },
+    formatter: function (val) {
+      return `${val.toFixed(0)}%`; // Show percentage value
+    },
+  },
+  tooltip: {
+    enabled: true,
+    custom: function ({ series, seriesIndex }) {
+      const item = techGoaVisitors[seriesIndex]; // Access the correct item
+      return `
+        <div style="padding: 5px; font-size: 12px;">
+          ${item.label}: ${item.value} visitors
+        </div>`;
+    },
+  },
+  legend: {
+    position: "right",
+    horizontalAlign: "center",
+  },
+};
+
+
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -450,14 +583,14 @@ const HrDashboard = () => {
     {
       layout: 6,
       widgets: [
-        <Card icon={<CgWebsite />} title="On Boarding" route={"onboarding"} />,
+        <Card icon={<CgWebsite />} title="Employee" route={"onboarding"} />,
         <Card
           icon={<LuHardDriveUpload />}
-          title="Compliance"
+          title="Company"
           route={"compliances"}
         />,
         <Card icon={<SiCashapp />} title="Finance" route={"finance"} />,
-        <Card icon={<CgWebsite />} title="Performance" route={"#"} />,
+        <Card icon={<CgWebsite />} title="Mix Bag" route={"#"} />,
         <Card icon={<SiGoogleadsense />} title="Data" route={"data"} />,
         <Card
           icon={<MdMiscellaneousServices />}
@@ -489,11 +622,20 @@ const HrDashboard = () => {
     },
     {
       layout: 2,
-      heading: " Site Visitor Analytics",
+      heading: "Site Visitor Analytics",
       widgets: [
-        <PieChartMui title={"Gender Data"} data={techIndiaVisitors} />,
-
-        <PieChartMui title={"City Wise Employees"} data={techGoaVisitors} />,
+        <PieChartMui
+      percent={true} // Enable percentage display
+      title={"Gender Distribution"}
+      data={genderData} // Pass processed data
+      options={genderPieChart}
+    />,
+        <PieChartMui
+      percent={true} // Enable percentage display
+      title={"City Wise Employees"}
+      data={techGoaVisitors} // Pass processed data
+      options={techGoaVisitorsOptions}
+    />,
       ],
     },
     {
