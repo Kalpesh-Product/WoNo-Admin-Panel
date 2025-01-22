@@ -80,7 +80,7 @@ const AcceptedTickets = ({ title }) => {
       cellRenderer: (params) => (
         <div className="p-2 mb-2 flex gap-2">
           <button
-            onClick={() => mutate(params.data)}
+            onClick={() => mutate(params.data.id)}
             style={{
               backgroundColor: "green",
               color: "white",

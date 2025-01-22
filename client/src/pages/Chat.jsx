@@ -432,7 +432,7 @@ const Chat = () => {
                       } shadow`}
                     >
                       <p className="text-sm text-gray-700">
-                        <span className="font-semibold">{msg.sender}</span>
+                        <span className="font-pregular text-content">{msg.sender}</span>
                         <span className="text-xs text-gray-500 ml-2">
                           {msg.time}
                         </span>
