@@ -8,7 +8,7 @@ import Footer from "../components/Footer";
 const MainLayout = () => {
   return (
     <>
-      <div className="w-full h-screen overflow-y-auto">
+      <div className="w-full h-screen overflow-y-auto hideScrollbar">
         <header className=" flex w-full shadow-md">
           <Header />
         </header>

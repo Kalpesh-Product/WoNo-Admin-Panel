@@ -1,49 +1,55 @@
-import React, { useEffect, useState } from "react";
 import AgTable from "../../../components/AgTable";
-import { Chip } from "@mui/material";
+import { Chip, CircularProgress, Typography } from "@mui/material";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import { toast } from "sonner";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { queryClient } from "../../../index";
 
 const AcceptedTickets = ({ title }) => {
-  const [acceptedTickets, setAcceptedTickets] = useState([]);
-  
   const axios = useAxiosPrivate();
 
-  useEffect(() => {
-    const getAcceptedTickets = async () => {
-      try {
-        const response = await axios.get(
-          "/api/tickets/filtered-tickets/accept"
-        );
-        setAcceptedTickets(response.data);
-      } catch (error) {
-        toast.error(error.message);
-      }
-    };
+  // Fetch Accepted Tickets
+  const { data: acceptedTickets = [], isLoading } = useQuery({
+    queryKey: ["accepted-tickets"],
+    queryFn: async () => {
+      const response = await axios.get("/api/tickets/filtered-tickets/accept");
 
-    getAcceptedTickets();
-  }, []);
+      return response.data;
+    },
+  });
 
-  const handleClose = async (closedTicket) => {
-    try {
+  const { mutate } = useMutation({
+    mutationKey: ["close-ticket"],
+    mutationFn: async (ticketId) => {
       const response = await axios.post("/api/tickets/close-ticket", {
-        ticketId: closedTicket.id,
+        ticketId,
       });
-      toast.success(response.data.message);
-  
-      // Update the state to remove the closed ticket
-      setAcceptedTickets((prevTickets) =>
-        prevTickets.filter((ticket) => ticket._id !== closedTicket.id)
-      );
-    } catch (error) {
-      toast.error(error.message);
-    }
-  };
-  
+      return response.data;
+    },
 
-  useEffect(() => {
-    console.log("Accepted tickets : ", acceptedTickets);
-  }, [acceptedTickets]);
+    onSuccess: (data) => {
+      toast.success(data.message || "Ticket closed successfully");
+      queryClient.invalidateQueries(["accepted-tickets"]); // Refetch tickets
+    },
+    onError: (err) => {
+      toast.error(err.response.data.message || "Failed to close ticket");
+    },
+  });
+
+  // Transform Tickets Data
+  const transformTicketsData = (tickets) => {
+    return !tickets.length
+      ? []
+      : tickets.map((ticket) => ({
+          id: ticket._id,
+          raisedBy: ticket.raisedBy?.name || "Unknown",
+          raisedToDepartment: ticket.raisedToDepartment.name || "N/A",
+          ticketTitle: ticket.ticket?.title || "No Title",
+          status: ticket.status || "Pending",
+        }));
+  };
+
+  const rows = isLoading ? [] : transformTicketsData(acceptedTickets);
 
   const recievedTicketsColumns = [
     { field: "raisedBy", headerName: "Raised By" },
@@ -54,119 +60,74 @@ const AcceptedTickets = ({ title }) => {
     },
     { field: "ticketTitle", headerName: "Ticket Title", flex: 1 },
     {
-      field: "tickets",
-      headerName: "Tickets",
-      cellRenderer: (params) => {
-        const statusColorMap = {
-          "Assigned Ticket": { backgroundColor: "#ffbac2", color: "#ed0520" }, // Light orange bg, dark orange font
-          "Accepted Ticket": { backgroundColor: "#90EE90", color: "#02730a" }, // Light green bg, dark green font
-        };
-
-        const { backgroundColor, color } = statusColorMap[params.value] || {
-          backgroundColor: "gray",
-          color: "white",
-        };
-        return (
-          <>
-            <Chip
-              label={params.value}
-              style={{
-                backgroundColor,
-                color,
-              }}
-            />
-          </>
-        );
-      },
-    },
-    {
       field: "status",
       headerName: "Status",
       cellRenderer: (params) => {
         const statusColorMap = {
-          pending: { backgroundColor: "#FFECC5", color: "#CC8400" }, // Light orange bg, dark orange font
-          completed: { backgroundColor: "#90EE90", color: "#006400" }, // Light green bg, dark green font
+          "In Progress": { backgroundColor: "#FFECC5", color: "#CC8400" },
+          Closed: { backgroundColor: "#90EE90", color: "#02730a" },
         };
 
         const { backgroundColor, color } = statusColorMap[params.value] || {
           backgroundColor: "gray",
           color: "white",
         };
-        return (
-          <>
-            <Chip
-              label={params.value}
-              style={{
-                backgroundColor,
-                color,
-              }}
-            />
-          </>
-        );
+        return <Chip label={params.value} style={{ backgroundColor, color }} />;
       },
     },
     {
       field: "actions",
       headerName: "Actions",
       cellRenderer: (params) => (
-        <>
-          <div className="p-2 mb-2 flex gap-2">
-            <button
-              onClick={(e) => handleClose(params.data)}
-              style={{
-                backgroundColor: "red",
-                color: "white",
-                border: "none",
-                padding: "0.1rem 0.5rem",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              Close
-            </button>
-            <button
-              style={{
-                backgroundColor: "red",
-                color: "white",
-                border: "none",
-                padding: "0.1rem 0.5rem",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              Support
-            </button>
-          </div>
-        </>
+        <div className="p-2 mb-2 flex gap-2">
+          <button
+            onClick={() => mutate(params.data.id)}
+            style={{
+              backgroundColor: "green",
+              color: "white",
+              border: "none",
+              padding: "0.1rem 0.5rem",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            Close
+          </button>
+          <button
+            style={{
+              backgroundColor: "blue",
+              color: "white",
+              border: "none",
+              padding: "0.1rem 0.5rem",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            Support
+          </button>
+        </div>
       ),
     },
   ];
 
-  const transformTicketsData = (tickets) => {
-    return tickets.map((ticket) => ({
-      id: ticket._id,
-      raisedBy: ticket.raisedBy?.name || "Unknown",
-      fromDepartment: ticket.raisedToDepartment.name || "N/A",
-      ticketTitle: ticket.ticket?.title || "No Title",
-      status: ticket.status || "Pending",
-    }));
-  };
-
-  // Example usage
-  const rows = transformTicketsData(acceptedTickets);
-
-
   return (
     <div className="p-4 border-default border-borderGray rounded-md">
       <div className="pb-4">
-        <span className="text-subtitle">{title}</span>
+        <Typography variant="h6">{title}</Typography>
       </div>
       <div className="w-full">
-        <AgTable
-          key={rows.length}
-          data={rows}
-          columns={recievedTicketsColumns}
-        />
+        {isLoading && (
+          <div className="flex justify-center">
+            <CircularProgress color="black" />
+          </div>
+        )}
+        {!isLoading ? (
+          <AgTable
+            key={rows.length}
+            data={rows}
+            columns={recievedTicketsColumns}
+          />
+        ) : null}
       </div>
     </div>
   );
