@@ -93,11 +93,14 @@ const getTickets = async (req, res, next) => {
       .lean()
       .exec();
 
-    if (matchingTickets.length > 0) {
+    if (matchingTickets.length) {
       return res.status(200).json(matchingTickets);
     }
 
-    return res.sendStatus(403); // No matching tickets found
+    if (!matchingTickets.length) {
+      return res.status(404).json({ message: "No tickets aviliable" });
+    }
+    return res.sendStatus(403);
   } catch (error) {
     next(error);
   }
@@ -120,7 +123,6 @@ const acceptTicket = async (req, res, next) => {
     let foundTicket;
     if (mongoose.Types.ObjectId.isValid(ticketId)) {
       foundTicket = await Tickets.findOne({ _id: ticketId }).lean().exec();
-      console.log(foundTicket);
       if (!foundTicket) {
         return res.status(400).json({ message: "Invalid ticket ID provided" });
       }
