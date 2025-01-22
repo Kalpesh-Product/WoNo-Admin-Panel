@@ -83,6 +83,7 @@ const getTickets = async (req, res, next) => {
           $and: [
             { accepted: { $exists: false } },
             { raisedBy: { $ne: loggedInUser._id } },
+            {status:"Pending"}
           ],
          }
       )
@@ -105,6 +106,7 @@ const getTickets = async (req, res, next) => {
           },
           { "ticket.accepted": { $exists: false } },
           { raisedBy: { $ne: loggedInUser._id } },
+          {status:"Pending"}
         ],
       })
         .populate([
