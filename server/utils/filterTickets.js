@@ -4,11 +4,13 @@ const {
 const SupportTicket = require("../models/tickets/supportTickets");
 const Ticket = require("../models/tickets/Tickets");
 
-async function filterCloseTickets(userDepartments, loggedInUser) {
-  if (loggedInUser.role.roleTitle === "Master-Admin") {
-    const tickets = await Ticket.find({
-      $and: [{ status: "Closed" }, { raisedBy: { $ne: loggedInUser._id } }],
-    }).populate([
+async function filterCloseTickets(userDepartments,loggedInUser) {
+
+  
+  if(loggedInUser.role.roleTitle === "Master-Admin"){ 
+   
+    const tickets = await Ticket.find({ status: "Closed",
+      raisedBy: { $ne: loggedInUser._id } }).populate([ 
       { path: "ticket" },
       { path: "raisedBy", select: "name" },
       { path: "raisedToDepartment", select: "name" },
@@ -34,9 +36,14 @@ async function filterCloseTickets(userDepartments, loggedInUser) {
   return closedTickets;
 }
 
-async function filterAcceptTickets(userId, loggedInUser) {
-  if (loggedInUser.role.roleTitle === "Master-Admin") {
-    const tickets = await Ticket.find({ status: "In Progress" }).populate([
+async function filterAcceptTickets(userId,loggedInUser) {
+ 
+  
+  if(loggedInUser.role.roleTitle === "Master-Admin"){ 
+    const tickets = await Ticket.find({$and: [
+      {status: "In Progress"},
+      { raisedBy: { $ne: loggedInUser._id }  },
+    ],}).populate([ 
       { path: "ticket" },
       { path: "raisedBy", select: "name" },
       { path: "raisedToDepartment", select: "name" },
@@ -73,6 +80,7 @@ async function filterAssignedTickets(userDepartments, loggedInUser) {
 
     return tickets;
   }
+
 
   const assignedTickets = await Ticket.find({
     $and: [

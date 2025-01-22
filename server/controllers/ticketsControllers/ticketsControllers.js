@@ -351,14 +351,18 @@ const fetchFilteredTickets = async (req, res, next) => {
     if (flag === "accept") {
       filteredTickets = await filterAcceptTickets(user);
     }
-    if (flag === "assign") {
-      filteredTickets = await filterAssignedTickets(userDepartments);
-    } else if (flag === "close") {
-      filteredTickets = await filterCloseTickets(userDepartments);
-    } else if (flag === "support") {
-      filteredTickets = await filterSupportTickets(user);
-    } else if (flag === "escalate") {
-      filteredTickets = await filterEscalatedTickets(userDepartments);
+    if(flag === 'assign'){
+      filteredTickets = await filterAssignedTickets(userDepartments,loggedInUser)
+    }
+    else if(flag === 'close'){
+      filteredTickets = await filterCloseTickets(userDepartments,loggedInUser)
+      console.log('close',filteredTickets)
+    }
+    else if(flag === 'support'){
+      filteredTickets = await filterSupportTickets(user,loggedInUser)
+    }
+    else if(flag === 'escalate'){
+      filteredTickets = await filterEscalatedTickets(userDepartments,loggedInUser)
     }
 
     if (filteredTickets.length === 0) {
