@@ -24,8 +24,8 @@ async function filterCloseTickets(userDepartments) {
 }
 
 async function filterAcceptTickets(userId) {
-  const acceptedTickets = await Tickets.find({
-    accepted: userId,
+  const acceptedTickets = await Ticket.find({
+    accepted: mongoose.Types.ObjectId(userId),
     status: "In Progress",
   })
     .populate([
@@ -35,6 +35,7 @@ async function filterAcceptTickets(userId) {
     ])
     .lean()
     .exec();
+  console.log(acceptedTickets);
 
   return acceptedTickets;
 }
