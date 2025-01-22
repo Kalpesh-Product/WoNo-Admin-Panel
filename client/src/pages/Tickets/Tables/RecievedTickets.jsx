@@ -1,54 +1,49 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import AgTable from "../../../components/AgTable";
-import { Chip, ListItem } from "@mui/material";
+import { Chip,  } from "@mui/material";
 import MuiModal from "../../../components/MuiModal";
-import Button from "@mui/material";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import { toast } from "sonner";
 import PrimaryButton from "../../../components/PrimaryButton";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { queryClient } from "../../../index";
 
-const RecievedTickets = ({ title, data }) => {
+const RecievedTickets = ({ title }) => {
   const [open, setOpen] = useState(false);
   const axios = useAxiosPrivate();
-  const [tickets, setTickets] = useState([]);
-  const [loading, setLoading] = useState(false);
 
-  // Reusable function to fetch tickets
-  const getTickets = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get("/api/tickets/get-tickets");
-      const filteredTickets = response.data.filter(
-        (ticket) => !ticket.accepted
-      );
-      setTickets(filteredTickets);
-    } catch (error) {
-      toast.error(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: tickets = [], isLoading } = useQuery({
+    queryKey: ["tickets"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/tickets/get-tickets");
+        const filteredTickets = response.data.filter(
+          (ticket) => !ticket.accepted
+        );
+        return filteredTickets;
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
 
-  // Initial data fetch when the component mounts
-  useEffect(() => {
-    getTickets();
-  }, []);
-
-  const handleAccept = async (ticket) => {
-    console.log("Ticket details : ", ticket);
-    try {
+  const { mutate } = useMutation({
+    mutationKey: ["accept-ticket"],
+    mutationFn: async (ticket) => {
       const response = await axios.post("/api/tickets/accept-ticket", {
         ticketId: ticket.id,
       });
 
-      toast.success(response.data.message);
-
-      // Re-fetch the updated data after accepting the ticket
-      await getTickets();
-    } catch (error) {
-      toast.error(error.message || "Something went wrong");
-    }
-  };
+      return response.data.message;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["tickets"] });
+      toast.success(data);
+    },
+    onError: (error) => {
+      toast.error(error.response.data.message);
+    },
+  });
 
   const openModal = () => {
     console.log("I am Clicked");
@@ -66,7 +61,7 @@ const RecievedTickets = ({ title, data }) => {
   };
 
   // Example usage
-  const rows = transformTicketsData(tickets);
+  const rows = isLoading ? [] : transformTicketsData(tickets);
 
   const handleClose = () => setOpen(false);
 
@@ -119,7 +114,7 @@ const RecievedTickets = ({ title, data }) => {
         <>
           <div className="p-2 mb-2 flex gap-2">
             <button
-              onClick={(e) => handleAccept(params.data)}
+              onClick={() => mutate(params.data)}
               style={{
                 backgroundColor: "red",
                 color: "white",
