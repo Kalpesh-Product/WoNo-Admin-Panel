@@ -1,8 +1,11 @@
 import AgTable from "../../../components/AgTable";
 import { Chip, CircularProgress } from "@mui/material";
+import { Chip, CircularProgress } from "@mui/material";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import { useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
+const ClosedTickets = ({ title }) => {
 const ClosedTickets = ({ title }) => {
   const axios = useAxiosPrivate();
 
@@ -22,10 +25,13 @@ const ClosedTickets = ({ title }) => {
       id: ticket._id,
       raisedBy: ticket.raisedBy?.name || "Unknown",
       fromDepartment: ticket.raisedToDepartment?.name || "N/A",
+      fromDepartment: ticket.raisedToDepartment?.name || "N/A",
       ticketTitle: ticket.ticket?.title || "No Title",
       status: ticket.status || "Pending",
     }));
   };
+
+  const rows = isLoading ? [] : transformTicketsData(data);
 
   const rows = isLoading ? [] : transformTicketsData(data);
   const recievedTicketsColumns = [
@@ -37,6 +43,10 @@ const ClosedTickets = ({ title }) => {
       headerName: "Status",
       cellRenderer: (params) => {
         const statusColorMap = {
+          pending: { backgroundColor: "#FFECC5", color: "#CC8400" },
+          "in-progress": { backgroundColor: "#ADD8E6", color: "#00008B" },
+          resolved: { backgroundColor: "#90EE90", color: "#006400" },
+          open: { backgroundColor: "#E6E6FA", color: "#4B0082" },
           pending: { backgroundColor: "#FFECC5", color: "#CC8400" },
           "in-progress": { backgroundColor: "#ADD8E6", color: "#00008B" },
           resolved: { backgroundColor: "#90EE90", color: "#006400" },
@@ -56,6 +66,13 @@ const ClosedTickets = ({ title }) => {
               color,
             }}
           />
+          <Chip
+            label={params.value}
+            style={{
+              backgroundColor,
+              color,
+            }}
+          />
         );
       },
     },
@@ -67,6 +84,17 @@ const ClosedTickets = ({ title }) => {
         <span className="text-subtitle">{title}</span>
       </div>
       <div className="w-full">
+        {isLoading ? (
+          <div className="w-full h-full flex justify-center items-center">
+            <CircularProgress color="black" />
+          </div>
+        ) : (
+          <AgTable
+            key={rows.length}
+            data={rows}
+            columns={recievedTicketsColumns}
+          />
+        )}
         {isLoading ? (
           <div className="w-full h-full flex justify-center items-center">
             <CircularProgress color="black" />
