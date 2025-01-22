@@ -3,6 +3,7 @@ import { routes } from "./routes/Routes";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Toaster } from "sonner";
 
+
 const theme = createTheme({
   typography: {
     fontFamily: [
@@ -19,8 +20,8 @@ const theme = createTheme({
 function App() {
   return (
     <ThemeProvider theme={theme}>
-      <RouterProvider router={routes} />
-      <Toaster richColors/>
+        <RouterProvider router={routes} />
+        <Toaster richColors />
     </ThemeProvider>
   );
 }
