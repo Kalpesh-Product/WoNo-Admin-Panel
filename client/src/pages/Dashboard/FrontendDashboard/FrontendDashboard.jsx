@@ -41,7 +41,7 @@ const FrontendDashboard = () => {
       bar: {
         horizontal: false,
         columnWidth: "45%",
-        borderRadius:8,
+        borderRadius:3,
         borderRadiusWhenStacked:'all',
         borderRadiusApplication:'end',
       },
