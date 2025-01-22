@@ -4,13 +4,7 @@ const User = require("../../models/User");
 const mongoose = require("mongoose");
 const Ticket = require("../../models/tickets/Tickets");
 const Department = require("../../models/Departments");
-const {
-  filterCloseTickets,
-  filterAcceptTickets,
-  filterSupportTickets,
-  filterEscalatedTickets,
-  filterAssignedTickets,
-} = require("../../utils/filterTickets");
+const { filterCloseTickets, filterAcceptTickets, filterSupportTickets, filterEscalatedTickets, filterAssignedTickets } = require("../../utils/filterTickets");
 
 const raiseTicket = async (req, res, next) => {
   try {
@@ -66,7 +60,10 @@ const raiseTicket = async (req, res, next) => {
 const getTickets = async (req, res, next) => {
   try {
     const { user } = req;
-    const loggedInUser = await User.findOne({ _id: user }).lean().exec();
+    const loggedInUser = await User.findOne({ _id: user }) 
+    .populate({path:"role",select:"roleTitle"})
+    .lean()
+    .exec();
 
     if (!loggedInUser || !loggedInUser.department) {
       return res.sendStatus(403);
@@ -76,32 +73,59 @@ const getTickets = async (req, res, next) => {
       dept.toString()
     );
 
-    const matchingTickets = await Ticket.find({
-      $and: [
-        {
-          $or: [
-            { raisedToDepartment: { $in: userDepartments } },
-            { escalatedTo: { $in: userDepartments } },
+    
+    let matchingTickets 
+    
+    
+    if(loggedInUser.role.roleTitle === "Master-Admin"){ 
+       
+        matchingTickets = await Ticket.find({
+          $and: [
+            { accepted: { $exists: false } },
+            { raisedBy: { $ne: loggedInUser._id } },
+            {status:"Pending"}
           ],
-        },
-        { "ticket.accepted": { $exists: false } },
-        { raisedBy: { $ne: loggedInUser._id } },
-      ],
-    })
-      .populate([
+         }
+      )
+        .populate([ 
         { path: "ticket" },
         { path: "raisedBy", select: "name" },
-        { path: "raisedToDepartment", select: "name" },
+        { path: "raisedToDepartment", select: "name" }
       ])
-      .lean()
-      .exec();
+   
+    } 
+    else{
+      
+      matchingTickets = await Ticket.find({
+        $and: [
+          {
+            $or: [
+              { raisedToDepartment: { $in: userDepartments } },
+              { escalatedTo: { $in: userDepartments } },
+            ],
+          },
+          { "ticket.accepted": { $exists: false } },
+          { raisedBy: { $ne: loggedInUser._id } },
+          {status:"Pending"}
+        ],
+      })
+        .populate([
+          { path: "ticket" },
+          { path: "raisedBy", select: "name" },
+          { path: "raisedToDepartment", select: "name" },
+        ])
+        .lean()
+        .exec();
+    }
+
+     
 
     if (matchingTickets.length) {
       return res.status(200).json(matchingTickets);
     }
 
     if (!matchingTickets.length) {
-      return res.status(404).json({ message: "No tickets aviliable" });
+      return res.status(404).json({ message: "No tickets available" });
     }
     return res.sendStatus(403);
   } catch (error) {
@@ -291,7 +315,7 @@ const closeTicket = async (req, res, next) => {
         return res.status(400).json({ message: "Invalid ticket ID provided" });
       }
     }
-
+ 
     const userDepartments = foundUser.department.map((dept) => dept.toString());
 
     const ticketInDepartment = userDepartments.some((id) =>
@@ -313,31 +337,22 @@ const closeTicket = async (req, res, next) => {
 const fetchFilteredTickets = async (req, res, next) => {
   try {
     const { user } = req;
-
+ 
     const { flag } = req.params;
 
     const loggedInUser = await User.findOne({ _id: user })
       .select("-refreshToken -password")
-      .populate({ path: "role", select: "roleTitle" })
+      .populate({path:"role",select:"roleTitle"})
       .lean()
       .exec();
     if (!loggedInUser) {
       return res.status(400).json({ message: "No such user found" });
     }
 
-    if (loggedInUser.role.roleTitle === "Master-Admin") {
-      const tickets = await Ticket.find().populate([
-        { path: "ticket" },
-        { path: "raisedBy", select: "name" },
-        { path: "raisedToDepartment", select: "name" },
-      ]);
-
-      return res.status(200).json(tickets);
-    }
 
     const userDepartments = loggedInUser.department.map((dept) =>
       dept.toString()
-    );
+    ); 
 
     if (
       !userDepartments ||
@@ -347,9 +362,9 @@ const fetchFilteredTickets = async (req, res, next) => {
       return res.status(400).json("Invalid or empty userDepartments array");
     }
 
-    let filteredTickets = [];
-    if (flag === "accept") {
-      filteredTickets = await filterAcceptTickets(user);
+    let filteredTickets = []
+    if(flag === 'accept'){
+      filteredTickets = await filterAcceptTickets(user,loggedInUser)
     }
     if(flag === 'assign'){
       filteredTickets = await filterAssignedTickets(userDepartments,loggedInUser)
@@ -363,9 +378,9 @@ const fetchFilteredTickets = async (req, res, next) => {
     else if(flag === 'escalate'){
       filteredTickets = await filterEscalatedTickets(userDepartments,loggedInUser)
     }
-
-    if (filteredTickets.length === 0) {
-      return res.status(204).json({ message: "Tickets not found" });
+   
+    if(filteredTickets.length === 0){ 
+      return res.status(200).json({message:'No tickets Available'});
     }
 
     return res.status(200).json(filteredTickets);

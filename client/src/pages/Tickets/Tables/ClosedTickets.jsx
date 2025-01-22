@@ -16,15 +16,15 @@ const ClosedTickets = ({ title }) => {
   });
 
   const transformTicketsData = (tickets) => {
-    if (!tickets || tickets.length === 0) return []; // Handle undefined or empty data gracefully
-
-    return tickets.map((ticket) => ({
-      id: ticket._id,
-      raisedBy: ticket.raisedBy?.name || "Unknown",
-      fromDepartment: ticket.raisedToDepartment?.name || "N/A",
-      ticketTitle: ticket.ticket?.title || "No Title",
-      status: ticket.status || "Pending",
-    }));
+    return !tickets.length
+      ? []
+      : tickets.map((ticket) => ({
+          id: ticket._id,
+          raisedBy: ticket.raisedBy?.name || "Unknown",
+          fromDepartment: ticket.raisedToDepartment?.name || "N/A",
+          ticketTitle: ticket.ticket?.title || "No Title",
+          status: ticket.status || "Pending",
+        }));
   };
 
   const rows = isLoading ? [] : transformTicketsData(data);
@@ -76,6 +76,7 @@ const ClosedTickets = ({ title }) => {
             key={rows.length}
             data={rows}
             columns={recievedTicketsColumns}
+            noRowsOverlayMessage="No tickets to display."
           />
         )}
       </div>
