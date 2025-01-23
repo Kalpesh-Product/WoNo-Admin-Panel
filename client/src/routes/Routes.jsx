@@ -100,41 +100,16 @@ export const routes = createBrowserRouter([
                         path: "compliances",
                         element: <Compliances />,
                         children: [
-                          {
-                            path: "view-employees",
-                            index:true,
-                            element: <ViewEmployees />,
+                           {
+                            path: "vendor-onboarding",
+                            element: <VendorOnboard />,
                           },
-                          {
-                            path: "view-employees/:id", // Move dynamic route to the same level as view-employees
-                            element: <EmployeeDetail />,
-                            children:[
-                              {
-                                path: "edit-details",
-                                element: <EditDetails />
-                              },
-                              {
-                                path: "attendance",
-                                element: <Attendance />
-                              },
-                              {
-                                path: "leaves",
-                                element: <Leaves />
-                              },
-                              {
-                                path: "agreements",
-                                element: <Agreements />
-                              },
-                              {
-                                path: "kpi",
-                                element: <KPI />
-                              },
-                              {
-                                path: "kra",
-                                element: <KRA />
-                              }
-                            ]
-                          },
+                          // {
+                          //   path: "view-employees",
+                          //   index:true,
+                          //   element: <ViewEmployees />,
+                          // },
+                          // 
                           {
                             path: "company-handbook",
                             element: <CompanyHandbook />,
@@ -147,6 +122,11 @@ export const routes = createBrowserRouter([
                               />
                             ),
                           },
+                          {
+                            path: "templates",
+                            element: <Templates />,
+                          },
+
                         ],
                       },
                       {
@@ -159,9 +139,41 @@ export const routes = createBrowserRouter([
                             element: <EmployeeOnboard />,
                           },
                           {
-                            path: "vendor-onboarding",
-                            element: <VendorOnboard />,
+                            path: "view-employees",
+                            element: <ViewEmployees />,
                           },
+                          {
+                              path: "view-employees/:id", // Move dynamic route to the same level as view-employees
+                              element: <EmployeeDetail />,
+                              children:[
+                                {
+                                  path: "edit-details",
+                                  element: <EditDetails />
+                                },
+                                {
+                                  path: "attendance",
+                                  element: <Attendance />
+                                },
+                                {
+                                  path: "leaves",
+                                  element: <Leaves />
+                                },
+                                {
+                                  path: "agreements",
+                                  element: <Agreements />
+                                },
+                                {
+                                  path: "kpi",
+                                  element: <KPI />
+                                },
+                                {
+                                  path: "kra",
+                                  element: <KRA />
+                                }
+                              ]
+                            },
+
+                         
                           {
                             path: "member-onboarding",
                             element: (

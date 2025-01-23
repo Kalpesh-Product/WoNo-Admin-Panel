@@ -9,8 +9,8 @@ const OnBoarding = () => {
   // Map routes to tabs
   const tabs = [
     { label: "Employee On-Boarding", path: "employee-onboarding" },
-    { label: "Vendor On-Boarding", path: "vendor-onboarding" },
-    { label: "Member On-Boarding", path: "member-onboarding" },
+    { label: "View Employees", path: "view-employees" },
+    { label: "Performance", path: "performance" },
   ];
 
   // Redirect to "view-employees" if the current path is "/hr-dashboard/compliances"

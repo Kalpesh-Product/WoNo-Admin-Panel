@@ -8,22 +8,23 @@ const Compliances = () => {
 
   // Map routes to tabs
   const tabs = [
-    { label: "View Employees", path: "view-employees" },
+    { label: "Vendor On-boarding", path: "vendor-onboarding" },
     { label: "Company Handbook", path: "company-handbook" },
     { label: "Holidays / Events", path: "holidays-events" },
+    { label: "Templates", path: "templates" },
   ];
 
   // Redirect to "view-employees" if the current path is "/hr-dashboard/compliances"
   useEffect(() => {
     if (location.pathname === "/app/dashboard/hr-dashboard/compliances") {
-      navigate("/app/dashboard/hr-dashboard/compliances/view-employees", {
+      navigate("/app/dashboard/hr-dashboard/compliances/vendor-onboarding", {
         replace: true,
       });
     }
   }, [location, navigate]);
 
   // Determine whether to show the tabs
-  const showTabs = !location.pathname.includes("view-employees/");
+  const showTabs = !location.pathname.includes("vendor-onboarding/");
 
   // Determine active tab based on location
   const activeTab = tabs.findIndex((tab) =>
