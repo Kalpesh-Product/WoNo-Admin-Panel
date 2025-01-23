@@ -27,7 +27,7 @@ const RecievedTickets = ({ title }) => {
     },
   });
 
-  const { acceptMutate } = useMutation({
+  const { mutate:acceptMutate } = useMutation({
     mutationKey: ["accept-ticket"],
     mutationFn: async (ticket) => {
       const response = await axios.post("/api/tickets/accept-ticket", {
@@ -45,7 +45,7 @@ const RecievedTickets = ({ title }) => {
     },
   });
 
-  const { assignMutate } = useMutation({
+  const { mutate:assignMutate } = useMutation({
     mutationKey: ["assign-ticket"],
     mutationFn: async (ticket) => {
       const response = await axios.post("/api/tickets/assign-ticket", {
