@@ -363,24 +363,38 @@ const fetchFilteredTickets = async (req, res, next) => {
     }
 
     let filteredTickets = []
-    if(flag === 'accept'){
-      filteredTickets = await filterAcceptTickets(user,loggedInUser)
-    }
-    if(flag === 'assign'){
-      filteredTickets = await filterAssignedTickets(userDepartments,loggedInUser)
-    }
-    else if(flag === 'close'){
-      filteredTickets = await filterCloseTickets(userDepartments,loggedInUser)
-    }
-    else if(flag === 'support'){
-      filteredTickets = await filterSupportTickets(user,loggedInUser)
-    }
-    else if(flag === 'escalate'){
-      filteredTickets = await filterEscalatedTickets(userDepartments,loggedInUser)
-    }
+    // if(flag === 'accept'){
+    //   filteredTickets = await filterAcceptTickets(user,loggedInUser)
+    // }
+    // if(flag === 'assign'){
+    //   filteredTickets = await filterAssignedTickets(userDepartments,loggedInUser)
+    // }
+    // else if(flag === 'close'){
+    //   filteredTickets = await filterCloseTickets(userDepartments,loggedInUser)
+    // }
+    // else if(flag === 'support'){
+    //   filteredTickets = await filterSupportTickets(user,loggedInUser)
+    // }
+    // else if(flag === 'escalate'){
+    //   filteredTickets = await filterEscalatedTickets(userDepartments,loggedInUser)
+    // }
    
-    if(filteredTickets.length === 0){ 
-      return res.status(200).json({message:'No tickets Available'});
+    // if(filteredTickets.length === 0){ 
+    //   return res.status(200).json({message:'No tickets Available'});
+    // }
+
+    switch (flag) {
+      case  'accept': filteredTickets = await filterAcceptTickets(user,loggedInUser)
+        break;
+      case  'assign': filteredTickets = await filterAssignedTickets(userDepartments,loggedInUser)
+        break;
+      case  'close': filteredTickets = await filterCloseTickets(userDepartments,loggedInUser)
+        break;
+      case  'support': filteredTickets = await filterSupportTickets(user,loggedInUser)
+        break;
+      case  'escalate': filteredTickets = await filterEscalatedTickets(userDepartments,loggedInUser)
+        break;
+      default: return res.sendStatus(404);
     }
 
     return res.status(200).json(filteredTickets);
