@@ -581,11 +581,11 @@ const techGoaVisitorsOptions = {
     {
       layout: 6,
       widgets: [
-        <Card icon={<CgWebsite />} title="Employee" route={"onboarding"} />,
+        <Card icon={<CgWebsite />} title="Employee" route={"employee"} />,
         <Card
           icon={<LuHardDriveUpload />}
           title="Company"
-          route={"compliances"}
+          route={"company"}
         />,
         <Card icon={<SiCashapp />} title="Finance" route={"finance"} />,
         <Card icon={<CgWebsite />} title="Mix Bag" route={"#"} />,

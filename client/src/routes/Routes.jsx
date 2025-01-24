@@ -30,9 +30,7 @@ import DashboardLayout from "../pages/Dashboard/DashboardLayout";
 import FrontendDashboard from "../pages/Dashboard/FrontendDashboard/FrontendDashboard";
 import HrDashboard from "../pages/Dashboard/HrDashboard/HrDashboard";
 import HrLayout from "../pages/Dashboard/HrDashboard/HrLayout";
-import ViewEmployees from '../pages/Dashboard/HrDashboard/Complaince/ViewEmployees'
-import CompanyHandbook from '../pages/Dashboard/HrDashboard/Complaince/CompanyHandbook'
-import HoildaysEvents from '../pages/Dashboard/HrDashboard/Complaince/HoildaysEvents'
+import ViewEmployees from "../pages/Dashboard/HrDashboard/Complaince/ViewEmployees";
 import OnBoarding from "../pages/Dashboard/HrDashboard/OnBoarding/OnBoarding";
 import EmployeeOnboard from "../pages/Dashboard/HrDashboard/OnBoarding/EmployeeOnboard";
 import MemberOnboard from "../pages/Dashboard/HrDashboard/OnBoarding/MemberOnboard";
@@ -59,6 +57,9 @@ import HrSettingsPolicies from "../pages/Dashboard/HrDashboard/HrSettings/HrSett
 import HrSOP from "../pages/Dashboard/HrDashboard/HrSettings/HrSOP";
 import EmployeeType from "../pages/Dashboard/HrDashboard/HrSettings/EmployeeType";
 import Shifts from "../pages/Dashboard/HrDashboard/HrSettings/Shifts";
+import Payslip from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/Payslip";
+import ViewVendors from "../pages/Dashboard/HrDashboard/Complaince/ViewVendors";
+import HrPayroll from "../pages/Dashboard/HrDashboard/Finance/HrPayroll";
 
 export const routes = createBrowserRouter([
   {
@@ -97,45 +98,62 @@ export const routes = createBrowserRouter([
                         element: <HrDashboard />,
                       },
                       {
-                        path: "compliances",
+                        path: "company",
                         element: <Compliances />,
                         children: [
-                           {
+                          {
+                            path: "company-logo",
+                            element: <CompanyLogo />,
+                          },
+                          {
+                            path: "departments",
+                            element: <HrSettingsDepartments />,
+                          },
+                          {
+                            path: "work-locations",
+                            element: <WorkLocations />,
+                          },
+                          {
+                            path: "leave-types",
+                            element: <LeaveType />,
+                          },
+                          {
+                            path: "policies",
+                            element: <HrSettingsPolicies />,
+                          },
+                          {
+                            path: "sops",
+                            element: <HrSOP />,
+                          },
+                          {
+                            path: "employee-type",
+                            element: <EmployeeType />,
+                          },
+                          {
+                            path: "shifts",
+                            element: <Shifts />,
+                          },
+                          {
                             path: "vendor-onboarding",
                             element: <VendorOnboard />,
                           },
-                          // {
-                          //   path: "view-employees",
-                          //   index:true,
-                          //   element: <ViewEmployees />,
-                          // },
-                          // 
                           {
-                            path: "company-handbook",
-                            element: <CompanyHandbook />,
-                          },
-                          {
-                            path: "holidays-events",
-                            element: (
-                              <HoildaysEvents
-                                title={"Holiday & Event Listing"}
-                              />
-                            ),
+                            path: "vendor-onboarding/vendor-details/:id",
+                            element: <ViewVendors />,
                           },
                           {
                             path: "templates",
                             element: <Templates />,
                           },
-
                         ],
                       },
                       {
-                        path: "onboarding",
+                        path: "employee",
                         element: <OnBoarding />,
                         children: [
                           {
                             path: "employee-onboarding",
-                            index:true,
+                            index: true,
                             element: <EmployeeOnboard />,
                           },
                           {
@@ -143,63 +161,61 @@ export const routes = createBrowserRouter([
                             element: <ViewEmployees />,
                           },
                           {
-                              path: "view-employees/:id", // Move dynamic route to the same level as view-employees
-                              element: <EmployeeDetail />,
-                              children:[
-                                {
-                                  path: "edit-details",
-                                  element: <EditDetails />
-                                },
-                                {
-                                  path: "attendance",
-                                  element: <Attendance />
-                                },
-                                {
-                                  path: "leaves",
-                                  element: <Leaves />
-                                },
-                                {
-                                  path: "agreements",
-                                  element: <Agreements />
-                                },
-                                {
-                                  path: "kpi",
-                                  element: <KPI />
-                                },
-                                {
-                                  path: "kra",
-                                  element: <KRA />
-                                }
-                              ]
-                            },
+                            path: "view-employees/:id", // Move dynamic route to the same level as view-employees
+                            element: <EmployeeDetail />,
+                            children: [
+                              {
+                                path: "edit-details",
+                                element: <EditDetails />,
+                              },
+                              {
+                                path: "attendance",
+                                element: <Attendance />,
+                              },
+                              {
+                                path: "leaves",
+                                element: <Leaves />,
+                              },
+                              {
+                                path: "agreements",
+                                element: <Agreements />,
+                              },
+                              {
+                                path: "kpi",
+                                element: <KPI />,
+                              },
+                              {
+                                path: "kra",
+                                element: <KRA />,
+                              },
+                              {
+                                path: "payslip",
+                                element: <Payslip />,
+                              },
+                            ],
+                          },
 
-                         
                           {
                             path: "member-onboarding",
-                            element: (
-                              <MemberOnboard
-                              />
-                            ),
+                            element: <MemberOnboard />,
                           },
                         ],
                       },
                       {
-                        path:"data",
-                        element:<Data/>,
+                        path: "data",
+                        element: <Data />,
                         children: [
                           {
                             path: "job-application-list",
-                            index:true,
+                            index: true,
                             element: <JobApplicationList />,
                           },
-                         
+
                           {
                             path: "templates",
                             element: <Templates />,
                           },
-                          
                         ],
-
                       },
                       {
                         path: "finance",
@@ -207,12 +223,16 @@ export const routes = createBrowserRouter([
                         children: [
                           {
                             path: "budget",
-                            index:true,
+                            index: true,
                             element: <HrBudget />,
                           },
                           {
                             path: "payment-schedule",
                             element: <HrPayment />,
+                          },
+                          {
+                            path: "payroll",
+                            element: <HrPayroll />,
                           },
                         ],
                       },
@@ -222,7 +242,7 @@ export const routes = createBrowserRouter([
                         children: [
                           {
                             path: "company-logo",
-                            index:true,
+                            index: true,
                             element: <CompanyLogo />,
                           },
                           {

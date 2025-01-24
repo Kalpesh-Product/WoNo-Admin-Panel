@@ -17,7 +17,7 @@ const ViewEmployees = () => {
             textDecoration: "underline",
             cursor: "pointer",
           }}
-          onClick={() => navigate(`/app/dashboard/hr-dashboard/onboarding/view-employees/${params.data.employmentID}`)}
+          onClick={() => navigate(`/app/dashboard/hr-dashboard/employee/view-employees/${params.data.employmentID}`)}
 
         >
           {params.value}
