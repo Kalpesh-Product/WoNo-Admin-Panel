@@ -8,7 +8,9 @@ const Data = () => {
 
   const tabs = [
     { label: "Job Application List", path: "job-application-list" },
-    { label: "Templates", path: "templates" },
+    {label:"Reports", path:"reports"},
+
+    
   ]
 
   // Redirect to "view-employees" if the current path is "/hr-dashboard/compliances"

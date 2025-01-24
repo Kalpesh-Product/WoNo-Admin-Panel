@@ -16,7 +16,7 @@ const OnBoarding = () => {
   // Redirect to "view-employees" if the current path is "/hr-dashboard/compliances"
   useEffect(() => {
     if (location.pathname === "/app/dashboard/hr-dashboard/onboarding") {
-      navigate("/app/dashboard/hr-dashboard/onboarding/employee-onboarding", { replace: true });
+      navigate("/app/dashboard/hr-dashboard/onboarding/view-employees", { replace: true });
     }
   }, [location, navigate]);
 

@@ -59,12 +59,15 @@ import HrSettingsPolicies from "../pages/Dashboard/HrDashboard/HrSettings/HrSett
 import HrSOP from "../pages/Dashboard/HrDashboard/HrSettings/HrSOP";
 import EmployeeType from "../pages/Dashboard/HrDashboard/HrSettings/EmployeeType";
 import Shifts from "../pages/Dashboard/HrDashboard/HrSettings/Shifts";
+import HrReports from "../pages/Dashboard/HrDashboard/Data/Reports"
+import BulkUpload from "../pages/Dashboard/HrDashboard/HrSettings/BulkUpload";
 
 export const routes = createBrowserRouter([
   {
     path: "/",
     element: <LoginPage />,
   },
+  
   {
     element: <PersistLogin />,
     children: [
@@ -192,11 +195,13 @@ export const routes = createBrowserRouter([
                             index:true,
                             element: <JobApplicationList />,
                           },
-                         
                           {
-                            path: "templates",
-                            element: <Templates />,
+                            path: "reports",
+                            
+                            element: <HrReports />,
                           },
+                         
+                         
                           
                         ],
 
@@ -221,38 +226,42 @@ export const routes = createBrowserRouter([
                         element: <HrSettings />,
                         children: [
                           {
-                            path: "company-logo",
-                            index:true,
-                            element: <CompanyLogo />,
+                            path: "bulkupload",
+                            element: <BulkUpload/>,
                           },
-                          {
-                            path: "departments",
-                            element: <HrSettingsDepartments />,
-                          },
-                          {
-                            path: "work-locations",
-                            element: <WorkLocations />,
-                          },
-                          {
-                            path: "leave-type",
-                            element: <LeaveType />,
-                          },
-                          {
-                            path: "policies",
-                            element: <HrSettingsPolicies />,
-                          },
-                          {
-                            path: "sops",
-                            element: <HrSOP />,
-                          },
-                          {
-                            path: "employee-type",
-                            element: <EmployeeType />,
-                          },
-                          {
-                            path: "shifts",
-                            element: <Shifts />,
-                          },
+                          // {
+                          //   path: "company-logo",
+                          //   index:true,
+                          //   element: <CompanyLogo />,
+                          // },
+                          // {
+                          //   path: "departments",
+                          //   element: <HrSettingsDepartments />,
+                          // },
+                          // {
+                          //   path: "work-locations",
+                          //   element: <WorkLocations />,
+                          // },
+                          // {
+                          //   path: "leave-type",
+                          //   element: <LeaveType />,
+                          // },
+                          // {
+                          //   path: "policies",
+                          //   element: <HrSettingsPolicies />,
+                          // },
+                          // {
+                          //   path: "sops",
+                          //   element: <HrSOP />,
+                          // },
+                          // {
+                          //   path: "employee-type",
+                          //   element: <EmployeeType />,
+                          // },
+                          // {
+                          //   path: "shifts",
+                          //   element: <Shifts />,
+                          // },
                         ],
                       },
                     ],
