@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { TextField, Avatar, InputAdornment, Popover, Button } from "@mui/material";
+import {
+  TextField,
+  Avatar,
+  InputAdornment,
+  Popover,
+  Button,
+} from "@mui/material";
 import {
   IoIosArrowForward,
   IoIosSearch,
@@ -12,14 +18,14 @@ import { GiHamburgerMenu } from "react-icons/gi";
 import Abrar from "../assets/abrar.jpeg";
 import useAuth from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import useLogout from "../hooks/useLogout"
+import useLogout from "../hooks/useLogout";
 
 const Header = () => {
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
   const navigate = useNavigate();
   const { auth, signOut } = useAuth(); // Assuming signOut is a method from useAuth()
-  const logout = useLogout()
-  
+  const logout = useLogout();
+
   // State for Popover
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -31,8 +37,8 @@ const Header = () => {
     setAnchorEl(null);
   };
 
-  const handleSignOut = async() => {
-    await logout()
+  const handleSignOut = async () => {
+    await logout();
     navigate("/"); // Navigate to the login page after sign-out
   };
 
@@ -96,7 +102,9 @@ const Header = () => {
             )}
           </Avatar>
           <div className="w-full">
-            <h1 className="text-xl font-semibold">{auth.user.name}</h1>
+            <h1 className="text-xl font-semibold">
+              {auth.user.name.split(" ")[0]}
+            </h1>
             <span className="text-content">{auth.user.role.roleTitle}</span>
           </div>
         </div>

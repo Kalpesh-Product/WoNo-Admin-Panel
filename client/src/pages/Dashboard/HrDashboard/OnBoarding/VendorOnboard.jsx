@@ -21,7 +21,7 @@ const VendorOnboard = () => {
             textDecoration: "underline",
             cursor: "pointer",
           }}
-          onClick={() => navigate(`/app/dashboard/hr-dashboard/company/vendor-onboarding/vendor-details/${params.data.vendorID}`)}
+          onClick={() => navigate(`/app/dashboard/HR-dashboard/company/vendor-onboarding/vendor-details/${params.data.vendorID}`)}
 
         >
           {params.value}

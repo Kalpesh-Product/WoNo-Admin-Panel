@@ -60,6 +60,7 @@ import Shifts from "../pages/Dashboard/HrDashboard/HrSettings/Shifts";
 import Payslip from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/Payslip";
 import ViewVendors from "../pages/Dashboard/HrDashboard/Complaince/ViewVendors";
 import HrPayroll from "../pages/Dashboard/HrDashboard/Finance/HrPayroll";
+import ViewPayroll from "../pages/Dashboard/HrDashboard/Finance/ViewPayroll";
 
 export const routes = createBrowserRouter([
   {
@@ -90,7 +91,7 @@ export const routes = createBrowserRouter([
                     element: <Dashboard />,
                   },
                   {
-                    path: "hr-dashboard",
+                    path: "HR-dashboard",
                     element: <HrLayout />,
                     children: [
                       {
@@ -233,6 +234,14 @@ export const routes = createBrowserRouter([
                           {
                             path: "payroll",
                             element: <HrPayroll />,
+                          },
+                          {
+                            path: "payroll/view-payroll",
+                            element: <HrPayroll />,
+                          },
+                          {
+                            path: "payroll/view-payroll/:id",
+                            element: <ViewPayroll />,
                           },
                         ],
                       },

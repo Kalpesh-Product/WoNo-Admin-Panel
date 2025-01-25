@@ -478,6 +478,7 @@ const HrDashboard = () => {
     colors: ["#0056B3", "#FD507E"], // Pass colors as an array
     dataLabels: {
       enabled: true,
+      position:'center',
       style: {
         fontSize: "14px", // Adjust the font size of the labels
         fontWeight: "bold",
