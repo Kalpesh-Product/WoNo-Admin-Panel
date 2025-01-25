@@ -65,7 +65,7 @@ const RaiseTicket = () => {
       );
       setTickets(filteredTickets);
     } catch (error) {
-      toast.error(error.message);
+      return null;
     } finally {
       setTicketsLoading(false);
     }
@@ -88,7 +88,6 @@ const RaiseTicket = () => {
 
   // Example usage
   const rows = transformTicketsData(tickets);
-
 
   const handleChange = (field, value) => {
     setDetails((prev) => ({ ...prev, [field]: value }));
