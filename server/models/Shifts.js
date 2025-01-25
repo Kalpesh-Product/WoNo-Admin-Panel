@@ -2,19 +2,7 @@ const mongoose = require("mongoose");
 
 const policySchema = new mongoose.Schema(
   {
-    policyId: {
-      type: String,
-      default: "S-001",
-    },
-    policyName: {
-      type: String,
-      default: "",
-    },
-    policyDepartment: {
-      type: String,
-      default: "",
-    },
-    fileUrl: {
+    name: {
       type: String,
       default: "",
     },

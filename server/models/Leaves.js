@@ -9,32 +9,30 @@ const leaveSchema = new mongoose.Schema(
     takenBy: {
       type: String,
       required: true,
-      default: "Allan",
     },
-
     fromDate: {
       type: String,
-      default: "2024-12-27",
+      required: true,
     },
     toDate: {
       type: String,
-      default: "2024-12-27",
+      required: true,
     },
     leaveType: {
       type: String,
-      default: "Privileged Leave",
+      required: true,
     },
     leavePeriod: {
       type: String,
-      default: "Single",
+      required: true,
     },
     hours: {
       type: String,
-      default: "9.00",
+      required: true,
     },
     description: {
       type: String,
-      default: "Privileged Leave",
+      required: true,
     },
     status: {
       type: String,

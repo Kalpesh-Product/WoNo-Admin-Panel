@@ -31,6 +31,19 @@ const companyDataSchema = new mongoose.Schema({
   linkedinURL: {
     type: String,
   },
+  employeeType: [
+    {
+      name: {
+        type: String,
+      },
+      status: {
+        type: Boolean,
+        default: true,  
+      }
+    },
+  ],
+  
+
 });
 
 const CompanyData = mongoose.model("CompanyData", companyDataSchema);
