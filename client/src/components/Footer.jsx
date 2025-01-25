@@ -24,7 +24,7 @@ const Footer = ({ changeActiveTab }) => {
   ];
   return (
     <div className="bg-black text-white py-6">
-      <div className=" flex flex-col items-center">
+      <div className=" flex flex-col items-center border-b-[1px] border-gray-600 pb-4">
         <p className="text-content text-gray-400 text-center">
           Powered by WONOCO PRIVATE LIMITED - SINGAPORE. All Rights Reserved. ©
           Copyright 2024-25

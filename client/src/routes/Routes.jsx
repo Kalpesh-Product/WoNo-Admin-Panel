@@ -61,12 +61,15 @@ import Payslip from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/Pa
 import ViewVendors from "../pages/Dashboard/HrDashboard/Complaince/ViewVendors";
 import HrPayroll from "../pages/Dashboard/HrDashboard/Finance/HrPayroll";
 import ViewPayroll from "../pages/Dashboard/HrDashboard/Finance/ViewPayroll";
+import HrReports from "../pages/Dashboard/HrDashboard/Data/Reports"
+import BulkUpload from "../pages/Dashboard/HrDashboard/HrSettings/BulkUpload";
 
 export const routes = createBrowserRouter([
   {
     path: "/",
     element: <LoginPage />,
   },
+  
   {
     element: <PersistLogin />,
     children: [
@@ -213,8 +216,9 @@ export const routes = createBrowserRouter([
                           },
 
                           {
-                            path: "templates",
-                            element: <Templates />,
+                            path: "reports",
+                            
+                            element: <HrReports />,
                           },
                         ],
                       },
@@ -250,38 +254,42 @@ export const routes = createBrowserRouter([
                         element: <HrSettings />,
                         children: [
                           {
-                            path: "company-logo",
-                            index: true,
-                            element: <CompanyLogo />,
+                            path: "bulkupload",
+                            element: <BulkUpload/>,
                           },
-                          {
-                            path: "departments",
-                            element: <HrSettingsDepartments />,
-                          },
-                          {
-                            path: "work-locations",
-                            element: <WorkLocations />,
-                          },
-                          {
-                            path: "leave-type",
-                            element: <LeaveType />,
-                          },
-                          {
-                            path: "policies",
-                            element: <HrSettingsPolicies />,
-                          },
-                          {
-                            path: "sops",
-                            element: <HrSOP />,
-                          },
-                          {
-                            path: "employee-type",
-                            element: <EmployeeType />,
-                          },
-                          {
-                            path: "shifts",
-                            element: <Shifts />,
-                          },
+                          // {
+                          //   path: "company-logo",
+                          //   index:true,
+                          //   element: <CompanyLogo />,
+                          // },
+                          // {
+                          //   path: "departments",
+                          //   element: <HrSettingsDepartments />,
+                          // },
+                          // {
+                          //   path: "work-locations",
+                          //   element: <WorkLocations />,
+                          // },
+                          // {
+                          //   path: "leave-type",
+                          //   element: <LeaveType />,
+                          // },
+                          // {
+                          //   path: "policies",
+                          //   element: <HrSettingsPolicies />,
+                          // },
+                          // {
+                          //   path: "sops",
+                          //   element: <HrSOP />,
+                          // },
+                          // {
+                          //   path: "employee-type",
+                          //   element: <EmployeeType />,
+                          // },
+                          // {
+                          //   path: "shifts",
+                          //   element: <Shifts />,
+                          // },
                         ],
                       },
                     ],

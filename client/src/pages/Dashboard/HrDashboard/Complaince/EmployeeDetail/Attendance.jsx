@@ -204,8 +204,8 @@ const Attendance = () => {
       <div>
         <WidgetSection layout={3} padding>
           <DataCard data={"18"} title={"Accurate Checkins"} />
-          <DataCard data={"4"} title={"Late Checkins"} />
-          <DataCard data={"3"} title={"Late Checkouts"} />
+          <DataCard data={"8"} title={"Late Checkins"} />
+          <DataCard data={"10"} title={"Late Checkouts"} />
         </WidgetSection>
       </div>
       <div className="border-default border-borderGray rounded-md">
