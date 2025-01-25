@@ -14,10 +14,11 @@ const EmployeeDetails = () => {
     { label: "Agreements", path: "agreements" },
     { label: "KPI'S", path: "kpi" },
     { label: "KRA'S", path: "kra" },
+    { label: "Payslip", path: "payslip" },
   ];
 
   useEffect(() => {
-    const subroutes = ["edit-details", "attendance", "leaves", "agreements", "kpi", "kra"];
+    const subroutes = ["edit-details", "attendance", "leaves", "agreements", "kpi", "kra","payslip"];
     if (!subroutes.some((subroute) => location.pathname.includes(subroute))) {
       navigate(`${location.pathname}/edit-details`, { replace: true });
     }
