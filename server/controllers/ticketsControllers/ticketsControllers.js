@@ -104,7 +104,7 @@ const getTickets = async (req, res, next) => {
               { escalatedTo: { $in: userDepartments } },
             ],
           },
-          { "ticket.accepted": { $exists: false } },
+          { accepted: { $exists: false } },
           { raisedBy: { $ne: loggedInUser._id } },
           {status:"Pending"}
         ],
@@ -162,7 +162,7 @@ const acceptTicket = async (req, res, next) => {
     );
 
     if (!ticketInDepartment) {
-      return res.status(403);
+      return res.sendStatus(403);
     }
 
     await Tickets.findByIdAndUpdate(
@@ -279,7 +279,7 @@ const escalateTicket = async (req, res, next) => {
     });
 
     if (!foundTickets.length) {
-      return res.status(403);
+      return res.sendStatus(403);
     }
 
     await Tickets.findByIdAndUpdate(
@@ -349,7 +349,6 @@ const fetchFilteredTickets = async (req, res, next) => {
       return res.status(400).json({ message: "No such user found" });
     }
 
-
     const userDepartments = loggedInUser.department.map((dept) =>
       dept.toString()
     ); 
@@ -363,26 +362,6 @@ const fetchFilteredTickets = async (req, res, next) => {
     }
 
     let filteredTickets = []
-    // if(flag === 'accept'){
-    //   filteredTickets = await filterAcceptTickets(user,loggedInUser)
-    // }
-    // if(flag === 'assign'){
-    //   filteredTickets = await filterAssignedTickets(userDepartments,loggedInUser)
-    // }
-    // else if(flag === 'close'){
-    //   filteredTickets = await filterCloseTickets(userDepartments,loggedInUser)
-    // }
-    // else if(flag === 'support'){
-    //   filteredTickets = await filterSupportTickets(user,loggedInUser)
-    // }
-    // else if(flag === 'escalate'){
-    //   filteredTickets = await filterEscalatedTickets(userDepartments,loggedInUser)
-    // }
-   
-    // if(filteredTickets.length === 0){ 
-    //   return res.status(200).json({message:'No tickets Available'});
-    // }
-
     switch (flag) {
       case  'accept': filteredTickets = await filterAcceptTickets(user,loggedInUser)
         break;
