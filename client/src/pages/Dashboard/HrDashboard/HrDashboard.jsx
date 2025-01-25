@@ -187,8 +187,7 @@ const HrDashboard = () => {
         "November",
         "December",
         "January",
-        "February",
-        "March",
+       
       ],
     },
     yaxis: {
@@ -315,79 +314,88 @@ const HrDashboard = () => {
   };
 
   const columns = [
+    { id:"SrNo",label:"Sr No",align:"left"},
     { id: "name", label: "Name", align: "left" },
-    { id: "age", label: "Age", align: "center" },
-    { id: "gender", label: "gender", align: "center" },
-    { id: "city", label: "city", align: "center" },
+    { id: "date", label: "Date", align: "left" },
   ];
 
   const rows = [
     {
-      id: 1,
-      name: "Anushri Bhagat",
-      age: 24,
-      gender: "Female",
-      city: "Marcela",
-    },
-    { id: 1, name: "Aiwin", age: 23, gender: "Male", city: "Panaji" },
-    { id: 1, name: "Allen Silvera", age: 25, gender: "Male", city: "Margao" },
-    {
-      id: 1,
-      name: "Muskan Dodmani",
-      age: 22,
-      gender: "Female",
-      city: "St Inez",
+      SrNo:"1",
+      name:"Muskan Dodmani",
+      date:"25 Jan, 2025"
     },
     {
-      id: 1,
-      name: "Sankalp Kalangutkar",
-      age: 22,
-      gender: "Male",
-      city: "Margao",
+      SrNo:"2",
+      name:"Anushri",
+      date:"26 Mar, 2025"
+    },
+    {
+      SrNo:"3",
+      name:"Allen Silvera",
+      date:"11 sept, 2025"
+    },
+    {
+      SrNo:"4",
+      name:"aiwinraj",
+      date:"10 oct, 2025"
+    },
+    {
+      SrNo:"5",
+      name:"Kalpesh Naik",
+      date:"28 oct, 2025"
+    },
+    {
+      SrNo:"6",
+      name:"Sankalp Kalangutkar",
+      date:"31 Dec, 2025"
     },
   ];
 
   const columns2 = [
-    { id: "date", label: "Date", align: "left" },
+    { id:"SrNo",label:"Sr No",align:"left"},  
     { id: "holiday_event", label: "Holiday/Event", align: "center" },
-    { id: "region", label: "Region", align: "center" },
+    { id: "date", label: "Date", align: "left" },
+    
   ];
 
   const rows2 = [
     {
-      id: 1,
-      date: "2024-12-10",
-      holiday_event: "Indian Navy day",
-      region: "India",
+      SrNo:"1",
+      holiday_event:"Indian Navy Day",
+      date:"12 Oct,2025"
     },
     {
-      id: 1,
-      date: "2025-24-01",
-      holiday_event: "Republic day Celebrations",
-      region: "India",
+      SrNo:"2",
+      holiday_event:"Republic Day Celebration",
+      date:"24 Jan,2025"
     },
     {
-      id: 1,
-      date: "2025-26-01",
-      holiday_event: "Rebuplic Day",
-      region: "India",
+      SrNo:"3",
+      holiday_event:"Maha Shiv Ratri",
+      date:"10 Mar,2025"
     },
     {
-      id: 1,
-      date: "2025-10-03",
-      holiday_event: "Maha Shiv-ratri",
-      region: "India",
+      SrNo:"4",
+      holiday_event:"Holi",
+      date:"14 Mar,2025"
     },
-    { id: 1, date: "2025-14-03", holiday_event: "Holi", region: "India" },
+    {
+      SrNo:"5",
+      holiday_event:"Independance Day",
+      date:"15 Aug,2025"
+    }
   ];
 
   const columns3 = [
+    {id:"ranks",label:"Rank",align:"left"},
     { id: "employeeName", label: "Employee name", align: "left" },
     { id: "department", label: "Department", align: "center" },
     { id: "Performance (%)", label: "Performance (%)", align: "center" },
   ];
 
   const columns4 = [
+    {id:"ranks",label:"Rank",align:"left"},
     { id: "employeeName", label: "Employee name", align: "left" },
     { id: "department", label: "Department", align: "center" },
     { id: "Performance (%)", label: "Performance (%)", align: "center" },
@@ -395,19 +403,19 @@ const HrDashboard = () => {
 
   const rows3 = [
     {
-      id: 1,
+      ranks:"1",
       employeeName: "Aiwin",
       department: "Tech",
       "Performance (%)": "97",
     },
     {
-      id: 1,
+      ranks:"2",
       employeeName: "Allen Silvera",
       department: "Tech",
       "Performance (%)": "90",
     },
     {
-      id: 1,
+     ranks: 3,
       employeeName: "Sankalp Kalangutkar",
       department: "Tech",
       "Performance (%)": "80",
@@ -416,19 +424,19 @@ const HrDashboard = () => {
 
   const rows4 = [
     {
-      id: 1,
+      ranks: 30,
       employeeName: "Anushri Bhagat",
       department: "Tech",
       "Performance (%)": "40",
     },
     {
-      id: 1,
+      ranks: 25,
       employeeName: "Sumera Naik",
       department: "Tech",
       "Performance (%)": "43",
     },
     {
-      id: 1,
+      ranks: 28,
       employeeName: "Sunaina Bharve",
       department: "Tech",
       "Performance (%)": "45",
@@ -543,7 +551,7 @@ const techGoaVisitorsOptions = {
       const item = techGoaVisitors[seriesIndex]; // Access the correct item
       return `
         <div style="padding: 5px; font-size: 12px;">
-          ${item.label}: ${item.value} visitors
+          ${item.label}: ${item.value} employees
         </div>`;
     },
   },

@@ -52,14 +52,14 @@ const MuiTable = ({
             </TableBody>
           </Table>
         </TableContainer>
-        <TablePagination
+        {/* <TablePagination
           component="div"
           count={rows.length}
           page={page}
           onPageChange={onPageChange}
           rowsPerPage={rowsPerPage}
           onRowsPerPageChange={onRowsPerPageChange}
-        />
+        /> */}
       </Paper>
     </div>
   );
