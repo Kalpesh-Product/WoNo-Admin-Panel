@@ -1,6 +1,7 @@
 import React from 'react'
 import PrimaryButton from '../../../../components/PrimaryButton'
 import AgTable from '../../../../components/AgTable'
+import { Chip} from "@mui/material";
 
 const HrReports = ({title,buttonTitle,rowSelection}) => {
 
@@ -30,7 +31,30 @@ const HrReports = ({title,buttonTitle,rowSelection}) => {
         { field: "dateandtime", headerName: "Date & Time",flex:1 },
         { field: "totalsalary", headerName: "Total Salary",flex:1 },
         { field: "reimbursment", headerName: "Reimbursment",flex:1 },
-        { field: "status", headerName: "Status",cellRenderer: StatusCellRenderer,flex:1 },
+        { field: "status", headerName: "Status", cellRenderer: (params) => {
+          const statusColorMap = {
+            Pending: { backgroundColor: "#FFECC5", color: "#CC8400" }, // Light orange bg, dark orange font
+           
+            Completed: { backgroundColor: "#D3D3D3", color: "#696969" }, // Light gray bg, dark gray font
+          };
+  
+          const { backgroundColor, color } = statusColorMap[params.value] || {
+            backgroundColor: "gray",
+            color: "white",
+          };
+          return (
+            <>
+              <Chip
+                label={params.value}
+                style={{
+                  backgroundColor,
+                  color,
+                }}
+              />
+            </>
+          );
+        },
+      },
       ];
 
       const rows = [
@@ -100,7 +124,7 @@ const HrReports = ({title,buttonTitle,rowSelection}) => {
 
     <div>
       
-      <AgTable search={true} searchColumn={"Reports"} columns={holdiayEvents} data={rows} tableTitle={'Reports'}  buttonTitle={"Exports"} rowSelection='multiple' />
+      <AgTable search={true} searchColumn={"Reports"} columns={holdiayEvents} data={rows} tableTitle={'Reports'}  buttonTitle={"Export"} rowSelection='multiple' />
     </div>
   </div>
   )
