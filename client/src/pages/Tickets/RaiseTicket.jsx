@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import AgTable from "../../components/AgTable";
 import PrimaryButton from "../../components/PrimaryButton";
-import { Chip } from "@mui/material";
+import { Chip, CircularProgress } from "@mui/material";
 import { toast } from "sonner";
 
 import {
@@ -24,15 +24,15 @@ const RaiseTicket = () => {
   const [departments, setDepartments] = useState([]); // State for departments
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [ticketIssues, setTicketIssues] = useState([]); // State for ticket issues
-  const [loading, setLoading] = useState(false);
-   const [tickets, setTickets] = useState([]);
+  const [deptLoading, setDeptLoading] = useState(false);
+  const [ticketsLoading, setTicketsLoading] = useState(false);
+  const [tickets, setTickets] = useState([]);
   const axios = useAxiosPrivate();
-  const { auth } = useAuth();
 
   // Fetch departments and ticket issues in the same useEffect
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
+      setDeptLoading(true);
       try {
         const [departmentsResponse] = await Promise.all([
           axios.get("api/departments/get-departments"),
@@ -48,48 +48,46 @@ const RaiseTicket = () => {
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
-        setLoading(false);
+        setDeptLoading(false);
       }
     };
 
     fetchData();
   }, [axios]);
 
-    // Reusable function to fetch tickets
-    
-  
-    // Initial data fetch when the component mounts
-    useEffect(() => {
-      const getTickets = async () => {
-        try {
-          setLoading(true);
-          const response = await axios.get("/api/tickets/get-tickets");
-          const filteredTickets = response.data.filter(
-            (ticket) => !ticket.accepted
-          );
-          setTickets(filteredTickets);
-        } catch (error) {
-          toast.error(error.message);
-        } finally {
-          setLoading(false);
-        }
-      };
-      getTickets();
-    }, []);
+  // Reusable function to fetch tickets
+  const getTickets = async () => {
+    try {
+      setTicketsLoading(true);
+      const response = await axios.get("/api/tickets/get-tickets");
+      const filteredTickets = response.data.filter(
+        (ticket) => !ticket.accepted
+      );
+      setTickets(filteredTickets);
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setTicketsLoading(false);
+    }
+  };
 
+  // Initial data fetch when the component mounts
+  useEffect(() => {
+    getTickets();
+  }, []);
 
-    const transformTicketsData = (tickets) => {
-      return tickets.map((ticket) => ({
-        id: ticket._id,
-        raisedBy: ticket.raisedBy?.name || "Unknown",
-        fromDepartment: ticket.raisedToDepartment.name || "N/A",
-        ticketTitle: ticket.ticket?.title || "No Title",
-        status: ticket.status || "Pending",
-      }));
-    };
-  
-    // Example usage
-    const rows = transformTicketsData(tickets);
+  const transformTicketsData = (tickets) => {
+    return tickets.map((ticket) => ({
+      id: ticket._id,
+      raisedBy: ticket.raisedBy?.name || "Unknown",
+      fromDepartment: ticket.raisedToDepartment.name || "N/A",
+      ticketTitle: ticket.ticket?.title || "No Title",
+      status: ticket.status || "Pending",
+    }));
+  };
+
+  // Example usage
+  const rows = transformTicketsData(tickets);
 
 
   const handleChange = (field, value) => {
@@ -131,7 +129,6 @@ const RaiseTicket = () => {
       },
     },
   ];
-
 
   const submitData = async (e) => {
     e.preventDefault();
@@ -181,8 +178,8 @@ const RaiseTicket = () => {
               onChange={(e) => handleDepartmentSelect(e.target.value)}
             >
               <MenuItem value="">Select Department</MenuItem>
-              {loading ? (
-                <MenuItem>Loading...</MenuItem>
+              {deptLoading ? (
+                <CircularProgress color="black" />
               ) : (
                 departments?.map((dept) => (
                   <MenuItem key={dept._id} value={dept._id}>
@@ -250,12 +247,18 @@ const RaiseTicket = () => {
           <div className="text-[20px]">Tickets Raised Today</div>
         </div>
         <div className=" w-full">
-          <AgTable
-          key={rows.length}
-            data={rows}
-            columns={recievedTicketsColumns}
-            paginationPageSize={10}
-          />
+          {ticketsLoading ? (
+            <div className="w-full h-full flex justify-center items-center">
+              <CircularProgress color="black" />
+            </div>
+          ) : (
+            <AgTable
+              key={rows.length}
+              data={rows}
+              columns={recievedTicketsColumns}
+              paginationPageSize={10}
+            />
+          )}
         </div>
       </div>
     </div>

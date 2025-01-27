@@ -10,22 +10,21 @@ const ClosedTickets = ({ title }) => {
     queryKey: ["closed-tickets"],
     queryFn: async () => {
       const response = await axios.get("/api/tickets/filtered-tickets/close");
-
       return response.data || []; // Ensure it always returns an array
     },
     initialData: [], // Initialize with an empty array
   });
 
   const transformTicketsData = (tickets) => {
-    // if (!tickets || tickets.length === 0) return []; // Handle undefined or empty data gracefully
-
-    return tickets.length > 0 && tickets.map((ticket) => ({
-      id: ticket._id,
-      raisedBy: ticket.raisedBy?.name || "Unknown",
-      fromDepartment: ticket.raisedToDepartment?.name || "N/A",
-      ticketTitle: ticket.ticket?.title || "No Title",
-      status: ticket.status || "Pending",
-    }));
+    return !tickets.length
+      ? []
+      : tickets.map((ticket) => ({
+          id: ticket._id,
+          raisedBy: ticket.raisedBy?.name || "Unknown",
+          fromDepartment: ticket.raisedToDepartment?.name || "N/A",
+          ticketTitle: ticket.ticket?.title || "No Title",
+          status: ticket.status || "Pending",
+        }));
   };
 
   const rows = isLoading ? [] : transformTicketsData(data);
@@ -77,6 +76,7 @@ const ClosedTickets = ({ title }) => {
             key={rows.length}
             data={rows}
             columns={recievedTicketsColumns}
+            noRowsOverlayMessage="No tickets to display."
           />
         )}
       </div>

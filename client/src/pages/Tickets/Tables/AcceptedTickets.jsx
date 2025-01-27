@@ -6,22 +6,18 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "../../../index";
 
 const AcceptedTickets = ({ title }) => {
- 
   const axios = useAxiosPrivate();
 
   // Fetch Accepted Tickets
-  const {
-    data: acceptedTickets = [],
-    isLoading,
-  } = useQuery({
+  const { data: acceptedTickets = [], isLoading } = useQuery({
     queryKey: ["accepted-tickets"],
     queryFn: async () => {
       const response = await axios.get("/api/tickets/filtered-tickets/accept");
-       
-       return response.data;
+
+      return response.data;
     },
   });
- 
+
   const { mutate } = useMutation({
     mutationKey: ["close-ticket"],
     mutationFn: async (ticketId) => {
@@ -41,14 +37,17 @@ const AcceptedTickets = ({ title }) => {
   });
 
   // Transform Tickets Data
-  const transformTicketsData = (tickets) =>
-   tickets.length>0 && tickets.map((ticket) => ({
-      id: ticket._id,
-      raisedBy: ticket.raisedBy?.name || "Unknown",
-      raisedToDepartment: ticket.raisedToDepartment.name || "N/A",
-      ticketTitle: ticket.ticket?.title || "No Title",
-      status: ticket.status || "Pending",
-    }));
+  const transformTicketsData = (tickets) => {
+    return !tickets.length
+      ? []
+      : tickets.map((ticket) => ({
+          id: ticket._id,
+          raisedBy: ticket.raisedBy?.name || "Unknown",
+          raisedToDepartment: ticket.raisedToDepartment.name || "N/A",
+          ticketTitle: ticket.ticket?.title || "No Title",
+          status: ticket.status || "Pending",
+        }));
+  };
 
   const rows = isLoading ? [] : transformTicketsData(acceptedTickets);
 

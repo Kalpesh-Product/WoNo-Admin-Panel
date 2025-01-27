@@ -59,12 +59,15 @@ import HrSettingsPolicies from "../pages/Dashboard/HrDashboard/HrSettings/HrSett
 import HrSOP from "../pages/Dashboard/HrDashboard/HrSettings/HrSOP";
 import EmployeeType from "../pages/Dashboard/HrDashboard/HrSettings/EmployeeType";
 import Shifts from "../pages/Dashboard/HrDashboard/HrSettings/Shifts";
+import HrReports from "../pages/Dashboard/HrDashboard/Data/Reports"
+import BulkUpload from "../pages/Dashboard/HrDashboard/HrSettings/BulkUpload";
 
 export const routes = createBrowserRouter([
   {
     path: "/",
     element: <LoginPage />,
   },
+  
   {
     element: <PersistLogin />,
     children: [
@@ -100,41 +103,16 @@ export const routes = createBrowserRouter([
                         path: "compliances",
                         element: <Compliances />,
                         children: [
-                          {
-                            path: "view-employees",
-                            index:true,
-                            element: <ViewEmployees />,
+                           {
+                            path: "vendor-onboarding",
+                            element: <VendorOnboard />,
                           },
-                          {
-                            path: "view-employees/:id", // Move dynamic route to the same level as view-employees
-                            element: <EmployeeDetail />,
-                            children:[
-                              {
-                                path: "edit-details",
-                                element: <EditDetails />
-                              },
-                              {
-                                path: "attendance",
-                                element: <Attendance />
-                              },
-                              {
-                                path: "leaves",
-                                element: <Leaves />
-                              },
-                              {
-                                path: "agreements",
-                                element: <Agreements />
-                              },
-                              {
-                                path: "kpi",
-                                element: <KPI />
-                              },
-                              {
-                                path: "kra",
-                                element: <KRA />
-                              }
-                            ]
-                          },
+                          // {
+                          //   path: "view-employees",
+                          //   index:true,
+                          //   element: <ViewEmployees />,
+                          // },
+                          // 
                           {
                             path: "company-handbook",
                             element: <CompanyHandbook />,
@@ -147,6 +125,11 @@ export const routes = createBrowserRouter([
                               />
                             ),
                           },
+                          {
+                            path: "templates",
+                            element: <Templates />,
+                          },
+
                         ],
                       },
                       {
@@ -159,9 +142,41 @@ export const routes = createBrowserRouter([
                             element: <EmployeeOnboard />,
                           },
                           {
-                            path: "vendor-onboarding",
-                            element: <VendorOnboard />,
+                            path: "view-employees",
+                            element: <ViewEmployees />,
                           },
+                          {
+                              path: "view-employees/:id", // Move dynamic route to the same level as view-employees
+                              element: <EmployeeDetail />,
+                              children:[
+                                {
+                                  path: "edit-details",
+                                  element: <EditDetails />
+                                },
+                                {
+                                  path: "attendance",
+                                  element: <Attendance />
+                                },
+                                {
+                                  path: "leaves",
+                                  element: <Leaves />
+                                },
+                                {
+                                  path: "agreements",
+                                  element: <Agreements />
+                                },
+                                {
+                                  path: "kpi",
+                                  element: <KPI />
+                                },
+                                {
+                                  path: "kra",
+                                  element: <KRA />
+                                }
+                              ]
+                            },
+
+                         
                           {
                             path: "member-onboarding",
                             element: (
@@ -180,11 +195,13 @@ export const routes = createBrowserRouter([
                             index:true,
                             element: <JobApplicationList />,
                           },
-                         
                           {
-                            path: "templates",
-                            element: <Templates />,
+                            path: "reports",
+                            
+                            element: <HrReports />,
                           },
+                         
+                         
                           
                         ],
 
@@ -209,38 +226,42 @@ export const routes = createBrowserRouter([
                         element: <HrSettings />,
                         children: [
                           {
-                            path: "company-logo",
-                            index:true,
-                            element: <CompanyLogo />,
+                            path: `bulk-upload`,
+                            element: <BulkUpload/>,
                           },
-                          {
-                            path: "departments",
-                            element: <HrSettingsDepartments />,
-                          },
-                          {
-                            path: "work-locations",
-                            element: <WorkLocations />,
-                          },
-                          {
-                            path: "leave-type",
-                            element: <LeaveType />,
-                          },
-                          {
-                            path: "policies",
-                            element: <HrSettingsPolicies />,
-                          },
-                          {
-                            path: "sops",
-                            element: <HrSOP />,
-                          },
-                          {
-                            path: "employee-type",
-                            element: <EmployeeType />,
-                          },
-                          {
-                            path: "shifts",
-                            element: <Shifts />,
-                          },
+                          // {
+                          //   path: "company-logo",
+                          //   index:true,
+                          //   element: <CompanyLogo />,
+                          // },
+                          // {
+                          //   path: "departments",
+                          //   element: <HrSettingsDepartments />,
+                          // },
+                          // {
+                          //   path: "work-locations",
+                          //   element: <WorkLocations />,
+                          // },
+                          // {
+                          //   path: "leave-type",
+                          //   element: <LeaveType />,
+                          // },
+                          // {
+                          //   path: "policies",
+                          //   element: <HrSettingsPolicies />,
+                          // },
+                          // {
+                          //   path: "sops",
+                          //   element: <HrSOP />,
+                          // },
+                          // {
+                          //   path: "employee-type",
+                          //   element: <EmployeeType />,
+                          // },
+                          // {
+                          //   path: "shifts",
+                          //   element: <Shifts />,
+                          // },
                         ],
                       },
                     ],
