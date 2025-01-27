@@ -44,7 +44,7 @@ const leaveSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // Enable timestamps
+    timestamps: true,  
   }
 );
 

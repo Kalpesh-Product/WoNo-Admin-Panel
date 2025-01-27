@@ -21,12 +21,11 @@ const addCompany = async (req, res, next) => {
       company: savedCompany,
     });
   } catch (error) {
-    console.error("Error processing company data:", error);
     next(error);
   }
 };
 
-const getCompanies = async (req, res, nex) => {
+const getCompanies = async (req, res, next) => {
   try {
     const companies = await CompanyData.find();
     res.status(200).json({
@@ -34,9 +33,108 @@ const getCompanies = async (req, res, nex) => {
       companies
     });
   } catch(error) { 
-    console.error("Error fetching companies : ", error.message);
-    res.status(500).json({error: error.message});
+   next(error)
   }
 }
 
-module.exports = { addCompany, getCompanies };
+const addWorkLocation = async (req, res, next) => {
+
+  const {companyId,workLocation} = req.body
+  try {
+
+    if(!companyId || !workLocation){
+      res.status(200).json({
+        message: "All feilds are required",
+      });
+    }
+
+    await CompanyData.findOneAndUpdate({_id:companyId},{$push: {
+      workLocation:{
+        name:workLocation
+      }
+    }});
+
+    res.status(200).json({
+      message: "Work location added successfully",
+    });
+ 
+  } catch(error) { 
+    next(error)
+  }
+}
+
+const addLeaveType = async (req, res, next) => {
+
+  const {companyId,leaveType} = req.body
+  try {
+
+    if(!companyId || !leaveType){
+      res.status(200).json({
+        message: "All feilds are required",
+      });
+    }
+
+    await CompanyData.findOneAndUpdate({_id:companyId},{$push: {
+      leaveType:{
+        name:leaveType.toLowerCase()
+      }
+    }});
+    res.status(200).json({
+      message: "Leave type added successfully",
+    });
+ 
+  } catch(error) { 
+    next(error)
+  }
+}
+const addEmployeeType = async (req, res, next) => {
+
+  const {companyId,employeeType} = req.body
+  try {
+
+    if(!companyId || !employeeType){
+      res.status(200).json({
+        message: "All feilds are required",
+      });
+    }
+
+    await CompanyData.findOneAndUpdate({_id:companyId},{$push: {
+      employeeType:{
+        name:employeeType.toLowerCase()
+      }
+    }});
+    res.status(200).json({
+      message: "Employee type added successfully",
+    });
+ 
+  } catch(error) { 
+    next(error)
+  }
+}
+const addShift = async (req, res, next) => {
+
+  const {companyId,shift} = req.body
+  try {
+
+    if(!companyId || !shift){
+      res.status(200).json({
+        message: "All feilds are required",
+      });
+    }
+
+    await CompanyData.findOneAndUpdate({_id:companyId},{$push: {
+      shift:{
+        name:shift
+      }
+    }});
+    res.status(200).json({
+      message: "Shift added successfully",
+    });
+ 
+  } catch(error) { 
+    next(error)
+  }
+}
+ 
+
+module.exports = { addCompany, getCompanies, addWorkLocation,addLeaveType,addEmployeeType,addShift };

@@ -9,24 +9,9 @@ const companyDataSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  companySize: {
-    type: String,
-    required: true,
-  },
   companyType: {
     type: String,
     required: true,
-  },
-  companyCity: {
-    type: String,
-    required: true,
-  },
-  companyState: {
-    type: String,
-    required: true,
-  },
-  websiteURL: {
-    type: String,
   },
   linkedinURL: {
     type: String,
@@ -41,6 +26,45 @@ const companyDataSchema = new mongoose.Schema({
         default: true,  
       }
     },
+  ],
+  shift:[
+    {
+      name: {
+        type: String,
+      },
+      status: {
+        type: Boolean,
+        default: true,  
+      }   
+    }
+  ],
+  leaveType:[
+    {
+      name: {
+        type: String,
+      },
+      status: {
+        type: Boolean,
+        default: true,  
+      }   
+    }
+  ],
+  workLocation:[
+    {
+      name: {
+        type: String,
+      },
+      status: {
+        type: Boolean,
+        default: true,  
+      }   
+    }
+  ],
+  modules: [
+    {
+    type: mongoose.Schema.Types.ObjectId,
+    ref:"modules"
+    }
   ],
   
 
