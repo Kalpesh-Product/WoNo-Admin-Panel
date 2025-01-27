@@ -104,56 +104,182 @@ const Attendance = () => {
   //Attendance graph options
 
   const attendanceData = [
-    { x: "1-12-2024", y: 85 },
-    { x: "2-12-2024", y: 90 },
-    { x: "3-12-2024", y: 75 },
-    { x: "4-12-2024", y: 95 },
-    { x: "5-12-2024", y: 80 },
-    { x: "6-12-2024", y: 70 },
-    { x: "7-12-2024", y: 100 },
-    { x: "8-12-2024", y: 0 },
-    { x: "9-12-2024", y: 85 },
-    { x: "10-12-2024", y: 90 },
-    { x: "11-12-2024", y: 75 },
-    { x: "12-12-2024", y: 95 },
-    { x: "13-12-2024", y: 80 },
-    { x: "14-12-2024", y: 70 },
-    { x: "15-12-2024", y: 100 },
-    { x: "16-12-2024", y: 60 },
-    { x: "17-12-2024", y: 85 },
-    { x: "18-12-2024", y: 90 },
-    { x: "19-12-2024", y: 75 },
-    { x: "20-12-2024", y: 95 },
-    { x: "21-12-2024", y: 80 },
-    { x: "22-12-2024", y: 70 },
-    { x: "23-12-2024", y: 100 },
-    { x: "24-12-2024", y: 60 },
-    { x: "25-12-2024", y: 85 },
-    { x: "26-12-2024", y: 90 },
-    { x: "27-12-2024", y: 75 },
-    { x: "28-12-2024", y: 95 },
-    { x: "29-12-2024", y: 80 },
-    { x: "30-12-2024", y: 70 },
-    { x: "31-12-2024", y: 100 },
+    {
+      date: "01-01-2025",
+      inTime: "9:45 AM",
+      outTime: "6:30 PM",
+      sections: [
+        { color: "#d3d3d3", value: 0.25 }, // Gray (15 minutes)
+        { color: "#34a853", value: 8.25 }, // Green (495 minutes)
+        { color: "#ff0000", value: 0.5 },  // Red (30 minutes)
+      ],
+    },
+    {
+      date: "02-01-2025",
+      inTime: "10:00 AM",
+      outTime: "6:15 PM",
+      sections: [
+        { color: "#d3d3d3", value: 0.5 },  // Gray (30 minutes)
+        { color: "#34a853", value: 7.75 }, // Green (465 minutes)
+        { color: "#ff0000", value: 0.75 }, // Red (45 minutes)
+      ],
+    },
+    {
+      date: "03-01-2025",
+      inTime: "9:30 AM",
+      outTime: "6:30 PM",
+      sections: [
+        { color: "#d3d3d3", value: 0 },    // Gray (0 minutes)
+        { color: "#34a853", value: 9 },    // Green (540 minutes)
+        { color: "#ff0000", value: 0 },    // Red (0 minutes)
+      ],
+    },
+    {
+      date: "04-01-2025",
+      inTime: "9:50 AM",
+      outTime: "6:20 PM",
+      sections: [
+        { color: "#d3d3d3", value: 0.3 },  // Gray (18 minutes)
+        { color: "#34a853", value: 8 },    // Green (480 minutes)
+        { color: "#ff0000", value: 0.5 },  // Red (30 minutes)
+      ],
+    },
+    {
+      date: "06-01-2025",
+      inTime: "10:05 AM",
+      outTime: "6:10 PM",
+      sections: [
+        { color: "#d3d3d3", value: 0.4 },  // Gray (24 minutes)
+        { color: "#34a853", value: 7.5 },  // Green (450 minutes)
+        { color: "#ff0000", value: 1 },    // Red (60 minutes)
+      ],
+    },
+    {
+      date: "07-01-2025",
+      inTime: "9:30 AM",
+      outTime: "6:30 PM",
+      sections: [
+        { color: "#d3d3d3", value: 0 },    // Gray (0 minutes)
+        { color: "#34a853", value: 9 },    // Green (540 minutes)
+        { color: "#ff0000", value: 0 },    // Red (0 minutes)
+      ],
+    },
+    {
+      date: "08-01-2025",
+      inTime: "9:40 AM",
+      outTime: "6:25 PM",
+      sections: [
+        { color: "#d3d3d3", value: 0.2 },  // Gray (12 minutes)
+        { color: "#34a853", value: 8.5 },  // Green (510 minutes)
+        { color: "#ff0000", value: 0.3 },  // Red (18 minutes)
+      ],
+    },
+    {
+      date: "09-01-2025",
+      inTime: "9:55 AM",
+      outTime: "6:15 PM",
+      sections: [
+        { color: "#d3d3d3", value: 0.4 },  // Gray (24 minutes)
+        { color: "#34a853", value: 7.75 }, // Green (465 minutes)
+        { color: "#ff0000", value: 0.85 }, // Red (51 minutes)
+      ],
+    },
+    {
+      date: "10-01-2025",
+      inTime: "9:30 AM",
+      outTime: "6:45 PM",
+      sections: [
+        { color: "#d3d3d3", value: 0.1 },  // Gray (6 minutes)
+        { color: "#34a853", value: 8.75 }, // Green (525 minutes)
+        { color: "#ff0000", value: 0.15 }, // Red (9 minutes)
+      ],
+    },
+    {
+      date: "11-01-2025",
+      inTime: "10:00 AM",
+      outTime: "6:00 PM",
+      sections: [
+        { color: "#d3d3d3", value: 0.6 },  // Gray (36 minutes)
+        { color: "#34a853", value: 7.25 }, // Green (435 minutes)
+        { color: "#ff0000", value: 1.15 }, // Red (69 minutes)
+      ],
+    },
+    {
+      date: "13-01-2025",
+      inTime: "9:45 AM",
+      outTime: "6:30 PM",
+      sections: [
+        { color: "#d3d3d3", value: 0.25 }, // Gray (15 minutes)
+        { color: "#34a853", value: 8.25 }, // Green (495 minutes)
+        { color: "#ff0000", value: 0.5 },  // Red (30 minutes)
+      ],
+    },
+    {
+      date: "14-01-2025",
+      inTime: "9:35 AM",
+      outTime: "6:40 PM",
+      sections: [
+        { color: "#d3d3d3", value: 0.2 },  // Gray (12 minutes)
+        { color: "#34a853", value: 8.75 }, // Green (525 minutes)
+        { color: "#ff0000", value: 0.05 }, // Red (3 minutes)
+      ],
+    },
+    {
+      date: "15-01-2025",
+      inTime: "10:10 AM",
+      outTime: "6:20 PM",
+      sections: [
+        { color: "#d3d3d3", value: 0.5 },  // Gray (30 minutes)
+        { color: "#34a853", value: 7.5 },  // Green (450 minutes)
+        { color: "#ff0000", value: 1 },    // Red (60 minutes)
+      ],
+    },
+    {
+      date: "16-01-2025",
+      inTime: "9:45 AM",
+      outTime: "6:30 PM",
+      sections: [
+        { color: "#d3d3d3", value: 0.25 }, // Gray (15 minutes)
+        { color: "#34a853", value: 8.25 }, // Green (495 minutes)
+        { color: "#ff0000", value: 0.5 },  // Red (30 minutes)
+      ],
+    },
+    {
+      date: "17-01-2025",
+      inTime: "9:50 AM",
+      outTime: "6:10 PM",
+      sections: [
+        { color: "#d3d3d3", value: 0.4 },  // Gray (24 minutes)
+        { color: "#34a853", value: 7.5 },  // Green (450 minutes)
+        { color: "#ff0000", value: 1 },    // Red (60 minutes)
+      ],
+    },
   ];
+  
+  
 
-  // Create stacked data: completed and remaining
   const attendanceSeries = [
     {
-      name: "Completed",
-      data: attendanceData.map((attendance) => attendance.y), // Completed percentage
+      name: "Gray (Late Check-In)",
+      data: attendanceData.map((entry) => entry.sections[0].value), // Gray section values
+      color: "#d3d3d3",
     },
     {
-      name: "Remaining",
-      data: attendanceData.map((attendance) => 100 - attendance.y), // Remaining percentage
+      name: "Green (Completed)",
+      data: attendanceData.map((entry) => entry.sections[1].value), // Green section values
+      color: "#34a853",
+    },
+    {
+      name: "Red (Remaining)",
+      data: attendanceData.map((entry) => entry.sections[2].value), // Red section values
+      color: "#ff0000",
     },
   ];
 
-  // Stacked graph options
   const options = {
     chart: {
       type: "bar",
-      stacked: true, // Enable stacking
+      stacked: true,
       fontFamily: "Poppins-Regular",
       toolbar: {
         show: true,
@@ -167,40 +293,88 @@ const Attendance = () => {
       },
     },
     xaxis: {
-      categories: attendanceData.map((item) => item.x), // Dates for x-axis
+      categories: attendanceData.map((entry) => entry.date.split("-")[0]), // Extract only the day (DD)
+      labels: {
+        style: {
+          fontSize: "12px",
+        },
+      },
     },
+    
     yaxis: {
       min: 0,
-      max: 100, // Percentage scale
+      max: 9, // Maximum set to 9 hours
+      tickAmount: 9, // 9 ticks for 0 to 9 hours
       labels: {
-        formatter: (value) => `${value}%`, // Show percentages on the y-axis
+        formatter: (value) => `${value} hr`, // Display as whole hours
       },
     },
     tooltip: {
-      custom: function ({ series, seriesIndex, dataPointIndex, w }) {
-        const completed = series[0][dataPointIndex]; // Completed percentage
-        const remaining = 100 - completed; // Remaining percentage
-        const completedHours = ((completed / 100) * 9).toFixed(2); // Completed hours
-        const remainingHours = ((remaining / 100) * 9).toFixed(2); // Remaining hours
-
+      custom: function ({ series, seriesIndex, dataPointIndex }) {
+        const gray = attendanceData[dataPointIndex].sections[0].value;
+        const green = attendanceData[dataPointIndex].sections[1].value;
+        const red = attendanceData[dataPointIndex].sections[2].value;
+    
+        // Helper function to format hours and minutes
+        const formatTime = (hours) => {
+          const h = Math.floor(hours);
+          const m = Math.round((hours - h) * 60);
+          if (h === 0 && m > 0) return `${m}m`; // Only minutes
+          if (m === 0) return `${h}h`; // Only hours
+          return `${h}h ${m}m`; // Hours and minutes
+        };
+    
         return `
-        <div style="padding: 10px; font-size: 12px;">
-          <div><strong>Completed:</strong> ${completed}% (${completedHours} hours)</div>
-          <div><strong>Remaining:</strong> ${remaining}% (${remainingHours} hours)</div>
-        </div>
-      `;
+          <div style="padding: 10px; font-size: 12px; display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; justify-content: space-between; gap: 2rem;">
+              <div style="text-align: start;"><strong>Date</strong></div>
+              <div style="text-align: end;">${attendanceData[dataPointIndex].date}</div>
+            </div>
+            <div style="display: flex; justify-content: space-between; gap: 2rem;">
+              <div style="text-align: start;"><strong>Late Check-In</strong></div>
+              <div style="text-align: end;">${formatTime(gray)}</div>
+            </div>
+            <div style="display: flex; justify-content: space-between; gap: 2rem;">
+              <div style="text-align: start;"><strong>Completed</strong></div>
+              <div style="text-align: end;">${formatTime(green)}</div>
+            </div>
+            <div style="display: flex; justify-content: space-between; gap: 2rem;">
+              <div style="text-align: start;"><strong>Remaining</strong></div>
+              <div style="text-align: end;">${formatTime(red)}</div>
+            </div>
+          </div>
+        `;
       },
     },
-
-    colors: ["#34a853", "#ff0000"], // Green for completed, red for remaining
+    
+    
+    dataLabels: {
+      enabled: true,
+      formatter: function (value) {
+        // Helper function to format hours and minutes
+        const h = Math.floor(value);
+        const m = Math.round((value - h) * 60);
+        if (h === 0 && m > 0) return `${m}m`; // Only minutes
+        if (m === 0) return `${h}h`; // Only hours
+        return `${h}h ${m}m`; // Hours and minutes
+      },
+      style: {
+        fontSize: "12px",
+        colors: ["#ffff"], // Adjust the color of data labels if needed
+      },
+    },
+    
+    
     legend: {
       position: "top",
     },
   };
+  
+  
+  
 
   return (
     <div className="flex flex-col gap-4">
-
       <div>
         <WidgetSection layout={3} padding>
           <DataCard data={"18"} title={"Accurate Checkins"} />

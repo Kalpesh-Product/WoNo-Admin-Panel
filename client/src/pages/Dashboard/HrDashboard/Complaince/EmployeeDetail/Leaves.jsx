@@ -68,56 +68,83 @@ const Leaves = () => {
     },
   ];
 
-  const graphData = [
-    {
-      name: "Leaves", // Name of the series
-      data: [
-        { x: "Absent", y: 4 },
-        { x: "Annual Leaves", y: 4 },
-        { x: "Casual Leaves", y: 6 },
-        { x: "Compensatory Off", y: 2 },
-        { x: "Sick Leave", y: 0 },
-      ],
-    },
-  ];
-  
+// Hardcoded current month (1 = January, 2 = February, etc.)
+const currentMonthIndex = 2; // Set to February for this example
+const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
+// Allocated leaves per month
+const leavesAllocatedPerMonth = 1; // 1 leave per month
 
-  const leavesOptions = {
-    chart: {
-      type: "bar",
-      fontFamily: "Poppins-Regular",
-      toolbar: {
-        show: true,
-      },
+// Total allocated leaves up to the current month
+const totalAllocatedLeaves = leavesAllocatedPerMonth * currentMonthIndex;
+
+// Leaves taken by the user in each month
+const leavesTakenPerMonth = {
+  January: 2, // User took 2 leaves in January
+
+};
+
+// Calculate cumulative leaves taken up to the current month
+const cumulativeLeavesTaken = Object.keys(leavesTakenPerMonth)
+  .slice(0, currentMonthIndex) // Consider only months up to the current month
+  .reduce((sum, month) => sum + (leavesTakenPerMonth[month] || 0), 0);
+
+// Calculate bar segments
+const usedWithinLimit = Math.min(cumulativeLeavesTaken, totalAllocatedLeaves); // Green portion
+const exceededLeaves = Math.max(cumulativeLeavesTaken - totalAllocatedLeaves, 0); // Red portion
+
+// Graph data
+const graphData = [
+  {
+    name: "Used (Within Limit)",
+    data: [{ x: "Privileged Leaves", y: usedWithinLimit }],
+  },
+  {
+    name: "Exceeded (Over Limit)",
+    data: [{ x: "Privileged Leaves", y: exceededLeaves }],
+  },
+];
+
+// Graph options
+const leavesOptions = {
+  chart: {
+    type: "bar",
+    stacked: true,
+    fontFamily: "Poppins-Regular",
+    toolbar: {
+      show: true,
     },
-    plotOptions: {
-      bar: {
-        horizontal: false,
-        columnWidth: "60%",
-        borderRadius: 2,
-      },
+  },
+  plotOptions: {
+    bar: {
+      horizontal: true,
+      columnWidth: "60%",
+      borderRadius: 2,
     },
-    xaxis: {
-      categories: ["Absent", "Annual Leaves", "Casual Leaves", "Compensatory Off", "Sick Leave"], // Match x-axis categories
+  },
+  xaxis: {
+    categories: months.slice(0, currentMonthIndex), // Show months up to the current month
+    title: {
+      text: "Months",
     },
-    yaxis: {
-      min: 0,
-      max: 10, // Adjust scale based on the data (10 is the maximum value in the data)
-      labels: {
-        formatter: (value) => `${value}`, // Keep values as-is
-      },
+  },
+  yaxis: {
+    categories: ["Privileged Leaves"], // Leave type as the y-axis category
+    title: {
+      text: "Leave Types",
     },
-    tooltip: {
-      y: {
-        formatter: (value) => `${value} leaves`, // Show the number of leaves
-      },
+  },
+  tooltip: {
+    y: {
+      formatter: (value) => `${value} leaves`, // Tooltip shows leave count
     },
-    colors: ["#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#FFC300"], // Custom colors
-    legend: {
-      position: "top",
-    },
-  };
+  },
+  colors: ["#33FF57", "#FF5733"], // Green for within limit, red for exceeded
+  legend: {
+    position: "top",
+    horizontalAlign: "center",
+  },
+};
   
 
   return (
