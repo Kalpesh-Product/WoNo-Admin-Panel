@@ -226,7 +226,7 @@ export const routes = createBrowserRouter([
                         element: <HrSettings />,
                         children: [
                           {
-                            path: `bulkupload`,
+                            path: `bulk-upload`,
                             element: <BulkUpload/>,
                           },
                           // {
