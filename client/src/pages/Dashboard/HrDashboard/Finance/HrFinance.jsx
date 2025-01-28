@@ -10,12 +10,13 @@ const HrFinance = () => {
   const tabs = [
     { label: "Budget", path: "budget" },
     { label: "Payment Schedule", path: "payment-schedule" },
+    { label: "Payroll", path: "payroll" },
   ];
 
   // Redirect to "view-employees" if the current path is "/hr-dashboard/compliances"
   useEffect(() => {
-    if (location.pathname === "/app/dashboard/hr-dashboard/finance") {
-      navigate("/app/dashboard/hr-dashboard/finance/budget", {
+    if (location.pathname === "/app/dashboard/HR-dashboard/finance") {
+      navigate("/app/dashboard/HR-dashboard/finance/budget", {
         replace: true,
       });
     }

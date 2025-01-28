@@ -486,6 +486,7 @@ const HrDashboard = () => {
     colors: ["#0056B3", "#FD507E"], // Pass colors as an array
     dataLabels: {
       enabled: true,
+      position:'center',
       style: {
         fontSize: "14px", // Adjust the font size of the labels
         fontWeight: "bold",
@@ -589,11 +590,11 @@ const techGoaVisitorsOptions = {
     {
       layout: 6,
       widgets: [
-        <Card icon={<CgWebsite />} title="Employee" route={"onboarding"} />,
+        <Card icon={<CgWebsite />} title="Employee" route={"employee"} />,
         <Card
           icon={<LuHardDriveUpload />}
           title="Company"
-          route={"compliances"}
+          route={"company"}
         />,
         <Card icon={<SiCashapp />} title="Finance" route={"finance"} />,
         <Card icon={<CgWebsite />} title="Mix Bag" route={"#"} />,

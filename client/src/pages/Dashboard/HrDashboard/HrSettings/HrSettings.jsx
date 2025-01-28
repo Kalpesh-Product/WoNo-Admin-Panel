@@ -16,6 +16,7 @@ const HrSettings = () => {
     { label: "SOPs", path: "sops" },
     { label: "Employee Types", path: "employee-type" },
     { label: "Shifts", path: "shifts" },
+    { label: "Templates", path: "templates" },
   ];
 
   // Redirect to "view-employees" if the current path is "/hr-dashboard/compliances"
