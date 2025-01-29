@@ -1,11 +1,11 @@
 const router = require("express").Router();
 const {
-  addDepartment,
+  createDepartment,
   assignAdmin,
-  getDepartments
+  getDepartments,
 } = require("../controllers/departmentControllers/departmentControllers");
 
-router.post("/add-department", addDepartment);
+router.post("/add-department", createDepartment);
 router.patch("/assign-admin", assignAdmin);
 router.get("/get-departments", getDepartments);
 module.exports = router;

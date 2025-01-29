@@ -69,67 +69,27 @@ const RoleDetails = require("../../models/roleDetails");
 
 
 const addRole = async (req, res, next) => {
-    try {
-        const { roleTitle } = req.body;
- 
-        const role = new RoleDetails({
-            roleTitle,
-        });
-
-        const savedRole = await role.save();
-
-        res.status(201).json({
-            message: "Role added successfully.",
-        });
-    } catch (error) {
-        next(error)
+  try {
+    const { roleTitle } = req.body;
+    const roleExists = await Role.findOne({ roleTitle }).lean().exec();
+    if (roleExists) {
+      return res.status(400).json({ message: "role already exists" });
     }
+    const newRole = new Role({ roleTitle });
+    await newRole.save();
+    res.sendStatus(204);
+  } catch (error) {
+    next(error);
+  }
 };
-
 
 const getRoles = async (req, res, next) => {
-    try {
-        // Fetch all roles and populate module and submodule details, including permissions
-        const roles = await Role.find()
-            .populate({
-                path: "modulePermissions.module",
-                select: "moduleTitle",
-            })
-            .populate({
-                path: "modulePermissions.subModulePermissions.subModule",
-                select: "subModuleTitle",
-            });
-
-        res.status(200).json({
-            message: "Roles fetched successfully.",
-            roles,
-        });
-    } catch (error) {
-        console.error("Error fetching roles:", error);
-        res.status(500).json({
-            message: "Internal Server Error",
-            error: error.message,
-        });
-    }
-};
-const updateRoles = async (req, res, next) => {
-    try {
-        const { roles } = req.body;
-
-        for (const role of roles) {
-            await Role.findByIdAndUpdate(role._id, {
-                modulePermissions: role.modulePermissions,
-            });
-        }
-
-        res.status(200).json({ message: "Roles updated successfully." });
-    } catch (error) {
-        console.error("Error updating roles:", error);
-        res.status(500).json({ message: "Internal Server Error", error: error.message });
-    }
+  try {
+    const roles = await Role.find().lean().exec();
+    return res.status(200).json(roles);
+  } catch (error) {
+    next(error);
+  }
 };
 
-
-
-
-module.exports = { addRole, getRoles, updateRoles };
+module.exports = { addRole, getRoles };

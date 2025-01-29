@@ -62,7 +62,7 @@ const Sidebar = () => {
           id: 3,
           title: "HR Dashboard",
           icon: <RiAdminFill />,
-          route: "/app/dashboard/hr-dashboard",
+          route: "/app/dashboard/HR-dashboard",
         },
         {
           id: 4,

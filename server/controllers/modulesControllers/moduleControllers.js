@@ -18,10 +18,7 @@ const addModule = async (req, res, next) => {
     });
   } catch (error) {
     console.error("Error adding module:", error);
-    res.status(500).json({
-      message: "Internal Server Error",
-      error: error.message,
-    });
+    next(error);
   }
 };
 

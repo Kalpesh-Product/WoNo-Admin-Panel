@@ -16,12 +16,13 @@ const HrSettings = () => {
     { label: "SOPs", path: "sops" },
     { label: "Employee Types", path: "employee-type" },
     { label: "Shifts", path: "shifts" },
+    { label: "Templates", path: "templates" },
   ];
 
   // Redirect to "view-employees" if the current path is "/hr-dashboard/compliances"
   useEffect(() => {
-    if (location.pathname === "/app/dashboard/hr-dashboard/settings") {
-      navigate("/app/dashboard/hr-dashboard/settings/bulk-upload", {
+    if (location.pathname === "/app/dashboard/HR-dashboard/settings") {
+      navigate("/app/dashboard/HR-dashboard/settings/bulkupload", {
         replace: true,
       });
     }

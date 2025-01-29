@@ -3,13 +3,7 @@ import AgTable from "../../../../../components/AgTable";
 import BarGraph from "../../../../../components/graphs/BarGraph";
 
 const Leaves = () => {
-  const graphData = [
-    { x: "Absent", y: 4 },
-    { x: "Annual Leaves", y: 4, fillColor: "#FF5733" },
-    { x: "Casual Leaves", y: 6, fillColor: "#33FF57" },
-    { x: "Compensatory Off", y: 2, fillColor: "#3357FF" },
-    { x: "Sick Leave", y: 0, fillColor: "#FFC300" },
-  ];
+
 
   const leavesColumn = [
     { field: "fromDate", headerName: "From Date" },
@@ -74,20 +68,63 @@ const Leaves = () => {
     },
   ];
 
+  const graphData = [
+    {
+      name: "Leaves", // Name of the series
+      data: [
+        { x: "Absent", y: 4 },
+        { x: "Annual Leaves", y: 4 },
+        { x: "Casual Leaves", y: 6 },
+        { x: "Compensatory Off", y: 2 },
+        { x: "Sick Leave", y: 0 },
+      ],
+    },
+  ];
+  
+
+
+  const leavesOptions = {
+    chart: {
+      type: "bar",
+      fontFamily: "Poppins-Regular",
+      toolbar: {
+        show: true,
+      },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: "60%",
+        borderRadius: 2,
+      },
+    },
+    xaxis: {
+      categories: ["Absent", "Annual Leaves", "Casual Leaves", "Compensatory Off", "Sick Leave"], // Match x-axis categories
+    },
+    yaxis: {
+      min: 0,
+      max: 10, // Adjust scale based on the data (10 is the maximum value in the data)
+      labels: {
+        formatter: (value) => `${value}`, // Keep values as-is
+      },
+    },
+    tooltip: {
+      y: {
+        formatter: (value) => `${value} leaves`, // Show the number of leaves
+      },
+    },
+    colors: ["#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#FFC300"], // Custom colors
+    legend: {
+      position: "top",
+    },
+  };
+  
+
   return (
     <div className="flex flex-col gap-8">
       <div>
         <BarGraph
-          minValue={0}
-          maxValue={20}
-          colors={["#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#FFC300"]}
-          categories={[
-            "Absent",
-            "Annual Leaves",
-            "Casual Leaves",
-            "Compensatory Off",
-            "Sick Leave",
-          ]}
+          options={leavesOptions}
           data={graphData}
         />
       </div>

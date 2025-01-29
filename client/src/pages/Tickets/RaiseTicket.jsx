@@ -12,7 +12,6 @@ import {
   MenuItem,
 } from "@mui/material";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
-import useAuth from "../../hooks/useAuth";
 
 const RaiseTicket = () => {
   const [details, setDetails] = useState({
@@ -65,7 +64,7 @@ const RaiseTicket = () => {
       );
       setTickets(filteredTickets);
     } catch (error) {
-      toast.error(error.message);
+      return null;
     } finally {
       setTicketsLoading(false);
     }
@@ -88,7 +87,6 @@ const RaiseTicket = () => {
 
   // Example usage
   const rows = transformTicketsData(tickets);
-
 
   const handleChange = (field, value) => {
     setDetails((prev) => ({ ...prev, [field]: value }));
@@ -157,6 +155,7 @@ const RaiseTicket = () => {
   const handleDepartmentSelect = async (e) => {
     try {
       const response = await axios.get(`/api/tickets/get-ticket-issue/${e}`);
+      setTicketIssues(response.data);
       setTicketIssues(response.data);
       setSelectedDepartment(e);
     } catch (error) {

@@ -1,4 +1,4 @@
-const CompanyData = require("../../models/CompanyData");
+const Company = require("../../models/Company");
 
 const addCompany = async (req, res, next) => {
   try {
@@ -8,7 +8,6 @@ const addCompany = async (req, res, next) => {
       companyName,
       industry,
       companySize,
-      companyType,
       companyCity,
       companyState,
       websiteURL,
@@ -16,13 +15,13 @@ const addCompany = async (req, res, next) => {
       employeeType,
     } = req.body;
 
+
     // Validate required fields
     if (
       !companyId ||
       !companyName ||
       !industry ||
       !companySize ||
-      !companyType ||
       !companyCity ||
       !companyState
     ) {
@@ -36,13 +35,13 @@ const addCompany = async (req, res, next) => {
       companyName,
       industry,
       companySize,
-      companyType,
       companyCity,
       companyState,
       websiteURL,
       linkedinURL,
       employeeType,
     });
+    
 
     // Save the company to the database
     await newCompany.save();
@@ -63,7 +62,7 @@ const getCompanies = async (req, res, next) => {
     const companies = await CompanyData.find();
     res.status(200).json({
       message: "Company data fetched",
-      companies
+      companies,
     });
   } catch(error) { 
    next(error)
@@ -169,5 +168,10 @@ const addShift = async (req, res, next) => {
   }
 }
  
+  } catch (error) {
+    console.error("Error fetching companies : ", error.message);
+    next(error);
+  }
+};
 
 module.exports = { addCompany, getCompanies, addWorkLocation,addLeaveType,addEmployeeType,addShift };
