@@ -1,13 +1,10 @@
 const LeaveType = require("../../models/LeaveTypes");
 
-const createLeaveType = async (req, res) => {
+const createLeaveType = async (req, res, next) => {
   try {
-    // Get the sent in data off request body
-    // const leaveIdFromRequestBody = req.body.leaveId;
     const leaveTypeFromRequestBody = req.body.leaveType;
     const noOfDaysFromRequestBody = req.body.noOfDays;
 
-    // Create a leave with it (take the values from the request body / frontend and insert in the database)
     const ourCreatedLeaveType = await LeaveType.create({
       //   leaveId: leaveIdFromRequestBody,
       leaveType: leaveTypeFromRequestBody,
@@ -19,12 +16,12 @@ const createLeaveType = async (req, res) => {
     // respond with the new leave (this will be our response in postman / developer tools)
     res.json({ leaveType: ourCreatedLeaveType });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 
 // GET - Fetch all leave types
-const fetchAllLeaveTypes = async (req, res) => {
+const fetchAllLeaveTypes = async (req, res, next) => {
   try {
     // Find the leaves
     const listOfAllLeaveTypes = await LeaveType.find();
@@ -32,13 +29,13 @@ const fetchAllLeaveTypes = async (req, res) => {
     res.json({ leavesTypes: listOfAllLeaveTypes });
   } catch (error) {
     console.log(error);
-    res.sendStatus(400);
+    next(error);
   }
 };
 
 // DELETE - delete leave type
 
-const deleteLeaveType = async (req, res) => {
+const deleteLeaveType = async (req, res, next) => {
   try {
     // get id off the url
     const leaveTypeIdFromTheUrl = req.params.id;
@@ -50,13 +47,13 @@ const deleteLeaveType = async (req, res) => {
     res.json({ success: "Leave Deleted" });
   } catch (error) {
     console.log(error);
-    res.sendStatus(400);
+    next(error);
   }
 };
 
 // PUT - soft delete leave type
 
-const softDeleteLeaveType = async (req, res) => {
+const softDeleteLeaveType = async (req, res, next) => {
   try {
     // Get the id off the url
     const leaveIdFromTheUrl = req.params.id;
@@ -84,7 +81,7 @@ const softDeleteLeaveType = async (req, res) => {
     res.json({ leaveType: updatedLeave });
   } catch (error) {
     console.log(error);
-    res.sendStatus(400);
+    next(error);
   }
 };
 module.exports = {

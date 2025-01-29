@@ -1,42 +1,33 @@
 const jwt = require("jsonwebtoken");
-const User = require("../../models/User");
+const User = require("../../models/UserData");
 
 const handleRefreshToken = async (req, res, next) => {
   try {
-    const cookie = req.cookies;
-    if (!cookie?.clientCookie) return res.sendStatus(401);
+    const cookies = req.cookies;
 
-    const refreshToken = cookie.clientCookie;
-    const user = await User.findOne({ refreshToken })
-      .select("name role email empId department")
-      .populate({
-        path: "department",
-        select: "name departmentId",
-      })
-      .populate({
-        path: "role",
-        select: "roleTitle modulePermissions",
-        populate: [
-          {
-            path: "modulePermissions.module",
-            select: "moduleTitle",
-          },
-          {
-            path: "modulePermissions.subModulePermissions.subModule",
-            select: "subModuleTitle",
-          },
-        ],
-      })
-      .populate({ path: "designation", select: "title" })
-      .populate({ path: "company", select: "companyName" })
-      .lean();
-    if (!user) return res.sendStatus(403);
+    if (!cookies?.clientCookie) {
+      return res.sendStatus(401);
+    }
+
+    const refreshToken = cookies.clientCookie;
+    const userExists = await User.findOne({ refreshToken })
+      .select("name role email empId company password designation")
+      .populate([
+        { path: "company", select: "companyName" },
+        { path: "role", select: "roleTitle" },
+      ])
+      .lean()
+      .exec();
+
+    if (!userExists) {
+      return res.sendStatus(403);
+    }
 
     jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET,
       async (err, decoded) => {
-        if (err || user.email !== decoded.email) {
+        if (err || userExists.email !== decoded.email) {
           return res.sendStatus(403);
         }
 
@@ -44,21 +35,21 @@ const handleRefreshToken = async (req, res, next) => {
           {
             userInfo: {
               email: decoded.email,
-              role: user.role,
-              userId: user._id,
+              role: userExists.designation,
+              userId: userExists._id,
             },
           },
           process.env.ACCESS_TOKEN_SECRET,
-          { expiresIn: "15m" }
+          { expiresIn: "30m" }
         );
 
-        delete user.refreshToken;
-        delete user.credentials?.password;
-        delete user.updatedAt;
+        delete userExists.refreshToken;
+        delete userExists.password;
+        delete userExists.updatedAt;
 
         res.json({
           accessToken,
-          user,
+          user: userExists,
         });
       }
     );

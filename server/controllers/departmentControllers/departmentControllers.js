@@ -1,44 +1,33 @@
 const Department = require("../../models/Departments");
-const CompanyData = require("../../models/CompanyData")
-const User = require("../../models/User")
+const CompanyData = require("../../models/CompanyData");
+const User = require("../../models/User");
 
-const addDepartment = async (req, res, next) => {
+const createDepartment = async (req, res, next) => {
   try {
-    const { name, company } = req.body;
-
-    console.log("Request Payload:", { name, company });
-
-    // Find the company using the companyId
-    const companyDoc = await CompanyData.findById(company);
-    console.log("Company Found:", companyDoc);
-
-    if (!companyDoc) {
-      return res.status(404).json({ message: "Company not found" });
+    const { deptId, deptName } = req.body;
+    if (!deptId || !deptName) {
+      return res.status(400).json({ message: "Invalid department details" });
     }
 
-    // Generate a unique departmentId based on the number of existing departments
-    const departmentCount = await Department.countDocuments();
-    const departmentId = `DEP${String(departmentCount + 1).padStart(5, "0")}`;
+    const deptExists = await Department.findOne({ departmentId: deptId })
+      .lean()
+      .exec();
 
-    // Create the department
-    const department = new Department({
-      departmentId,
-      name,
-      company
+    if (deptExists) {
+      return res.status(400).json({ message: "Department already exists" });
+    }
+
+    const newDept = new Department({
+      departmentId: deptId,
+      name: deptName,
     });
 
-    const savedDepartment = await department.save();
-    res.status(201).json({
-      message: "Department added successfully",
-      department: savedDepartment,
-    });
+    await newDept.save();
+    res.status(201).json({ message: "new department created" });
   } catch (error) {
-    console.error("Error adding department:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    next(error);
   }
 };
-
-
 
 const getDepartments = async (req, res, next) => {
   try {
@@ -55,10 +44,9 @@ const getDepartments = async (req, res, next) => {
     });
   } catch (error) {
     console.error("Error fetching departments:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    next(error);
   }
 };
-
 
 const assignAdmin = async (req, res, next) => {
   try {
@@ -90,4 +78,4 @@ const assignAdmin = async (req, res, next) => {
   }
 };
 
-module.exports = { addDepartment, assignAdmin, getDepartments };
+module.exports = { createDepartment, assignAdmin, getDepartments };

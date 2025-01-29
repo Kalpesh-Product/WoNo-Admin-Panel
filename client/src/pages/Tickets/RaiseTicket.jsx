@@ -12,7 +12,6 @@ import {
   MenuItem,
 } from "@mui/material";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
-import useAuth from "../../hooks/useAuth";
 
 const RaiseTicket = () => {
   const [details, setDetails] = useState({
@@ -156,6 +155,7 @@ const RaiseTicket = () => {
   const handleDepartmentSelect = async (e) => {
     try {
       const response = await axios.get(`/api/tickets/get-ticket-issue/${e}`);
+      setTicketIssues(response.data);
       setTicketIssues(response.data);
       setSelectedDepartment(e);
     } catch (error) {
