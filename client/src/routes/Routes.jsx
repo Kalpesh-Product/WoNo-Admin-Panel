@@ -259,42 +259,10 @@ export const routes = createBrowserRouter([
                         element: <HrSettings />,
                         children: [
                           {
-                            path: `bulk-upload`,
+                            path: "bulk-upload",
                             element: <BulkUpload/>,
                           },
-                          // {
-                          //   path: "company-logo",
-                          //   index:true,
-                          //   element: <CompanyLogo />,
-                          // },
-                          // {
-                          //   path: "departments",
-                          //   element: <HrSettingsDepartments />,
-                          // },
-                          // {
-                          //   path: "work-locations",
-                          //   element: <WorkLocations />,
-                          // },
-                          // {
-                          //   path: "leave-type",
-                          //   element: <LeaveType />,
-                          // },
-                          // {
-                          //   path: "policies",
-                          //   element: <HrSettingsPolicies />,
-                          // },
-                          // {
-                          //   path: "sops",
-                          //   element: <HrSOP />,
-                          // },
-                          // {
-                          //   path: "employee-type",
-                          //   element: <EmployeeType />,
-                          // },
-                          // {
-                          //   path: "shifts",
-                          //   element: <Shifts />,
-                          // },
+                         
                         ],
                       },
                     ],

@@ -22,7 +22,7 @@ const HrSettings = () => {
   // Redirect to "view-employees" if the current path is "/hr-dashboard/compliances"
   useEffect(() => {
     if (location.pathname === "/app/dashboard/HR-dashboard/settings") {
-      navigate("/app/dashboard/HR-dashboard/settings/bulkupload", {
+      navigate("/app/dashboard/HR-dashboard/settings/bulk-upload", {
         replace: true,
       });
     }

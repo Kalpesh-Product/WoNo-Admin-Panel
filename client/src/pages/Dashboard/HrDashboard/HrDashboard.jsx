@@ -52,23 +52,23 @@ const HrDashboard = () => {
     },
     {
       name: "IT Completed",
-      data: [40, 45, 25, 40, 45, 35, 50, 45, 55, 60, 0, 0],
+      data: [40, 45, 25, 40, 45, 35, 50, 45, 55, 60],
       group: "completed",
     },
 
     {
       name: "Tech Completed",
-      data: [45, 40, 30, 45, 50, 40, 55, 50, 60, 65, 0, 0],
+      data: [45, 40, 30, 45, 50, 40, 55, 50, 60, 65],
       group: "completed",
     },
     {
       name: "Admin Completed",
-      data: [40, 30, 40, 52, 46, 40, 60, 59, 50, 70, 0, 0],
+      data: [40, 30, 40, 52, 46, 40, 60, 59, 50, 70],
       group: "completed",
     },
     {
       name: "Maintainance Completed",
-      data: [45, 50, 40, 55, 60, 50, 65, 60, 70, 75, 0, 0],
+      data: [45, 50, 40, 55, 60, 50, 65, 60, 70, 75],
       group: "completed",
     },
   ];

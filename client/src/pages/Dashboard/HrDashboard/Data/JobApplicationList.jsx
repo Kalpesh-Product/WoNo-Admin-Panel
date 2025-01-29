@@ -1,11 +1,13 @@
 import React from 'react'
 import AgTable from '../../../../components/AgTable'
+import { width } from '@mui/system';
 
 
 const JobApplicationList = () => {
 
     const leavesColumn = [
-        { field: "jobposition", headerName: "Job Position", width:200 },
+        { field:"srno", headerName:"SR No",width:"100"},
+        { field: "jobposition", headerName: "Job Position"},
         { field: "name", headerName: "Name",  width:"200" },
         { field: "email", headerName: "Email", width:200},
         { field: "dateofbirth", headerName: "Date Of Birth",flex:1, width:"200" },
@@ -22,6 +24,7 @@ const JobApplicationList = () => {
     
       const rows = [
         {
+          srno:"1",
           jobposition: "Jr Network Engineer",
           name: "vivek parte",
           email: "vivekparte43@gmail.com",
@@ -35,6 +38,7 @@ const JobApplicationList = () => {
 
         },
         {
+            srno:"2",
             jobposition: "Jr Network Engineer",
             name: "Vivek Bhartu",
             email: "vivekparte43@gmail.com",
@@ -47,6 +51,7 @@ const JobApplicationList = () => {
             
         },
         {
+            srno:"3",
             jobposition: "Jr Network Engineer",
             name: "Parth Negi",
             email: "vivekparte43@gmail.com",
@@ -58,6 +63,7 @@ const JobApplicationList = () => {
             ResumeLink:"/_Resume_Anushri Bhagat.pdf"
         },
         {
+            srno:"4",
             jobposition: "Jr Network Engineer",
             name: "karan Mehra",
             email: "vivekparte43@gmail.com",
@@ -69,6 +75,7 @@ const JobApplicationList = () => {
             ResumeLink:"/_Resume_Anushri Bhagat.pdf"
         },
         {
+            srno:"5",
             jobposition: "Jr Network Engineer",
             name: "Siddhesh Bhagat",
             email: "vivekparte43@gmail.com",
@@ -87,7 +94,6 @@ const JobApplicationList = () => {
           search={true}
           searchColumn={"Job Position"}
           tableTitle={"Job Applications"}
-          buttonTitle={"Add Requested Leave"}
           data={rows}
           columns={leavesColumn}
         />
