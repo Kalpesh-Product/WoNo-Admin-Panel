@@ -23,8 +23,8 @@ const Footer = ({ changeActiveTab }) => {
     },
   ];
   return (
-    <footer className="bg-black text-white py-6 ">
-      <div className="container mx-auto flex flex-col items-center">
+    <div className="bg-black text-white py-6">
+      <div className=" flex flex-col items-center border-b-[1px] border-gray-600 pb-4">
         <p className="text-content text-gray-400 text-center">
           Powered by WONOCO PRIVATE LIMITED - SINGAPORE. All Rights Reserved. ©
           Copyright 2024-25
@@ -55,7 +55,7 @@ const Footer = ({ changeActiveTab }) => {
           </div>
         </div>
 
-        <div className="w-full grid grid-cols-3 sm:grid-cols-1 md:grid-cols-3 gap-16 uppercase">
+        <div className="w-full grid grid-cols-3 sm:grid-cols-1 md:grid-cols-3 gap-8 uppercase">
           {footerLinks.map((links,index)=>(
             <>
             <div className="text-center">
@@ -65,7 +65,7 @@ const Footer = ({ changeActiveTab }) => {
           ))}
         </div>
       </div>
-    </footer>
+    </div>
   );
 };
 

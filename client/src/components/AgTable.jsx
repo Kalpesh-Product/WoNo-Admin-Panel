@@ -87,7 +87,7 @@ const AgTable = React.memo(
     };
 
     return (
-      <>
+      <div className="py-4 border-b-[1px] border-borderGray">
         <div className="flex justify-between items-center py-2">
           {/* Search Field */}
           {search && (
@@ -196,7 +196,7 @@ const AgTable = React.memo(
             rowSelection={rowSelection}
           />
         </div>
-      </>
+      </div>
     );
   }
 );

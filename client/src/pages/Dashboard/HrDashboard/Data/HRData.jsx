@@ -8,13 +8,15 @@ const Data = () => {
 
   const tabs = [
     { label: "Job Application List", path: "job-application-list" },
-    { label: "Templates", path: "templates" },
+    {label:"Reports", path:"reports"},
+
+    
   ]
 
   // Redirect to "view-employees" if the current path is "/hr-dashboard/compliances"
   useEffect(() => {
-    if (location.pathname === "/app/dashboard/hr-dashboard/data") {
-      navigate("/app/dashboard/hr-dashboard/data/job-application-list", {
+    if (location.pathname === "/app/dashboard/HR-dashboard/data") {
+      navigate("/app/dashboard/HR-dashboard/data/job-application-list", {
         replace: true,
       });
     }
