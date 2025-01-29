@@ -15,7 +15,6 @@ const addCompany = async (req, res, next) => {
       employeeType,
     } = req.body;
 
-
     // Validate required fields
     if (
       !companyId ||
@@ -41,7 +40,6 @@ const addCompany = async (req, res, next) => {
       linkedinURL,
       employeeType,
     });
-    
 
     // Save the company to the database
     await newCompany.save();
@@ -59,7 +57,6 @@ const addCompany = async (req, res, next) => {
 };
 
 const getCompanies = async (req, res, next) => {
-const getCompanies = async (req, res, next) => {
   try {
     const companies = await CompanyData.find();
     res.status(200).json({
@@ -72,4 +69,4 @@ const getCompanies = async (req, res, next) => {
   }
 };
 
-module.exports = { addCompany, getCompanies, addWorkLocation,addLeaveType,addEmployeeType,addShift };
+module.exports = { addCompany, getCompanies };
