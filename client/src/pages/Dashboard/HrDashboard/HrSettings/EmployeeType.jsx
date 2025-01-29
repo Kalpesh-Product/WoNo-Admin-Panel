@@ -6,6 +6,7 @@ import { Chip } from "@mui/material";
 const EmployeeType = () => {
 
   const departmentsColumn = [
+    { field:"srno",headerName:"SR NO"},
     { field: "employeetype", headerName: "Employee Type",
       cellRenderer:(params)=>{
         return(
@@ -60,21 +61,25 @@ const EmployeeType = () => {
 
   const rows = [
     {
+      srno:"1",
       id: 1,
       employeetype: "Internship",
       status: "Active",
     },
     {
+      srno:"2",
       id: 2,
       employeetype: "Probation",
       status: "Active",
     },
     {
+      srno:"3",
       id: 3,
       employeetype: "Full-Time",
       status: "Inactive",
     },
     {
+      srno:"4",
       id: 4,
       employeetype: "Part-Time",
       status: "Active",

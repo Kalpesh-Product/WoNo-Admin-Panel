@@ -6,6 +6,7 @@ import { Chip } from "@mui/material";
 const Shifts = () => {
 
   const departmentsColumn = [
+    { field:"srno" , headerName:"SR NO"},
       { field: "shiftlist", headerName: "Shift List",
         cellRenderer:(params)=>{
           return(
@@ -60,21 +61,25 @@ const Shifts = () => {
   
     const rows = [
       {
+        srno:"1",
         id: 1,
         shiftlist:"General Shift",
         status: "Active",
       },
       {
+        srno:"2",
         id: 2,
         shiftlist:"Night Shift",
         status: "Active",
       },
       {
+        srno:"3",
         id: 3,
         shiftlist:"Afternoon Shift",
         status: "Inactive",
       },
       {
+        srno:"4",
         id: 4,
         shiftlist:"Evening Shift",
         status: "Active",

@@ -5,6 +5,7 @@ import { Chip } from "@mui/material";
 const WorkLocations = () => {
 
   const departmentsColumn = [
+    { field:"srno" , headerName:"SR NO"},
     { field: "worklocationname", headerName: "Work Location Name",
       cellRenderer:(params)=>{
         return(
@@ -58,21 +59,25 @@ const WorkLocations = () => {
 
   const rows = [
     {
+      srno:"1",
       id: 1,
       worklocationname: "ST 701A",
       status: "Active",
     },
     {
+      srno:"2",
       id: 2,
       worklocationname: "ST 701B",
       status: "Active",
     },
     {
+      srno:"3",
       id: 3,
       worklocationname: "ST 601A",
       status: "Inactive",
     },
     {
+      srno:"4",
       id: 4,
       worklocationname: "ST 701B",
       status: "Active",
