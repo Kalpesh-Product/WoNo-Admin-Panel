@@ -1,140 +1,89 @@
-const CompanyData = require("../../models/CompanyData");
-const Department = require("../../models/Departments");
-const User = require("../../models/User");
-
-const mongoose = require("mongoose");
+const Company = require("../../models/Company");
+const bcrypt = require("bcryptjs");
+const User = require("../../models/UserData"); 
+const Role = require("../../models/Roles");
 
 const createUser = async (req, res, next) => {
   try {
-    const {
-      empId,
-      name,
-      gender,
-      dob,
-      email,
-      phone,
-      role = "masterAdmin",
-      department,
-      designation,
-      fatherName,
-      motherName,
-      fatherOccupation,
-      motherOccupation,
-      maritalStatus,
-      spouseName,
-      spouseOccupation,
-      reportsTo,
-      address = {},
-      kycDetails = {},
-      bankDetails = {},
-      selectedServices = [],
-      workLocation = "",
-      workType = "",
-      employeeType = "",
-      startDate = null,
-      shift = "",
-      workPolicy = "",
-      attendanceSource = "TimeClock",
-      pfAccountNumber = "",
-      esiAccountNumber = "",
-      assignedAsset = [],
-      assignedMembers = [],
-      companyId,
-    } = req.body;
+    const { empId, name, gender, email, phone, role, companyId } = req.body;
 
-    // Validate the company using _id
-    const company = await CompanyData.findOne({ companyId });
+    // Validate required fields
+    if (!empId || !name || !email || !phone || !companyId) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    // Check if company exists
+    const company = await Company.findOne({ _id: companyId }).lean().exec();
     if (!company) {
       return res.status(404).json({ message: "Company not found" });
     }
 
-    // Validate the department
-    if (!department) {
-      return res.status(400).json({ message: "Department is required" });
+    // Check if the employee ID or email is already registered
+    const existingUser = await User.findOne({
+      $or: [{ empId }, { email }],
+    }).exec();
+    if (existingUser) {
+      return res
+        .status(409)
+        .json({ message: "Employee ID or email already exists" });
     }
 
-    const departmentArray = Array.isArray(department)
-      ? department
-      : [department];
+    const roleValue = await Role.findOne({ _id: role }).lean().exec();
+    if (!roleValue) {
+      return res.status(400).json({ message: "Invalid role provided" });
+    }
 
-    // Validate each department ID
-    const departmentIds = await Promise.all(
-      departmentArray.map(async (depId) => {
-        if (!mongoose.Types.ObjectId.isValid(depId)) {
-          throw new Error(`Invalid department ID: ${depId}`);
-        }
-        const foundDepartment = await Department.findById(depId);
-        if (!foundDepartment) {
-          throw new Error(`Department not found for ID: ${depId}`);
-        }
-        return foundDepartment._id;
+    let newUser;
+    if (roleValue.roleTitle === "Master Admin") {
+      const doesMasterAdminExists = await User.findOne({
+        role: { $in: [roleValue._id] },
       })
-    );
-
-    // Validate reportsTo field
-    let reportsToId = null;
-    if (reportsTo) {
-      if (!mongoose.Types.ObjectId.isValid(reportsTo)) {
-        return res.status(400).json({ message: "Invalid reportsTo ID" });
+        .lean()
+        .exec();
+      if (
+        doesMasterAdminExists &&
+        doesMasterAdminExists.company.toString() === companyId
+      ) {
+        return res
+          .status(400)
+          .json({ message: "a master admin already exists" });
       }
-      const reportingUser = await User.findById(reportsTo);
-      if (!reportingUser) {
-        return res.status(404).json({ message: "Reporting user not found" });
-      }
-      reportsToId = reportingUser._id;
     }
 
-    // Generate default password and hash it
-    const defaultPassword = "123";
-    // const hashedPassword = await bcrypt.hash(defaultPassword, 10);
+    // Hash password
+    const defaultPassword = "123456"; // Use a better default or generate one securely
+    const hashedPassword = await bcrypt.hash(defaultPassword, 10);
 
-    // Create the user
-    const user = new User({
+    // Create user object
+    newUser = new User({
       empId,
       name,
       gender,
-      dob,
       email,
       phone,
       role,
-      department: departmentIds,
-      designation,
-      fatherName,
-      motherName,
-      fatherOccupation,
-      motherOccupation,
-      maritalStatus,
-      spouseName,
-      spouseOccupation,
-      reportsTo: reportsToId,
-      address,
-      kycDetails,
-      bankDetails,
-      selectedServices,
-      workLocation,
-      workType,
-      employeeType,
-      startDate,
-      shift,
-      workPolicy,
-      attendanceSource,
-      pfAccountNumber,
-      esiAccountNumber,
-      assignedAsset,
-      assignedMembers,
-      company: company._id,
-      password: defaultPassword, // Store hashed password
+      company: companyId,
+      password: hashedPassword,
     });
 
     // Save the user
-    const savedUser = await user.save();
+    const savedUser = await newUser.save();
 
+    // Send response
     res.status(201).json({
-      message: "User added successfully",
-      user: savedUser,
+      message: "User created successfully",
+      user: {
+        id: savedUser._id,
+        empId: savedUser.empId,
+        name: savedUser.name,
+        email: savedUser.email,
+        phone: savedUser.phone,
+        companyId: savedUser.company,
+        role: savedUser.role,
+      },
     });
   } catch (error) {
-    console.error("Error adding user:", error.message);
+    console.error("Error creating user:", error.message);
     next(error);
   }
 };

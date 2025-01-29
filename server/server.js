@@ -60,7 +60,7 @@ app.use("/api/designations", designationRoutes);
 app.use("/api/assets", assetsRoutes);
 app.use("/api/meetings", meetingsRoutes);
 app.use("/api/tickets",verifyJwt, ticketsRoutes);
-app.use("/api/leaves", leaveRoutes);
+app.use("/api/leaves",verifyJwt, leaveRoutes);
 app.use("/api/employee-agreements", employeeAgreementRoutes);
 app.use("/api/sops", sopRoutes);
 app.use("/api/policies", policyRoutes);
@@ -68,7 +68,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/modules", moduleRoutes);
 app.use("/api/sub-modules", subModuleRoutes);
-app.use("/api/events", eventRoutes);
+app.use("/api/events",verifyJwt, eventRoutes);
 app.use("/api/tasks", taskRoutes);
 app.get(
   "/api/protected",

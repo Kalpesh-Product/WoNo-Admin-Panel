@@ -101,7 +101,7 @@ async function filterSupportTickets(userId,loggedInUser) {
 
   if(loggedInUser.role.roleTitle === "Master-Admin"){ 
       
-    const tickets = await Ticket.find().populate([
+    const tickets = await SupportTicket.find().populate([
       {
         path: "ticket",
         populate: [
@@ -149,7 +149,7 @@ async function filterEscalatedTickets(userDepartments,loggedInUser) {
 
   if(loggedInUser.role.roleTitle === "Master-Admin"){ 
       
-    const tickets = await Ticket.find({ escalatedTo: { $exists: true } }).populate([ 
+    const tickets = await Ticket.find({ escalatedTo: { $exists: true, $ne: [] } }).populate([ 
       { path: "ticket" },
       { path: "raisedBy", select: "name" },
       { path: "raisedToDepartment", select: "name" }

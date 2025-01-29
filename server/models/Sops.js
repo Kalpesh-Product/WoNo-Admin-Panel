@@ -18,14 +18,14 @@ const sopSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-
-    deletedStatus: {
+    status: {
       type: Boolean,
-      default: false,
-    },
+      default: true,  
+    }
+    
   },
   {
-    timestamps: true, // Enable timestamps
+    timestamps: true, 
   }
 );
 

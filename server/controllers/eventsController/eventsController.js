@@ -1,8 +1,9 @@
 const Event = require("../../models/Events");
+const User = require("../../models/User");
 
 const createEvent = async (req, res, next) => {
   try {
-    const { title, type, description, start, end, participants } = req.body;
+    const { title, type, description, start, end, participants,companyId } = req.body;
 
     const startDate = new Date(start);
     const endDate = new Date(end);
@@ -24,6 +25,7 @@ const createEvent = async (req, res, next) => {
       start: startDate,
       end: endDate,
       participants: validParticipants,
+      company:companyId
     });
 
     const event = await newEvent.save();
@@ -35,7 +37,14 @@ const createEvent = async (req, res, next) => {
 
 const getAllEvents = async (req, res, next) => {
   try {
-    // Fetch all events from the database
+     
+    const user = req.user
+
+    //Fetching company-wise events
+    // const loggedInUser = await User.findOne({_id:user}).select("company");
+
+    // const events = await Event.find({company:loggedInUser.company});
+
     const events = await Event.find();
 
     if (!events || events.length === 0) {
@@ -51,7 +60,7 @@ const getAllEvents = async (req, res, next) => {
         allDay: event.allDay,
         description: event.description,
         active:event.active,
-        backgroundColor: event.type === "holiday" ? "#4caf50" : (event.type === "meeting" ? "purple" : (event.type === "tasks" ? "yellow" : (event.type === "events" ? "blue" : "#ff9800"))),
+        backgroundColor: event.type === "holiday" ? "#4caf50" : (event.type === "meeting" ? "purple" : (event.type === "task" ? "yellow" : (event.type === "event" ? "blue" : event.type === "birthday" ?"#ff9800" : ''))),
         extendedProps: {
           type: event.type,
         },
@@ -81,6 +90,18 @@ const getHolidays = async (req, res, next) => {
     const normalEvents = await Event.find();
     const filteredEvents = normalEvents.filter(
       (event) => event.type === "holiday"
+    );
+    res.status(200).json(filteredEvents);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getBirthdays = async (req, res, next) => {
+  try {
+    const normalEvents = await Event.find();
+    const filteredEvents = normalEvents.filter(
+      (event) => event.type === "birthday"
     );
     res.status(200).json(filteredEvents);
   } catch (error) {
@@ -150,4 +171,4 @@ const deleteEvent = async (req,res,next) => {
 
 
 
-module.exports = { createEvent, getAllEvents, getNormalEvents, getHolidays,extendEvent,deleteEvent };
+module.exports = { createEvent, getAllEvents, getNormalEvents, getHolidays, getBirthdays, extendEvent,deleteEvent };

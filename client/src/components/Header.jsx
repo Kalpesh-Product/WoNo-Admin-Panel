@@ -102,10 +102,8 @@ const Header = () => {
             )}
           </Avatar>
           <div className="w-full">
-            <h1 className="text-xl font-semibold">
-              {auth.user.name.split(" ")[0]}
-            </h1>
-            <span className="text-content">{auth.user.role.roleTitle}</span>
+            <h1 className="text-xl font-semibold">{auth.user.name}</h1>
+            <span className="text-content">{auth.user.designation}</span>
           </div>
         </div>
       </div>

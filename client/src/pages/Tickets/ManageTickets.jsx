@@ -7,15 +7,31 @@ import AcceptedTickets from "./Tables/AcceptedTickets";
 import SupportTickets from "./Tables/SupportTickets";
 import EscalatedTickets from "./Tables/EscalatedTickets";
 import ClosedTickets from "./Tables/ClosedTickets";
-
+import { useQuery } from "@tanstack/react-query";
 import useAuth from "../../hooks/useAuth";
-
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+ 
 const ManageTickets = () => {
+  const axios = useAxiosPrivate()
   const [activeTab, setActiveTab] = useState(0);
   
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
   };
+
+  
+  // Fetch Accepted Tickets
+  const {
+    data: acceptedTickets = [],
+    isLoading,
+  } = useQuery({
+    queryKey: ["accepted-tickets"],
+    queryFn: async () => {
+      const response = await axios.get("/api/tickets/filtered-tickets/accept");
+       
+       return response.data;
+    },
+  });
 
   const widgets = [
     {
@@ -61,7 +77,7 @@ const ManageTickets = () => {
             >
               <Card
                 title={"Accepted Tickets"}
-                data={"03"}
+                data={acceptedTickets.length}
                 fontColor={"#1E3D73"}
                 fontFamily={"Poppins-Bold"}
                 titleColor={"#1E3D73"}
