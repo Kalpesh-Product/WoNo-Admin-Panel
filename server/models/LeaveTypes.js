@@ -6,6 +6,10 @@ const leaveTypeSchema = new mongoose.Schema(
       type: String,
       default: "LT-001",
     },
+    company:{
+          type:mongoose.Schema.Types.ObjectId,
+          ref:"CompanyData"
+        },
     leaveType: {
       type: String,
       default: "",

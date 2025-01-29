@@ -1,12 +1,12 @@
 const mongoose = require("mongoose");
 
-const userDataSchema = new mongoose.Schema({
+const userDetailsSchema = new mongoose.Schema({
   empId: {
     type: String,
     required: true,
     unique: true,
   },
-  company: { // to be able to pass id while calling apis that are cmpny specific eg: events
+  company: {  
         type: mongoose.Schema.Types.ObjectId,
         ref: "CompanyData",
         required: true, 
@@ -224,5 +224,5 @@ const userDataSchema = new mongoose.Schema({
   refreshToken: String,
 });
 
-const UserData = mongoose.model("UserData", userDataSchema);
-module.exports = UserData;
+const UserDetails = mongoose.model("UserDetail", userDetailsSchema);
+module.exports = UserDetails;

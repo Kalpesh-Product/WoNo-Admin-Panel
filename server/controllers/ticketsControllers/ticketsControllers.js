@@ -33,20 +33,20 @@ const raiseTicket = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid Issue ID provided" });
     }
 
-    const foundUser = await User.findOne({ _id: user })
+    const loggedInUser = await User.findOne({ _id: user })
       .select("-refreshToken -password")
       .lean()
       .exec();
 
-    if (!foundUser) {
-      return res.status(404).json({ message: "User not found" });
+    if (!loggedInUser) {
+      return res.sendStatus(403) 
     }
 
     const newTicket = new Ticket({
       ticket: foundIssue?._id,
       description,
       raisedToDepartment: departmentId,
-      raisedBy: foundUser?._id,
+      raisedBy: loggedInUser?._id,
     });
 
     await newTicket.save();

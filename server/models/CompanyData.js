@@ -72,3 +72,6 @@ const companyDataSchema = new mongoose.Schema({
 
 const CompanyData = mongoose.model("CompanyData", companyDataSchema);
 module.exports = CompanyData;
+
+
+ 
