@@ -1,10 +1,10 @@
 import React from "react";
 import AgTable from "../../../../../components/AgTable";
 import BarGraph from "../../../../../components/graphs/BarGraph";
+import CustomYAxis from "../../../../../components/graphs/CustomYAxis";
+import WidgetSection from '../../../../../components/WidgetSection'
 
 const Leaves = () => {
-
-
   const leavesColumn = [
     { field: "fromDate", headerName: "From Date" },
     { field: "toDate", headerName: "To Date" },
@@ -12,7 +12,7 @@ const Leaves = () => {
     { field: "leavePeriod", headerName: "Leave Period" },
     { field: "hours", headerName: "Hours" },
     { field: "description", headerName: "Description" },
-    { field: "status", headerName: "Status", },
+    { field: "status", headerName: "Status" },
   ];
 
   const rows = [
@@ -68,92 +68,108 @@ const Leaves = () => {
     },
   ];
 
-// Hardcoded current month (1 = January, 2 = February, etc.)
-const currentMonthIndex = 2; // Set to February for this example
-const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const leavesData = {
+    user: "Aiwin",
+    allocated: 12,
+    taken: 2,
+    remaining: 10,
+    monthlyData: [
+      {
+        month: "January",
+        monthIndex: 1,
+        year: 2025,
+        privilegedLeaves: 1,
+        sickLeaves: 1,
+        casualLeaves: 0,
+      },
+    ],
+  };
 
-// Allocated leaves per month
-const leavesAllocatedPerMonth = 1; // 1 leave per month
+  // Prepare data for ApexCharts
+  const months = leavesData.monthlyData.map((entry) => entry.month);
 
-// Total allocated leaves up to the current month
-const totalAllocatedLeaves = leavesAllocatedPerMonth * currentMonthIndex;
-
-// Leaves taken by the user in each month
-const leavesTakenPerMonth = {
-  January: 2, // User took 2 leaves in January
-
-};
-
-// Calculate cumulative leaves taken up to the current month
-const cumulativeLeavesTaken = Object.keys(leavesTakenPerMonth)
-  .slice(0, currentMonthIndex) // Consider only months up to the current month
-  .reduce((sum, month) => sum + (leavesTakenPerMonth[month] || 0), 0);
-
-// Calculate bar segments
-const usedWithinLimit = Math.min(cumulativeLeavesTaken, totalAllocatedLeaves); // Green portion
-const exceededLeaves = Math.max(cumulativeLeavesTaken - totalAllocatedLeaves, 0); // Red portion
-
-// Graph data
-const graphData = [
-  {
-    name: "Used (Within Limit)",
-    data: [{ x: "Privileged Leaves", y: usedWithinLimit }],
-  },
-  {
-    name: "Exceeded (Over Limit)",
-    data: [{ x: "Privileged Leaves", y: exceededLeaves }],
-  },
-];
-
-// Graph options
-const leavesOptions = {
-  chart: {
-    type: "bar",
-    stacked: true,
-    fontFamily: "Poppins-Regular",
-    toolbar: {
-      show: true,
+  // Series data (stacked bar with allocated vs taken)
+  const series = [
+    {
+      name: "Privileged Leaves (Taken)",
+      data: leavesData.monthlyData.map((entry) => entry.privilegedLeaves),
+      color: "#FF4560", // Red for taken leaves
     },
-  },
-  plotOptions: {
-    bar: {
-      horizontal: true,
-      columnWidth: "60%",
-      borderRadius: 2,
+    {
+      name: "Privileged Leaves (Remaining)",
+      data: leavesData.monthlyData.map((entry) =>
+        Math.max(leavesData.allocated / 3 - entry.privilegedLeaves, 0)
+      ),
+      color: "#00E396", // Green for remaining allocation
     },
-  },
-  xaxis: {
-    categories: months.slice(0, currentMonthIndex), // Show months up to the current month
-    title: {
-      text: "Months",
+    {
+      name: "Sick Leaves (Taken)",
+      data: leavesData.monthlyData.map((entry) => entry.sickLeaves),
+      color: "#775DD0", // Purple for taken leaves
     },
-  },
-  yaxis: {
-    categories: ["Privileged Leaves"], // Leave type as the y-axis category
-    title: {
-      text: "Leave Types",
+    {
+      name: "Sick Leaves (Remaining)",
+      data: leavesData.monthlyData.map((entry) =>
+        Math.max(leavesData.allocated / 3 - entry.sickLeaves, 0)
+      ),
+      color: "#4CAF50", // Green for remaining allocation
     },
-  },
-  tooltip: {
-    y: {
-      formatter: (value) => `${value} leaves`, // Tooltip shows leave count
+    {
+      name: "Casual Leaves (Taken)",
+      data: leavesData.monthlyData.map((entry) => entry.casualLeaves),
+      color: "#FBC02D", // Yellow for taken leaves
     },
-  },
-  colors: ["#33FF57", "#FF5733"], // Green for within limit, red for exceeded
-  legend: {
-    position: "top",
-    horizontalAlign: "center",
-  },
-};
-  
+    {
+      name: "Casual Leaves (Remaining)",
+      data: leavesData.monthlyData.map((entry) =>
+        Math.max(leavesData.allocated / 3 - entry.casualLeaves, 0)
+      ),
+      color: "#29B6F6", // Blue for remaining allocation
+    },
+  ];
+
+  // Chart options
+  const options = {
+    chart: {
+      type: "bar",
+      stacked: true,
+      toolbar: {
+        show: true,
+      },
+    },
+    xaxis: {
+      categories: months,
+      title: {
+        text: "Months",
+      },
+    },
+    yaxis: {
+      title: {
+        text: "Number of Leaves",
+      },
+    },
+    legend: {
+      position: "top",
+    },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+      },
+    },
+  };
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
+      {/* <div>
         <BarGraph
-          options={leavesOptions}
-          data={graphData}
+          options={options}
+          data={series}
         />
+      </div> */}
+      <div>
+        <WidgetSection layout={1} title={"Leaves Data"} border>
+          <CustomYAxis />
+        </WidgetSection>
       </div>
       <div>
         <AgTable

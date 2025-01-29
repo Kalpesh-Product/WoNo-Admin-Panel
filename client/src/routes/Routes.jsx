@@ -63,6 +63,7 @@ import HrPayroll from "../pages/Dashboard/HrDashboard/Finance/HrPayroll";
 import ViewPayroll from "../pages/Dashboard/HrDashboard/Finance/ViewPayroll";
 import HrReports from "../pages/Dashboard/HrDashboard/Data/Reports"
 import BulkUpload from "../pages/Dashboard/HrDashboard/HrSettings/BulkUpload";
+import ComapanyHandbook from '../pages/Dashboard/HrDashboard/Complaince/CompanyHandbook'
 
 export const routes = createBrowserRouter([
   {
@@ -120,6 +121,10 @@ export const routes = createBrowserRouter([
                           {
                             path: "leave-types",
                             element: <LeaveType />,
+                          },
+                          {
+                            path: "company-handbook",
+                            element: <ComapanyHandbook />,
                           },
                           {
                             path: "policies",
@@ -254,7 +259,7 @@ export const routes = createBrowserRouter([
                         element: <HrSettings />,
                         children: [
                           {
-                            path: "bulkupload",
+                            path: `bulk-upload`,
                             element: <BulkUpload/>,
                           },
                           // {
