@@ -3,7 +3,7 @@ require("dotenv").config();
 const { PassThrough } = require("stream"); // Correctly import PassThrough from the stream module
 
 cloudinary.config({
-  cloud_name: process.env.CLOUINARY_CLOUD_NAME,
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });

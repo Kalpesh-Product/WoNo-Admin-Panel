@@ -1,44 +1,18 @@
-const leaveController = require("../controllers/leavesControllers/leavesControllers");
-const leaveTypeController = require("../controllers/leavesControllers/leaveTypesControllers");
+const  {requestLeave, fetchAllLeaves,
+  fetchLeavesBeforeToday,
+  approveLeave,
+  rejectLeave,} = require("../controllers/leavesControllers/leavesControllers");
+const {createLeaveType,fetchAllLeaveTypes,deleteLeaveType,softDeleteLeaveType} = require("../controllers/leavesControllers/leaveTypesControllers");
 const router = require("express").Router();
 
-// ROUTES FOR LEAVES START
-
-// Create a new leave
-router.post("/create-leave", leaveController.createLeave);
-
-// View All Leaves
-router.get("/view-all-leaves", leaveController.fetchAllLeaves);
-
-// View All Leaves Before Today
-router.get(
-  "/view-all-leaves-before-today",
-  leaveController.fetchLeavesBeforeToday
-);
-
-// Approve Leave
-router.put("/approve-leave/:id", leaveController.approveLeave);
-
-// Reject Leave
-router.put("/reject-leave/:id", leaveController.rejectLeave);
-
-// ROUTES FOR LEAVES END
-
-// ROUTES FOR LEAVE TYPES START
-router.post("/create-leave-type", leaveTypeController.createLeaveType);
-
-// View All Leave types
-router.get("/view-all-leave-types", leaveTypeController.fetchAllLeaveTypes);
-
-// Delete Leave type
-router.delete("/delete-leave-type/:id", leaveTypeController.deleteLeaveType);
-
-// Soft Delete Leave type
-router.put(
-  "/soft-delete-leave-type/:id",
-  leaveTypeController.softDeleteLeaveType
-);
-
-// ROUTES FOR LEAVE TYPES END
+router.post("/request-leave", requestLeave);
+router.get("/view-all-leaves", fetchAllLeaves);
+router.get("/view-all-leaves-before-today",fetchLeavesBeforeToday);
+router.put("/approve-leave/:id", approveLeave);
+router.put("/reject-leave/:id",  rejectLeave);
+router.post("/create-leave-type",  createLeaveType);
+router.get("/view-all-leave-types",  fetchAllLeaveTypes);
+router.delete("/delete-leave-type/:id",  deleteLeaveType);
+router.put("/soft-delete-leave-type/:id", softDeleteLeaveType);
 
 module.exports = router;

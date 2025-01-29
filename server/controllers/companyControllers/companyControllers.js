@@ -53,10 +53,12 @@ const addCompany = async (req, res, next) => {
     });
   } catch (error) {
     // Pass the error to the next middleware
+    // Pass the error to the next middleware
     next(error);
   }
 };
 
+const getCompanies = async (req, res, next) => {
 const getCompanies = async (req, res, next) => {
   try {
     const companies = await CompanyData.find();
@@ -70,4 +72,4 @@ const getCompanies = async (req, res, next) => {
   }
 };
 
-module.exports = { addCompany, getCompanies };
+module.exports = { addCompany, getCompanies, addWorkLocation,addLeaveType,addEmployeeType,addShift };

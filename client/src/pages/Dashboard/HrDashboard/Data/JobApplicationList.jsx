@@ -6,10 +6,10 @@ const JobApplicationList = () => {
 
     const leavesColumn = [
         { field: "jobposition", headerName: "Job Position", width:200 },
-        { field: "name", headerName: "Name", flex:1, width:200 },
+        { field: "name", headerName: "Name",  width:"200" },
         { field: "email", headerName: "Email", width:200},
-        { field: "dateofbirth", headerName: "Date Of Birth",flex:1, width:200 },
-        { field: "mobilenumber", headerName: "Mobile Number", width:200},
+        { field: "dateofbirth", headerName: "Date Of Birth",flex:1, width:"200" },
+        { field: "mobilenumber", headerName: "Mobile Number",width:"200"},
         { field: "location", headerName: "Location", flex: 1, width:200 },
         { field: "submissiondate", headerName: "Submission Date", flex: 1 },
         { field: "SubmissionTime", headerName: "Submission Time", flex: 1 },
