@@ -8,7 +8,7 @@ import {
   TableHead,
   TableRow,
   Paper,
-  TablePagination,
+  
 } from "@mui/material";
 
 const MuiTable = ({
@@ -52,14 +52,7 @@ const MuiTable = ({
             </TableBody>
           </Table>
         </TableContainer>
-        {/* <TablePagination
-          component="div"
-          count={rows.length}
-          page={page}
-          onPageChange={onPageChange}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={onRowsPerPageChange}
-        /> */}
+        
       </Paper>
     </div>
   );

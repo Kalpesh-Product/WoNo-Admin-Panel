@@ -7,14 +7,12 @@ import AcceptedTickets from "./Tables/AcceptedTickets";
 import SupportTickets from "./Tables/SupportTickets";
 import EscalatedTickets from "./Tables/EscalatedTickets";
 import ClosedTickets from "./Tables/ClosedTickets";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+
 import useAuth from "../../hooks/useAuth";
 
 const ManageTickets = () => {
   const [activeTab, setActiveTab] = useState(0);
-  const {auth} = useAuth()
-
+  
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
   };

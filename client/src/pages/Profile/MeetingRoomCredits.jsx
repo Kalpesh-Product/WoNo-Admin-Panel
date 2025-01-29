@@ -1,8 +1,6 @@
 import React from "react";
 import AgTable from "../../components/AgTable";
 import WidgetSection from "../../components/WidgetSection";
-import { colors } from "@mui/material";
-import { blue } from "@mui/material/colors";
 
 const MeetingRoomCredits = ({ pageTitle }) => {
   const navigationCards = [
