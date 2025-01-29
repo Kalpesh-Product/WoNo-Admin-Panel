@@ -1,42 +1,73 @@
-const CompanyData = require("../../models/CompanyData");
+const Company = require("../../models/Company");
 
 const addCompany = async (req, res, next) => {
   try {
-    // Extract the data from the wono registration form
-    const formData = req.body;
+    const {
+      companyId,
+      selectedDepartments,
+      companyName,
+      industry,
+      companySize,
+      companyCity,
+      companyState,
+      websiteURL,
+      linkedinURL,
+      employeeType,
+    } = req.body;
 
-    // Step 1: Save the companyInfo to the CompanyData table
-    const companyInfoData = formData.companyInfo;
-    const savedCompanyData = await new CompanyData(companyInfoData).save();
 
-    // Step 2: Save the Company with a reference to CompanyData
-    const companyData = {
-      companyId: formData._id, // Use the provided _id as the companyId
-      companyInfo: savedCompanyData._id, // Reference the CompanyData document
-    };
-    const savedCompany = await new Company(companyData).save();
+    // Validate required fields
+    if (
+      !companyId ||
+      !companyName ||
+      !industry ||
+      !companySize ||
+      !companyCity ||
+      !companyState
+    ) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
 
-    res.status(201).json({
-      message: "Company and CompanyInfo added successfully",
-      company: savedCompany,
+    // Create a new company instance
+    const newCompany = new Company({
+      companyId,
+      selectedDepartments,
+      companyName,
+      industry,
+      companySize,
+      companyCity,
+      companyState,
+      websiteURL,
+      linkedinURL,
+      employeeType,
+    });
+    
+
+    // Save the company to the database
+    await newCompany.save();
+
+    // Respond with success message
+    return res.status(201).json({
+      message: "Company added successfully",
+      company: newCompany,
     });
   } catch (error) {
-    console.error("Error processing company data:", error);
+    // Pass the error to the next middleware
     next(error);
   }
 };
 
-const getCompanies = async (req, res, nex) => {
+const getCompanies = async (req, res, next) => {
   try {
     const companies = await CompanyData.find();
     res.status(200).json({
       message: "Company data fetched",
-      companies
+      companies,
     });
-  } catch(error) { 
+  } catch (error) {
     console.error("Error fetching companies : ", error.message);
-    res.status(500).json({error: error.message});
+    next(error);
   }
-}
+};
 
 module.exports = { addCompany, getCompanies };
