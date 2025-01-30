@@ -168,10 +168,6 @@ const addShift = async (req, res, next) => {
   }
 }
  
-  } catch (error) {
-    console.error("Error fetching companies : ", error.message);
-    next(error);
-  }
-};
+
 
 module.exports = { addCompany, getCompanies, addWorkLocation,addLeaveType,addEmployeeType,addShift };
