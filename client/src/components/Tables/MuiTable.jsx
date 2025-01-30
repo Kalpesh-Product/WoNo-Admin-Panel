@@ -1,5 +1,4 @@
 import React from "react";
-import PropTypes from "prop-types";
 import {
   Table,
   TableBody,
@@ -8,70 +7,51 @@ import {
   TableHead,
   TableRow,
   Paper,
-  
 } from "@mui/material";
 
-const MuiTable = ({
-  Title,
-  columns,
-  rows,
-  page,
-  rowsPerPage,
-  onPageChange,
-  onRowsPerPageChange,
-  rowKey = "id",
-}) => {
+const MuiTable = ({ Title, columns, rows, rowKey = "id", rowsToDisplay, scroll = false }) => {
+  const displayedRows = rowsToDisplay ? rows.slice(0, rowsToDisplay) : rows; // Default to all rows if not provided
+
   return (
-    <div className='border-default border-borderGray rounded-md'>
+    <div className="border-default border-borderGray rounded-md">
       <div className="font-pregular text-subtitle p-4 border-b">{Title}</div>
       <Paper>
-        <TableContainer>
-          <Table>
+        <TableContainer
+          style={{
+            maxHeight: scroll && rowsToDisplay ? 300 : "none", // Enable scrolling if scroll is true
+            overflowY: scroll && rowsToDisplay ? "auto" : "hidden",
+          }}
+        >
+          <Table stickyHeader={scroll && rowsToDisplay}> 
             <TableHead>
               <TableRow>
                 {columns.map((column) => (
-                  <TableCell key={column.id} align={column.align || "left"}
-                  style={{ fontWeight: "bold" }}>
+                  <TableCell
+                    key={column.id}
+                    align={column.align || "left"}
+                    style={{ fontWeight: "bold" }}
+                  >
                     {column.label}
                   </TableCell>
                 ))}
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row) => (
-                  <TableRow key={row[rowKey]}>
-                    {columns.map((column) => (
-                      <TableCell key={column.id} align={column.align || "left"}>
-                        {row[column.id]}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
+              {(scroll && rowsToDisplay ? rows : displayedRows).map((row) => (
+                <TableRow key={row[rowKey]}>
+                  {columns.map((column) => (
+                    <TableCell key={column.id} align={column.align || "left"}>
+                      {row[column.id]}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </TableContainer>
-        
       </Paper>
     </div>
   );
-};
-
-MuiTable.propTypes = {
-  columns: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      label: PropTypes.string.isRequired,
-      align: PropTypes.oneOf(["left", "center", "right"]),
-    })
-  ).isRequired,
-  rows: PropTypes.arrayOf(PropTypes.object).isRequired,
-  page: PropTypes.number.isRequired,
-  rowsPerPage: PropTypes.number.isRequired,
-  onPageChange: PropTypes.func.isRequired,
-  onRowsPerPageChange: PropTypes.func.isRequired,
-  rowKey: PropTypes.string,
 };
 
 export default MuiTable;

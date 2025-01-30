@@ -66,6 +66,7 @@ import BulkUpload from "../pages/Dashboard/HrDashboard/HrSettings/BulkUpload";
 import ComapanyHandbook from '../pages/Dashboard/HrDashboard/Complaince/CompanyHandbook'
 import MeetingLayout from "../pages/Meetings/MeetingLayout";
 import MeetingDashboard from "../pages/Meetings/MeetingDashboard";
+import BookMeetings from "../pages/Meetings/BookMeetings";
 
 export const routes = createBrowserRouter([
   {
@@ -347,7 +348,7 @@ export const routes = createBrowserRouter([
                   },
                   {
                     path: "book-meeting",
-                    element: <RaiseTicket />,
+                    element: <BookMeetings />,
                   },
                   {
                     path: "manage-meetings",
