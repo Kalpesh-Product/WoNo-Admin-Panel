@@ -63,6 +63,9 @@ import HrPayroll from "../pages/Dashboard/HrDashboard/Finance/HrPayroll";
 import ViewPayroll from "../pages/Dashboard/HrDashboard/Finance/ViewPayroll";
 import HrReports from "../pages/Dashboard/HrDashboard/Data/Reports"
 import BulkUpload from "../pages/Dashboard/HrDashboard/HrSettings/BulkUpload";
+import ComapanyHandbook from '../pages/Dashboard/HrDashboard/Complaince/CompanyHandbook'
+import MeetingLayout from "../pages/Meetings/MeetingLayout";
+import MeetingDashboard from "../pages/Meetings/MeetingDashboard";
 
 export const routes = createBrowserRouter([
   {
@@ -120,6 +123,10 @@ export const routes = createBrowserRouter([
                           {
                             path: "leave-types",
                             element: <LeaveType />,
+                          },
+                          {
+                            path: "company-handbook",
+                            element: <ComapanyHandbook />,
                           },
                           {
                             path: "policies",
@@ -325,6 +332,45 @@ export const routes = createBrowserRouter([
                   },
                   {
                     path: "reports",
+                    element: <TicketReports />,
+                  },
+                ],
+              },
+              {
+                path: "meetings", // Parent path
+                element: <MeetingLayout />, // Parent component for tickets
+                children: [
+                  {
+                    path: "", // Default route for /app/tickets
+                    element: <MeetingDashboard />, // Dashboard is rendered by default
+                    index: true,
+                  },
+                  {
+                    path: "book-meeting",
+                    element: <RaiseTicket />,
+                  },
+                  {
+                    path: "manage-meetings",
+                    element: <ManageTickets />,
+                  },
+                  {
+                    path: "ticket-settings",
+                    element: <TicketSettingsnew />,
+                  },
+                  {
+                    path: "calendar",
+                    element: <TeamMembers />,
+                  },
+                  {
+                    path: "reports",
+                    element: <TicketReports />,
+                  },
+                  {
+                    path: "reviews",
+                    element: <TicketReports />,
+                  },
+                  {
+                    path: "settings",
                     element: <TicketReports />,
                   },
                 ],

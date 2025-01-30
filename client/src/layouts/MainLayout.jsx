@@ -8,7 +8,7 @@ import Footer from "../components/Footer";
 const MainLayout = () => {
   return (
     <>
-      <div className="w-full flex flex-col justify-between h-[110vh] overflow-y-auto hideScrollbar">
+      <div className="w-full flex flex-col justify-between h-screen overflow-y-auto hideScrollbar">
         <header className=" flex w-full shadow-md">
           <Header />
         </header>
@@ -21,14 +21,16 @@ const MainLayout = () => {
               <div className=" p-4  rounded-t-md bg-white">
                 <BreadCrumbComponent />
               </div>
-              <div className="bg-white h-[80vh] overflow-y-auto">
+              <div className="bg-white h-[80vh] overflow-y-auto flex flex-col">
                 <Outlet />
+                <Footer />
+              </div>
+              <div>
+           
               </div>
             </main>
           </div>
         </div>
-
-        <Footer />
       </div>
     </>
   );
