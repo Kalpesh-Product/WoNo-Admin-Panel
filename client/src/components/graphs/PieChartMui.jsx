@@ -1,7 +1,7 @@
 import React from "react";
 import ReactApexChart from "react-apexcharts";
 
-const PieChartMui = ({ data, options, customLegend, width }) => {
+const PieChartMui = ({ data, options, customLegend, width, height }) => {
   // Extract series data for ApexCharts
   const chartData = data.map((item) => parseFloat(item.value)); // Ensure values are numbers
 
@@ -13,7 +13,7 @@ const PieChartMui = ({ data, options, customLegend, width }) => {
           series={chartData} // Data values for the pie slices
           type="pie"
           width={width ? width : 550}
-          height={350}
+          height={height ? height : 350}
         />
 
          {/* Custom Legend Passed from Parent */}

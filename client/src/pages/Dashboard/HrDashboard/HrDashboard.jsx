@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { lazy, Suspense } from "react";
 import WidgetSection from "../../../components/WidgetSection";
-import LayerBarGraph from "../../../components/graphs/LayerBarGraph";
 import Card from "../../../components/Card";
 import { LuHardDriveUpload } from "react-icons/lu";
+import { Skeleton, Box } from "@mui/material";
 import { CgWebsite } from "react-icons/cg";
 import { SiCashapp } from "react-icons/si";
 import { SiGoogleadsense } from "react-icons/si";
@@ -11,6 +11,10 @@ import DataCard from "../../../components/DataCard";
 import PayRollExpenseGraph from "../../../components/HrDashboardGraph/PayRollExpenseGraph";
 import MuiTable from "../../../components/Tables/MuiTable";
 import PieChartMui from "../../../components/graphs/PieChartMui";
+
+const LayerBarGraph = lazy(() =>
+  import("../../../components/graphs/LayerBarGraph")
+);
 
 const HrDashboard = () => {
   const rawSeries = [
@@ -135,15 +139,6 @@ const HrDashboard = () => {
   const colors = generateColorsWithSpacing(rawSeries);
   const adjustedSeries = adjustDataWithSpacing(rawSeries);
 
-  // Extract custom legend items for "Total" series
-  const customLegendItems = rawSeries
-    .filter((series) => series.group === "total") // Filter only "Total" group
-    .map((series) => series.name.split(" ")[0]); // Extract department name (e.g., "Sales", "IT")
-
-  const colorsForLegend = rawSeries
-    .filter((series) => series.group === "total") // Filter only "Total" group
-    .map((series, index) => colors[index]); // Use the same colors for "Total" series
-
   // Normalize data
   const series = normalizeToPercentage(adjustedSeries);
 
@@ -233,6 +228,9 @@ const HrDashboard = () => {
     chart: {
       type: "bar",
       stacked: true,
+      animations: {
+        enabled: false,
+      },
     },
     plotOptions: {
       bar: {
@@ -564,11 +562,21 @@ const HrDashboard = () => {
     {
       layout: 1,
       widgets: [
-        <LayerBarGraph
-          title="Payroll Expense Graph"
-          data={data}
-          options={optionss}
-        />,
+        <Suspense
+          fallback={
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              {/* Simulating chart skeleton */}
+              <Skeleton variant="text" width={200} height={30} />
+              <Skeleton variant="rectangular" width="100%" height={300} />
+            </Box>
+          }
+        >
+          <LayerBarGraph
+            title="Payroll Expense Graph"
+            data={data}
+            options={optionss}
+          />
+        </Suspense>,
       ],
     },
     {
@@ -600,11 +608,21 @@ const HrDashboard = () => {
     {
       layout: 1,
       widgets: [
-        <LayerBarGraph
-          title="Department Wise Tasks% Vs Achievements in %"
-          data={series}
-          options={options}
-        />,
+        <Suspense
+          fallback={
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              {/* Simulating chart skeleton */}
+              <Skeleton variant="text" width={200} height={30} />
+              <Skeleton variant="rectangular" width="100%" height={300} />
+            </Box>
+          }
+        >
+          <LayerBarGraph
+            title="Department Wise Tasks% Vs Achievements in %"
+            data={series}
+            options={options}
+          />
+        </Suspense>,
       ],
     },
     {

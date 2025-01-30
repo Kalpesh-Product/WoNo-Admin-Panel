@@ -67,6 +67,8 @@ import ComapanyHandbook from '../pages/Dashboard/HrDashboard/Complaince/CompanyH
 import MeetingLayout from "../pages/Meetings/MeetingLayout";
 import MeetingDashboard from "../pages/Meetings/MeetingDashboard";
 import BookMeetings from "../pages/Meetings/BookMeetings";
+import ManageMeetings from "../pages/Meetings/ManageMeetings";
+import MeetingSettings from "../pages/Meetings/MeetingSettings";
 
 export const routes = createBrowserRouter([
   {
@@ -352,11 +354,11 @@ export const routes = createBrowserRouter([
                   },
                   {
                     path: "manage-meetings",
-                    element: <ManageTickets />,
+                    element: <ManageMeetings />,
                   },
                   {
-                    path: "ticket-settings",
-                    element: <TicketSettingsnew />,
+                    path: "settings",
+                    element: <MeetingSettings />,
                   },
                   {
                     path: "calendar",

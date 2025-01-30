@@ -10,6 +10,7 @@ import DataCard from "../../components/DataCard";
 import MuiTable from "../../components/Tables/MuiTable";
 import BarGraph from "../../components/graphs/BarGraph";
 import PieChartMui from "../../components/graphs/PieChartMui";
+import HeatMap from "../../components/graphs/HeatMap";
 
 const MeetingDashboard = () => {
   const meetingInternalColumns = [
@@ -199,13 +200,26 @@ const MeetingDashboard = () => {
   }));
 
   const meetingPieOptions = {
+    chart: {fontFamily : "Poppins-Regular"},
     labels: meetingPieData.map((item) => item.label), // Show "30min", "1hr", etc. on the chart
     legend: {
-      position: "bottom",
+      position: "right",
     },
+    colors: [
+      "#BBDEFB", // Light Blue (darker than before)
+      "#90CAF9", // Soft Blue
+      "#64B5F6", // Mild Blue
+      "#42A5F5", // Medium Blue
+      "#1E88E5", // Deep Blue
+      "#1565C0", // Dark Blue
+    ],
     dataLabels: {
-      enabled: false,
+      enabled: true,
       formatter: (val) => `${val.toFixed(1)}%`, // Show percentage
+      style: {
+        fontSize: "12px",
+        colors: ["#ffff"], // Ensure white text for better visibility
+      },
     },
     tooltip: {
       y: {
@@ -213,10 +227,11 @@ const MeetingDashboard = () => {
       },
     },
   };
+  
 
   //Room availabilty pie
   // Sample Room Data
-  const rooms = [
+  const availabilityRooms = [
     { roomID: 1, roomName: "Baga", status: "Available" },
     { roomID: 2, roomName: "Aqua", status: "Unavailable" },
     { roomID: 3, roomName: "Lagoon", status: "Available" },
@@ -227,8 +242,10 @@ const MeetingDashboard = () => {
   ];
 
   // 🔹 Process Data for Pie Chart
-  const availableRooms = rooms.filter((room) => room.status === "Available");
-  const unavailableRooms = rooms.filter(
+  const availableRooms = availabilityRooms.filter(
+    (room) => room.status === "Available"
+  );
+  const unavailableRooms = availabilityRooms.filter(
     (room) => room.status === "Unavailable"
   );
 
@@ -261,7 +278,7 @@ const MeetingDashboard = () => {
   const CustomLegend = (
     <div>
       <ul>
-        {rooms
+        {availabilityRooms
           .sort((a, b) => (a.status === "Available" ? -1 : 1)) // Sort Available rooms first
           .map((room, index) => (
             <li key={index} className="flex items-center mb-1">
@@ -338,9 +355,8 @@ const MeetingDashboard = () => {
       },
       style: {
         fontSize: "11px",
-        colors: ["#00000"], // White color for visibility inside bars
+        colors: ["#ffff"], // White color for visibility inside bars
       },
-      offsetY: -22,
     },
     plotOptions: {
       bar: {
@@ -356,11 +372,13 @@ const MeetingDashboard = () => {
         {
           y: 100, // Line at 100%
           borderColor: "#ff0000", // Red color for visibility
-          strokeDashArray: 4, // Dashed line
+          borderWidth: 3,
+          strokeDashArray: 0, // Solid line
           label: {
             text: "100% Utilization",
             position: "center",
             offsetX: 10,
+            offsetY: -10, // Move annotation text slightly above
             style: {
               color: "#ff0000",
               fontWeight: "bold",
@@ -371,12 +389,141 @@ const MeetingDashboard = () => {
     },
   };
 
+  const rooms = [
+    "Baga",
+    "Arambol",
+    "Sydney",
+    "Zurich",
+    "Hawaii",
+    "Miami",
+    "Madrid",
+    "Vatican",
+  ];
+  const totalBookableRoomHours = 198; // 9 hours per day * 22 days
+
+  // Example actual hours booked per room (you can replace these with real data)
+  const actualBookedHours = {
+    Baga: 150,
+    Arambol: 120,
+    Sydney: 180,
+    Zurich: 160,
+    Hawaii: 140,
+    Miami: 170,
+    Madrid: 110,
+    Vatican: 130,
+  };
+
+  // Calculate occupancy percentage
+  const processedRoomsData = Object.keys(actualBookedHours).map((room) => ({
+    x: room,
+    y: (actualBookedHours[room] / totalBookableRoomHours) * 100,
+  }));
+
+  const averageOccupancySeries = [
+    { name: "Average Occupancy", data: processedRoomsData },
+  ];
+
+  const averageOccupancyOptions = {
+    chart: { type: "bar", fontFamily: "Poppins-Regular" },
+    xaxis: { categories: rooms, title: { text: "Rooms" } },
+    yaxis: {
+      max: 100,
+      title: { text: "Occupancy (%)" },
+      labels: {
+        formatter: function (value) {
+          return Math.round(value) + "%"; // Removes decimals
+        },
+      },
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: function (val) {
+        return Math.round(val) + "%"; // Display percentage without decimals
+      },
+      style: {
+        fontSize: "11px",
+        colors: ["#000"], // Black for better visibility
+      },
+      offsetY: -22,
+    },
+    plotOptions: {
+      bar: {
+        dataLabels: {
+          position: "top", // Places labels inside the bar
+        },
+        borderRadius: 5,
+        columnWidth: "40%",
+      },
+    },
+    colors: ["#2DC1C6"],
+  };
+
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const timeSlots = [
+    "8AM-9AM",
+    "9AM-10AM",
+    "10AM-11AM",
+    "11AM-12PM",
+    "12PM-1PM",
+    "1PM-2PM",
+    "2PM-3PM",
+    "3PM-4PM",
+    "4PM-5PM",
+    "5PM-6PM",
+    "6PM-7PM",
+    "7PM-8PM",
+  ];
+
+  // Mock Data: Replace this with real booking data
+  const generateRandomData = () =>
+    timeSlots.map(() => Math.floor(Math.random() * 20)); // Max 20 bookings
+
+  const heatmapData = timeSlots.map((slot, index) => ({
+    name: slot,
+    data: days.map((day, dayIndex) => ({
+      x: day, // Day of the week
+      y: day === "Sun" || day === "Sat" ? 0 : generateRandomData()[index], // No bookings for Sun/Sat
+    })),
+  }));
+
+  const heatmapOptions = {
+    chart: { type: "heatmap", toolbar: { show: false }, fontFamily: "Poppins-Regular" },
+    dataLabels: { enabled: false },
+    colors: ["#d1d5db", "#B2FFB2", "#4CAF50", "#2E7D32", "#1B5E20"], // White to Dark Green Scale
+    plotOptions: {
+      heatmap: {
+        colorScale: {
+          ranges: [
+            { from: 0, to: 0, color: "#d1d5db", name: "No Bookings" }, // White (No data)
+            { from: 1, to: 5, color: "#B2FFB2", name: "Low (1-5)" }, // Light Green
+            { from: 6, to: 10, color: "#4CAF50", name: "Moderate (6-10)" }, // Green
+            { from: 11, to: 15, color: "#2E7D32", name: "High (11-15)" }, // Dark Green
+            { from: 16, to: 20, color: "#1B5E20", name: "Very High (16-20)" }, // Darkest Green
+          ],
+        },
+      },
+    },
+    xaxis: { categories: days },
+    tooltip: {
+      y: {
+        formatter: (val) => (val > 0 ? `${val} Bookings` : "No Bookings"),
+      },
+    },
+  };
+  
+  
+
   const meetingsWidgets = [
     {
       layout: 1,
       widgets: [
-        <WidgetSection layout={1} border title={"Average Meeting Room Bookings"}>
+        <WidgetSection
+          layout={1}
+          border
+          title={"Average Meeting Room Bookings"}
+        >
           <BarGraph
+            height={400}
             data={averageBookingSeries}
             options={averageBookingOptions}
           />
@@ -407,12 +554,12 @@ const MeetingDashboard = () => {
           icon={<CgProfile />}
         />,
         <Card
-          route={"/app/tickets/ticket-settings"}
+          route={"/app/meetings/settings"}
           title={"Reviews"}
           icon={<RiPagesLine />}
         />,
         <Card
-          route={"/app/tickets/ticket-settings"}
+          route={"/app/meetings/settings"}
           title={"Settings"}
           icon={<RiPagesLine />}
         />,
@@ -480,13 +627,31 @@ const MeetingDashboard = () => {
         >
           <BarGraph data={externalGuestsData} options={externalGuestsOptions} />
         </WidgetSection>,
+        <WidgetSection
+          layout={1}
+          border
+          title={"Average Occupancy Of Rooms in %"}
+          padding
+        >
+          <BarGraph
+            data={averageOccupancySeries}
+            options={averageOccupancyOptions}
+          />
+        </WidgetSection>,
       ],
     },
     {
       layout: 2,
       widgets: [
+        <WidgetSection layout={1} title={"Busy time during the week"} border>
+          <HeatMap
+            data={heatmapData}
+            options={heatmapOptions}
+            height={400}
+          />
+        </WidgetSection>,
         <WidgetSection layout={1} title={"Meeting Duration Breakdown"} border>
-          <PieChartMui data={meetingPieData} options={meetingPieOptions} />
+          <PieChartMui data={meetingPieData} options={meetingPieOptions} height={400} />
         </WidgetSection>,
       ],
     },
@@ -495,7 +660,7 @@ const MeetingDashboard = () => {
       widgets: [
         <WidgetSection
           layout={1}
-          title={"Available v/s Unavailable Room Status (Today)"}
+          title={"Room Availability Status"}
           border
         >
           <PieChartMui
@@ -505,102 +670,6 @@ const MeetingDashboard = () => {
             width={300}
           />
         </WidgetSection>,
-      ],
-    },
-    {
-      layout: 2,
-      widgets: [
-        <div className="border-default border-borderGray  rounded-md">
-          <div className="">
-            <WidgetSection layout={2} title={"Basic Priority Dashboard"}>
-              <Card
-                title={"MT. AV. Performance"}
-                bgcolor={"#60A5F9"}
-                data={"70%"}
-                titleColor={"white"}
-                fontColor={"white"}
-                height={"10rem"}
-              />
-              <Card
-                title={"Immediate Attended"}
-                data={"12"}
-                bgcolor={"#FF0000"}
-                titleColor={"white"}
-                fontColor={"white"}
-                height={"10rem"}
-              />
-              <Card
-                title={"Medium Attended"}
-                data={"10"}
-                bgcolor={"#FFBF42"}
-                titleColor={"white"}
-                fontColor={"white"}
-                height={"10rem"}
-              />
-              <Card
-                title={"Low Attended"}
-                data={"26"}
-                bgcolor={"#01D870"}
-                titleColor={"white"}
-                fontColor={"white"}
-                height={"10rem"}
-              />
-            </WidgetSection>
-          </div>
-        </div>,
-
-        <div className=" rounded-md flex flex-col gap-4">
-          <div className="border-default border-borderGray rounded-md">
-            <WidgetSection layout={3} title={"Department Tickets List"}>
-              <Card
-                title={"Open Tickets"}
-                titleColor={"#1E3D73"}
-                data={"200"}
-                fontColor={"red"}
-                fontFamily={"Poppins-Bold"}
-              />
-              <Card
-                title={"Closed Tickets"}
-                titleColor={"#1E3D73"}
-                data={"75"}
-                fontColor={"#52CE71"}
-                fontFamily={"Poppins-Bold"}
-              />
-              <Card
-                title={"Pending Tickets"}
-                titleColor={"#1E3D73"}
-                data={"100"}
-                fontColor={"#FFBF42"}
-                fontFamily={"Poppins-Bold"}
-              />
-            </WidgetSection>
-          </div>
-          <div className="border-default border-borderGray rounded-md">
-            <WidgetSection layout={3} title={"Personal Tickets List"}>
-              <Card
-                title={"Accepted Tickets"}
-                data={"106"}
-                fontColor={"#1E3D73"}
-                fontFamily={"Poppins-Bold"}
-                titleColor={"#1E3D73"}
-              />
-              <Card
-                title={"Assigned Tickets"}
-                data={"65"}
-                fontColor={"#1E3D73"}
-                fontFamily={"Poppins-Bold"}
-                titleColor={"#1E3D73"}
-              />
-              <Card
-                title={"Escalated Tickets"}
-                data={"50"}
-                fontColor={"#1E3D73"}
-                fontFamily={"Poppins-Bold"}
-                titleColor={"#1E3D73"}
-              />
-            </WidgetSection>
-          </div>
-        </div>,
       ],
     },
   ];
