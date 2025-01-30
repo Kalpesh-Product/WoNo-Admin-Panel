@@ -26,7 +26,7 @@ const WidgetSection = ({
 
   return (
     <div
-      style={border ? { border: "2px solid #d1d5db" } : {}}
+      style={border ? { border: "2px solid #7D7D7E" } : {}}
       className="h-full rounded-md"
     >
       {title && (
