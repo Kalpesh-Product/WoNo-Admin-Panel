@@ -19,6 +19,10 @@ const attendanceSchema = new mongoose.Schema(
       type: Number,
       default:0
     },
+    breakCount: {
+      type: Number,
+      default:0
+    },
     entryType: {
       type: String,
       required: true,

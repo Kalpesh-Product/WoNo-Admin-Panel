@@ -7,6 +7,9 @@ const clockIn = async(req,res,next)=>{
     const {inTime,entryType} = req.body
     const loggedInUser = req.user
 
+    //  clockin once
+    //no clock out then you didn't clock out
+
     try {
         if(!inTime || !entryType){
             return res.status(400).json({message:"All fields are required"})
@@ -16,6 +19,17 @@ const clockIn = async(req,res,next)=>{
  
         if(isNaN(clockIn.getTime())){
             return res.status(400).json({message:"Invalid date format"})
+        }
+
+        const attendances = await Attendance.find({user:loggedInUser})
+
+        const todayClockInExists = attendances.some((attendance)=> {
+            const inTime = new Date(attendance.inTime)
+             return inTime.getDate() === clockIn.getDate()
+        } )
+
+        if(todayClockInExists){
+            return res.status(400).json({message:"Cannot clock in for the day again"})
         }
 
         const user = await UserData.findById({"_id":loggedInUser})
@@ -38,7 +52,8 @@ const clockIn = async(req,res,next)=>{
 
 const clockOut = async(req,res,next)=>{
 
-    const {outTime,attendanceId} = req.body
+    const {outTime} = req.body
+    const loggedInUser = req.user
 
     try {
 
@@ -46,30 +61,33 @@ const clockOut = async(req,res,next)=>{
             return res.status(400).json({message:"All fields are required"})
         }
 
-        if(!mongoose.Types.ObjectId.isValid(attendanceId)){
-            return res.status(400).json({message:"Invalid Id provided"})
-        }
-
         const clockOut = new Date(outTime)
+        console.log('clockout',clockOut)
+        const currDate = new Date()
         if(isNaN(clockOut.getTime())){
             return res.status(400).json({message:"Invalid date format"})
         }
 
-        // const attendance = await Attendance.findById({_id:attendanceId})
+        const noOfDays = currDate.getDate() - clockOut.getDate() 
 
-        // if(!attendance){
-        //     return res.status(400).json({message:"No clock in record exists"})
-        // }
+        if(noOfDays > 1 || noOfDays < 0){
+            return res.status(400).json({message:"Can clock out only for present / previous day"})
+        }
+ 
+        const attendance = await Attendance.findOne({ user: loggedInUser }).sort({ createdAt: -1 })  
+        .limit(1)
+         
+        if(!attendance){
+            return res.status(400).json({message:"No attendance record exists"})
+        }
 
-        // let breakHours = 0
-        // if (attendance.startBreak && attendance.endBreak){
-        //     breakHours = ( attendance.endBreak - attendance.startBreak) / (1000 * 60)
-        //     console.log('break',breakHours)
-
-        // }
-       
-        const updatedAttendance = await Attendance.findByIdAndUpdate({_id:attendanceId},{outTime:clockOut},{new:true})
-
+            const  updatedAttendance = await Attendance.findOneAndUpdate({user:loggedInUser},
+                {outTime:clockOut},
+                 {  new: true,  
+                   sort: { createdAt: -1 }
+               }
+               )    
+        
         if(!updatedAttendance){
             return res.status(400).json({message:"No clock in record exists"})
         }
@@ -84,15 +102,12 @@ const clockOut = async(req,res,next)=>{
 
 const startBreak = async(req,res,next)=>{
 
-    const {startBreak,attendanceId} = req.body
+    const {startBreak} = req.body
+    const loggedInUser = req.user
 
     try {
         if(!startBreak){
             return res.status(400).json({message:"All fields are required"})
-        }
-
-        if(!mongoose.Types.ObjectId.isValid(attendanceId)){
-            return res.status(400).json({message:"Invalid Id provided"})
         }
 
         const startBreakTime = new Date(startBreak)
@@ -100,7 +115,15 @@ const startBreak = async(req,res,next)=>{
             return res.status(400).json({message:"Invalid date format"})
         }
 
-        const updatedAttendance = await Attendance.findByIdAndUpdate({_id:attendanceId},{startBreak:startBreakTime,endBreak:null},{new:true})
+        const attendance = await Attendance.findOne({ user: loggedInUser }).sort({ createdAt: -1 })  
+        .limit(1)
+ 
+        if(attendance.breakCount === 2){
+            return res.status(400).json({message:"Only 2 breaks allowed"})
+        }
+
+        const updatedAttendance = await Attendance.findByIdAndUpdate({_id:attendance._id},{startBreak:startBreakTime,endBreak:null,breakCount:attendance.breakCount+1},{  new: true,  
+        })
 
         if(!updatedAttendance){
             return res.status(400).json({message:"No clock in record exists"})
@@ -115,15 +138,12 @@ const startBreak = async(req,res,next)=>{
 
 const endBreak = async(req,res,next)=>{
 
-    const {endBreak,attendanceId} = req.body
+    const {endBreak} = req.body
+    const loggedInUser = req.user
 
     try {
         if(!endBreak){
             return res.status(400).json({message:"All fields are required"})
-        }
-
-        if(!mongoose.Types.ObjectId.isValid(attendanceId)){
-            return res.status(400).json({message:"Invalid Id provided"})
         }
 
         const endBreakTime = new Date(endBreak)
@@ -131,7 +151,8 @@ const endBreak = async(req,res,next)=>{
             return res.status(400).json({message:"Invalid date format"})
         }
 
-        const attendance = await Attendance.findById({_id:attendanceId})
+        const attendance = await Attendance.findOne({ user: loggedInUser }).sort({ createdAt: -1 })  
+        .limit(1)
 
         if(!attendance){
             return res.status(400).json({message:"No clock in record exists"})
@@ -142,7 +163,7 @@ const endBreak = async(req,res,next)=>{
         const breakDuration = (endBreakTime - startBreakTime)/ (1000 * 60) + attendance.breakDuration
 
         const updatedAttendance = await Attendance.findByIdAndUpdate(
-        {_id:attendanceId},
+        {_id:attendance._id},
         {endBreak:endBreakTime,
         breakDuration},
         {new:true})
@@ -170,7 +191,7 @@ const getAllAttendance = async(req,res,next)=>{
         const hasPermission = user.role.some((role) => validRoles.includes(role.roleTitle))
 
         if(!hasPermission){
-            return res.status(400).json({message:"User not authenticated"})
+            return res.sendStatus(403) 
         }
         
         let attendances = []
