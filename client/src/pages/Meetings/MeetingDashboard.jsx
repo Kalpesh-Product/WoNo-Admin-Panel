@@ -397,7 +397,7 @@ const MeetingDashboard = () => {
           icon={<RiArchiveDrawerLine />}
         />,
         <Card
-          route={"/app/tickets/calendar"}
+          route={"/app/meetings/calendar"}
           title={"Calendar"}
           icon={<MdFormatListBulleted />}
         />,
@@ -407,7 +407,7 @@ const MeetingDashboard = () => {
           icon={<CgProfile />}
         />,
         <Card
-          route={"/app/tickets/ticket-settings"}
+          route={"/app/meetings/reviews"}
           title={"Reviews"}
           icon={<RiPagesLine />}
         />,

@@ -67,6 +67,8 @@ import ComapanyHandbook from '../pages/Dashboard/HrDashboard/Complaince/CompanyH
 import MeetingLayout from "../pages/Meetings/MeetingLayout";
 import MeetingDashboard from "../pages/Meetings/MeetingDashboard";
 import BookMeetings from "../pages/Meetings/BookMeetings";
+import Calendar from "../pages/Meetings/Calendar";
+import Reviews from "../pages/Meetings/Reviews";
 
 export const routes = createBrowserRouter([
   {
@@ -360,7 +362,7 @@ export const routes = createBrowserRouter([
                   },
                   {
                     path: "calendar",
-                    element: <TeamMembers />,
+                    element: <Calendar />,
                   },
                   {
                     path: "reports",
@@ -368,7 +370,7 @@ export const routes = createBrowserRouter([
                   },
                   {
                     path: "reviews",
-                    element: <TicketReports />,
+                    element: <Reviews />,
                   },
                   {
                     path: "settings",
