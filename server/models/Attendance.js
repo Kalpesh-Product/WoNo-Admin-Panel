@@ -8,11 +8,16 @@ const attendanceSchema = new mongoose.Schema(
     },
     outTime: {
       type: Date,
-      required: true,
     },
-    breakHours: {
+    startBreak:{
+      type: Date,
+    },
+    endBreak:{
+      type: Date,
+    },
+    breakDuration: {
       type: Number,
-      required: true,
+      default:0
     },
     entryType: {
       type: String,
@@ -20,7 +25,11 @@ const attendanceSchema = new mongoose.Schema(
     },
     user:{
         type: mongoose.Schema.Types.ObjectId,
-        ref:"User"
+        ref:"UserData"
+    },
+    company:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref:"Company"
     }
   },
   {
