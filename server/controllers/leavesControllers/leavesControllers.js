@@ -2,6 +2,7 @@
 const Leave = require("../../models/Leaves");
 const User = require("../../models/User");
 const mongoose = require("mongoose");
+const UserData = require("../../models/UserData");
 
 const requestLeave = async (req, res, next) => {
   try {
@@ -14,7 +15,7 @@ const requestLeave = async (req, res, next) => {
       hours,
       description,
     } = req.body;
-    const user = req.user
+    const loggedInUser = req.user
 
     if (!fromDate || !toDate || !leaveType || !leavePeriod || !hours || !description) {
       return res.status(400).json({ message: "All fields are required" });
@@ -28,15 +29,15 @@ const requestLeave = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid date format" });
     }
 
-    const loggedInUser = await User.findById({_id:user})
+    const user = await UserData.findById({_id:loggedInUser})
 
-    if(!loggedInUser){
+    if(!user){
       return res.status(400).json({message:"User not found"})
     }
  
     const newLeave = new Leave({
-      company:loggedInUser.company,
-      takenBy:user,
+      company:user.company,
+      takenBy:user._id,
       leaveType,
       fromDate,
       toDate,
