@@ -6,17 +6,10 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { api } from "../utils/axios";
 import "../pages/LoginPage/CalenderModal.css";
-import {
-  Drawer,
-  Box,
-  Typography,
-  IconButton,
-  TextField,
-  Button,
-} from "@mui/material";
+
 import { Checkbox, FormControlLabel, FormGroup } from "@mui/material";
 import dayjs from "dayjs";
-import { IoMdClose } from "react-icons/io";
+
 import MuiModal from "../components/MuiModal";
 
 const Calender = () => {
@@ -108,11 +101,7 @@ const Calender = () => {
     });
   };
 
-  const handleSaveEvent = () => {
-    console.log("New Event:", newEvent);
-    closeDrawer();
-  };
-
+ 
   return (
     <div className="flex w-[70%] md:w-full">
       <div className="flex-1 p-4 bg-white">

@@ -69,6 +69,10 @@ import MeetingDashboard from "../pages/Meetings/MeetingDashboard";
 import BookMeetings from "../pages/Meetings/BookMeetings";
 import ManageMeetings from "../pages/Meetings/ManageMeetings";
 import MeetingSettings from "../pages/Meetings/MeetingSettings";
+import Reviews from "../pages/Meetings/Reviews";
+import MeetingCalendar from "../pages/Meetings/Calendar";
+import MeetingReports from "../pages/Meetings/MeetingReports";
+import MeetingFormLayout from "../pages/Meetings/MeetingFormLayout";
 
 export const routes = createBrowserRouter([
   {
@@ -350,7 +354,11 @@ export const routes = createBrowserRouter([
                   },
                   {
                     path: "book-meeting",
-                    element: <BookMeetings />,
+                    element: <BookMeetings />, // This is your first page
+                  },
+                  {
+                    path: "schedule-meeting",
+                    element: <MeetingFormLayout />, // This is your second page
                   },
                   {
                     path: "manage-meetings",
@@ -362,15 +370,15 @@ export const routes = createBrowserRouter([
                   },
                   {
                     path: "calendar",
-                    element: <TeamMembers />,
+                    element: <MeetingCalendar />,
                   },
                   {
                     path: "reports",
-                    element: <TicketReports />,
+                    element: <MeetingReports />,
                   },
                   {
                     path: "reviews",
-                    element: <TicketReports />,
+                    element: <Reviews />,
                   },
                   {
                     path: "settings",
