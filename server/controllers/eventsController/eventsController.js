@@ -1,9 +1,11 @@
+ 
 const Event = require("../../models/Events");
 const User = require("../../models/User");
+const checkPermission = require("../../utils/checkPermission");
 
 const createEvent = async (req, res, next) => {
   try {
-    const { title, type, description, start, end, participants,companyId } = req.body;
+    const { title, type, description, start, end, participants,companyId} = req.body;
 
     const startDate = new Date(start);
     const endDate = new Date(end);
@@ -75,8 +77,23 @@ const getAllEvents = async (req, res, next) => {
 
 const getNormalEvents = async (req, res, next) => {
   try {
-    const normalEvents = await Event.find();
-    const filteredEvents = normalEvents.filter(
+ 
+    const loggedInUser = req.user
+    const user = await User.findOne({_id:loggedInUser})
+    .populate({path:"role", select:"roleTitle"}).select("company");
+
+    const validRoles = ["Master Admin", "Super Admin", "HR Admin"]
+
+     const hasPermission = checkPermission(validRoles)
+
+     if(!hasPermission){
+      return res.sendStatus(403)
+     }
+
+    const events = await Event.find({company:user.company});
+
+    // const normalEvents = await Event.find();
+    const filteredEvents = events.filter(
       (event) => event.type === "event"
     );
     res.status(200).json(filteredEvents);
