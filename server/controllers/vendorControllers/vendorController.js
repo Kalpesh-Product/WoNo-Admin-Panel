@@ -8,7 +8,7 @@ const onboardVendor = async (req, res, next) => {
     const {
       name,
       address,
-      departmentId, // Received from frontend
+      departmentId,
       state,
       country,
       pinCode,
@@ -42,19 +42,6 @@ const onboardVendor = async (req, res, next) => {
       });
     }
 
-    // Find the company document where the user is an admin of the given department
-    // const companyDoc = await Company.findOne({
-    //   _id: currentUser.company, // Match the user's company
-    //   "selectedDepartments": {
-    //     $elemMatch: {
-    //       department: departmentId, // Check if the department exists in the company
-    //       admin: userId, // Ensure the user is an admin of the department
-    //     },
-    //   },
-    // })
-    //   .lean()
-    //   .exec();
-
     const companyDoc = await Company.findOne({
       _id: currentUser.company, // Match the user's company
       selectedDepartments: {
@@ -69,8 +56,6 @@ const onboardVendor = async (req, res, next) => {
     })
       .lean()
       .exec();
-    
-    
 
     if (!companyDoc) {
       return res.status(403).json({
@@ -112,7 +97,66 @@ const onboardVendor = async (req, res, next) => {
 const fetchVendors = async (req, res, next) => {
   try {
     const userId = req.user;
-    
+
+    // Fetch user details along with role and department information
+    const user = await UserData.findOne({ _id: userId })
+      .select("company department role")
+      .populate([{ path: "role", select: "roleTitle" }])
+      .lean()
+      .exec();
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if the user is a Master Admin or Super Admin
+    if (
+      user.role.some(
+        (role) =>
+          role.roleTitle === "Master Admin" || role.roleTitle === "Super Admin"
+      )
+    ) {
+      // Fetch all vendors for the company
+      const vendors = await Vendor.find({ company: user.company })
+        .lean()
+        .exec();
+      return res.status(200).json(vendors);
+    }
+
+    // Fetch the company and check if the user is an admin of any department
+    const company = await Company.findOne({ _id: user.company })
+      .populate("selectedDepartments.department")
+      .lean()
+      .exec();
+
+    if (!company) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+
+    // Get departments where the user is an admin
+    const adminDepartments = company.selectedDepartments.filter((dept) =>
+      dept.admin.some((adminId) => adminId.toString() === userId.toString())
+    );
+
+    if (adminDepartments.length === 0) {
+      return res
+        .status(403)
+        .json({ message: "User is not an admin of any department" });
+    }
+
+    // Get department IDs
+    const adminDepartmentIds = adminDepartments.map(
+      (dept) => dept.department._id
+    );
+
+    // Fetch vendors belonging to those departments
+    const vendors = await Vendor.find({
+      departmentId: { $in: adminDepartmentIds },
+    })
+      .lean()
+      .exec();
+
+    return res.status(200).json(vendors);
   } catch (error) {
     next(error);
   }
