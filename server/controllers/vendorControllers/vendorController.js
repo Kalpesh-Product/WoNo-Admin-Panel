@@ -44,7 +44,7 @@ const onboardVendor = async (req, res, next) => {
     // Find the company document where the user is an admin of the given department
     const companyDoc = await Company.findOne({
       _id: currentUser.company, // Match the user's company
-      "selectedDepartments": {
+      selectedDepartments: {
         $elemMatch: {
           department: departmentId, // Check if the department exists in the company
           admin: userId, // Ensure the user is an admin of the department
@@ -56,7 +56,8 @@ const onboardVendor = async (req, res, next) => {
 
     if (!companyDoc) {
       return res.status(403).json({
-        message: "You are not authorized to onboard a vendor for this department.",
+        message:
+          "You are not authorized to onboard a vendor for this department.",
       });
     }
 
@@ -85,6 +86,15 @@ const onboardVendor = async (req, res, next) => {
     res
       .status(201)
       .json({ message: "Vendor onboarded successfully", vendor: newVendor });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const fetchVendors = async (req, res, next) => {
+  try {
+    const userId = req.user;
+    
   } catch (error) {
     next(error);
   }
