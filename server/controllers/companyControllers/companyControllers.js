@@ -53,6 +53,7 @@ const addCompany = async (req, res, next) => {
     });
   } catch (error) {
     // Pass the error to the next middleware
+    // Pass the error to the next middleware
     next(error);
   }
 };
