@@ -5,8 +5,10 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import "../pages/LoginPage/CalenderModal.css";
+
 import { Checkbox, FormControlLabel, FormGroup } from "@mui/material";
 import dayjs from "dayjs";
+
 import MuiModal from "../components/MuiModal";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
@@ -100,11 +102,7 @@ const Calender = () => {
     });
   };
 
-  const handleSaveEvent = () => {
-    console.log("New Event:", newEvent);
-    closeDrawer();
-  };
-
+ 
   return (
     <div className="flex w-[70%] md:w-full">
       <div className="flex-1 p-4 bg-white">

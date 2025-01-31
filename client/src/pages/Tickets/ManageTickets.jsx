@@ -14,8 +14,7 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 const ManageTickets = () => {
   const axios = useAxiosPrivate()
   const [activeTab, setActiveTab] = useState(0);
-  const {auth} = useAuth()
-
+  
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
   };

@@ -192,3 +192,20 @@ input {
 .fc-theme-standard .fc-popover {
   z-index: 999;
 }
+
+/* time grid changes  */
+
+.fc-theme-standard td, .fc-theme-standard th {
+  width: 90% !important;
+}
+.fc .fc-timegrid-axis-frame {
+  justify-content: center !important;
+}
+.fc .fc-timegrid-axis-cushion{
+  width: 100% !important;
+  text-align: center !important;
+}
+
+.fc-direction-ltr .fc-timegrid-slot-label-frame {
+  text-align: center !important;
+}

@@ -4,7 +4,8 @@ import { Chip } from "@mui/material";
 
 const LeaveType = () => {
   const departmentsColumn = [
-      { field: "worklocationname", headerName: "Work Location Name",
+    { field:"srno" , headerName:"SR NO"},
+      { field: "holidayEvent", headerName: "Holiday / Event Name",
         cellRenderer:(params)=>{
           return(
             <div>
@@ -57,21 +58,25 @@ const LeaveType = () => {
   
     const rows = [
       {
+        srno:"1",
         id: 1,
         worklocationname: "ST 701A",
         status: "Active",
       },
       {
+        srno:"2",
         id: 2,
         worklocationname: "ST 701B",
         status: "Active",
       },
       {
+        srno:"3",
         id: 3,
         worklocationname: "ST 601A",
         status: "Inactive",
       },
       {
+        srno:"4",
         id: 4,
         worklocationname: "ST 701B",
         status: "Active",

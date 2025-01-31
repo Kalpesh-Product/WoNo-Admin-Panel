@@ -1,7 +1,7 @@
 import React from "react";
 import Chart from "react-apexcharts";
 
-const BarGraph = ({ data, title, options }) => {
+const BarGraph = ({ data, title, options, height }) => {
 
   return (
     <div className="bg-white  rounded-md">
@@ -12,7 +12,7 @@ const BarGraph = ({ data, title, options }) => {
       ) : (
         ""
       )}
-      <Chart options={options} series={data} type="bar" height={350} />
+      <Chart options={options} series={data} type="bar" height={height ? height :350} />
     </div>
   );
 };

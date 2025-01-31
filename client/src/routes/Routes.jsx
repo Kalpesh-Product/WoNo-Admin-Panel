@@ -58,11 +58,22 @@ import HrSOP from "../pages/Dashboard/HrDashboard/HrSettings/HrSOP";
 import EmployeeType from "../pages/Dashboard/HrDashboard/HrSettings/EmployeeType";
 import Shifts from "../pages/Dashboard/HrDashboard/HrSettings/Shifts";
 import Payslip from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/Payslip";
+import HolidaysEvents from "../pages/Dashboard/HrDashboard/Complaince/HoildaysEvents";
 import ViewVendors from "../pages/Dashboard/HrDashboard/Complaince/ViewVendors";
 import HrPayroll from "../pages/Dashboard/HrDashboard/Finance/HrPayroll";
 import ViewPayroll from "../pages/Dashboard/HrDashboard/Finance/ViewPayroll";
 import HrReports from "../pages/Dashboard/HrDashboard/Data/Reports"
 import BulkUpload from "../pages/Dashboard/HrDashboard/HrSettings/BulkUpload";
+import ComapanyHandbook from '../pages/Dashboard/HrDashboard/Complaince/CompanyHandbook'
+import MeetingLayout from "../pages/Meetings/MeetingLayout";
+import MeetingDashboard from "../pages/Meetings/MeetingDashboard";
+import BookMeetings from "../pages/Meetings/BookMeetings";
+import ManageMeetings from "../pages/Meetings/ManageMeetings";
+import MeetingSettings from "../pages/Meetings/MeetingSettings";
+import Reviews from "../pages/Meetings/Reviews";
+import MeetingCalendar from "../pages/Meetings/Calendar";
+import MeetingReports from "../pages/Meetings/MeetingReports";
+import MeetingFormLayout from "../pages/Meetings/MeetingFormLayout";
 
 export const routes = createBrowserRouter([
   {
@@ -118,8 +129,12 @@ export const routes = createBrowserRouter([
                             element: <WorkLocations />,
                           },
                           {
-                            path: "leave-types",
-                            element: <LeaveType />,
+                            path: "holidays",
+                            element: <HolidaysEvents />,
+                          },
+                          {
+                            path: "company-handbook",
+                            element: <ComapanyHandbook />,
                           },
                           {
                             path: "policies",
@@ -254,42 +269,10 @@ export const routes = createBrowserRouter([
                         element: <HrSettings />,
                         children: [
                           {
-                            path: `bulk-upload`,
+                            path: "bulk-upload",
                             element: <BulkUpload/>,
                           },
-                          // {
-                          //   path: "company-logo",
-                          //   index:true,
-                          //   element: <CompanyLogo />,
-                          // },
-                          // {
-                          //   path: "departments",
-                          //   element: <HrSettingsDepartments />,
-                          // },
-                          // {
-                          //   path: "work-locations",
-                          //   element: <WorkLocations />,
-                          // },
-                          // {
-                          //   path: "leave-type",
-                          //   element: <LeaveType />,
-                          // },
-                          // {
-                          //   path: "policies",
-                          //   element: <HrSettingsPolicies />,
-                          // },
-                          // {
-                          //   path: "sops",
-                          //   element: <HrSOP />,
-                          // },
-                          // {
-                          //   path: "employee-type",
-                          //   element: <EmployeeType />,
-                          // },
-                          // {
-                          //   path: "shifts",
-                          //   element: <Shifts />,
-                          // },
+                         
                         ],
                       },
                     ],
@@ -357,6 +340,49 @@ export const routes = createBrowserRouter([
                   },
                   {
                     path: "reports",
+                    element: <TicketReports />,
+                  },
+                ],
+              },
+              {
+                path: "meetings", // Parent path
+                element: <MeetingLayout />, // Parent component for tickets
+                children: [
+                  {
+                    path: "", // Default route for /app/tickets
+                    element: <MeetingDashboard />, // Dashboard is rendered by default
+                    index: true,
+                  },
+                  {
+                    path: "book-meeting",
+                    element: <BookMeetings />, // This is your first page
+                  },
+                  {
+                    path: "schedule-meeting",
+                    element: <MeetingFormLayout />, // This is your second page
+                  },
+                  {
+                    path: "manage-meetings",
+                    element: <ManageMeetings />,
+                  },
+                  {
+                    path: "settings",
+                    element: <MeetingSettings />,
+                  },
+                  {
+                    path: "calendar",
+                    element: <MeetingCalendar />,
+                  },
+                  {
+                    path: "reports",
+                    element: <MeetingReports />,
+                  },
+                  {
+                    path: "reviews",
+                    element: <Reviews />,
+                  },
+                  {
+                    path: "settings",
                     element: <TicketReports />,
                   },
                 ],

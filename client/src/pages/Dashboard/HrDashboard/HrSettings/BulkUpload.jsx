@@ -2,7 +2,6 @@ import React from "react";
 import { TextField, Box } from "@mui/material";
 import { IoMdDownload } from "react-icons/io";
 import { MdUpload } from "react-icons/md";
-import PrimaryButton from "../../../../components/PrimaryButton";
 
 const BulkUpload = () => {
   const uploadItems = [

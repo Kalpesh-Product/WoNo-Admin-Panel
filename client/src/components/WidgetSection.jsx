@@ -12,7 +12,7 @@ const WidgetSection = ({
   button,
   buttonTitle,
   handleClick,
-  titleFont
+  titleFont,
 }) => {
   // Tailwind grid classes for different layouts
   const gridClasses = {
@@ -26,12 +26,18 @@ const WidgetSection = ({
 
   return (
     <div
-      style={border ? { border: "2px solid #d1d5db" } : {}}
+      style={border ? { border: "2px solid #7D7D7E" } : {}}
       className="h-full rounded-md"
     >
       {title && (
         <div className=" border-b-default border-borderGray p-4 flex justify-between items-center">
-          <span className={`${titleFont ? "text-title text-primary font-pmedium" :"text-subtitle"}`}>
+          <span
+            className={`${
+              titleFont
+                ? "text-subtitle text-primary"
+                : "text-title text-primary font-pbold"
+            }`}
+          >
             {title}{" "}
             <span>
               {titleData && (
@@ -48,7 +54,9 @@ const WidgetSection = ({
               )}
             </span>
           </span>
-          {button && <PrimaryButton title={buttonTitle} handleSubmit={handleClick} />}
+          {button && (
+            <PrimaryButton title={buttonTitle} handleSubmit={handleClick} />
+          )}
         </div>
       )}
       <div
