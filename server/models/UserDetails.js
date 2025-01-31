@@ -6,11 +6,12 @@ const userDataSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  company: { // to be able to pass id while calling apis that are cmpny specific eg: events
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "CompanyData",
-        required: true, 
-      },
+  company: {
+    // to be able to pass id while calling apis that are cmpny specific eg: events
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "CompanyData",
+    required: true,
+  },
   name: {
     type: String,
     required: true,
@@ -25,14 +26,14 @@ const userDataSchema = new mongoose.Schema({
   },
   role: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Role", 
+    ref: "Role",
   },
   dob: {
     type: Date,
   },
   role: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Role", 
+    ref: "Role",
   },
   email: {
     type: String,
@@ -55,29 +56,29 @@ const userDataSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "CompanyData",
   },
- familyDetails:{
-  fatherName: {
-    type: String,
+  familyDetails: {
+    fatherName: {
+      type: String,
+    },
+    motherName: {
+      type: String,
+    },
+    fatherOccupation: {
+      type: String,
+    },
+    motherOccupation: {
+      type: String,
+    },
+    maritalStatus: {
+      type: String,
+    },
+    spouseName: {
+      type: String,
+    },
+    spouseOccupation: {
+      type: String,
+    },
   },
-  motherName: {
-    type: String,
-  },
-  fatherOccupation: {
-    type: String,
-  },
-  motherOccupation: {
-    type: String,
-  },
-  maritalStatus: {
-    type: String,
-  },
-  spouseName: {
-    type: String,
-  },
-  spouseOccupation: {
-    type: String,
-  },
- },
   addressDetails: {
     address1: {
       type: String,
@@ -127,19 +128,19 @@ const userDataSchema = new mongoose.Schema({
     },
     workSchedulePolicy: {
       type: String,
-      required:true
+      required: true,
     },
     leavePolicy: {
       type: String,
     },
     holidayPolicy: {
       type: String,
-      required:true
+      required: true,
     },
     attendanceSource: {
       type: String,
       default: "TimeClock",
-      required:true
+      required: true,
     },
   },
   bankDetails: {
@@ -179,7 +180,7 @@ const userDataSchema = new mongoose.Schema({
       type: String,
     },
   },
-  jobDetails:{
+  jobDetails: {
     workLocation: {
       type: String,
     },
@@ -218,31 +219,31 @@ const userDataSchema = new mongoose.Schema({
       type: String,
     },
   ],
-    ref: "CompanyData",
+  ref: "CompanyData",
+
+  familyDetails: {
+    fatherName: {
+      type: String,
+    },
+    motherName: {
+      type: String,
+    },
+    fatherOccupation: {
+      type: String,
+    },
+    motherOccupation: {
+      type: String,
+    },
+    maritalStatus: {
+      type: String,
+    },
+    spouseName: {
+      type: String,
+    },
+    spouseOccupation: {
+      type: String,
+    },
   },
- familyDetails:{
-  fatherName: {
-    type: String,
-  },
-  motherName: {
-    type: String,
-  },
-  fatherOccupation: {
-    type: String,
-  },
-  motherOccupation: {
-    type: String,
-  },
-  maritalStatus: {
-    type: String,
-  },
-  spouseName: {
-    type: String,
-  },
-  spouseOccupation: {
-    type: String,
-  },
- },
   addressDetails: {
     address1: {
       type: String,
@@ -292,19 +293,19 @@ const userDataSchema = new mongoose.Schema({
     },
     workSchedulePolicy: {
       type: String,
-      required:true
+      required: true,
     },
     leavePolicy: {
       type: String,
     },
     holidayPolicy: {
       type: String,
-      required:true
+      required: true,
     },
     attendanceSource: {
       type: String,
       default: "TimeClock",
-      required:true
+      required: true,
     },
   },
   bankDetails: {
@@ -344,7 +345,7 @@ const userDataSchema = new mongoose.Schema({
       type: String,
     },
   },
-  jobDetails:{
+  jobDetails: {
     workLocation: {
       type: String,
     },
@@ -389,7 +390,6 @@ const userDataSchema = new mongoose.Schema({
       ref: "Asset",
     },
   ],
-  assignedMembers: [
   assignedMembers: [
     {
       type: mongoose.Schema.Types.ObjectId,

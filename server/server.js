@@ -29,6 +29,7 @@ const taskRoutes = require("./routes/tasksRoutes");
 const accessRoutes = require("./routes/accessRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const checkScope = require("./middlewares/checkScope");
+const vendorRoutes = require("./routes/vendorRoutes");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -40,8 +41,8 @@ app.use(cors(corsConfig));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "public"))); 
-  
+app.use(express.static(path.join(__dirname, "public")));
+
 app.get("/", (req, res) => {
   if (req.accepts("html")) {
     res.status(200).sendFile(path.join(__dirname, "views", "index.html"));
@@ -60,8 +61,8 @@ app.use("/api/departments", departmentsRoutes);
 app.use("/api/designations", designationRoutes);
 app.use("/api/assets", assetsRoutes);
 app.use("/api/meetings", meetingsRoutes);
-app.use("/api/tickets",verifyJwt, ticketsRoutes);
-app.use("/api/leaves",verifyJwt, leaveRoutes);
+app.use("/api/tickets", verifyJwt, ticketsRoutes);
+app.use("/api/leaves", verifyJwt, leaveRoutes);
 app.use("/api/employee-agreements", employeeAgreementRoutes);
 app.use("/api/sops", sopRoutes);
 app.use("/api/policies", policyRoutes);
@@ -69,9 +70,10 @@ app.use("/api/users", userRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/modules", moduleRoutes);
 app.use("/api/sub-modules", subModuleRoutes);
-app.use("/api/events",verifyJwt, eventRoutes);
+app.use("/api/vendors", vendorRoutes);
+app.use("/api/events", verifyJwt, eventRoutes);
 app.use("/api/tasks", taskRoutes);
-app.use("/api/attendance",verifyJwt, attendanceRoutes);
+app.use("/api/attendance", verifyJwt, attendanceRoutes);
 app.get(
   "/api/protected",
   verifyJwt,
@@ -79,7 +81,7 @@ app.get(
     module: "Asset Management",
     subModule: "Manage Asset",
     permissions: ["write"],
-  }), 
+  }),
   (req, res) => {
     res.json({ message: "This is protected route" });
   }
