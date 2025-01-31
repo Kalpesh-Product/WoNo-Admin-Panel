@@ -200,7 +200,7 @@ const MeetingDashboard = () => {
   }));
 
   const meetingPieOptions = {
-    chart: {fontFamily : "Poppins-Regular"},
+    chart: { fontFamily: "Poppins-Regular" },
     labels: meetingPieData.map((item) => item.label), // Show "30min", "1hr", etc. on the chart
     legend: {
       position: "right",
@@ -227,7 +227,6 @@ const MeetingDashboard = () => {
       },
     },
   };
-  
 
   //Room availabilty pie
   // Sample Room Data
@@ -283,13 +282,13 @@ const MeetingDashboard = () => {
           .map((room, index) => (
             <li key={index} className="flex items-center mb-1">
               <span
-                className="w-3 h-3 rounded-full mr-2"
+                className="w-2 h-2 rounded-full mr-2"
                 style={{
                   backgroundColor:
                     room.status === "Available" ? "#28a745" : "#dc3545",
                 }}
               ></span>
-              {room.roomName}
+              <span className="text-content text-gray-400">{room.roomName}</span>
             </li>
           ))}
       </ul>
@@ -487,7 +486,11 @@ const MeetingDashboard = () => {
   }));
 
   const heatmapOptions = {
-    chart: { type: "heatmap", toolbar: { show: false }, fontFamily: "Poppins-Regular" },
+    chart: {
+      type: "heatmap",
+      toolbar: { show: false },
+      fontFamily: "Poppins-Regular",
+    },
     dataLabels: { enabled: false },
     colors: ["#d1d5db", "#B2FFB2", "#4CAF50", "#2E7D32", "#1B5E20"], // White to Dark Green Scale
     plotOptions: {
@@ -510,8 +513,6 @@ const MeetingDashboard = () => {
       },
     },
   };
-  
-  
 
   const meetingsWidgets = [
     {
@@ -644,25 +645,21 @@ const MeetingDashboard = () => {
       layout: 2,
       widgets: [
         <WidgetSection layout={1} title={"Busy time during the week"} border>
-          <HeatMap
-            data={heatmapData}
-            options={heatmapOptions}
-            height={400}
-          />
+          <HeatMap data={heatmapData} options={heatmapOptions} height={400} />
         </WidgetSection>,
         <WidgetSection layout={1} title={"Meeting Duration Breakdown"} border>
-          <PieChartMui data={meetingPieData} options={meetingPieOptions} height={400} />
+          <PieChartMui
+            data={meetingPieData}
+            options={meetingPieOptions}
+            height={400}
+          />
         </WidgetSection>,
       ],
     },
     {
       layout: 2,
       widgets: [
-        <WidgetSection
-          layout={1}
-          title={"Room Availability Status"}
-          border
-        >
+        <WidgetSection layout={1} title={"Room Availability Status"} border>
           <PieChartMui
             data={RoomPieData}
             options={RoomOptions}
