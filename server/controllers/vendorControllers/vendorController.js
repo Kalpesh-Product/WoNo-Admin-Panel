@@ -162,4 +162,4 @@ const fetchVendors = async (req, res, next) => {
   }
 };
 
-module.exports = { onboardVendor };
+module.exports = { onboardVendor, fetchVendors };
