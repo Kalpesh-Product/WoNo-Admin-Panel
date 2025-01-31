@@ -2,20 +2,22 @@ const mongoose = require("mongoose");
 
 const leaveSchema = new mongoose.Schema(
   {
-    leaveId: {
-      type: String,
-      default: "L-001",
+    company:{
+      type:mongoose.Schema.Types.ObjectId,
+      ref:"CompanyData",
+      required:true
     },
     takenBy: {
-      type: String,
-      required: true,
+     type:mongoose.Schema.Types.ObjectId,
+      ref:"User",
+      required:true
     },
     fromDate: {
-      type: String,
+      type: Date,
       required: true,
     },
     toDate: {
-      type: String,
+      type: Date,
       required: true,
     },
     leaveType: {
@@ -39,12 +41,12 @@ const leaveSchema = new mongoose.Schema(
       default: "Pending",
     },
     approvedBy: {
-      type: String,
-      default: "N/A",
+      type:mongoose.Schema.Types.ObjectId,
+      ref:"User",
     },
   },
   {
-    timestamps: true, // Enable timestamps
+    timestamps: true,  
   }
 );
 

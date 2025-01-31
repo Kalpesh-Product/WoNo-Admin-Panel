@@ -12,7 +12,7 @@ const Compliances = () => {
     { label: "Company Handbook", path: "company-handbook" },
     { label: "Departments", path: "departments" },
     { label: "Work Locations", path: "work-locations" },
-    { label: "Leave Types", path: "leave-types" },
+    { label: "Holidays / Events", path: "holidays" },
     { label: "Policies", path: "policies" },
     { label: "SOP's", path: "sops" },
     { label: "Employee Types", path: "employee-type" },

@@ -125,6 +125,8 @@ const Reviews = () => {
     },
   ];
 
+
+
   return (
     <>
       <div>
@@ -142,7 +144,7 @@ const Reviews = () => {
             columns={departmentsColumn}
           />
         </div>
-        <MuiAside open={openSidebar} onClose={!openSidebar} title={"Reviews"}>
+        <MuiAside open={openSidebar} onClose={()=>setOpenSidebar(false)} title={"Reviews"}>
           <div className="p-2">
             <h1 className="font-pmedium text-subtitle">
               {reviewData.nameofreview}
@@ -158,12 +160,13 @@ const Reviews = () => {
                 type="text"
                 id="outlined-multiline-flexible"
                 label="Reply"
+                fullWidth
                 multiline
-                maxRows={10}
+                rows={5}
                 
               />
             </div>
-            <PrimaryButton title={"Submit"} handleSubmit={()=>setOpenSidebar(false)}></PrimaryButton>
+            <PrimaryButton title={"Submit"} handleSubmit={()=>setOpenSidebar(false)} externalStyles={"mt-10"}></PrimaryButton>
           </div>
         </MuiAside>
       </div>

@@ -5,7 +5,7 @@ import { Chip } from "@mui/material";
 const LeaveType = () => {
   const departmentsColumn = [
     { field:"srno" , headerName:"SR NO"},
-      { field: "worklocationname", headerName: "Work Location Name",
+      { field: "holidayEvent", headerName: "Holiday / Event Name",
         cellRenderer:(params)=>{
           return(
             <div>

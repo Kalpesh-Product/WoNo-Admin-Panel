@@ -4,13 +4,13 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { api } from "../utils/axios";
 import "../pages/LoginPage/CalenderModal.css";
 
 import { Checkbox, FormControlLabel, FormGroup } from "@mui/material";
 import dayjs from "dayjs";
 
 import MuiModal from "../components/MuiModal";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
 const Calender = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -25,11 +25,12 @@ const Calender = () => {
     description: "",
   });
   const [eventFilter, setEventFilter] = useState(["holiday", "event"]);
+  const axios = useAxiosPrivate();
 
   useEffect(() => {
     const getEvents = async () => {
       try {
-        const response = await api.get("/api/events/all-events");
+        const response = await axios.get("/api/events/all-events");
         setEvents(response.data);
       } catch (error) {
         toast.error(error.message);
@@ -250,8 +251,6 @@ const Calender = () => {
               </div>
             </div>
           )}
-
-          
         </MuiModal>
       </div>
     </div>

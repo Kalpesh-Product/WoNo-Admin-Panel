@@ -58,6 +58,7 @@ import HrSOP from "../pages/Dashboard/HrDashboard/HrSettings/HrSOP";
 import EmployeeType from "../pages/Dashboard/HrDashboard/HrSettings/EmployeeType";
 import Shifts from "../pages/Dashboard/HrDashboard/HrSettings/Shifts";
 import Payslip from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/Payslip";
+import HolidaysEvents from "../pages/Dashboard/HrDashboard/Complaince/HoildaysEvents";
 import ViewVendors from "../pages/Dashboard/HrDashboard/Complaince/ViewVendors";
 import HrPayroll from "../pages/Dashboard/HrDashboard/Finance/HrPayroll";
 import ViewPayroll from "../pages/Dashboard/HrDashboard/Finance/ViewPayroll";
@@ -128,8 +129,8 @@ export const routes = createBrowserRouter([
                             element: <WorkLocations />,
                           },
                           {
-                            path: "leave-types",
-                            element: <LeaveType />,
+                            path: "holidays",
+                            element: <HolidaysEvents />,
                           },
                           {
                             path: "company-handbook",

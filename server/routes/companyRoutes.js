@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const {
   addCompany,
-  getCompanies
+  getCompanies,
 } = require("../controllers/companyControllers/companyControllers");
 
 router.post("/create-company", addCompany);

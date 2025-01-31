@@ -40,6 +40,12 @@ const userDataSchema = new mongoose.Schema({
     ref: "Company",
     required: true,
   },
+  department: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Department",
+    },
+  ],
 
   assignedAsset: [
     {
