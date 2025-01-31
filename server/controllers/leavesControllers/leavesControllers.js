@@ -3,6 +3,7 @@ const Leave = require("../../models/Leaves");
 const User = require("../../models/User");
 const mongoose = require("mongoose");
 const UserData = require("../../models/UserData");
+const checkPermission = require("../../middlewares/checkPermission");
 
 const requestLeave = async (req, res, next) => {
   try {
@@ -62,9 +63,7 @@ const fetchAllLeaves = async (req, res) => {
     const user = req.user
     const loggedInUser = await User.findOne({_id:user}).select("company");
 
-      if (!loggedInUser) {
-        return res.sendStatus(403) 
-      }
+    const validRoles = ["Master Admin", "Super Admin", "HR Admin"]
 
     const leaves = await Leave.find({company:loggedInUser.company});
     
@@ -143,7 +142,7 @@ const rejectLeave = async (req, res, next) => {
     const user = req.user
  
     if(!mongoose.Types.ObjectId.isValid(leaveId)){
-      return res.status(400).json({message:"Invalid Leave Id provided"})
+      return res.status(400).json({message:"Invalid Leave Id provided"}) 
     }
 
     const updatedLeave = await Leave.findOneAndUpdate(

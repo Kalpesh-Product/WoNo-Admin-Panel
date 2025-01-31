@@ -5,6 +5,11 @@ const roleSchema = new mongoose.Schema({
     type: String, 
     required: true,
   },
+  roleId: {
+    type: String, 
+    required: true,
+  },
+
 });
 
 
