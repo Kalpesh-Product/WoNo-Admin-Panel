@@ -31,7 +31,7 @@ const createEvent = async (req, res, next) => {
     });
 
     const event = await newEvent.save();
-    res.status(201).json({ event });
+    res.status(201).json({message:"Event created successfully"});
   } catch (error) {
     next(error);
   }
@@ -82,13 +82,13 @@ const getNormalEvents = async (req, res, next) => {
     const user = await User.findOne({_id:loggedInUser})
     .populate({path:"role", select:"roleTitle"}).select("company");
 
-    const validRoles = ["Master Admin", "Super Admin", "HR Admin"]
+    // const validRoles = ["Master Admin", "Super Admin", "HR Admin"]
 
-     const hasPermission = checkPermission(validRoles)
+    //  const hasPermission = checkPermission(validRoles)
 
-     if(!hasPermission){
-      return res.sendStatus(403)
-     }
+    //  if(!hasPermission){
+    //   return res.sendStatus(403)
+    //  }
 
     const events = await Event.find({company:user.company});
 
