@@ -1,6 +1,7 @@
 const Vendor = require("../../models/Vendor");
 const User = require("../../models/UserData");
 const Company = require("../../models/Company");
+const mongoose = require("mongoose");
 
 const onboardVendor = async (req, res, next) => {
   try {
@@ -42,17 +43,34 @@ const onboardVendor = async (req, res, next) => {
     }
 
     // Find the company document where the user is an admin of the given department
+    // const companyDoc = await Company.findOne({
+    //   _id: currentUser.company, // Match the user's company
+    //   "selectedDepartments": {
+    //     $elemMatch: {
+    //       department: departmentId, // Check if the department exists in the company
+    //       admin: userId, // Ensure the user is an admin of the department
+    //     },
+    //   },
+    // })
+    //   .lean()
+    //   .exec();
+
     const companyDoc = await Company.findOne({
       _id: currentUser.company, // Match the user's company
-      "selectedDepartments": {
+      selectedDepartments: {
         $elemMatch: {
-          department: departmentId, // Check if the department exists in the company
-          admin: userId, // Ensure the user is an admin of the department
+          department: departmentId, // Match the department ID
+          $or: [
+            { admin: new mongoose.Types.ObjectId(userId) }, // Check if userId exists in the admin array
+            { admin: { $size: 0 } }, // Check if the admin array is empty
+          ],
         },
       },
     })
       .lean()
       .exec();
+    
+    
 
     if (!companyDoc) {
       return res.status(403).json({

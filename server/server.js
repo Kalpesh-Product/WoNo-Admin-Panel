@@ -70,7 +70,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/modules", moduleRoutes);
 app.use("/api/sub-modules", subModuleRoutes);
-app.use("/api/vendors", vendorRoutes);
+app.use("/api/vendors",verifyJwt, vendorRoutes);
 app.use("/api/events", verifyJwt, eventRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/attendance", verifyJwt, attendanceRoutes);
