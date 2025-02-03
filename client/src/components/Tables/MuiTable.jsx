@@ -14,11 +14,11 @@ const MuiTable = ({ Title, columns, rows, rowKey = "id", rowsToDisplay, scroll =
 
   return (
     <div className="border-default border-borderGray rounded-md">
-      <div className="font-pregular text-subtitle p-4 border-b">{Title}</div>
+      <div className="font-pbold text-title text-primary p-4 border-b">{Title}</div>
       <Paper>
         <TableContainer
           style={{
-            maxHeight: scroll && rowsToDisplay ? 300 : "none", // Enable scrolling if scroll is true
+            height: scroll && rowsToDisplay ? 300 : "none", // Enable scrolling if scroll is true
             overflowY: scroll && rowsToDisplay ? "auto" : "hidden",
           }}
         >

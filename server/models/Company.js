@@ -92,6 +92,67 @@ const companySchema = new mongoose.Schema({
       },
     },
   ],
+  shifts: [
+    {
+      type: String,
+    },
+  ],
+  templates: [
+    {
+      name: {
+        type: String,
+        required: true,
+      },
+      documentLink: {
+        type: String,
+        required: true,
+      },
+      documentId: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
+  policies: [
+    {
+      name: {
+        type: String,
+        required: true,
+      },
+      documentLink: {
+        type: String,
+        required: true,
+      },
+      documentId: {
+        type: String,
+        required: true,
+      },
+      isActive: {
+        type: Boolean,
+        default: true,
+      },
+    },
+  ],
+  sop: [
+    {
+      name: {
+        type: String,
+        required: true,
+      },
+      documentLink: {
+        type: String,
+        required: true,
+      },
+      documentId: {
+        type: String,
+        required: true,
+      },
+      isActive: {
+        type: Boolean,
+        default: true,
+      },
+    },
+  ],
 });
 
 // Define the Company model

@@ -19,7 +19,6 @@ const addCompany = async (req, res, next) => {
       employeeType,
     } = req.body;
 
-
     // Validate required fields
     if (
       !companyId ||
@@ -45,7 +44,6 @@ const addCompany = async (req, res, next) => {
       linkedinURL,
       employeeType,
     });
-    
 
     // Save the company to the database
     await newCompany.save();
@@ -69,8 +67,8 @@ const getCompanies = async (req, res, next) => {
       message: "Company data fetched",
       companies,
     });
-  } catch(error) { 
-   next(error)
+  } catch (error) {
+    next(error);
   }
 }
 
@@ -154,11 +152,10 @@ const addWorkLocation = async (req, res, next) => {
     return res.status(200).json({
       message: "Work location added successfully",
     });
- 
-  } catch(error) { 
-    next(error)
+  } catch (error) {
+    next(error);
   }
-}
+};
 
 const addLeaveType = async (req, res, next) => {
 
@@ -186,9 +183,8 @@ const addLeaveType = async (req, res, next) => {
     return res.status(200).json({
       message: "Leave type added successfully",
     });
- 
-  } catch(error) { 
-    next(error)
+  } catch (error) {
+    next(error);
   }
 }
 
@@ -225,34 +221,41 @@ const addEmployeeType = async (req, res, next) => {
     return res.status(200).json({
       message: "Employee type added successfully",
     });
- 
-  } catch(error) { 
-    next(error)
+  } catch (error) {
+    next(error);
   }
 }
 
 const addShift = async (req, res, next) => {
-
-  const {companyId,shift} = req.body
   try {
+    const user = req.user;
+    const { shiftName } = req.body;
 
-    if(!companyId || !shift){
-      return res.status(200).json({
-        message: "All feilds are required",
-      });
+    const foundUser = await User.findOne({ _id: user })
+      .select("company")
+      .lean()
+      .exec();
+
+    if (!foundUser) {
+      return res.status(400).json({ message: "user not found" });
     }
 
-    await Company.findByIdAndUpdate({_id:companyId},{$push: {
-      shift:{
-        name:shift
-      }
-    }});
-    return res.status(200).json({
-      message: "Shift added successfully",
-    });
- 
-  } catch(error) { 
-    next(error)
+    const company = await Company.findOne({ _id: foundUser.company })
+      .lean()
+      .exec();
+
+    if (!company) {
+      return res.status(400).json({ message: "No such company exists" });
+    }
+
+    await Company.findOneAndUpdate(
+      { _id: foundUser.company },
+      { $push: { shifts: shiftName } }
+    ).exec();
+
+    return res.status(200).json({ message: "work shift added successfully" });
+  } catch (error) {
+    next(error);
   }
 }
  

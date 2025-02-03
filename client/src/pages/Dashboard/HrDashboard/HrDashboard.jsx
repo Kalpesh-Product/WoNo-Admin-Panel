@@ -11,12 +11,15 @@ import DataCard from "../../../components/DataCard";
 import PayRollExpenseGraph from "../../../components/HrDashboardGraph/PayRollExpenseGraph";
 import MuiTable from "../../../components/Tables/MuiTable";
 import PieChartMui from "../../../components/graphs/PieChartMui";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import { useQuery, useMutation } from "@tanstack/react-query";
 
 const LayerBarGraph = lazy(() =>
   import("../../../components/graphs/LayerBarGraph")
 );
 
 const HrDashboard = () => {
+  const axios = useAxiosPrivate();
   const rawSeries = [
     {
       name: "Sales Total",
@@ -311,9 +314,9 @@ const HrDashboard = () => {
   };
 
   const columns = [
-    { id: "SrNo", label: "Sr No", align: "left" },
-    { id: "name", label: "Name", align: "left" },
-    { id: "date", label: "Date", align: "left" },
+    { id: "id", label: "Sr No", align: "left" },
+    { id: "title", label: "Name", align: "left" },
+    { id: "start", label: "Date", align: "left" },
   ];
 
   const rows = [
@@ -349,10 +352,22 @@ const HrDashboard = () => {
     },
   ];
 
+  const { data: birthdays = [], isLoading } = useQuery({
+    queryKey: ["birthdays"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/events/get-birthdays");
+        return response.data;
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
+
   const columns2 = [
-    { id: "SrNo", label: "Sr No", align: "left" },
-    { id: "holiday_event", label: "Holiday/Event", align: "center" },
-    { id: "date", label: "Date", align: "left" },
+    { id: "id", label: "Sr No", align: "left" },
+    { id: "title", label: "Holiday/Event", align: "center" },
+    { id: "start", label: "Date", align: "left" },
   ];
 
   const rows2 = [
@@ -382,6 +397,21 @@ const HrDashboard = () => {
       date: "15 Aug,2025",
     },
   ];
+
+  const { data: holidayEvents = [] } = useQuery({
+    queryKey: ["holidayEvents"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/events/all-events");
+        const filteredEvents = response.data.filter(
+          (event) => event.extendedProps.type !== "birthday"
+        );
+        return filteredEvents;
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
 
   const columns3 = [
     { id: "ranks", label: "Rank", align: "left" },
@@ -643,7 +673,7 @@ const HrDashboard = () => {
             data={techGoaVisitors} // Pass processed data
             options={techGoaVisitorsOptions}
           />
-          ,
+          
         </WidgetSection>,
       ],
     },
@@ -651,15 +681,31 @@ const HrDashboard = () => {
       layout: 2,
       widgets: [
         <MuiTable
+          key={birthdays.length}
           Title="Current Months Birthday List"
           columns={columns}
-          rows={rows}
+          rows={[
+            ...birthdays.map((bd, index) => ({
+              id: index + 1, // Auto-increment Sr No
+              title: bd.title, // Birthday Name
+              start: new Date(bd.start).toLocaleDateString(), // Format as readable date
+            })),
+          ]}
           rowsToDisplay={5}
+          scroll
         />,
         <MuiTable
           Title="Current Months Holidays and Events List"
           columns={columns2}
-          rows={rows2}
+          rows={[
+            ...holidayEvents.map((holiday, index) => ({
+              id: index + 1, // Auto-increment Sr No
+              title: holiday.title, // Birthday Name
+              start: new Date(holiday.start).toLocaleDateString(), // Format as readable date
+            })),
+          ]}
+          rowsToDisplay={5}
+          scroll
         />,
         <MuiTable Title="Top 3 Performers" columns={columns3} rows={rows3} />,
         <MuiTable

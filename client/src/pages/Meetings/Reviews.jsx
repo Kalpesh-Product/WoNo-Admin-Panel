@@ -36,7 +36,17 @@ const Reviews = () => {
         );
       },
     },
-    { field: "Reviews", headerName: "Review" },
+    {
+      field: "Reviews",
+      headerName: "Review",
+      flex: 2,
+      cellStyle: {
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+      },
+      tooltipField: "Reviews",
+    },
     {
       field: "action",
       headerName: "Actions",
@@ -96,7 +106,8 @@ const Reviews = () => {
       nameofreview: "Raiders Kai",
       date: "20 Dec,2024",
       rate: "4.9",
-      Reviews: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Inventore, dicta obcaecati temporibus sit beatae repellat natus nesciunt quia cumque magni quibusdam, reprehenderit unde in accusamus. Veniam itaque voluptates ipsam beatae!",
+      Reviews:
+        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Inventore, dicta obcaecati temporibus sit beatae repellat natus nesciunt quia cumque magni quibusdam, reprehenderit unde in accusamus. Veniam itaque voluptates ipsam beatae!",
       action: "Reply Review",
     },
     {
@@ -125,8 +136,6 @@ const Reviews = () => {
     },
   ];
 
-
-
   return (
     <>
       <div>
@@ -144,7 +153,11 @@ const Reviews = () => {
             columns={departmentsColumn}
           />
         </div>
-        <MuiAside open={openSidebar} onClose={()=>setOpenSidebar(false)} title={"Reviews"}>
+        <MuiAside
+          open={openSidebar}
+          onClose={() => setOpenSidebar(false)}
+          title={"Reviews"}
+        >
           <div className="p-2">
             <h1 className="font-pmedium text-subtitle">
               {reviewData.nameofreview}
@@ -163,10 +176,13 @@ const Reviews = () => {
                 fullWidth
                 multiline
                 rows={5}
-                
               />
             </div>
-            <PrimaryButton title={"Submit"} handleSubmit={()=>setOpenSidebar(false)} externalStyles={"mt-10"}></PrimaryButton>
+            <PrimaryButton
+              title={"Submit"}
+              handleSubmit={() => setOpenSidebar(false)}
+              externalStyles={"mt-10"}
+            ></PrimaryButton>
           </div>
         </MuiAside>
       </div>
