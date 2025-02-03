@@ -56,7 +56,7 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 
 //protected routes that should be protected later 👽
-app.use("/api/company", companyRoutes);
+app.use("/api/company",verifyJwt, companyRoutes);
 app.use("/api/departments", departmentsRoutes);
 app.use("/api/designations", designationRoutes);
 app.use("/api/assets", assetsRoutes);
@@ -75,7 +75,7 @@ app.use("/api/events", verifyJwt, eventRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/attendance", verifyJwt, attendanceRoutes);
 app.get(
-  "/api/protected",
+  "/api/protected", 
   verifyJwt,
   checkScope({
     module: "Asset Management",

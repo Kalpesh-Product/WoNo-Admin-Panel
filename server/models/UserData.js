@@ -4,7 +4,7 @@ const userDataSchema = new mongoose.Schema({
   empId: {
     type: String,
     required: true,
-    unique: true,
+     
   },
   name: {
     type: String,

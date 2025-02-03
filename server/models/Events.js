@@ -38,7 +38,7 @@ const EventSchema = new mongoose.Schema(
     },
     company: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "CompanyData",
+      ref: "Company",
       required: true,
     },
   },

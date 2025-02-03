@@ -63,9 +63,9 @@ const fetchAllLeaves = async (req, res) => {
     const user = req.user
     const loggedInUser = await User.findOne({_id:user}).select("company");
 
-    const validRoles = ["Master Admin", "Super Admin", "HR Admin"]
+    // const validRoles = ["Master Admin", "Super Admin", "HR Admin"]
 
-    const leaves = await Leave.find({company:loggedInUser.company});
+    const leaves = await Leave.find();
     
      if(!leaves || leaves.length === 0){
       return res.status(204).json({message:"No leaves found"}) 
@@ -85,13 +85,13 @@ const fetchLeavesBeforeToday = async (req, res, next) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const loggedInUser = await User.findOne({_id:user}).select("company");
+    const loggedInUser = await User.findOne({ _id:user}).select("company");
 
       if (!loggedInUser) {
         return res.sendStatus(403) 
       }
 
-    const leavesBeforeToday = await Leave.find({company:loggedInUser.company,
+    const leavesBeforeToday = await Leave.find({
       createdAt: { $lt: today }
     });
 

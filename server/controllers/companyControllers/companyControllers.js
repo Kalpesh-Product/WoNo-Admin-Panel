@@ -1,3 +1,6 @@
+const sharp = require("sharp");
+const mongoose = require("mongoose");
+const { handleFileUpload } = require("../../config/cloudinaryConfig");
 const Company = require("../../models/Company");
 const User = require("../../models/UserData");
 
@@ -59,7 +62,7 @@ const addCompany = async (req, res, next) => {
 
 const getCompanies = async (req, res, next) => {
   try {
-    const companies = await CompanyData.find();
+    const companies = await Company.find();
     res.status(200).json({
       message: "Company data fetched",
       companies,

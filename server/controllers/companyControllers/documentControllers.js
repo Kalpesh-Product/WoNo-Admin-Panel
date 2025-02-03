@@ -132,4 +132,70 @@ const addPolicy = async (req, res, next) => {
   }
 };
 
-module.exports = { uploadTemplate, addPolicy, addSop };
+const getAllTemplates = async (req, res, next) => {
+  try {
+    const user = req.user;
+    const foundUser = await User.findOne({ _id: user })
+      .select("company")
+      .populate("company", "templates")
+      .lean()
+      .exec();
+
+    if (!foundUser || !foundUser.company) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+
+    return res
+      .status(200)
+      .json({ templates: foundUser.company.templates || [] });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getAllSOPs = async (req, res, next) => {
+  try {
+    const user = req.user;
+    const foundUser = await User.findOne({ _id: user })
+      .select("company")
+      .populate("company", "sop")
+      .lean()
+      .exec();
+
+    if (!foundUser || !foundUser.company) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+
+    return res.status(200).json({ sops: foundUser.company.sop || [] });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getAllPolicies = async (req, res, next) => {
+  try {
+    const user = req.user;
+    const foundUser = await User.findOne({ _id: user })
+      .select("company")
+      .populate("company", "policies")
+      .lean()
+      .exec();
+
+    if (!foundUser || !foundUser.company) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+
+    return res.status(200).json({ policies: foundUser.company.policies || [] });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  uploadTemplate,
+  addPolicy,
+  addSop,
+  getAllTemplates,
+  getAllSOPs,
+  getAllPolicies,
+};

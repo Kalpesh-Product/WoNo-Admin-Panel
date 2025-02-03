@@ -125,18 +125,14 @@ const fetchVendors = async (req, res, next) => {
 
     // Fetch the company and check if the user is an admin of any department
     const company = await Company.findOne({ _id: user.company })
-      .populate([
-        {
-          path: "selectedDepartments.department",
-          select: "name",
-        },
-        {
-          path: "selectedDepartments.admin",
-          select: "name email", // Select relevant fields
-        },
-      ])
-      .lean()
-      .exec();
+    .populate({
+      path: "selectedDepartments.department",
+      model: "Department",  // Explicitly specify the model name
+    })
+    .populate({
+      path: "selectedDepartments.admin",
+      model: "UserData",
+    }).lean().exec()
 
     if (!company) {
       return res.status(404).json({ message: "Company not found" });
@@ -144,9 +140,16 @@ const fetchVendors = async (req, res, next) => {
 
     // Get departments where the user is an admin
     const adminDepartments = company.selectedDepartments.filter((dept) =>
-      dept.admin.some((adminId) => adminId.toString() === user._id.toString())
-    );
+    
+        dept.admin.some((adminId) => 
+      {
+        console.log(adminId._id,"===",user._id)
+        return adminId._id.toString() === user._id.toString()
+      }
+    ) 
+    )
 
+    console.log('admin',adminDepartments)
     if (adminDepartments.length === 0) {
       return res
         .status(403)
@@ -154,6 +157,7 @@ const fetchVendors = async (req, res, next) => {
     }
 
     // Get department IDs
+   
     const adminDepartmentIds = adminDepartments.map(
       (dept) => dept.department._id
     );
