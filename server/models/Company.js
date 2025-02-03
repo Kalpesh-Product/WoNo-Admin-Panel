@@ -59,7 +59,29 @@ const companySchema = new mongoose.Schema({
   linkedinURL: {
     type: String,
   },
-  employeeType: [
+  employeeTypes: [
+    {
+      name: {
+        type: String,
+      },
+      status: {
+        type: Boolean,
+        default: true,
+      },
+    },
+  ],
+  workLocations: [
+    {
+      name: {
+        type: String,
+      },
+      status: {
+        type: Boolean,
+        default: true,
+      },
+    },
+  ],
+  leaveTypes: [
     {
       name: {
         type: String,
