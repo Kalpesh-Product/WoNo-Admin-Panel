@@ -5,6 +5,10 @@ const verifyJwt = require("../middlewares/verifyJwt");
 const {
   addCompany,
   getCompanies,
+  addEmployeeType,
+  addCompanyLogo,
+  updateActiveStatus,
+  addWorkLocation,
   addShift,
 } = require("../controllers/companyControllers/companyControllers");
 
@@ -19,6 +23,10 @@ const {
 
 router.post("/create-company", addCompany);
 router.get("/get-companies", getCompanies);
+router.post("/add-employee-type", addEmployeeType);
+router.post("/add-work-location", addWorkLocation);
+router.post("/update-active-status/:field", updateActiveStatus);
+router.post("/add-company-logo", upload.single("logo"), addCompanyLogo);
 router.post("/add-shift", verifyJwt, addShift);
 router.post(
   "/add-template",
