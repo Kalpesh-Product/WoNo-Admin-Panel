@@ -67,9 +67,12 @@ const RecievedTickets = ({ title }) => {
     console.log("I am Clicked");
     setOpen(true);
   };
+  
 
   const transformTicketsData = (tickets) => {
+    let Srno = 0;
     return tickets.map((ticket) => ({
+       
       id: ticket._id,
       raisedBy: ticket.raisedBy?.name || "Unknown",
       fromDepartment: ticket.raisedToDepartment.name || "N/A",
@@ -92,6 +95,7 @@ const RecievedTickets = ({ title }) => {
   ];
 
   const recievedTicketsColumns = [
+    
     { field: "raisedBy", headerName: "Raised By" },
     { field: "fromDepartment", headerName: "From Department" },
     { field: "ticketTitle", headerName: "Ticket Title", flex: 1 },

@@ -6,6 +6,7 @@ import { Chip } from "@mui/material";
 const HrSettingsPolicies = () => {
 
    const departmentsColumn = [
+        { field:"srno", headerName:"SR No",width:"100"},
         { field: "policyname", headerName: "POLICY NAME",
           cellRenderer:(params)=>{
             return(
@@ -59,21 +60,25 @@ const HrSettingsPolicies = () => {
 
   const rows = [
     {
+      srno:"1",
       id: 1,
       policyname: "Biz Nest Leave Policy",
       status: "Active",
     },
     {
+      srno:"2",
       id: 2,
       policyname: "Biz Nest Leave Policy",
       status: "Active",
     },
     {
+      srno:"3",
       id: 3,
       policyname: "Biz Nest Leave Policy",
       status: "Inactive",
     },
     {
+      srno:"4",
       id: 4,
       policyname: "Biz Nest Leave Policy",
       status: "Active",

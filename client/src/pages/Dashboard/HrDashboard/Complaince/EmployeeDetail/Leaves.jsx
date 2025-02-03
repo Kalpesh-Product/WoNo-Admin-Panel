@@ -1,10 +1,10 @@
 import React from "react";
 import AgTable from "../../../../../components/AgTable";
 import BarGraph from "../../../../../components/graphs/BarGraph";
+import CustomYAxis from "../../../../../components/graphs/CustomYAxis";
+import WidgetSection from '../../../../../components/WidgetSection'
 
 const Leaves = () => {
-
-
   const leavesColumn = [
     { field: "fromDate", headerName: "From Date" },
     { field: "toDate", headerName: "To Date" },
@@ -12,7 +12,7 @@ const Leaves = () => {
     { field: "leavePeriod", headerName: "Leave Period" },
     { field: "hours", headerName: "Hours" },
     { field: "description", headerName: "Description" },
-    { field: "status", headerName: "Status", },
+    { field: "status", headerName: "Status" },
   ];
 
   const rows = [
@@ -68,65 +68,108 @@ const Leaves = () => {
     },
   ];
 
-  const graphData = [
+  const leavesData = {
+    user: "Aiwin",
+    allocated: 12,
+    taken: 2,
+    remaining: 10,
+    monthlyData: [
+      {
+        month: "January",
+        monthIndex: 1,
+        year: 2025,
+        privilegedLeaves: 1,
+        sickLeaves: 1,
+        casualLeaves: 0,
+      },
+    ],
+  };
+
+  // Prepare data for ApexCharts
+  const months = leavesData.monthlyData.map((entry) => entry.month);
+
+  // Series data (stacked bar with allocated vs taken)
+  const series = [
     {
-      name: "Leaves", // Name of the series
-      data: [
-        { x: "Absent", y: 4 },
-        { x: "Annual Leaves", y: 4 },
-        { x: "Casual Leaves", y: 6 },
-        { x: "Compensatory Off", y: 2 },
-        { x: "Sick Leave", y: 0 },
-      ],
+      name: "Privileged Leaves (Taken)",
+      data: leavesData.monthlyData.map((entry) => entry.privilegedLeaves),
+      color: "#FF4560", // Red for taken leaves
+    },
+    {
+      name: "Privileged Leaves (Remaining)",
+      data: leavesData.monthlyData.map((entry) =>
+        Math.max(leavesData.allocated / 3 - entry.privilegedLeaves, 0)
+      ),
+      color: "#00E396", // Green for remaining allocation
+    },
+    {
+      name: "Sick Leaves (Taken)",
+      data: leavesData.monthlyData.map((entry) => entry.sickLeaves),
+      color: "#775DD0", // Purple for taken leaves
+    },
+    {
+      name: "Sick Leaves (Remaining)",
+      data: leavesData.monthlyData.map((entry) =>
+        Math.max(leavesData.allocated / 3 - entry.sickLeaves, 0)
+      ),
+      color: "#4CAF50", // Green for remaining allocation
+    },
+    {
+      name: "Casual Leaves (Taken)",
+      data: leavesData.monthlyData.map((entry) => entry.casualLeaves),
+      color: "#FBC02D", // Yellow for taken leaves
+    },
+    {
+      name: "Casual Leaves (Remaining)",
+      data: leavesData.monthlyData.map((entry) =>
+        Math.max(leavesData.allocated / 3 - entry.casualLeaves, 0)
+      ),
+      color: "#29B6F6", // Blue for remaining allocation
     },
   ];
-  
 
-
-  const leavesOptions = {
+  // Chart options
+  const options = {
     chart: {
       type: "bar",
-      fontFamily: "Poppins-Regular",
+      stacked: true,
       toolbar: {
         show: true,
       },
     },
-    plotOptions: {
-      bar: {
-        horizontal: false,
-        columnWidth: "60%",
-        borderRadius: 2,
-      },
-    },
     xaxis: {
-      categories: ["Absent", "Annual Leaves", "Casual Leaves", "Compensatory Off", "Sick Leave"], // Match x-axis categories
+      categories: months,
+      title: {
+        text: "Months",
+      },
     },
     yaxis: {
-      min: 0,
-      max: 10, // Adjust scale based on the data (10 is the maximum value in the data)
-      labels: {
-        formatter: (value) => `${value}`, // Keep values as-is
+      title: {
+        text: "Number of Leaves",
       },
     },
-    tooltip: {
-      y: {
-        formatter: (value) => `${value} leaves`, // Show the number of leaves
-      },
-    },
-    colors: ["#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#FFC300"], // Custom colors
     legend: {
       position: "top",
     },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+      },
+    },
   };
-  
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
+      {/* <div>
         <BarGraph
-          options={leavesOptions}
-          data={graphData}
+          options={options}
+          data={series}
         />
+      </div> */}
+      <div>
+        <WidgetSection layout={1} title={"Leaves Data"} border>
+          <CustomYAxis />
+        </WidgetSection>
       </div>
       <div>
         <AgTable

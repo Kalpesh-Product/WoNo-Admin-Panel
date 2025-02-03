@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { lazy, Suspense } from "react";
 import WidgetSection from "../../../components/WidgetSection";
-import LayerBarGraph from "../../../components/graphs/LayerBarGraph";
 import Card from "../../../components/Card";
 import { LuHardDriveUpload } from "react-icons/lu";
+import { Skeleton, Box } from "@mui/material";
 import { CgWebsite } from "react-icons/cg";
 import { SiCashapp } from "react-icons/si";
 import { SiGoogleadsense } from "react-icons/si";
@@ -11,8 +11,15 @@ import DataCard from "../../../components/DataCard";
 import PayRollExpenseGraph from "../../../components/HrDashboardGraph/PayRollExpenseGraph";
 import MuiTable from "../../../components/Tables/MuiTable";
 import PieChartMui from "../../../components/graphs/PieChartMui";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import { useQuery, useMutation } from "@tanstack/react-query";
+
+const LayerBarGraph = lazy(() =>
+  import("../../../components/graphs/LayerBarGraph")
+);
 
 const HrDashboard = () => {
+  const axios = useAxiosPrivate();
   const rawSeries = [
     {
       name: "Sales Total",
@@ -52,23 +59,23 @@ const HrDashboard = () => {
     },
     {
       name: "IT Completed",
-      data: [40, 45, 25, 40, 45, 35, 50, 45, 55, 60, 0, 0],
+      data: [40, 45, 25, 40, 45, 35, 50, 45, 55, 60],
       group: "completed",
     },
 
     {
       name: "Tech Completed",
-      data: [45, 40, 30, 45, 50, 40, 55, 50, 60, 65, 0, 0],
+      data: [45, 40, 30, 45, 50, 40, 55, 50, 60, 65],
       group: "completed",
     },
     {
       name: "Admin Completed",
-      data: [40, 30, 40, 52, 46, 40, 60, 59, 50, 70, 0, 0],
+      data: [40, 30, 40, 52, 46, 40, 60, 59, 50, 70],
       group: "completed",
     },
     {
       name: "Maintainance Completed",
-      data: [45, 50, 40, 55, 60, 50, 65, 60, 70, 75, 0, 0],
+      data: [45, 50, 40, 55, 60, 50, 65, 60, 70, 75],
       group: "completed",
     },
   ];
@@ -135,15 +142,6 @@ const HrDashboard = () => {
   const colors = generateColorsWithSpacing(rawSeries);
   const adjustedSeries = adjustDataWithSpacing(rawSeries);
 
-  // Extract custom legend items for "Total" series
-  const customLegendItems = rawSeries
-    .filter((series) => series.group === "total") // Filter only "Total" group
-    .map((series) => series.name.split(" ")[0]); // Extract department name (e.g., "Sales", "IT")
-
-  const colorsForLegend = rawSeries
-    .filter((series) => series.group === "total") // Filter only "Total" group
-    .map((series, index) => colors[index]); // Use the same colors for "Total" series
-
   // Normalize data
   const series = normalizeToPercentage(adjustedSeries);
 
@@ -187,7 +185,6 @@ const HrDashboard = () => {
         "November",
         "December",
         "January",
-       
       ],
     },
     yaxis: {
@@ -234,6 +231,9 @@ const HrDashboard = () => {
     chart: {
       type: "bar",
       stacked: true,
+      animations: {
+        enabled: false,
+      },
     },
     plotOptions: {
       bar: {
@@ -314,88 +314,114 @@ const HrDashboard = () => {
   };
 
   const columns = [
-    { id:"SrNo",label:"Sr No",align:"left"},
-    { id: "name", label: "Name", align: "left" },
-    { id: "date", label: "Date", align: "left" },
+    { id: "id", label: "Sr No", align: "left" },
+    { id: "title", label: "Name", align: "left" },
+    { id: "start", label: "Date", align: "left" },
   ];
 
   const rows = [
     {
-      SrNo:"1",
-      name:"Muskan Dodmani",
-      date:"25 Jan, 2025"
+      SrNo: "1",
+      name: "Muskan Dodmani",
+      date: "25 Jan, 2025",
     },
     {
-      SrNo:"2",
-      name:"Anushri",
-      date:"26 Mar, 2025"
+      SrNo: "2",
+      name: "Anushri",
+      date: "26 Mar, 2025",
     },
     {
-      SrNo:"3",
-      name:"Allen Silvera",
-      date:"11 sept, 2025"
+      SrNo: "3",
+      name: "Allen Silvera",
+      date: "11 sept, 2025",
     },
     {
-      SrNo:"4",
-      name:"aiwinraj",
-      date:"10 oct, 2025"
+      SrNo: "4",
+      name: "aiwinraj",
+      date: "10 oct, 2025",
     },
     {
-      SrNo:"5",
-      name:"Kalpesh Naik",
-      date:"28 oct, 2025"
+      SrNo: "5",
+      name: "Kalpesh Naik",
+      date: "28 oct, 2025",
     },
     {
-      SrNo:"6",
-      name:"Sankalp Kalangutkar",
-      date:"31 Dec, 2025"
+      SrNo: "6",
+      name: "Sankalp Kalangutkar",
+      date: "31 Dec, 2025",
     },
   ];
 
+  const { data: birthdays = [], isLoading } = useQuery({
+    queryKey: ["birthdays"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/events/get-birthdays");
+        return response.data;
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
+
   const columns2 = [
-    { id:"SrNo",label:"Sr No",align:"left"},  
-    { id: "holiday_event", label: "Holiday/Event", align: "center" },
-    { id: "date", label: "Date", align: "left" },
-    
+    { id: "id", label: "Sr No", align: "left" },
+    { id: "title", label: "Holiday/Event", align: "center" },
+    { id: "start", label: "Date", align: "left" },
   ];
 
   const rows2 = [
     {
-      SrNo:"1",
-      holiday_event:"Indian Navy Day",
-      date:"12 Oct,2025"
+      SrNo: "1",
+      holiday_event: "Indian Navy Day",
+      date: "12 Oct,2025",
     },
     {
-      SrNo:"2",
-      holiday_event:"Republic Day Celebration",
-      date:"24 Jan,2025"
+      SrNo: "2",
+      holiday_event: "Republic Day Celebration",
+      date: "24 Jan,2025",
     },
     {
-      SrNo:"3",
-      holiday_event:"Maha Shiv Ratri",
-      date:"10 Mar,2025"
+      SrNo: "3",
+      holiday_event: "Maha Shiv Ratri",
+      date: "10 Mar,2025",
     },
     {
-      SrNo:"4",
-      holiday_event:"Holi",
-      date:"14 Mar,2025"
+      SrNo: "4",
+      holiday_event: "Holi",
+      date: "14 Mar,2025",
     },
     {
-      SrNo:"5",
-      holiday_event:"Independance Day",
-      date:"15 Aug,2025"
-    }
+      SrNo: "5",
+      holiday_event: "Independance Day",
+      date: "15 Aug,2025",
+    },
   ];
 
+  const { data: holidayEvents = [] } = useQuery({
+    queryKey: ["holidayEvents"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/events/all-events");
+        const filteredEvents = response.data.filter(
+          (event) => event.extendedProps.type !== "birthday"
+        );
+        return filteredEvents;
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
+
   const columns3 = [
-    {id:"ranks",label:"Rank",align:"left"},
+    { id: "ranks", label: "Rank", align: "left" },
     { id: "employeeName", label: "Employee name", align: "left" },
     { id: "department", label: "Department", align: "center" },
     { id: "Performance (%)", label: "Performance (%)", align: "center" },
   ];
 
   const columns4 = [
-    {id:"ranks",label:"Rank",align:"left"},
+    { id: "ranks", label: "Rank", align: "left" },
     { id: "employeeName", label: "Employee name", align: "left" },
     { id: "department", label: "Department", align: "center" },
     { id: "Performance (%)", label: "Performance (%)", align: "center" },
@@ -403,19 +429,19 @@ const HrDashboard = () => {
 
   const rows3 = [
     {
-      ranks:"1",
+      ranks: "1",
       employeeName: "Aiwin",
       department: "Tech",
       "Performance (%)": "97",
     },
     {
-      ranks:"2",
+      ranks: "2",
       employeeName: "Allen Silvera",
       department: "Tech",
       "Performance (%)": "90",
     },
     {
-     ranks: 3,
+      ranks: 3,
       employeeName: "Sankalp Kalangutkar",
       department: "Tech",
       "Performance (%)": "80",
@@ -455,12 +481,12 @@ const HrDashboard = () => {
     { name: "Mark", gender: "Male" },
     { name: "James", gender: "Male" },
   ];
-  
+
   // Calculate total and gender-specific counts
   const totalUsers = users.length;
   const maleCount = users.filter((user) => user.gender === "Male").length;
   const femaleCount = users.filter((user) => user.gender === "Female").length;
-  
+
   const genderData = [
     {
       id: 0,
@@ -486,7 +512,7 @@ const HrDashboard = () => {
     colors: ["#0056B3", "#FD507E"], // Pass colors as an array
     dataLabels: {
       enabled: true,
-      position:'center',
+      position: "center",
       style: {
         fontSize: "14px", // Adjust the font size of the labels
         fontWeight: "bold",
@@ -521,81 +547,73 @@ const HrDashboard = () => {
 
   //First pie-chart config data end
 
-//Second pie-chart config data start
-const techGoaVisitors = [
-  { id: 0, value: 5, label: "Panaji", color: "#4A90E2" }, // Light Blue
-  { id: 1, value: 2, label: "Margao", color: "#007AFF" }, // Medium Blue
-  { id: 2, value: 3, label: "Mapusa", color: "#0056B3" }, // Dark Blue
-  { id: 3, value: 3, label: "Ponda", color: "#1E90FF" }, // Dodger Blue
-  { id: 4, value: 6, label: "Verna", color: "#87CEFA" }, // Sky Blue
-];
+  //Second pie-chart config data start
+  const techGoaVisitors = [
+    { id: 0, value: 5, label: "Panaji", color: "#4A90E2" }, // Light Blue
+    { id: 1, value: 2, label: "Margao", color: "#007AFF" }, // Medium Blue
+    { id: 2, value: 3, label: "Mapusa", color: "#0056B3" }, // Dark Blue
+    { id: 3, value: 3, label: "Ponda", color: "#1E90FF" }, // Dodger Blue
+    { id: 4, value: 6, label: "Verna", color: "#87CEFA" }, // Sky Blue
+  ];
 
-const techGoaVisitorsOptions = {
-  chart: {
-    type: "pie",
-  },
-  labels: techGoaVisitors.map((item) => item.label), // Labels for the pie slices
-  colors: techGoaVisitors.map((item) => item.color), // Assign colors to slices
-  dataLabels: {
-    enabled: true,
-    style: {
-      fontSize: "14px",
-      fontWeight: "bold",
+  const techGoaVisitorsOptions = {
+    chart: {
+      type: "pie",
     },
-    formatter: function (val) {
-      return `${val.toFixed(0)}%`; // Show percentage value
+    labels: techGoaVisitors.map((item) => item.label), // Labels for the pie slices
+    colors: techGoaVisitors.map((item) => item.color), // Assign colors to slices
+    dataLabels: {
+      enabled: true,
+      style: {
+        fontSize: "14px",
+        fontWeight: "bold",
+      },
+      formatter: function (val) {
+        return `${val.toFixed(0)}%`; // Show percentage value
+      },
     },
-  },
-  tooltip: {
-    enabled: true,
-    custom: function ({ series, seriesIndex }) {
-      const item = techGoaVisitors[seriesIndex]; // Access the correct item
-      return `
+    tooltip: {
+      enabled: true,
+      custom: function ({ series, seriesIndex }) {
+        const item = techGoaVisitors[seriesIndex]; // Access the correct item
+        return `
         <div style="padding: 5px; font-size: 12px;">
           ${item.label}: ${item.value} employees
         </div>`;
+      },
     },
-  },
-  legend: {
-    position: "right",
-    horizontalAlign: "center",
-  },
-};
-
-
-
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-
-  const handlePageChange = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleRowsPerPageChange = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+    legend: {
+      position: "right",
+      horizontalAlign: "center",
+    },
   };
 
   const hrWidgets = [
     {
       layout: 1,
       widgets: [
-        <LayerBarGraph
-          title="Payroll Expense Graph"
-          data={data}
-          options={optionss}
-        />,
+        <Suspense
+          fallback={
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              {/* Simulating chart skeleton */}
+              <Skeleton variant="text" width={200} height={30} />
+              <Skeleton variant="rectangular" width="100%" height={300} />
+            </Box>
+          }
+        >
+          <LayerBarGraph
+            title="Payroll Expense Graph"
+            data={data}
+            options={optionss}
+          />
+        </Suspense>,
       ],
     },
     {
       layout: 6,
       widgets: [
         <Card icon={<CgWebsite />} title="Employee" route={"employee"} />,
-        <Card
-          icon={<LuHardDriveUpload />}
-          title="Company"
-          route={"company"}
-        />,
+        <Card icon={<LuHardDriveUpload />} title="Company" route={"company"} />,
         <Card icon={<SiCashapp />} title="Finance" route={"finance"} />,
         <Card icon={<CgWebsite />} title="Mix Bag" route={"#"} />,
         <Card icon={<SiGoogleadsense />} title="Data" route={"data"} />,
@@ -620,69 +638,80 @@ const techGoaVisitorsOptions = {
     {
       layout: 1,
       widgets: [
-        <LayerBarGraph
-          title="Department Wise Tasks% Vs Achievements in %"
-          data={series}
-          options={options}
-        />,
+        <Suspense
+          fallback={
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              {/* Simulating chart skeleton */}
+              <Skeleton variant="text" width={200} height={30} />
+              <Skeleton variant="rectangular" width="100%" height={300} />
+            </Box>
+          }
+        >
+          <LayerBarGraph
+            title="Department Wise Tasks% Vs Achievements in %"
+            data={series}
+            options={options}
+          />
+        </Suspense>,
       ],
     },
     {
       layout: 2,
       heading: "Site Visitor Analytics",
       widgets: [
-        <PieChartMui
-      percent={true} // Enable percentage display
-      title={"Gender Distribution"}
-      data={genderData} // Pass processed data
-      options={genderPieChart}
-    />,
-        <PieChartMui
-      percent={true} // Enable percentage display
-      title={"City Wise Employees"}
-      data={techGoaVisitors} // Pass processed data
-      options={techGoaVisitorsOptions}
-    />,
+        <WidgetSection title={"Gender Distribution"} border>
+          <PieChartMui
+            percent={true} // Enable percentage display
+            title={"Gender Distribution"}
+            data={genderData} // Pass processed data
+            options={genderPieChart}
+          />
+        </WidgetSection>,
+        <WidgetSection layout={1} border title={"City Wise Employees"}>
+          <PieChartMui
+            percent={true} // Enable percentage display
+            data={techGoaVisitors} // Pass processed data
+            options={techGoaVisitorsOptions}
+          />
+          
+        </WidgetSection>,
       ],
     },
     {
       layout: 2,
       widgets: [
         <MuiTable
+          key={birthdays.length}
           Title="Current Months Birthday List"
           columns={columns}
-          rows={rows}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handlePageChange}
-          onRowsPerPageChange={handleRowsPerPageChange}
+          rows={[
+            ...birthdays.map((bd, index) => ({
+              id: index + 1, // Auto-increment Sr No
+              title: bd.title, // Birthday Name
+              start: new Date(bd.start).toLocaleDateString(), // Format as readable date
+            })),
+          ]}
+          rowsToDisplay={5}
+          scroll
         />,
         <MuiTable
           Title="Current Months Holidays and Events List"
           columns={columns2}
-          rows={rows2}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handlePageChange}
-          onRowsPerPageChange={handleRowsPerPageChange}
+          rows={[
+            ...holidayEvents.map((holiday, index) => ({
+              id: index + 1, // Auto-increment Sr No
+              title: holiday.title, // Birthday Name
+              start: new Date(holiday.start).toLocaleDateString(), // Format as readable date
+            })),
+          ]}
+          rowsToDisplay={5}
+          scroll
         />,
-        <MuiTable
-          Title="Top 3 Performers"
-          columns={columns3}
-          rows={rows3}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handlePageChange}
-          onRowsPerPageChange={handleRowsPerPageChange}
-        />,
+        <MuiTable Title="Top 3 Performers" columns={columns3} rows={rows3} />,
         <MuiTable
           Title="Under 3 Performed List"
           columns={columns4}
           rows={rows4}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handlePageChange}
-          onRowsPerPageChange={handleRowsPerPageChange}
         />,
       ],
     },

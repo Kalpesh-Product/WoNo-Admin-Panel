@@ -6,6 +6,7 @@ import { Chip } from "@mui/material";
 const HrSOP = () => {
 
   const departmentsColumn = [
+          { field:"srno" , headerName:"SR NO"},
           { field: "policyname", headerName: "POLICY NAME",
             cellRenderer:(params)=>{
               return(
@@ -59,21 +60,25 @@ const HrSOP = () => {
   
     const rows = [
       {
+        srno:"1",
         id: 1,
         policyname: "Biz Nest Leave SOP",
         status: "Active",
       },
       {
+        srno:"2",
         id: 2,
         policyname: "Biz Nest Leave SOP",
         status: "Active",
       },
       {
+        srno:"3",
         id: 3,
         policyname: "Biz Nest Leave SOP",
         status: "Inactive",
       },
       {
+        srno:"4",
         id: 4,
         policyname: "Biz Nest Leave SOP",
         status: "Active",

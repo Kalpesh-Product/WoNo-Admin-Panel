@@ -4,6 +4,7 @@ import { Chip } from "@mui/material";
 
 const EscalatedTickets = ({title}) => {
   const recievedTicketsColumns = [
+    { field:"srno",headerName:"SR NO"},
     { field: "raisedBy", headerName: "Raised By" },
     { field: "selectedDepartment", headerName: "Selected Department", width:100 },
     { field: "ticketTitle", headerName: "Ticket Title", flex: 1 },
@@ -91,6 +92,7 @@ const EscalatedTickets = ({title}) => {
 
   const rows = [
     {
+      srno:"1",
       raisedBy: "Abrar Shaikh",
       selectedDepartment: "IT",
       ticketTitle: "Monitor dead pixel",
@@ -98,6 +100,7 @@ const EscalatedTickets = ({title}) => {
       status: "pending",
     },
     {
+      srno:"2",
       raisedBy: "John Doe",
       selectedDepartment: "HR",
       ticketTitle: "System login issue",
@@ -105,6 +108,7 @@ const EscalatedTickets = ({title}) => {
       status: "pending",
     },
     {
+      srno:"3",
       raisedBy: "Jane Smith",
       selectedDepartment: "Finance",
       ticketTitle: "Printer not working",
@@ -112,6 +116,7 @@ const EscalatedTickets = ({title}) => {
       status: "pending",
     },
     {
+      srno:"4",
       raisedBy: "Mike Brown",
       selectedDepartment: "Operations",
       ticketTitle: "Software installation request",
@@ -119,6 +124,7 @@ const EscalatedTickets = ({title}) => {
       status: "pending",
     },
     {
+      srno:"5",
       raisedBy: "Emily Davis",
       selectedDepartment: "Marketing",
       ticketTitle: "Email access problem",
@@ -126,6 +132,7 @@ const EscalatedTickets = ({title}) => {
       status: "pending",
     },
     {
+      srno:"6",
       raisedBy: "Chris Johnson",
       selectedDepartment: "Admin",
       ticketTitle: "Air conditioner maintenance",
