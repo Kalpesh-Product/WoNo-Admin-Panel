@@ -62,9 +62,9 @@ import HolidaysEvents from "../pages/Dashboard/HrDashboard/Complaince/HoildaysEv
 import ViewVendors from "../pages/Dashboard/HrDashboard/Complaince/ViewVendors";
 import HrPayroll from "../pages/Dashboard/HrDashboard/Finance/HrPayroll";
 import ViewPayroll from "../pages/Dashboard/HrDashboard/Finance/ViewPayroll";
-import HrReports from "../pages/Dashboard/HrDashboard/Data/Reports"
+import HrReports from "../pages/Dashboard/HrDashboard/Data/Reports";
 import BulkUpload from "../pages/Dashboard/HrDashboard/HrSettings/BulkUpload";
-import ComapanyHandbook from '../pages/Dashboard/HrDashboard/Complaince/CompanyHandbook'
+import ComapanyHandbook from "../pages/Dashboard/HrDashboard/Complaince/CompanyHandbook";
 import MeetingLayout from "../pages/Meetings/MeetingLayout";
 import MeetingDashboard from "../pages/Meetings/MeetingDashboard";
 import BookMeetings from "../pages/Meetings/BookMeetings";
@@ -74,13 +74,15 @@ import Reviews from "../pages/Meetings/Reviews";
 import MeetingCalendar from "../pages/Meetings/Calendar";
 import MeetingReports from "../pages/Meetings/MeetingReports";
 import MeetingFormLayout from "../pages/Meetings/MeetingFormLayout";
+import FrontendLayout from "../pages/Dashboard/FrontendDashboard/FrontendLayout";
+import FrontendData from "../pages/Dashboard/FrontendDashboard/FrontendData";
 
 export const routes = createBrowserRouter([
   {
     path: "/",
     element: <LoginPage />,
   },
-  
+
   {
     element: <PersistLogin />,
     children: [
@@ -97,8 +99,17 @@ export const routes = createBrowserRouter([
                 children: [
                   {
                     path: "frontend-dashboard",
-                    element: <FrontendDashboard />,
-                    index: true,
+                    element: <FrontendLayout />,
+                    children: [
+                      {
+                        path: "",
+                        element: <FrontendDashboard />,
+                      },
+                      {
+                        path: "data",
+                        element: <FrontendData />,
+                      },
+                    ],
                   },
                   {
                     path: "finance-dashboard",
@@ -232,7 +243,7 @@ export const routes = createBrowserRouter([
 
                           {
                             path: "reports",
-                            
+
                             element: <HrReports />,
                           },
                         ],
@@ -270,9 +281,8 @@ export const routes = createBrowserRouter([
                         children: [
                           {
                             path: "bulk-upload",
-                            element: <BulkUpload/>,
+                            element: <BulkUpload />,
                           },
-                         
                         ],
                       },
                     ],

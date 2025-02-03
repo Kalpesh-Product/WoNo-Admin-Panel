@@ -123,7 +123,7 @@ const FrontendDashboard = () => {
         <Card icon={<LuHardDriveUpload />} title="Upload Website" />,
         <Card icon={<CgWebsite />} title="New Themes" />,
         <Card icon={<SiCashapp />} title="Budget" />,
-        <Card icon={<SiGoogleadsense />} title="Leads" />,
+        <Card icon={<SiGoogleadsense />} title="Data" route={"data"} />,
         <Card icon={<MdMiscellaneousServices />} title="Miscellaneous" />,
       ],
     },
