@@ -99,7 +99,7 @@ const fetchVendors = async (req, res, next) => {
     const userId = req.user;
 
     // Fetch user details along with role and department information
-    const user = await UserData.findOne({ _id: userId })
+    const user = await User.findOne({ _id: userId })
       .select("company department role")
       .populate([{ path: "role", select: "roleTitle" }])
       .lean()
@@ -125,7 +125,16 @@ const fetchVendors = async (req, res, next) => {
 
     // Fetch the company and check if the user is an admin of any department
     const company = await Company.findOne({ _id: user.company })
-      .populate("selectedDepartments.department")
+      .populate([
+        {
+          path: "selectedDepartments.department",
+          select: "name",
+        },
+        {
+          path: "selectedDepartments.admin",
+          select: "name email", // Select relevant fields
+        },
+      ])
       .lean()
       .exec();
 
@@ -135,7 +144,7 @@ const fetchVendors = async (req, res, next) => {
 
     // Get departments where the user is an admin
     const adminDepartments = company.selectedDepartments.filter((dept) =>
-      dept.admin.some((adminId) => adminId.toString() === userId.toString())
+      dept.admin.some((adminId) => adminId.toString() === user._id.toString())
     );
 
     if (adminDepartments.length === 0) {
