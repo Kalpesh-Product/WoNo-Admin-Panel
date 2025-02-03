@@ -7,6 +7,18 @@ const companySchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  companyLogo: {
+    logoId: {
+      type: String,
+    required: true,
+    unique: true,
+    },
+    logoUrl: {
+      type: String,
+    required: true,
+    unique: true,
+    },
+  },
   selectedDepartments: [
     {
       department: {

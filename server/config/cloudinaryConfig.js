@@ -19,6 +19,7 @@ const handleFileUpload = async (file, path) => {
       ],
       folder: path,
     });
+    console.log('res',res)
     return res;
   } catch (error) {
     console.log(error);

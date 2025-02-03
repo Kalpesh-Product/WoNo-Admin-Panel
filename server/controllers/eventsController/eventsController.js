@@ -5,7 +5,9 @@ const checkPermission = require("../../utils/checkPermission");
 
 const createEvent = async (req, res, next) => {
   try {
-    const { title, type, description, start, end, participants,companyId} = req.body;
+    const { title, type, description, start, end, participants} = req.body;
+
+    const {company} = req.userData
 
     const startDate = new Date(start);
     const endDate = new Date(end);
@@ -27,7 +29,7 @@ const createEvent = async (req, res, next) => {
       start: startDate,
       end: endDate,
       participants: validParticipants,
-      company:companyId
+      company
     });
 
     const event = await newEvent.save();
@@ -40,14 +42,9 @@ const createEvent = async (req, res, next) => {
 const getAllEvents = async (req, res, next) => {
   try {
      
-    const user = req.user
+    const {company} = req.userData
 
-    //Fetching company-wise events
-    // const loggedInUser = await User.findOne({_id:user}).select("company");
-
-    // const events = await Event.find({company:loggedInUser.company});
-
-    const events = await Event.find();
+    const events = await Event.find({company:company});
 
     if (!events || events.length === 0) {
       return res.status(204).json({ message: "No events found" });
@@ -77,26 +74,15 @@ const getAllEvents = async (req, res, next) => {
 
 const getNormalEvents = async (req, res, next) => {
   try {
+    const {company} = req.userData
+
+    const normalEvents = await Event.find({company:company,type:"event"});
+
+    if(!normalEvents || normalEvents.length < 0){
+      res.status(400).json({message:"No event found"});
+    }
  
-    const loggedInUser = req.user
-    const user = await User.findOne({_id:loggedInUser})
-    .populate({path:"role", select:"roleTitle"}).select("company");
-
-    // const validRoles = ["Master Admin", "Super Admin", "HR Admin"]
-
-    //  const hasPermission = checkPermission(validRoles)
-
-    //  if(!hasPermission){
-    //   return res.sendStatus(403)
-    //  }
-
-    const events = await Event.find({company:user.company});
-
-    // const normalEvents = await Event.find();
-    const filteredEvents = events.filter(
-      (event) => event.type === "event"
-    );
-    res.status(200).json(filteredEvents);
+    res.status(200).json(normalEvents);
   } catch (error) {
     next(error);
   }
@@ -104,11 +90,15 @@ const getNormalEvents = async (req, res, next) => {
 
 const getHolidays = async (req, res, next) => {
   try {
-    const normalEvents = await Event.find();
-    const filteredEvents = normalEvents.filter(
-      (event) => event.type === "holiday"
-    );
-    res.status(200).json(filteredEvents);
+    const {company} = req.userData
+
+    const holidays = await Event.find({company:company,type:"holiday"});
+
+    if(!holidays || holidays.length < 0){
+      res.status(400).json({message:"No holiday found"});
+    }
+
+    res.status(200).json(holidays);
   } catch (error) {
     next(error);
   }
@@ -116,11 +106,15 @@ const getHolidays = async (req, res, next) => {
 
 const getBirthdays = async (req, res, next) => {
   try {
-    const normalEvents = await Event.find();
-    const filteredEvents = normalEvents.filter(
-      (event) => event.type === "birthday"
-    );
-    res.status(200).json(filteredEvents);
+    const {company} = req.userData
+
+    const birthdays = await Event.find({company:company,type:"birthday"});
+
+    if(!birthdays || birthdays.length < 0){
+      res.status(400).json({message:"No birthday found"});
+    }
+
+    res.status(200).json(birthdays);
   } catch (error) {
     next(error);
   }

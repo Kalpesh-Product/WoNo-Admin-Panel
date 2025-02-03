@@ -1,9 +1,11 @@
 const Attendance = require("../models/Attendance");
 const UserData = require("../models/UserData");
+const mongoose = require("mongoose")
 
 const clockIn = async (req, res, next) => {
   const { inTime, entryType } = req.body;
-  const loggedInUser = req.user;
+  const loggedInUser = req.userData.userId;
+  const company = req.userData.company;
 
   try {
     if (!inTime || !entryType) {
@@ -35,7 +37,7 @@ const clockIn = async (req, res, next) => {
       inTime: clockIn,
       entryType,
       user: user._id,
-      company: user.company,
+      company,
     });
 
     await newAttendance.save();
@@ -179,30 +181,54 @@ const endBreak = async (req, res, next) => {
 };
 
 const getAllAttendance = async (req, res, next) => {
-  const loggedInUser = req.user;
+  const loggedInUser = req.userData.userId;
+  const company = req.userData.company;
 
   try {
-    const user = await UserData.findById({ _id: loggedInUser }).populate({
-      path: "role",
-      select: "roleTitle",
-    });
+    // const user = await UserData.findById({ _id: loggedInUser }).populate({
+    //   path: "role",
+    //   select: "roleTitle",
+    // });
 
-    const validRoles = ["Master Admin", "Super Admin", "HR Admin"];
+    // const validRoles = ["Master Admin", "Super Admin", "HR Admin"];
 
-    const hasPermission = user.role.some((role) =>
-      validRoles.includes(role.roleTitle)
-    );
+    // const hasPermission = user.role.some((role) =>
+    //   validRoles.includes(role.roleTitle)
+    // );
 
-    if (!hasPermission) {
-      return res.sendStatus(403);
+    // if (!hasPermission) {
+    //   return res.sendStatus(403);
+    // }
+
+    if(!mongoose.Types.ObjectId.isValid(company)){
+      return res.status(400).json("Invalid company Id provided");
     }
 
     let attendances = [];
-    attendances = await Attendance.find({ company: user.company });
+    attendances = await Attendance.find({company});
 
     if (!attendances) {
       return res.status(400).json({ message: "No attendance exists" });
     }
+
+    const transformedAttendances = attendances.map((attendance)=>{
+
+      
+      if(attendance.inTime && attendance.outTime && attendance.breakDuration){
+        const totalMins = (attendance.outTime - attendance.inTime) / (1000 * 60)
+      const workMins = totalMins - attendance.breakDuration
+      const totalHours = totalMins/60
+      const workHours = workMins/60
+
+
+      }
+      
+
+      
+
+
+
+    })
 
     return res.status(200).json(attendances);
   } catch (error) {
@@ -211,17 +237,14 @@ const getAllAttendance = async (req, res, next) => {
 };
 
 const getAttendance = async (req, res, next) => {
-  const loggedInUser = req.user;
+  const loggedInUser = req.userData.userId;
+  const company = req.userData.company;
 
   try {
-    const user = await UserData.findById({ _id: loggedInUser }).populate({
-      path: "role",
-      select: "roleTitle",
-    });
 
     const attendances = await Attendance.find({
       user: loggedInUser,
-      company: user.company,
+      company,
     });
 
     if (!attendances) {
