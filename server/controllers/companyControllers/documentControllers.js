@@ -3,11 +3,17 @@ const User = require("../../models/UserData");
 const { handlePdfUpload } = require("../../config/cloudinaryConfig");
 const { PDFDocument } = require("pdf-lib");
 
-const uploadTemplate = async (req, res, next) => {
+const uploadCompanyDocument = async (req, res, next) => {
   try {
+    const { documentName, type } = req.body;
     const file = req.file;
     const user = req.user;
-    const { documentName } = req.body;
+
+    if (!["template", "sop", "policy"].includes(type)) {
+      throw new Error(
+        "Invalid document type. Allowed values: template, sop, policy"
+      );
+    }
 
     const foundUser = await User.findOne({ _id: user })
       .select("company")
@@ -15,24 +21,31 @@ const uploadTemplate = async (req, res, next) => {
       .lean()
       .exec();
 
+    if (!foundUser || !foundUser.company) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+
     const pdfDoc = await PDFDocument.load(file.buffer);
     pdfDoc.setTitle(file.originalname?.split(".")[0]);
     const processedBuffer = await pdfDoc.save();
 
     const response = await handlePdfUpload(
       processedBuffer,
-      `${foundUser.company.companyName}/templates`
+      `${foundUser.company.companyName}/${type}s`
     );
 
     if (!response.public_id) {
-      throw new Error("falied to upload document");
+      throw new Error("Failed to upload document");
     }
+
+    const updateField =
+      type === "template" ? "templates" : type === "sop" ? "sop" : "policies";
 
     await Company.findOneAndUpdate(
       { _id: foundUser.company._id },
       {
         $push: {
-          templates: {
+          [updateField]: {
             name: documentName,
             documentLink: response.secure_url,
             documentId: response.public_id,
@@ -40,125 +53,27 @@ const uploadTemplate = async (req, res, next) => {
         },
       }
     ).exec();
-    return res.status(200).json({ message: "Template uploaded successfully" });
-  } catch (error) {
-    next(error);
-  }
-};
-
-const addSop = async (req, res, next) => {
-  try {
-    const { sopName } = req.body;
-    const file = req.file;
-    const user = req.user;
-
-    const foundUser = await User.findOne({ _id: user })
-      .select("company")
-      .populate([{ path: "company", select: "companyName" }])
-      .lean()
-      .exec();
-
-    const pdfDoc = await PDFDocument.load(file.buffer);
-    pdfDoc.setTitle(file.originalname?.split(".")[0]);
-    const processedBuffer = await pdfDoc.save();
-
-    const response = await handlePdfUpload(
-      processedBuffer,
-      `${foundUser.company.companyName}/SOP`
-    );
-
-    if (!response.public_id) {
-      throw new Error("falied to upload document");
-    }
-
-    await Company.findOneAndUpdate(
-      { _id: foundUser.company._id },
-      {
-        $push: {
-          sop: {
-            name: sopName,
-            documentLink: response.secure_url,
-            documentId: response.public_id,
-          },
-        },
-      }
-    ).exec();
-    return res.status(200).json({ message: "SOP uploaded successfully" });
-  } catch (error) {
-    next(error);
-  }
-};
-
-const addPolicy = async (req, res, next) => {
-  try {
-    const { policyName } = req.body;
-    const file = req.file;
-    const user = req.user;
-
-    const foundUser = await User.findOne({ _id: user })
-      .select("company")
-      .populate([{ path: "company", select: "companyName" }])
-      .lean()
-      .exec();
-
-    const pdfDoc = await PDFDocument.load(file.buffer);
-    pdfDoc.setTitle(file.originalname?.split(".")[0]);
-    const processedBuffer = await pdfDoc.save();
-
-    const response = await handlePdfUpload(
-      processedBuffer,
-      `${foundUser.company.companyName}/policies`
-    );
-
-    if (!response.public_id) {
-      throw new Error("falied to upload document");
-    }
-
-    await Company.findOneAndUpdate(
-      { _id: foundUser.company._id },
-      {
-        $push: {
-          policies: {
-            name: policyName,
-            documentLink: response.secure_url,
-            documentId: response.public_id,
-          },
-        },
-      }
-    ).exec();
-    return res.status(200).json({ message: "policy uploaded successfully" });
-  } catch (error) {
-    next(error);
-  }
-};
-
-const getAllTemplates = async (req, res, next) => {
-  try {
-    const user = req.user;
-    const foundUser = await User.findOne({ _id: user })
-      .select("company")
-      .populate("company", "templates")
-      .lean()
-      .exec();
-
-    if (!foundUser || !foundUser.company) {
-      return res.status(404).json({ message: "Company not found" });
-    }
 
     return res
       .status(200)
-      .json({ templates: foundUser.company.templates || [] });
+      .json({ message: `${type.toUpperCase()} uploaded successfully` });
   } catch (error) {
     next(error);
   }
 };
 
-const getAllSOPs = async (req, res, next) => {
+const getCompanyDocuments = async (req, res, next) => {
   try {
+    const { type } = req.params;
     const user = req.user;
+
+    if (!["templates", "sop", "policies"].includes(type)) {
+      return res.status(400).json({ message: "Invalid document type" });
+    }
+
     const foundUser = await User.findOne({ _id: user })
       .select("company")
-      .populate("company", "sop")
+      .populate(`company`, type)
       .lean()
       .exec();
 
@@ -166,36 +81,91 @@ const getAllSOPs = async (req, res, next) => {
       return res.status(404).json({ message: "Company not found" });
     }
 
-    return res.status(200).json({ sops: foundUser.company.sop || [] });
+    return res.status(200).json({ [type]: foundUser.company[type] || [] });
   } catch (error) {
     next(error);
   }
 };
 
-const getAllPolicies = async (req, res, next) => {
+const uploadDepartmentDocument = async (req, res, next) => {
   try {
+    const { documentName, type } = req.body;
+    const file = req.file;
     const user = req.user;
+    const { departmentId } = req.params;
+
+    if (!["sop", "policy"].includes(type)) {
+      throw new Error("Invalid document type. Allowed values: sop, policy");
+    }
+
     const foundUser = await User.findOne({ _id: user })
       .select("company")
-      .populate("company", "policies")
+      .populate([{ path: "company", select: "companyName" }])
       .lean()
       .exec();
 
-    if (!foundUser || !foundUser.company) {
-      return res.status(404).json({ message: "Company not found" });
+    const company = await Company.findOne({ _id: foundUser.company._id })
+      .select("selectedDepartments")
+      .populate([{ path: "selectedDepartments.department", select: "name" }]);
+
+    const department = company.selectedDepartments.find(
+      (dept) => dept.department._id.toString() === departmentId
+    );
+
+    if (!department) {
+      throw new Error("Department not found in selectedDepartments.");
     }
 
-    return res.status(200).json({ policies: foundUser.company.policies || [] });
+    const pdfDoc = await PDFDocument.load(file.buffer);
+    pdfDoc.setTitle(file.originalname?.split(".")[0]);
+    const processedBuffer = await pdfDoc.save();
+
+    const response = await handlePdfUpload(
+      processedBuffer,
+      `${foundUser.company.companyName}/departments/${
+        department.department.name
+      }/documents/${type}`
+    );
+
+    if (!response.public_id) {
+      throw new Error("Failed to upload document");
+    }
+
+    const updateField =
+      type === "sop"
+        ? "selectedDepartments.$.sop"
+        : "selectedDepartments.$.policies";
+
+    await Company.findOneAndUpdate(
+      {
+        _id: foundUser.company._id,
+        "selectedDepartments.department": departmentId,
+      },
+      {
+        $push: {
+          [updateField]: {
+            name: documentName,
+            documentLink: response.secure_url,
+            documentId: response.public_id,
+            isActive: true,
+          },
+        },
+      },
+      { new: true }
+    ).exec();
+
+    return res.status(200).json({
+      message: `${type.toUpperCase()} uploaded successfully for ${
+        department.department.name
+      } department`,
+    });
   } catch (error) {
     next(error);
   }
 };
 
 module.exports = {
-  uploadTemplate,
-  addPolicy,
-  addSop,
-  getAllTemplates,
-  getAllSOPs,
-  getAllPolicies,
+  uploadCompanyDocument,
+  getCompanyDocuments,
+  uploadDepartmentDocument,
 };

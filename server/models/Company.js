@@ -10,13 +10,13 @@ const companySchema = new mongoose.Schema({
   companyLogo: {
     logoId: {
       type: String,
-    required: true,
-    unique: true,
+      required: true,
+      unique: true,
     },
     logoUrl: {
       type: String,
-    required: true,
-    unique: true,
+      required: true,
+      unique: true,
     },
   },
   selectedDepartments: [
@@ -29,6 +29,46 @@ const companySchema = new mongoose.Schema({
         {
           type: mongoose.Schema.Types.ObjectId,
           ref: "UserData",
+        },
+      ],
+      policies: [
+        {
+          name: {
+            type: String,
+            required: true,
+          },
+          documentLink: {
+            type: String,
+            required: true,
+          },
+          documentId: {
+            type: String,
+            required: true,
+          },
+          isActive: {
+            type: Boolean,
+            default: true,
+          },
+        },
+      ],
+      sop: [
+        {
+          name: {
+            type: String,
+            required: true,
+          },
+          documentLink: {
+            type: String,
+            required: true,
+          },
+          documentId: {
+            type: String,
+            required: true,
+          },
+          isActive: {
+            type: Boolean,
+            default: true,
+          },
         },
       ],
     },

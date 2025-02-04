@@ -13,12 +13,9 @@ const {
 } = require("../controllers/companyControllers/companyControllers");
 
 const {
-  uploadTemplate,
-  addPolicy,
-  addSop,
-  getAllTemplates,
-  getAllSOPs,
-  getAllPolicies,
+  uploadCompanyDocument,
+  getCompanyDocuments,
+  uploadDepartmentDocument,
 } = require("../controllers/companyControllers/documentControllers");
 
 router.post("/create-company", addCompany);
@@ -28,16 +25,19 @@ router.post("/add-work-location", addWorkLocation);
 router.post("/update-active-status/:field", updateActiveStatus);
 router.post("/add-company-logo", upload.single("logo"), addCompanyLogo);
 router.post("/add-shift", verifyJwt, addShift);
+
 router.post(
-  "/add-template",
+  "/upload-company-document",
   verifyJwt,
-  upload.single("template"),
-  uploadTemplate
+  upload.single("document"),
+  uploadCompanyDocument
 );
-router.post("/add-policy", verifyJwt, upload.single("policy"), addPolicy);
-router.post("/add-sop", verifyJwt, upload.single("sop"), addSop);
-router.get("/get-templates", verifyJwt, getAllTemplates);
-router.get("/get-sops", verifyJwt, getAllSOPs);
-router.get("/get-policies", verifyJwt, getAllPolicies);
+router.post(
+  "/add-department-document/:departmentId",
+  verifyJwt,
+  upload.single("department-document"),
+  uploadDepartmentDocument
+);
+router.get("/get-company-documents/:type", verifyJwt, getCompanyDocuments);
 
 module.exports = router;
