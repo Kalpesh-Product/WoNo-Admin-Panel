@@ -30,6 +30,7 @@ const accessRoutes = require("./routes/accessRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const checkScope = require("./middlewares/checkScope");
 const vendorRoutes = require("./routes/vendorRoutes");
+const budgetRoutes = require("./routes/budgetRoutes");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -56,7 +57,8 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 
 //protected routes that should be protected later 👽
-app.use("/api/company",verifyJwt, companyRoutes);
+app.use("/api/company", verifyJwt, companyRoutes);
+app.use("/api/budget", verifyJwt, budgetRoutes);
 app.use("/api/departments", departmentsRoutes);
 app.use("/api/designations", designationRoutes);
 app.use("/api/assets", assetsRoutes);
@@ -70,12 +72,12 @@ app.use("/api/users", userRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/modules", moduleRoutes);
 app.use("/api/sub-modules", subModuleRoutes);
-app.use("/api/vendors",verifyJwt, vendorRoutes);
+app.use("/api/vendors", verifyJwt, vendorRoutes);
 app.use("/api/events", verifyJwt, eventRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/attendance", verifyJwt, attendanceRoutes);
 app.get(
-  "/api/protected", 
+  "/api/protected",
   verifyJwt,
   checkScope({
     module: "Asset Management",
