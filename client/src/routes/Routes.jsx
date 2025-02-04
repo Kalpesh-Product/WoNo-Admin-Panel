@@ -80,6 +80,10 @@ import FrontendLeads from "../pages/Dashboard/FrontendDashboard/Data/FrontendLea
 import FrontendWebsiteIssueReports from "../pages/Dashboard/FrontendDashboard/Data/FrontendWebsiteIssueReports";
 import FrontendFinLayout from "../pages/Dashboard/FrontendDashboard/FrontendFinance/FrontendFinLayout";
 import FrontendBudget from "../pages/Dashboard/FrontendDashboard/FrontendFinance/FrontendBudget";
+import FrontendPayment from "../pages/Dashboard/FrontendDashboard/FrontendFinance/FrontendPayment";
+import ThemeGrid from "../pages/Dashboard/FrontendDashboard/WebsiteBuilder/ThemeGrid";
+import ViewTheme from "../pages/Dashboard/FrontendDashboard/WebsiteBuilder/ViewTheme";
+import PageDemo from "../pages/Dashboard/FrontendDashboard/WebsiteBuilder/PageDemo";
 
 export const routes = createBrowserRouter([
   {
@@ -110,6 +114,18 @@ export const routes = createBrowserRouter([
                         element: <FrontendDashboard />,
                       },
                       {
+                        path: "select-theme",
+                        element: <ThemeGrid />,
+                      },
+                      {
+                        path: "view-theme",
+                        element: <ViewTheme />,
+                      },
+                      {
+                        path: "live-demo",
+                        element: <PageDemo />,
+                      },
+                      {
                         path: "data",
                         element: <FrontendData />,
                         children: [
@@ -131,7 +147,11 @@ export const routes = createBrowserRouter([
                           {
                             path:'budget',
                             element: <FrontendBudget />
-                          }
+                          },
+                          {
+                            path:'payment-schedule',
+                            element: <FrontendPayment />
+                          },
                         ]
                       }
                     ],

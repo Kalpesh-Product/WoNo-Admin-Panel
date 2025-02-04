@@ -15,8 +15,6 @@ import PieChartMui from "../../../components/graphs/PieChartMui";
 import LineGraph from "../../../components/graphs/LineGraph";
 
 const FrontendDashboard = () => {
-  const location = useLocation(); //will need to change useLocation and use context for content rendering once the auth is done
-
   // Data and calculations
   const utilisedData = [125, 150, 99, 85, 70, 50, 80, 95, 100, 65, 50, 120];
   const defaultData = utilisedData.map((value) =>
@@ -37,6 +35,7 @@ const FrontendDashboard = () => {
     chart: {
       type: "bar",
       stacked: true,
+      fontFamily: "Poppins-Regular",
     },
     plotOptions: {
       bar: {
@@ -101,11 +100,6 @@ const FrontendDashboard = () => {
     { name: "James", gender: "Male" },
   ];
 
-  // Calculate total and gender-specific counts
-  const totalUsers = users.length;
-  const maleCount = users.filter((user) => user.gender === "Male").length;
-  const femaleCount = users.filter((user) => user.gender === "Female").length;
-
   const siteVisitorsData = [
     {
       name: "Site Visitors",
@@ -160,27 +154,17 @@ const FrontendDashboard = () => {
   };
 
   const nationWiseData = [
-    { id: 0, value: 30, actualCount: 300, label: "Mumbai", color: "#0056B3" },
-    { id: 1, value: 20, actualCount: 200, label: "Delhi", color: "#FD507E" },
-    {
-      id: 2,
-      value: 15,
-      actualCount: 150,
-      label: "Bangalore",
-      color: "#FFB900",
-    },
-    {
-      id: 3,
-      value: 10,
-      actualCount: 100,
-      label: "Hyderabad",
-      color: "#00A36C",
-    },
-    { id: 4, value: 8, actualCount: 80, label: "Chennai", color: "#9C27B0" },
-    { id: 5, value: 7, actualCount: 70, label: "Kolkata", color: "#E91E63" },
-    { id: 6, value: 5, actualCount: 50, label: "Pune", color: "#FF5733" },
-    { id: 7, value: 5, actualCount: 50, label: "Ahmedabad", color: "#009688" },
+    { id: 0, value: 30, actualCount: 300, label: "Mumbai", color: "#00274D" }, // Deep Navy Blue
+    { id: 1, value: 20, actualCount: 200, label: "Delhi", color: "#003F7F" },  // Dark Blue
+    { id: 2, value: 15, actualCount: 150, label: "Bangalore", color: "#0056B3" }, // Royal Blue
+    { id: 3, value: 10, actualCount: 100, label: "Hyderabad", color: "#0073E6" }, // Bright Blue
+    { id: 4, value: 8, actualCount: 80, label: "Chennai", color: "#338FFF" }, // Sky Blue
+    { id: 5, value: 7, actualCount: 70, label: "Kolkata", color: "#6699FF" }, // Light Blue
+    { id: 6, value: 5, actualCount: 50, label: "Pune", color: "#99B3FF" }, // Soft Blue
+    { id: 7, value: 5, actualCount: 50, label: "Ahmedabad", color: "#CCD9FF" }, // Very Light Blue
   ];
+  
+  
 
   // Updated Pie Chart Configuration
   const nationWisePieChart = {
@@ -188,7 +172,7 @@ const FrontendDashboard = () => {
       type: "pie",
     },
     labels: nationWiseData.map((item) => item.label),
-    colors: nationWiseData.map((item) => item.color),
+    colors: nationWiseData.map((item) => item.color), // Apply new shades of blue
     dataLabels: {
       enabled: true,
       formatter: function (val) {
@@ -210,6 +194,7 @@ const FrontendDashboard = () => {
       horizontalAlign: "center",
     },
   };
+  
 
   //Line Graph data
 
@@ -289,12 +274,13 @@ const FrontendDashboard = () => {
   ];
 
   const goaDistrictData = [
-    { id: 0, value: 40, actualCount: 400, label: "Panaji", color: "#0056B3" },
-    { id: 1, value: 25, actualCount: 250, label: "Margao", color: "#FD507E" },
-    { id: 2, value: 15, actualCount: 150, label: "Mapusa", color: "#FFB900" },
-    { id: 3, value: 10, actualCount: 100, label: "Pernem", color: "#00A36C" },
-    { id: 4, value: 10, actualCount: 100, label: "Vasco", color: "#9C27B0" },
+    { id: 0, value: 40, actualCount: 400, label: "Panaji", color: "#00274D" }, // Deep Navy Blue
+    { id: 1, value: 25, actualCount: 250, label: "Margao", color: "#003F7F" },  // Dark Blue
+    { id: 2, value: 15, actualCount: 150, label: "Mapusa", color: "#0056B3" }, // Royal Blue
+    { id: 3, value: 10, actualCount: 100, label: "Pernem", color: "#0073E6" }, // Bright Blue
+    { id: 4, value: 10, actualCount: 100, label: "Vasco", color: "#338FFF" }, // Sky Blue
   ];
+  
 
   // Updated Pie Chart Configuration for Goa Districts
   const goaDistrictPieChart = {
@@ -329,19 +315,20 @@ const FrontendDashboard = () => {
     {
       layout: 1,
       widgets: [
-        <LayerBarGraph
-          title="Budget v/s Achievements"
-          data={data}
-          options={options}
-        />,
+        <WidgetSection border title={"Budget v/s Achievements"}>
+          <LayerBarGraph
+            data={data}
+            options={options}
+          />
+        </WidgetSection>
       ],
     },
     {
       layout: 6,
       widgets: [
-        <Card icon={<MdRebaseEdit />} title="Edit Live Theme" />,
-        <Card icon={<LuHardDriveUpload />} title="Upload Website" />,
-        <Card icon={<CgWebsite />} title="New Themes" />,
+        <Card icon={<MdRebaseEdit />} title="Create Website" />,
+        <Card icon={<LuHardDriveUpload />} title="Edit website" />,
+        <Card icon={<CgWebsite />} title="New Themes" route={"select-theme"} />,
         <Card icon={<SiCashapp />} title="Finance" route={"finance"} />,
         <Card icon={<SiGoogleadsense />} title="Data" route={"data"} />,
         <Card icon={<MdMiscellaneousServices />} title="Miscellaneous" />,
@@ -352,7 +339,7 @@ const FrontendDashboard = () => {
       widgets: [
         <WidgetSection layout={1} title={"Website Issues Raised"} border>
           <LineGraph options={websiteIssuesOptions} data={websiteIssuesData} />
-        </WidgetSection>
+        </WidgetSection>,
       ],
     },
     {
