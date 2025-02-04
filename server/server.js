@@ -31,6 +31,7 @@ const attendanceRoutes = require("./routes/attendanceRoutes");
 const checkScope = require("./middlewares/checkScope");
 const vendorRoutes = require("./routes/vendorRoutes");
 const budgetRoutes = require("./routes/budgetRoutes");
+const payrollRoutes = require("./routes/payrollRoutes");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -74,6 +75,7 @@ app.use("/api/modules", moduleRoutes);
 app.use("/api/sub-modules", subModuleRoutes);
 app.use("/api/vendors", verifyJwt, vendorRoutes);
 app.use("/api/events", verifyJwt, eventRoutes);
+app.use("/api/payroll", payrollRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/attendance", verifyJwt, attendanceRoutes);
 app.get(
