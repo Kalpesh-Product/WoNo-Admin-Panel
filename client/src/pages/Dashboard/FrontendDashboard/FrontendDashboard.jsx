@@ -41,9 +41,9 @@ const FrontendDashboard = () => {
       bar: {
         horizontal: false,
         columnWidth: "45%",
-        borderRadius:3,
-        borderRadiusWhenStacked:'all',
-        borderRadiusApplication:'end',
+        borderRadius: 3,
+        borderRadiusWhenStacked: "all",
+        borderRadiusApplication: "end",
       },
     },
     colors: ["#00FF00", "#0000FF", "#FF0000"], // Colors for the series
@@ -87,8 +87,7 @@ const FrontendDashboard = () => {
     },
   };
 
-
-  //Bar graph data 
+  //Bar graph data
 
   const financialYears = [
     "April",
@@ -124,7 +123,11 @@ const FrontendDashboard = () => {
         <Card icon={<CgWebsite />} title="New Themes" />,
         <Card icon={<SiCashapp />} title="Budget" />,
         <Card icon={<SiGoogleadsense />} title="Data" route={"data"} />,
-        <Card icon={<MdMiscellaneousServices />} title="Miscellaneous" />,
+        <Card
+          icon={<MdMiscellaneousServices />}
+          title="Settings"
+          route={"settings"}
+        />,
       ],
     },
     {

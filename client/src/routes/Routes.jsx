@@ -78,6 +78,8 @@ import FrontendLayout from "../pages/Dashboard/FrontendDashboard/FrontendLayout"
 import FrontendData from "../pages/Dashboard/FrontendDashboard/Data/FrontendData";
 import FrontendLeads from "../pages/Dashboard/FrontendDashboard/Data/FrontendLeads";
 import FrontendWebsiteIssueReports from "../pages/Dashboard/FrontendDashboard/Data/FrontendWebsiteIssueReports";
+import FrontendSettings from "../pages/Dashboard/FrontendDashboard/FrontendSettings/FrontendSettings";
+import FrontendBulkUpload from "../pages/Dashboard/FrontendDashboard/FrontendSettings/BulkUpload";
 
 export const routes = createBrowserRouter([
   {
@@ -119,6 +121,16 @@ export const routes = createBrowserRouter([
                           {
                             path: "website-issue-reports",
                             element: <FrontendWebsiteIssueReports />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "settings",
+                        element: <FrontendSettings />,
+                        children: [
+                          {
+                            path: "bulk-upload",
+                            element: <FrontendBulkUpload />,
                           },
                         ],
                       },
