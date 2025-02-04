@@ -75,7 +75,9 @@ import MeetingCalendar from "../pages/Meetings/Calendar";
 import MeetingReports from "../pages/Meetings/MeetingReports";
 import MeetingFormLayout from "../pages/Meetings/MeetingFormLayout";
 import FrontendLayout from "../pages/Dashboard/FrontendDashboard/FrontendLayout";
-import FrontendData from "../pages/Dashboard/FrontendDashboard/FrontendData";
+import FrontendData from "../pages/Dashboard/FrontendDashboard/Data/FrontendData";
+import FrontendLeads from "../pages/Dashboard/FrontendDashboard/Data/FrontendLeads";
+import FrontendWebsiteIssueReports from "../pages/Dashboard/FrontendDashboard/Data/FrontendWebsiteIssueReports";
 
 export const routes = createBrowserRouter([
   {
@@ -108,6 +110,17 @@ export const routes = createBrowserRouter([
                       {
                         path: "data",
                         element: <FrontendData />,
+                        children: [
+                          {
+                            path: "leads",
+                            index: true,
+                            element: <FrontendLeads />,
+                          },
+                          {
+                            path: "website-issue-reports",
+                            element: <FrontendWebsiteIssueReports />,
+                          },
+                        ],
                       },
                     ],
                   },
