@@ -25,12 +25,9 @@ const WidgetSection = ({
   };
 
   return (
-    <div
-      style={border ? { border: "2px solid #7D7D7E" } : {}}
-      className="h-full rounded-md"
-    >
-      {title && (
-        <div className=" border-b-default border-borderGray p-4 flex justify-between items-center">
+    <div className="py-0">
+       {title && (
+        <div className=" border-default  border-[#7D7D7E] p-4 flex justify-between items-center rounded-t-md">
           <span
             className={`${
               titleFont
@@ -59,6 +56,10 @@ const WidgetSection = ({
           )}
         </div>
       )}
+    <div
+      style={border ? { border: "2px solid #d1d5db", borderTop:'0' } : {}}
+      className="h-full rounded-b-md"
+    >
       <div
         style={{ padding: padding ? "0" : "1rem" }}
         className={`w-full grid gap-4 ${gridClasses[layout]} h-full`}
@@ -67,6 +68,7 @@ const WidgetSection = ({
           <div>{child}</div>
         ))}
       </div>
+    </div>
     </div>
   );
 };

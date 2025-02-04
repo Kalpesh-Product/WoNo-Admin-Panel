@@ -76,6 +76,8 @@ import MeetingReports from "../pages/Meetings/MeetingReports";
 import MeetingFormLayout from "../pages/Meetings/MeetingFormLayout";
 import FrontendLayout from "../pages/Dashboard/FrontendDashboard/FrontendLayout";
 import FrontendData from "../pages/Dashboard/FrontendDashboard/FrontendData";
+import FrontendFinLayout from "../pages/Dashboard/FrontendDashboard/FrontendFinance/FrontendFinLayout";
+import FrontendBudget from "../pages/Dashboard/FrontendDashboard/FrontendFinance/FrontendBudget";
 
 export const routes = createBrowserRouter([
   {
@@ -109,6 +111,16 @@ export const routes = createBrowserRouter([
                         path: "data",
                         element: <FrontendData />,
                       },
+                      {
+                        path:'finance',
+                        element: <FrontendFinLayout />,
+                        children:[
+                          {
+                            path:'budget',
+                            element: <FrontendBudget />
+                          }
+                        ]
+                      }
                     ],
                   },
                   {
