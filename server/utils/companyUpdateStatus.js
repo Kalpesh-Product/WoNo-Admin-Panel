@@ -1,41 +1,42 @@
 const Company = require("../models/Company");
 
 
-async function updateEmployeeTypeStatus (companyId,field,status){
+async function updateEmployeeTypeStatus (companyId,name,status){
 
     const updatedStatus = await Company.findOneAndUpdate(
-      { _id: companyId, "employeeType.name": field },
-      { $set: { "employeeType.$.status": status } }, 
+      { _id: companyId, "employeeTypes.name": name },
+      { $set: { "employeeTypes.$.status": status } }, 
+      { new: true } 
+    );
+
+     return updatedStatus
+  }
+
+async function updateWorkLocationStatus (companyId,name,status){
+ 
+    const updatedStatus = await Company.findOneAndUpdate(
+      { _id: companyId, "workLocations.name": name },
+      { $set: { "workLocations.$.status": status } }, 
       { new: true } 
     );
      return updatedStatus
   }
 
-async function updateWorkLocationStatus (companyId,field,status){
+async function updateLeaveTypeStatus (companyId,name,status){
 
     const updatedStatus = await Company.findOneAndUpdate(
-      { _id: companyId, "workLocation.name": field },
-      { $set: { "workLocation.$.status": status } }, 
+      { _id: companyId, "leaveTypes.name": name },
+      { $set: { "leaveTypes.$.status": status } }, 
       { new: true } 
     );
      return updatedStatus
   }
 
-async function updateLeaveTypeStatus (companyId,field,status){
+  async function updateShiftStatus (companyId,name,status){
 
     const updatedStatus = await Company.findOneAndUpdate(
-      { _id: companyId, "leaveType.name": field },
-      { $set: { "leaveType.$.status": status } }, 
-      { new: true } 
-    );
-     return updatedStatus
-  }
-
-  async function updateShiftStatus (companyId,field,status){
-
-    const updatedStatus = await Company.findOneAndUpdate(
-      { _id: companyId, "shift.name": field },
-      { $set: { "shift.$.status": status } }, 
+      { _id: companyId, "shifts.name": name },
+      { $set: { "shifts.$.status": status } }, 
       { new: true } 
     );
      return updatedStatus

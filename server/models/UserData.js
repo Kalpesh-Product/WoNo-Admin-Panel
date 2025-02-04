@@ -59,6 +59,9 @@ const userDataSchema = new mongoose.Schema({
       ref: "User",
     },
   ],
+  employmentType: {
+    type: String,
+  },
   designation: String,
   refreshToken: String,
 });

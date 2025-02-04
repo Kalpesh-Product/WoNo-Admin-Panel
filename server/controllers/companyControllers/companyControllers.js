@@ -105,7 +105,7 @@ const addCompanyLogo = async (req, res, next) => {
 
     if(!newCompanyLogo){
       return res.status(400).json({
-        message: "Company doesn't exists"
+        message: "Couldn't add company logo"
       });
     }
 
@@ -145,7 +145,7 @@ const addWorkLocation = async (req, res, next) => {
  
     if(!updateWorkLocation){
       return res.status(400).json({
-        message: "Company doesn't exist",
+        message: "Couldn't add work location",
       });
     }
 
@@ -175,11 +175,18 @@ const addLeaveType = async (req, res, next) => {
       });
     }
 
-    await Company.findByIdAndUpdate({_id:companyId},{$push: {
-      leaveType:{
+    const updateLeaveType = await Company.findByIdAndUpdate({_id:companyId},{$push: {
+      leaveTypes:{
         name:leaveType
       }
     }});
+
+    if(!updateLeaveType){
+      return res.status(400).json({
+        message: "Couldn't add leave type",
+      });
+    }
+
     return res.status(200).json({
       message: "Leave type added successfully",
     });
@@ -214,7 +221,7 @@ const addEmployeeType = async (req, res, next) => {
 
     if(!updateEmployeeType){
       return res.status(400).json({
-        message: "Company doesn't exists",
+        message: "Couldn't add employee type",
       });
     }
 
@@ -262,7 +269,7 @@ const addShift = async (req, res, next) => {
 
 const updateActiveStatus = async (req, res, next) => {
 
-  const {status} = req.body
+  const {status,name} = req.body
   const {field} = req.params
   const companyId = req.userData.company
 
@@ -295,11 +302,11 @@ const updateActiveStatus = async (req, res, next) => {
 
     const updatedFunction = updateHandlers[field]
 
-    const updatedStatus = await updatedFunction(companyId,field,status)
+    const updatedStatus = await updatedFunction(companyId,name,status)
 
     if(!updatedStatus){
       return res.status(400).json({
-        message: "Company doesn't exists",
+        message: "Couldn't update status",
       });
     }
 
