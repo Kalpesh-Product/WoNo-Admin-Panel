@@ -84,6 +84,8 @@ import FrontendPayment from "../pages/Dashboard/FrontendDashboard/FrontendFinanc
 import ThemeGrid from "../pages/Dashboard/FrontendDashboard/WebsiteBuilder/ThemeGrid";
 import ViewTheme from "../pages/Dashboard/FrontendDashboard/WebsiteBuilder/ViewTheme";
 import PageDemo from "../pages/Dashboard/FrontendDashboard/WebsiteBuilder/PageDemo";
+import FrontendSettings from "../pages/Dashboard/FrontendDashboard/FrontendSettings/FrontendSettings";
+import FrontendBulkUpload from "../pages/Dashboard/FrontendDashboard/FrontendSettings/BulkUpload";
 
 export const routes = createBrowserRouter([
   {
@@ -137,6 +139,16 @@ export const routes = createBrowserRouter([
                           {
                             path: "website-issue-reports",
                             element: <FrontendWebsiteIssueReports />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "settings",
+                        element: <FrontendSettings />,
+                        children: [
+                          {
+                            path: "bulk-upload",
+                            element: <FrontendBulkUpload />,
                           },
                         ],
                       },

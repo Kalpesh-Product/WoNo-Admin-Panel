@@ -331,7 +331,7 @@ const FrontendDashboard = () => {
         <Card icon={<CgWebsite />} title="New Themes" route={"select-theme"} />,
         <Card icon={<SiCashapp />} title="Finance" route={"finance"} />,
         <Card icon={<SiGoogleadsense />} title="Data" route={"data"} />,
-        <Card icon={<MdMiscellaneousServices />} title="Miscellaneous" />,
+        <Card icon={<MdMiscellaneousServices />} title="Settings" route={"settings"} />,
       ],
     },
     {
