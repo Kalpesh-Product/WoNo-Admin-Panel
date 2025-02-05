@@ -1,4 +1,13 @@
+const sharp = require("sharp");
+const mongoose = require("mongoose");
+const { handleFileUpload } = require("../../config/cloudinaryConfig");
 const Company = require("../../models/Company");
+const {
+  updateWorkLocationStatus,
+  updateEmployeeTypeStatus,
+  updateShiftStatus,
+  updateLeaveTypeStatus,
+} = require("../../utils/companyUpdateStatus");
 
 const addCompany = async (req, res, next) => {
   try {
@@ -14,7 +23,6 @@ const addCompany = async (req, res, next) => {
       linkedinURL,
       employeeType,
     } = req.body;
-
 
     // Validate required fields
     if (
@@ -41,7 +49,6 @@ const addCompany = async (req, res, next) => {
       linkedinURL,
       employeeType,
     });
-    
 
     // Save the company to the database
     await newCompany.save();
@@ -60,115 +67,269 @@ const addCompany = async (req, res, next) => {
 
 const getCompanies = async (req, res, next) => {
   try {
-    const companies = await CompanyData.find();
-    res.status(200).json({
+    const companies = await Company.find();
+    return res.status(200).json({
       message: "Company data fetched",
       companies,
     });
-  } catch(error) { 
-   next(error)
+  } catch (error) {
+    next(error);
   }
-}
+};
+
+const addCompanyLogo = async (req, res, next) => {
+  try {
+    const { company } = req.userData;
+
+    let imageId;
+    let imageUrl;
+
+    if (req.file) {
+      const file = req.file;
+
+      const buffer = await sharp(file.buffer)
+        .resize(800, 800, { fit: "cover" })
+        .webp({ quality: 80 })
+        .toBuffer();
+
+      const base64Image = `data:image/webp;base64,${buffer.toString("base64")}`;
+      const uploadResult = await handleFileUpload(base64Image, "Company-logos");
+
+      imageId = uploadResult.public_id;
+      imageUrl = uploadResult.secure_url;
+    }
+
+    const companyLogo = {
+      logoId: imageId,
+      logoUrl: imageUrl,
+    };
+
+    const newCompanyLogo = await Company.findByIdAndUpdate(
+      { _id: company },
+      { companyLogo },
+      { new: true }
+    );
+
+    if (!newCompanyLogo) {
+      return res.status(400).json({
+        message: "Company doesn't exists",
+      });
+    }
+
+    return res.status(201).json({
+      message: "Logo added successfully",
+    });
+  } catch (error) {
+    console.error("Error adding logo:", error);
+    next(error);
+  }
+};
 
 const addWorkLocation = async (req, res, next) => {
+  const { workLocation } = req.body;
+  const companyId = req.userData.company;
 
-  const {companyId,workLocation} = req.body
   try {
-
-    if(!companyId || !workLocation){
-      res.status(200).json({
+    if (!companyId || !workLocation) {
+      return res.status(400).json({
         message: "All feilds are required",
       });
     }
 
-    await CompanyData.findOneAndUpdate({_id:companyId},{$push: {
-      workLocation:{
-        name:workLocation
-      }
-    }});
+    if (!mongoose.Types.ObjectId.isValid(companyId)) {
+      return res.status(400).json({
+        message: "Invalid companyId provided",
+      });
+    }
 
-    res.status(200).json({
+    const updateWorkLocation = await Company.findByIdAndUpdate(
+      { _id: companyId },
+      {
+        $push: {
+          workLocation: {
+            name: workLocation,
+          },
+        },
+        new: true,
+      }
+    );
+
+    if (!updateWorkLocation) {
+      return res.status(400).json({
+        message: "Company doesn't exist",
+      });
+    }
+
+    return res.status(200).json({
       message: "Work location added successfully",
     });
- 
-  } catch(error) { 
-    next(error)
+  } catch (error) {
+    next(error);
   }
-}
+};
 
 const addLeaveType = async (req, res, next) => {
-
-  const {companyId,leaveType} = req.body
+  const { leaveType } = req.body;
+  const companyId = req.userData.company;
   try {
-
-    if(!companyId || !leaveType){
-      res.status(200).json({
+    if (!companyId || !leaveType) {
+      return res.status(400).json({
         message: "All feilds are required",
       });
     }
 
-    await CompanyData.findOneAndUpdate({_id:companyId},{$push: {
-      leaveType:{
-        name:leaveType.toLowerCase()
+    if (!mongoose.Types.ObjectId.isValid(companyId)) {
+      return res.status(400).json({
+        message: "Invalid companyId provided",
+      });
+    }
+
+    await Company.findByIdAndUpdate(
+      { _id: companyId },
+      {
+        $push: {
+          leaveType: {
+            name: leaveType,
+          },
+        },
       }
-    }});
-    res.status(200).json({
+    );
+    return res.status(200).json({
       message: "Leave type added successfully",
     });
- 
-  } catch(error) { 
-    next(error)
+  } catch (error) {
+    next(error);
   }
-}
+};
+
 const addEmployeeType = async (req, res, next) => {
-
-  const {companyId,employeeType} = req.body
+  const { employeeType } = req.body;
+  const companyId = req.userData.company;
   try {
-
-    if(!companyId || !employeeType){
-      res.status(200).json({
+    if (!companyId || !employeeType) {
+      return res.status(400).json({
         message: "All feilds are required",
       });
     }
 
-    await CompanyData.findOneAndUpdate({_id:companyId},{$push: {
-      employeeType:{
-        name:employeeType.toLowerCase()
+    if (!mongoose.Types.ObjectId.isValid(companyId)) {
+      return res.status(400).json({
+        message: "Invalid companyId provided",
+      });
+    }
+
+    const updateEmployeeType = await Company.findByIdAndUpdate(
+      { _id: companyId },
+      {
+        $push: {
+          employeeType: {
+            name: employeeType,
+          },
+        },
       }
-    }});
-    res.status(200).json({
+    );
+
+    if (!updateEmployeeType) {
+      return res.status(400).json({
+        message: "Company doesn't exists",
+      });
+    }
+
+    return res.status(200).json({
       message: "Employee type added successfully",
     });
- 
-  } catch(error) { 
-    next(error)
+  } catch (error) {
+    next(error);
   }
-}
+};
+
 const addShift = async (req, res, next) => {
-
-  const {companyId,shift} = req.body
   try {
+    const user = req.user;
+    const { shiftName } = req.body;
 
-    if(!companyId || !shift){
-      res.status(200).json({
+    const foundUser = await User.findOne({ _id: user })
+      .select("company")
+      .lean()
+      .exec();
+
+    if (!foundUser) {
+      return res.status(400).json({ message: "user not found" });
+    }
+
+    const company = await Company.findOne({ _id: foundUser.company })
+      .lean()
+      .exec();
+
+    if (!company) {
+      return res.status(400).json({ message: "No such company exists" });
+    }
+
+    await Company.findOneAndUpdate(
+      { _id: foundUser.company },
+      { $push: { shifts: shiftName } }
+    ).exec();
+
+    return res.status(200).json({ message: "work shift added successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateActiveStatus = async (req, res, next) => {
+  const { status } = req.body;
+  const { field } = req.params;
+  const companyId = req.userData.company;
+
+  try {
+    if (!field) {
+      return res.status(400).json({
         message: "All feilds are required",
       });
     }
 
-    await CompanyData.findOneAndUpdate({_id:companyId},{$push: {
-      shift:{
-        name:shift
-      }
-    }});
-    res.status(200).json({
-      message: "Shift added successfully",
+    if (typeof status != "boolean") {
+      return res.status(400).json({
+        message: "Status should be a boolean",
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(companyId)) {
+      return res.status(400).json({ message: "Invalid company ID provided" });
+    }
+
+    const updateHandlers = {
+      workLocations: updateWorkLocationStatus,
+      employeeTypes: updateEmployeeTypeStatus,
+      shifts: updateShiftStatus,
+      leaveTypes: updateLeaveTypeStatus,
+    };
+
+    const updatedFunction = updateHandlers[field];
+
+    const updatedStatus = await updatedFunction(companyId, field, status);
+
+    if (!updatedStatus) {
+      return res.status(400).json({
+        message: "Company doesn't exists",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Status updated successfully",
     });
- 
-  } catch(error) { 
-    next(error)
+  } catch (error) {
+    next(error);
   }
-}
- 
+};
 
-
-module.exports = { addCompany, getCompanies, addWorkLocation,addLeaveType,addEmployeeType,addShift };
+module.exports = {
+  addCompany,
+  addCompanyLogo,
+  getCompanies,
+  addWorkLocation,
+  addLeaveType,
+  addEmployeeType,
+  addShift,
+  updateActiveStatus,
+};

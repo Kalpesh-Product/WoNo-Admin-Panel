@@ -7,6 +7,18 @@ const companySchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  companyLogo: {
+    logoId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    logoUrl: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+  },
   selectedDepartments: [
     {
       department: {
@@ -17,6 +29,46 @@ const companySchema = new mongoose.Schema({
         {
           type: mongoose.Schema.Types.ObjectId,
           ref: "UserData",
+        },
+      ],
+      policies: [
+        {
+          name: {
+            type: String,
+            required: true,
+          },
+          documentLink: {
+            type: String,
+            required: true,
+          },
+          documentId: {
+            type: String,
+            required: true,
+          },
+          isActive: {
+            type: Boolean,
+            default: true,
+          },
+        },
+      ],
+      sop: [
+        {
+          name: {
+            type: String,
+            required: true,
+          },
+          documentLink: {
+            type: String,
+            required: true,
+          },
+          documentId: {
+            type: String,
+            required: true,
+          },
+          isActive: {
+            type: Boolean,
+            default: true,
+          },
         },
       ],
     },
@@ -47,12 +99,95 @@ const companySchema = new mongoose.Schema({
   linkedinURL: {
     type: String,
   },
-  employeeType: [
+  employeeTypes: [
     {
       name: {
         type: String,
       },
       status: {
+        type: Boolean,
+        default: true,
+      },
+    },
+  ],
+  workLocations: [
+    {
+      name: {
+        type: String,
+      },
+      status: {
+        type: Boolean,
+        default: true,
+      },
+    },
+  ],
+  leaveTypes: [
+    {
+      name: {
+        type: String,
+      },
+      status: {
+        type: Boolean,
+        default: true,
+      },
+    },
+  ],
+  shifts: [
+    {
+      type: String,
+    },
+  ],
+  templates: [
+    {
+      name: {
+        type: String,
+        required: true,
+      },
+      documentLink: {
+        type: String,
+        required: true,
+      },
+      documentId: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
+  policies: [
+    {
+      name: {
+        type: String,
+        required: true,
+      },
+      documentLink: {
+        type: String,
+        required: true,
+      },
+      documentId: {
+        type: String,
+        required: true,
+      },
+      isActive: {
+        type: Boolean,
+        default: true,
+      },
+    },
+  ],
+  sop: [
+    {
+      name: {
+        type: String,
+        required: true,
+      },
+      documentLink: {
+        type: String,
+        required: true,
+      },
+      documentId: {
+        type: String,
+        required: true,
+      },
+      isActive: {
         type: Boolean,
         default: true,
       },

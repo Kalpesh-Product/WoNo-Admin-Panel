@@ -20,7 +20,7 @@ const createUser = async (req, res, next) => {
 
     // Check if the employee ID or email is already registered
     const existingUser = await User.findOne({
-      $or: [{ empId }, { email }],
+      $or: [{ company,empId }, { email }],
     }).exec();
     if (existingUser) {
       return res
