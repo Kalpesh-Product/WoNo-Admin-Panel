@@ -46,7 +46,5 @@ router.post(
   uploadDepartmentDocument
 );
 router.get("/get-company-documents/:type", verifyJwt, getCompanyDocuments);
-router.post("/add-template", verifyJwt, upload.single("template"), uploadTemplate);
-router.post("/add-agreement", verifyJwt, upload.single("agreement"), addAgreement);
 
 module.exports = router;
