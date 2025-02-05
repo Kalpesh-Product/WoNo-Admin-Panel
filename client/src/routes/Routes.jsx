@@ -86,6 +86,8 @@ import ViewTheme from "../pages/Dashboard/FrontendDashboard/WebsiteBuilder/ViewT
 import PageDemo from "../pages/Dashboard/FrontendDashboard/WebsiteBuilder/PageDemo";
 import FrontendSettings from "../pages/Dashboard/FrontendDashboard/FrontendSettings/FrontendSettings";
 import FrontendBulkUpload from "../pages/Dashboard/FrontendDashboard/FrontendSettings/BulkUpload";
+import AssetsLayout from "../pages/Assets/AssetsLayout";
+import AssetsDashboard from "../pages/Assets/AssetsDashboard";
 
 export const routes = createBrowserRouter([
   {
@@ -418,6 +420,49 @@ export const routes = createBrowserRouter([
                   {
                     path: "", // Default route for /app/tickets
                     element: <MeetingDashboard />, // Dashboard is rendered by default
+                    index: true,
+                  },
+                  {
+                    path: "book-meeting",
+                    element: <BookMeetings />, // This is your first page
+                  },
+                  {
+                    path: "schedule-meeting",
+                    element: <MeetingFormLayout />, // This is your second page
+                  },
+                  {
+                    path: "manage-meetings",
+                    element: <ManageMeetings />,
+                  },
+                  {
+                    path: "settings",
+                    element: <MeetingSettings />,
+                  },
+                  {
+                    path: "calendar",
+                    element: <MeetingCalendar />,
+                  },
+                  {
+                    path: "reports",
+                    element: <MeetingReports />,
+                  },
+                  {
+                    path: "reviews",
+                    element: <Reviews />,
+                  },
+                  {
+                    path: "settings",
+                    element: <TicketReports />,
+                  },
+                ],
+              },
+              {
+                path: "assets", // Parent path
+                element: <AssetsLayout />, // Parent component for tickets
+                children: [
+                  {
+                    path: "", // Default route for /app/assets
+                    element: <AssetsDashboard />, // Dashboard is rendered by default
                     index: true,
                   },
                   {
