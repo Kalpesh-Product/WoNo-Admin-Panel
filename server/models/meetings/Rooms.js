@@ -50,6 +50,11 @@ const roomSchema = new mongoose.Schema({
       ref: "Asset",
     },
   ],
+  company: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Company",
+  },
+  location: String,
 });
 
 const Room = mongoose.model("Room", roomSchema);
