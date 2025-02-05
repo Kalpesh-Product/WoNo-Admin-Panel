@@ -4,91 +4,83 @@ const Company = require("../../models/Company");
 
 const requestBudget = async (req, res, next) => {
   try {
-    const { expanseName, amount, date } = req.body;
-    const userId = req.user;
+    const { amount, dueDate, expanseName } = req.body;
+    const user = req.user;
+    const { departmentId } = req.params;
 
-    if (!expanseName || !amount || !date) {
-      return res
-        .status(400)
-        .json({ message: "Invalid budget details provided" });
-    }
-
-    // Find the current user and populate role, company, and department
-    const currentUser = await User.findById(userId)
-      .select("role company department")
-      .populate([
-        {
-          path: "role",
-          select: "roleTitle",
-        },
-        {
-          path: "department",
-          select: "name",
-        },
-      ])
+    const foundUser = await User.findOne({ _id: user })
+      .select("company")
       .lean()
       .exec();
 
-    if (!currentUser) {
-      return res.status(404).json({ message: "User not found" });
+    if (!foundUser) {
+      return res.status(401).json({ message: "unauthorized" });
     }
 
-    // Fetch the company and its selected departments
-    const currentUserCompany = await Company.findById(currentUser.company)
+    if (!amount || !dueDate || !expanseName) {
+      return res.status(400).json({ message: "Invalid budget data" });
+    }
+
+    const company = await Company.findOne({ _id: foundUser.company })
       .select("selectedDepartments")
-      .populate({
-        path: "selectedDepartments.department",
-        select: "name",
-      })
+      .populate([{ path: "selectedDepartments.department", select: "name" }])
       .lean()
       .exec();
 
-    if (!currentUserCompany) {
-      return res.status(404).json({ message: "Company not found" });
+    if (!company) {
+      return res.status(404).json({ message: "company not found" });
     }
 
-    // Check if the user is an admin in any department
-    let adminDepartments = [];
+    const departmentExists = company.selectedDepartments.find(
+      (dept) => dept.department._id.toString() === departmentId
+    );
 
-    for (let dept of currentUserCompany.selectedDepartments) {
-      if (
-        dept.admin.some((adminId) => adminId.toString() === userId.toString())
-      ) {
-        adminDepartments.push(dept.department._id);
-      }
+    if (!departmentExists) {
+      res
+        .status(400)
+        .json({ message: "You haven't selected the this department" });
     }
 
-    if (adminDepartments.length === 0) {
-      return res
-        .status(403)
-        .json({ message: "User is not an admin in any department" });
-    }
+    const newBudgetRequest = new Budget({
+      expanseName,
+      department: departmentId,
+      company: company._id,
+      dueDate,
+      amount,
+    });
 
-    // Create a new budget request for the admin's department(s)
-    let newBudgets = [];
-
-    for (let deptId of adminDepartments) {
-      let newBudget = new Budget({
-        expanseName,
-        amount,
-        dueDate: date,
-        department: deptId,
-        company: currentUser.company,
-      });
-
-      await newBudget.save();
-      newBudgets.push(newBudget);
-    }
-
-    return res
-      .status(201)
-      .json({
-        message: "New budget requested successfully",
-        budgets: newBudgets,
-      });
+    await newBudgetRequest.save();
+    return res.status(200).json({
+      message: `budget requested for ${departmentExists.department.name}`,
+    });
   } catch (error) {
     next(error);
   }
 };
 
-module.exports = requestBudget;
+const fetchBudget = async (req, res, next) => {
+  try {
+    const departmentId = req.params;
+    const user = req.user;
+
+    const foundUser = await User.findOne({ _id: user })
+      .select("company")
+      .populate([{ path: "company", select: "companyName" }])
+      .lean()
+      .exec();
+
+    if (!foundUser) {
+      return res.status(400).json({ message: "No user found" });
+    }
+
+    const allBudgets = await Budget.find({ company: foundUser.company })
+      .lean()
+      .exec();
+
+    res.status(200).json({ allBudgets });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { requestBudget, fetchBudget };

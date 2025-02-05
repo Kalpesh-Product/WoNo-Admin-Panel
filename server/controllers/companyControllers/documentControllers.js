@@ -3,11 +3,17 @@ const User = require("../../models/UserData");
 const { handlePdfUpload } = require("../../config/cloudinaryConfig");
 const { PDFDocument } = require("pdf-lib");
 
-const uploadTemplate = async (req, res, next) => {
+const uploadCompanyDocument = async (req, res, next) => {
   try {
+    const { documentName, type } = req.body;
     const file = req.file;
     const user = req.user;
-    const { documentName } = req.body;
+
+    if (!["template", "sop", "policy"].includes(type)) {
+      throw new Error(
+        "Invalid document type. Allowed values: template, sop, policy"
+      );
+    }
 
     const foundUser = await User.findOne({ _id: user })
       .select("company")
@@ -15,24 +21,31 @@ const uploadTemplate = async (req, res, next) => {
       .lean()
       .exec();
 
+    if (!foundUser || !foundUser.company) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+
     const pdfDoc = await PDFDocument.load(file.buffer);
     pdfDoc.setTitle(file.originalname?.split(".")[0]);
     const processedBuffer = await pdfDoc.save();
 
     const response = await handlePdfUpload(
       processedBuffer,
-      `${foundUser.company.companyName}/templates`
+      `${foundUser.company.companyName}/${type}s`
     );
 
     if (!response.public_id) {
-      throw new Error("falied to upload document");
+      throw new Error("Failed to upload document");
     }
+
+    const updateField =
+      type === "template" ? "templates" : type === "sop" ? "sop" : "policies";
 
     await Company.findOneAndUpdate(
       { _id: foundUser.company._id },
       {
         $push: {
-          templates: {
+          [updateField]: {
             name: documentName,
             documentLink: response.secure_url,
             documentId: response.public_id,
@@ -40,61 +53,50 @@ const uploadTemplate = async (req, res, next) => {
         },
       }
     ).exec();
-    return res.status(200).json({ message: "Template uploaded successfully" });
+
+    return res
+      .status(200)
+      .json({ message: `${type.toUpperCase()} uploaded successfully` });
   } catch (error) {
     next(error);
   }
 };
 
-const addSop = async (req, res, next) => {
+const getCompanyDocuments = async (req, res, next) => {
   try {
-    const { sopName } = req.body;
-    const file = req.file;
+    const { type } = req.params;
     const user = req.user;
 
-    console.log(file)
+    if (!["templates", "sop", "policies"].includes(type)) {
+      return res.status(400).json({ message: "Invalid document type" });
+    }
+
     const foundUser = await User.findOne({ _id: user })
       .select("company")
-      .populate([{ path: "company", select: "companyName" }])
+      .populate(`company`, type)
       .lean()
       .exec();
 
-    const pdfDoc = await PDFDocument.load(file.buffer);
-    pdfDoc.setTitle(file.originalname?.split(".")[0]);
-    const processedBuffer = await pdfDoc.save();
-
-    const response = await handlePdfUpload(
-      processedBuffer,
-      `${foundUser.company.companyName}/SOP`
-    );
-
-    if (!response.public_id) {
-      throw new Error("falied to upload document");
+    if (!foundUser || !foundUser.company) {
+      return res.status(404).json({ message: "Company not found" });
     }
 
-    await Company.findOneAndUpdate(
-      { _id: foundUser.company._id },
-      {
-        $push: {
-          sop: {
-            name: sopName,
-            documentLink: response.secure_url,
-            documentId: response.public_id,
-          },
-        },
-      }
-    ).exec();
-    return res.status(200).json({ message: "SOP uploaded successfully" });
+    return res.status(200).json({ [type]: foundUser.company[type] || [] });
   } catch (error) {
     next(error);
   }
 };
 
-const addPolicy = async (req, res, next) => {
+const uploadDepartmentDocument = async (req, res, next) => {
   try {
-    const { policyName } = req.body;
+    const { documentName, type } = req.body;
     const file = req.file;
     const user = req.user;
+    const { departmentId } = req.params;
+
+    if (!["sop", "policy"].includes(type)) {
+      throw new Error("Invalid document type. Allowed values: sop, policy");
+    }
 
     const foundUser = await User.findOne({ _id: user })
       .select("company")
@@ -102,81 +104,68 @@ const addPolicy = async (req, res, next) => {
       .lean()
       .exec();
 
+    const company = await Company.findOne({ _id: foundUser.company._id })
+      .select("selectedDepartments")
+      .populate([{ path: "selectedDepartments.department", select: "name" }]);
+
+    const department = company.selectedDepartments.find(
+      (dept) => dept.department._id.toString() === departmentId
+    );
+
+    if (!department) {
+      throw new Error("Department not found in selectedDepartments.");
+    }
+
     const pdfDoc = await PDFDocument.load(file.buffer);
     pdfDoc.setTitle(file.originalname?.split(".")[0]);
     const processedBuffer = await pdfDoc.save();
 
     const response = await handlePdfUpload(
       processedBuffer,
-      `${foundUser.company.companyName}/policies`
+      `${foundUser.company.companyName}/departments/${
+        department.department.name
+      }/documents/${type}`
     );
 
     if (!response.public_id) {
-      throw new Error("falied to upload document");
+      throw new Error("Failed to upload document");
     }
 
+    const updateField =
+      type === "sop"
+        ? "selectedDepartments.$.sop"
+        : "selectedDepartments.$.policies";
+
     await Company.findOneAndUpdate(
-      { _id: foundUser.company._id },
+      {
+        _id: foundUser.company._id,
+        "selectedDepartments.department": departmentId,
+      },
       {
         $push: {
-          policies: {
-            name: policyName,
+          [updateField]: {
+            name: documentName,
             documentLink: response.secure_url,
             documentId: response.public_id,
+            isActive: true,
           },
         },
-      }
+      },
+      { new: true }
     ).exec();
-    return res.status(200).json({ message: "policy uploaded successfully" });
+
+    return res.status(200).json({
+      message: `${type.toUpperCase()} uploaded successfully for ${
+        department.department.name
+      } department`,
+    });
   } catch (error) {
     next(error);
   }
 };
 
-const addAgreement = async (req, res, next) => {
-  try {
-    const { agreementName } = req.body;
-    const file = req.file;
-    const user = req.user;
- 
-    console.log(agreementName)
-    const foundUser = await User.findOne({ _id: user })
-      .select("company")
-      .populate([{ path: "company", select: "companyName" }])
-      .lean()
-      .exec();
-
-    const pdfDoc = await PDFDocument.load(file.buffer);
-     
-    pdfDoc.setTitle(file.originalname?.split(".")[0]);
-    console.log(file.originalname?.split(".")[0])
-    const processedBuffer = await pdfDoc.save();
-
-    const response = await handlePdfUpload(
-      processedBuffer,
-      `${foundUser.company.companyName}/agreements`
-    );
-
-    if (!response.public_id) {
-      throw new Error("falied to upload document");
-    }
-
-    await Company.findOneAndUpdate(
-      { _id: foundUser.company._id },
-      {
-        $push: {
-          agreements: {
-            name: agreementName,
-            documentLink: response.secure_url,
-            documentId: response.public_id,
-          },
-        },
-      }
-    ).exec();
-    return res.status(200).json({ message: "Agreement uploaded successfully" });
-  } catch (error) {
-    next(error);
-  }
+module.exports = {
+  uploadCompanyDocument,
+  getCompanyDocuments,
+  uploadDepartmentDocument,
 };
-
-module.exports = { uploadTemplate, addPolicy, addSop, addAgreement };

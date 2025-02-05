@@ -74,9 +74,8 @@ const getCompanies = async (req, res, next) => {
 
 const addCompanyLogo = async (req, res, next) => {
   try {
-    
-    const {company} = req.userData
-    
+    const { company } = req.userData;
+
     let imageId;
     let imageUrl;
 
@@ -97,19 +96,23 @@ const addCompanyLogo = async (req, res, next) => {
 
     const companyLogo = {
       logoId: imageId,
-      logoUrl: imageUrl
-    }
-      
-    const newCompanyLogo = await Company.findByIdAndUpdate({_id:company},{companyLogo},{new:true})
+      logoUrl: imageUrl,
+    };
 
-    if(!newCompanyLogo){
+    const newCompanyLogo = await Company.findByIdAndUpdate(
+      { _id: company },
+      { companyLogo },
+      { new: true }
+    );
+
+    if (!newCompanyLogo) {
       return res.status(400).json({
         message: "Couldn't add company logo"
       });
     }
 
     return res.status(201).json({
-      message: "Logo added successfully"
+      message: "Logo added successfully",
     });
   } catch (error) {
     console.error("Error adding logo:", error);
@@ -131,7 +134,7 @@ const getCompanyLogo = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-}
+};
 
 const getCompanyData = async (req, res, next) => {
  
@@ -177,37 +180,34 @@ const updateActiveStatus = async (req, res, next) => {
   const companyId = req.userData.company
 
   try {
-
-    if(!field){
+    if (!field) {
       return res.status(400).json({
         message: "All feilds are required",
       });
     }
-     
-    if(typeof status != 'boolean'){
+
+    if (typeof status != "boolean") {
       return res.status(400).json({
         message: "Status should be a boolean",
       });
     }
 
-     if (!mongoose.Types.ObjectId.isValid(companyId)) {
-          return res
-            .status(400)
-            .json({ message: "Invalid company ID provided" });
-        }
+    if (!mongoose.Types.ObjectId.isValid(companyId)) {
+      return res.status(400).json({ message: "Invalid company ID provided" });
+    }
 
     const updateHandlers = {
       workLocations: updateWorkLocationStatus,
       employeeTypes: UpdateEmployeeTypeStatus,
       shifts: updateShiftStatus,
-      leaveTypes: updateLeaveTypeStatus
-    }
+      leaveTypes: updateLeaveTypeStatus,
+    };
 
-    const updatedFunction = updateHandlers[field]
+    const updatedFunction = updateHandlers[field];
 
     const updatedStatus = await updatedFunction(companyId,name,status)
 
-    if(!updatedStatus){
+    if (!updatedStatus) {
       return res.status(400).json({
         message: "Couldn't update status",
       });
@@ -216,11 +216,9 @@ const updateActiveStatus = async (req, res, next) => {
     return res.status(200).json({
       message: "Status updated successfully",
     });
- 
-  } catch(error) { 
-    next(error)
+  } catch (error) {
+    next(error);
   }
-}
-
+};
 
 module.exports = { addCompany,addCompanyLogo, getCompanies, updateActiveStatus, getCompanyData, getCompanyLogo };
