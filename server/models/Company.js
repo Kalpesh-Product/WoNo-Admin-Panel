@@ -68,10 +68,19 @@ const companySchema = new mongoose.Schema({
         type: Boolean,
         default: true,
       },
-      leavesCount: {
-        type: Number,
-        default: 0
+      leavesCount: [
+       {
+        leaveType:{
+         name:{
+          type: String,
+         },
+         count:{
+          type: Number,
+          default: 0
+         }
+        },
       }
+      ],
     },
   ],
   workLocations: [

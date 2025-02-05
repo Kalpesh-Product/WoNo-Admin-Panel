@@ -36,18 +36,32 @@ const requestLeave = async (req, res, next) => {
 
     const user = await UserData.findById({_id: loggedInUser}).populate({path: "company", select: "employeeTypes"})
 
-    const leaves = await Leave.find({takenBy: loggedInUser})
+    const leaves = await Leave.find({takenBy: loggedInUser,leaveType})
 
     if(leaves){
-       const leavesCount = leaves.length
-       const employementType = user.employmentType
 
-       const grantedLeaves  = user.company.employeeTypes.find((type)=> type.name === employementType)
+       const singleLeaves = leaves.filter((leave)=> leave.leavePeriod === "Single")
+       const singleLeaveHours = singleLeaves.length * 9
+      
+       const partialLeaveHours = leaves
+       .filter((leave)=> leave.leavePeriod === "Partial")
+       .reduce((acc,leave)=> acc + leave.hours,0) 
+
+       console.log('single',singleLeaveHours)
+       console.log('partialLeaveHours',partialLeaveHours)
+
+       const grantedLeaves  = user.employeeType.leavesCount.find((leave)=> {
+        return leave.leaveType.toLowerCase() === leaveType.toLowerCase()
+       })
+
+       const grantedLeaveHours = grantedLeaves.count * 9
+       const takenLeaveHours = singleLeaveHours + partialLeaveHours
+       console.log('grantedLeaveHours',grantedLeaveHours)
+       console.log('taken',takenLeaveHours)
        
-       if(leavesCount > grantedLeaves.leavesCount){
+       if(takenLeaveHours > grantedLeaveHours){
         return res.status(400).json({message: "Can't request more leaves"})
        }
-
     }
 
     const noOfDays = Math.abs((currDate.getTime() - startDate.getTime() ) / (1000 * 60 * 60 * 24));

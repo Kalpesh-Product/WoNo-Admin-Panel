@@ -1,15 +1,15 @@
 const Company = require("../models/Company");
 
 
-async function updateEmployeeTypeStatus (companyId,name,status){
-
+async function UpdateEmployeeTypeStatus (companyId,name,status){
+ 
     const updatedStatus = await Company.findOneAndUpdate(
       { _id: companyId, "employeeTypes.name": name },
       { $set: { "employeeTypes.$.status": status } }, 
       { new: true } 
     );
-
-     return updatedStatus
+    return updatedStatus
+  
   }
 
 async function updateWorkLocationStatus (companyId,name,status){
@@ -19,7 +19,9 @@ async function updateWorkLocationStatus (companyId,name,status){
       { $set: { "workLocations.$.status": status } }, 
       { new: true } 
     );
-     return updatedStatus
+
+    return updatedStatus
+  
   }
 
 async function updateLeaveTypeStatus (companyId,name,status){
@@ -41,5 +43,6 @@ async function updateLeaveTypeStatus (companyId,name,status){
     );
      return updatedStatus
   }
+ 
 
-  module.exports = {updateEmployeeTypeStatus,updateWorkLocationStatus,updateLeaveTypeStatus,updateShiftStatus}
+  module.exports = {UpdateEmployeeTypeStatus,updateWorkLocationStatus,updateLeaveTypeStatus,updateShiftStatus}
