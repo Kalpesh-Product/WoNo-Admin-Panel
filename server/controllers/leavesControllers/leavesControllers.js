@@ -47,17 +47,12 @@ const requestLeave = async (req, res, next) => {
        .filter((leave)=> leave.leavePeriod === "Partial")
        .reduce((acc,leave)=> acc + leave.hours,0) 
 
-       console.log('single',singleLeaveHours)
-       console.log('partialLeaveHours',partialLeaveHours)
-
        const grantedLeaves  = user.employeeType.leavesCount.find((leave)=> {
         return leave.leaveType.toLowerCase() === leaveType.toLowerCase()
        })
 
        const grantedLeaveHours = grantedLeaves.count * 9
        const takenLeaveHours = singleLeaveHours + partialLeaveHours
-       console.log('grantedLeaveHours',grantedLeaveHours)
-       console.log('taken',takenLeaveHours)
        
        if(takenLeaveHours > grantedLeaveHours){
         return res.status(400).json({message: "Can't request more leaves"})
@@ -68,7 +63,6 @@ const requestLeave = async (req, res, next) => {
   
     let updatedLeaveType = ""
     if(leaveType === "Privileged Leave" && noOfDays < 7){
-      console.log(noOfDays)
       updatedLeaveType = "Abrupt Leave"
     }
 
@@ -95,10 +89,9 @@ const requestLeave = async (req, res, next) => {
 const fetchAllLeaves = async (req, res, next) => {
   try {
 
-    const user = req.user
-    const loggedInUser = await UserData.findOne({_id:user}).select("company");
-
-    const leaves = await Leave.find();
+    const user = req.userData.userId
+   
+    const leaves = await Leave.find({takenBy:user});
     
      if(!leaves || leaves.length === 0){
       return res.status(204).json({message:"No leaves found"}) 
@@ -114,25 +107,17 @@ const fetchAllLeaves = async (req, res, next) => {
 const fetchLeavesBeforeToday = async (req, res, next) => {
   try {
      
-    const user = req.user
+    const user = req.userData.userId
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const loggedInUser = await UserData.findOne({ _id:user}).select("company");
-
-      if (!loggedInUser) {
-        return res.sendStatus(403) 
-      }
-
     const leavesBeforeToday = await Leave.find({
-      fromDate: { $lt: today }
+      fromDate: { $lt: today },takenBy:user
     });
 
     if(!leavesBeforeToday){
-      return res.status(204).json({message:"No leaves exists"}) 
+      return res.status(204).json({message:"No leaves found"}) 
     }
-
-    console.log(leavesBeforeToday)
 
     return res.status(200).json(leavesBeforeToday);
   } catch (error) {

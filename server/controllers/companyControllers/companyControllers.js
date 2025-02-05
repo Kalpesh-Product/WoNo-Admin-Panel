@@ -115,7 +115,6 @@ const addCompanyLogo = async (req, res, next) => {
       message: "Logo added successfully",
     });
   } catch (error) {
-    console.error("Error adding logo:", error);
     next(error);
   }
 };
