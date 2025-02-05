@@ -10,6 +10,22 @@ const meetingSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Room",
     },
+    startDate: {
+      type: Date,
+      required: true,
+    },
+    endDate: {
+      type: Date,
+      required: true,
+    },
+    startTime: {
+      type: Date,
+      required: true,
+    },
+    endTime: {
+      type: Date,
+      required: true,
+    },
     meetingType: {
       type: String,
       enum: ["Internal", "External"],
@@ -31,10 +47,18 @@ const meetingSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    endTime: {
-      type: Date,
-      required: true,
+    status: {
+      type: String,
+      default: "Upcoming",
+      enum: ["Upcoming","Ongoing","Completed","Extended","Cancelled"]
     },
+    company: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Company",
+    },
+    location: {
+        type: String,
+    }
   },
   { timestamps: true }
 );
