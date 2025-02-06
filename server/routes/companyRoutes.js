@@ -15,7 +15,6 @@ const {
   uploadCompanyDocument,
   getCompanyDocuments,
   uploadDepartmentDocument,
-  addAgreement,
 } = require("../controllers/companyControllers/documentControllers");
 const { addEmployeeType } = require("../controllers/companyControllers/employeeTypeControllers");
 const { addLeaveType } = require("../controllers/companyControllers/leaveTypeControllers");
@@ -24,6 +23,7 @@ const { addWorkLocation } = require("../controllers/companyControllers/workLocat
 
 router.post("/create-company", addCompany);
 router.get("/get-companies", getCompanies);
+
 router.post("/add-employee-type", addEmployeeType);
 router.post("/add-leave-type", addLeaveType);
 router.post("/add-work-location", addWorkLocation);

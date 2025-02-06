@@ -1,4 +1,4 @@
-const Meeting = require("../../models/Meetings");
+const Meeting = require("../../models/meetings/Meetings");
 const ExternalClient = require("../../models/meetings/ExternalClients");
 const User = require("../../models/User");
 const Room = require("../../models/User");

@@ -6,7 +6,7 @@ const roomSchema = new mongoose.Schema({
     unique: true,
     required: true,
   },
-  roomLocation: {
+  location: {
     name: {
       type: String,
     },
@@ -15,10 +15,6 @@ const roomSchema = new mongoose.Schema({
       default: "Available",
       enum: ["Available", "Unavailable"]
     },
-  },
-  company: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Company"
   },
   name: {
     type: String,
@@ -54,7 +50,6 @@ const roomSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Company",
   },
-  location: String,
 });
 
 const Room = mongoose.model("Room", roomSchema);

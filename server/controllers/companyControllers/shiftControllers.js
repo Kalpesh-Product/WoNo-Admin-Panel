@@ -1,6 +1,6 @@
 
 const Company = require("../../models/Company");
-const mongoose = require("mongoose");
+const User = require("../../models/User");
 
 const addShift = async (req, res, next) => {
     try {
