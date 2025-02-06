@@ -62,7 +62,7 @@ const Compliances = () => {
           },
           "& .Mui-selected": {
             backgroundColor: "#1E3D73",
-            color: "white",
+            color: "#ffff",
           },
           "& .MuiTabs-scrollButtons": {
             "&.Mui-disabled": { opacity: 0.3 }, // Style disabled scroll buttons

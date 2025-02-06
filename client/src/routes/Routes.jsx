@@ -88,6 +88,11 @@ import FrontendSettings from "../pages/Dashboard/FrontendDashboard/FrontendSetti
 import FrontendBulkUpload from "../pages/Dashboard/FrontendDashboard/FrontendSettings/BulkUpload";
 import AssetsLayout from "../pages/Assets/AssetsLayout";
 import AssetsDashboard from "../pages/Assets/AssetsDashboard";
+import AssignAssets from "../pages/Assets/ManageAssets/AssignAssets";
+import ManageAssets from "../pages/Assets/ManageAssets/ManageAssets";
+import AssignedAssets from "../pages/Assets/ManageAssets/AssignedAssets";
+import Approvals from "../pages/Assets/ManageAssets/Approvals";
+import AssetReports from "../pages/Assets/Reports/AssetReports";
 
 export const routes = createBrowserRouter([
   {
@@ -474,8 +479,22 @@ export const routes = createBrowserRouter([
                     element: <MeetingFormLayout />, // This is your second page
                   },
                   {
-                    path: "manage-meetings",
-                    element: <ManageMeetings />,
+                    path: "manage-assets",
+                    element: <ManageAssets />,
+                    children:[
+                      {
+                        path:'assign-assets',
+                        element:<AssignAssets />
+                      },
+                      {
+                        path:'assigned-assets',
+                        element:<AssignedAssets />
+                      },
+                      {
+                        path:'approvals',
+                        element:<Approvals />
+                      },
+                    ]
                   },
                   {
                     path: "settings",
@@ -487,7 +506,7 @@ export const routes = createBrowserRouter([
                   },
                   {
                     path: "reports",
-                    element: <MeetingReports />,
+                    element: <AssetReports />,
                   },
                   {
                     path: "reviews",

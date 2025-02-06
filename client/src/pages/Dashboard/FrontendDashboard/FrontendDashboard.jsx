@@ -13,8 +13,10 @@ import { MdMiscellaneousServices } from "react-icons/md";
 import BarGraph from "../../../components/graphs/BarGraph";
 import PieChartMui from "../../../components/graphs/PieChartMui";
 import LineGraph from "../../../components/graphs/LineGraph";
+import PrimaryButton from "../../../components/PrimaryButton";
 
 const FrontendDashboard = () => {
+
   // Data and calculations
   const utilisedData = [125, 150, 99, 85, 70, 50, 80, 95, 100, 65, 50, 120];
   const defaultData = utilisedData.map((value) =>
@@ -374,6 +376,7 @@ const FrontendDashboard = () => {
   return (
     <div>
       {techWidgets.map((section, index) => (
+       
         <WidgetSection key={index} layout={section?.layout}>
           {section?.widgets}
         </WidgetSection>

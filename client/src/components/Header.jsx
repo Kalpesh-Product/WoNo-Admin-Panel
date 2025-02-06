@@ -50,7 +50,7 @@ const Header = () => {
       <div className="flex w-full justify-between gap-x-10 items-center p-2">
         <div>
           <div>
-            <div className={`w-40 flex items-center gap-10 h-full pl-4`}>
+            <div className={`w-48 flex items-center gap-16 h-full pl-4`}>
               <img
                 onClick={() => navigate("dashboard/frontend-dashboard")}
                 className="w-[70%] h-full object-contain cursor-pointer"

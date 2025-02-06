@@ -48,20 +48,26 @@ const AgTable = React.memo(
     };
 
     // Handle search input changes
-    const handleSearch = (event) => {
-      const query = event.target.value.toLowerCase();
-      setSearchQuery(query);
+// Handle search input changes (Search in all columns)
+const handleSearch = (event) => {
+  const query = event.target.value.toLowerCase();
+  setSearchQuery(query);
 
-      const fieldName = getFieldFromHeaderName(searchColumn);
-      if (query && fieldName) {
-        const filtered = data.filter((row) =>
-          row[fieldName]?.toString().toLowerCase().includes(query)
-        );
-        setFilteredData(filtered);
-      } else {
-        setFilteredData(data);
-      }
-    };
+  if (!query) {
+    setFilteredData(data);
+    return;
+  }
+
+  // Filter across all columns
+  const filtered = data.filter((row) =>
+    Object.values(row).some((value) =>
+      value?.toString().toLowerCase().includes(query)
+    )
+  );
+
+  setFilteredData(filtered);
+};
+
 
     // Handle column filter value changes
     const handleFilterChange = (field, value) => {
@@ -87,19 +93,19 @@ const AgTable = React.memo(
     };
 
     return (
-      <div className="py-4 border-b-[1px] border-borderGray">
+      <div className="border-b-[1px] border-borderGray">
         <div className="flex justify-between items-center py-2">
           {/* Search Field */}
           {search && (
             <div>
               <TextField
-                label={`Search by ${searchColumn}`}
+                label={`Search`}
                 variant="outlined"
                 size="small"
                 sx={{maxWidth:'25rem'}}
                 value={searchQuery}
                 onChange={handleSearch}
-                placeholder={`${searchColumn}`}
+                placeholder={`search`}
                 slotProps={{
                   input: {
                     disableUnderline: true,

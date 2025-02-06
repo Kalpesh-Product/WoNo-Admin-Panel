@@ -13,6 +13,7 @@ const WidgetSection = ({
   buttonTitle,
   handleClick,
   titleFont,
+  fun
 }) => {
   // Tailwind grid classes for different layouts
   const gridClasses = {
@@ -25,7 +26,7 @@ const WidgetSection = ({
   };
 
   return (
-    <div className="py-0">
+    <div className="py-0 motion-preset-slide-up-sm">
        {title && (
         <div className=" border-default  border-[#7D7D7E] p-4 flex justify-between items-center rounded-t-md">
           <span
@@ -62,7 +63,7 @@ const WidgetSection = ({
     >
       <div
         style={{ padding: padding ? "0" : "1rem" }}
-        className={`w-full grid gap-4 ${gridClasses[layout]} h-full`}
+        className={`w-full grid gap-4 ${gridClasses[layout]} h-full py-4`}
       >
         {React.Children.map(children, (child) => (
           <div>{child}</div>

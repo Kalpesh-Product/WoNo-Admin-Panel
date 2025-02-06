@@ -27,7 +27,7 @@ const FrontendData = () => {
   );
 
   return (
-    <div className="p-4">
+    <div>
       <Tabs
         value={activeTab}
         variant="fullWidth"
