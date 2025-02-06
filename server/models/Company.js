@@ -108,6 +108,19 @@ const companySchema = new mongoose.Schema({
         type: Boolean,
         default: true,
       },
+      leavesCount: [
+       {
+        leaveType:{
+         name:{
+          type: String,
+         },
+         count:{
+          type: Number,
+          default: 0
+         }
+        },
+      }
+      ],
     },
   ],
   workLocations: [
@@ -174,6 +187,26 @@ const companySchema = new mongoose.Schema({
     },
   ],
   sop: [
+    {
+      name: {
+        type: String,
+        required: true,
+      },
+      documentLink: {
+        type: String,
+        required: true,
+      },
+      documentId: {
+        type: String,
+        required: true,
+      },
+      isActive: {
+        type: Boolean,
+        default: true,
+      },
+    },
+  ],
+  agreements: [
     {
       name: {
         type: String,

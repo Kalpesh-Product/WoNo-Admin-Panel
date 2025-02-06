@@ -29,7 +29,7 @@ const leaveSchema = new mongoose.Schema(
       required: true,
     },
     hours: {
-      type: String,
+      type: Number,
       required: true,
     },
     description: {
@@ -41,6 +41,10 @@ const leaveSchema = new mongoose.Schema(
       default: "Pending",
     },
     approvedBy: {
+      type:mongoose.Schema.Types.ObjectId,
+      ref:"User",
+    },
+    rejectedBy: {
       type:mongoose.Schema.Types.ObjectId,
       ref:"User",
     },
