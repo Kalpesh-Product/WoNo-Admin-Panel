@@ -6,7 +6,7 @@ import { blue } from "@mui/material/colors";
 
 const MuiModal = ({ open, onClose, title, children, headerBackground,btnTitle }) => {
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal open={open} onClose={onClose} className="motion-preset-fade-md">
       <Box
         sx={{
           position: "absolute",

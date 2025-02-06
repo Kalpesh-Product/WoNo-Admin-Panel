@@ -62,9 +62,9 @@ import HolidaysEvents from "../pages/Dashboard/HrDashboard/Complaince/HoildaysEv
 import ViewVendors from "../pages/Dashboard/HrDashboard/Complaince/ViewVendors";
 import HrPayroll from "../pages/Dashboard/HrDashboard/Finance/HrPayroll";
 import ViewPayroll from "../pages/Dashboard/HrDashboard/Finance/ViewPayroll";
-import HrReports from "../pages/Dashboard/HrDashboard/Data/Reports"
+import HrReports from "../pages/Dashboard/HrDashboard/Data/Reports";
 import BulkUpload from "../pages/Dashboard/HrDashboard/HrSettings/BulkUpload";
-import ComapanyHandbook from '../pages/Dashboard/HrDashboard/Complaince/CompanyHandbook'
+import ComapanyHandbook from "../pages/Dashboard/HrDashboard/Complaince/CompanyHandbook";
 import MeetingLayout from "../pages/Meetings/MeetingLayout";
 import MeetingDashboard from "../pages/Meetings/MeetingDashboard";
 import BookMeetings from "../pages/Meetings/BookMeetings";
@@ -74,13 +74,32 @@ import Reviews from "../pages/Meetings/Reviews";
 import MeetingCalendar from "../pages/Meetings/Calendar";
 import MeetingReports from "../pages/Meetings/MeetingReports";
 import MeetingFormLayout from "../pages/Meetings/MeetingFormLayout";
+import FrontendLayout from "../pages/Dashboard/FrontendDashboard/FrontendLayout";
+import FrontendData from "../pages/Dashboard/FrontendDashboard/Data/FrontendData";
+import FrontendLeads from "../pages/Dashboard/FrontendDashboard/Data/FrontendLeads";
+import FrontendWebsiteIssueReports from "../pages/Dashboard/FrontendDashboard/Data/FrontendWebsiteIssueReports";
+import FrontendFinLayout from "../pages/Dashboard/FrontendDashboard/FrontendFinance/FrontendFinLayout";
+import FrontendBudget from "../pages/Dashboard/FrontendDashboard/FrontendFinance/FrontendBudget";
+import FrontendPayment from "../pages/Dashboard/FrontendDashboard/FrontendFinance/FrontendPayment";
+import ThemeGrid from "../pages/Dashboard/FrontendDashboard/WebsiteBuilder/ThemeGrid";
+import ViewTheme from "../pages/Dashboard/FrontendDashboard/WebsiteBuilder/ViewTheme";
+import PageDemo from "../pages/Dashboard/FrontendDashboard/WebsiteBuilder/PageDemo";
+import FrontendSettings from "../pages/Dashboard/FrontendDashboard/FrontendSettings/FrontendSettings";
+import FrontendBulkUpload from "../pages/Dashboard/FrontendDashboard/FrontendSettings/BulkUpload";
+import AssetsLayout from "../pages/Assets/AssetsLayout";
+import AssetsDashboard from "../pages/Assets/AssetsDashboard";
+import AssignAssets from "../pages/Assets/ManageAssets/AssignAssets";
+import ManageAssets from "../pages/Assets/ManageAssets/ManageAssets";
+import AssignedAssets from "../pages/Assets/ManageAssets/AssignedAssets";
+import Approvals from "../pages/Assets/ManageAssets/Approvals";
+import AssetReports from "../pages/Assets/Reports/AssetReports";
 
 export const routes = createBrowserRouter([
   {
     path: "/",
     element: <LoginPage />,
   },
-  
+
   {
     element: <PersistLogin />,
     children: [
@@ -97,8 +116,64 @@ export const routes = createBrowserRouter([
                 children: [
                   {
                     path: "frontend-dashboard",
-                    element: <FrontendDashboard />,
-                    index: true,
+                    element: <FrontendLayout />,
+                    children: [
+                      {
+                        path: "",
+                        element: <FrontendDashboard />,
+                      },
+                      {
+                        path: "select-theme",
+                        element: <ThemeGrid />,
+                      },
+                      {
+                        path: "view-theme",
+                        element: <ViewTheme />,
+                      },
+                      {
+                        path: "live-demo",
+                        element: <PageDemo />,
+                      },
+                      {
+                        path: "data",
+                        element: <FrontendData />,
+                        children: [
+                          {
+                            path: "leads",
+                            index: true,
+                            element: <FrontendLeads />,
+                          },
+                          {
+                            path: "website-issue-reports",
+                            element: <FrontendWebsiteIssueReports />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "settings",
+                        element: <FrontendSettings />,
+                        children: [
+                          {
+                            path: "bulk-upload",
+                            element: <FrontendBulkUpload />,
+                          },
+                        ],
+                      },
+                      {
+                        path:'finance',
+                        element: <FrontendFinLayout />,
+                        children:[
+                          {
+                            path:'budget',
+                            element: <FrontendBudget />
+                          },
+                          {
+                            path:'payment-schedule',
+                            element: <FrontendPayment />
+                          },
+                        ]
+                      }
+                    ],
                   },
                   {
                     path: "finance-dashboard",
@@ -232,7 +307,7 @@ export const routes = createBrowserRouter([
 
                           {
                             path: "reports",
-                            
+
                             element: <HrReports />,
                           },
                         ],
@@ -270,9 +345,8 @@ export const routes = createBrowserRouter([
                         children: [
                           {
                             path: "bulk-upload",
-                            element: <BulkUpload/>,
+                            element: <BulkUpload />,
                           },
-                         
                         ],
                       },
                     ],
@@ -376,6 +450,63 @@ export const routes = createBrowserRouter([
                   {
                     path: "reports",
                     element: <MeetingReports />,
+                  },
+                  {
+                    path: "reviews",
+                    element: <Reviews />,
+                  },
+                  {
+                    path: "settings",
+                    element: <TicketReports />,
+                  },
+                ],
+              },
+              {
+                path: "assets", // Parent path
+                element: <AssetsLayout />, // Parent component for tickets
+                children: [
+                  {
+                    path: "", // Default route for /app/assets
+                    element: <AssetsDashboard />, // Dashboard is rendered by default
+                    index: true,
+                  },
+                  {
+                    path: "book-meeting",
+                    element: <BookMeetings />, // This is your first page
+                  },
+                  {
+                    path: "schedule-meeting",
+                    element: <MeetingFormLayout />, // This is your second page
+                  },
+                  {
+                    path: "manage-assets",
+                    element: <ManageAssets />,
+                    children:[
+                      {
+                        path:'assign-assets',
+                        element:<AssignAssets />
+                      },
+                      {
+                        path:'assigned-assets',
+                        element:<AssignedAssets />
+                      },
+                      {
+                        path:'approvals',
+                        element:<Approvals />
+                      },
+                    ]
+                  },
+                  {
+                    path: "settings",
+                    element: <MeetingSettings />,
+                  },
+                  {
+                    path: "calendar",
+                    element: <MeetingCalendar />,
+                  },
+                  {
+                    path: "reports",
+                    element: <AssetReports />,
                   },
                   {
                     path: "reviews",

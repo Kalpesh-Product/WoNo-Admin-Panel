@@ -99,7 +99,7 @@ const CustomYAxis = () => {
         </div>
 
         {/* Graph Bars */}
-        <div className="h-60 border-l-default border-b-default border-black flex flex-col justify-between flex-1 p-4 gap-4">
+        <div className="h-60 border-l-default border-b-default border-borderGray flex flex-col justify-between flex-1 py-4 gap-4">
           {["privileged", "sick", "abrupt"].map((type) => {
             const { greenWidth, redWidth, displayText, tooltipData } =
               getInnerBarSections(type, currentMonthIndex);
