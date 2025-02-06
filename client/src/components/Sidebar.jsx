@@ -121,12 +121,12 @@ const Sidebar = () => {
 
   return (
     <div
-      className={`flex flex-col p-2  bg-gray`}
+      className={`flex flex-col px-2  bg-gray`}
     >
       <div
         className={`${
           isSidebarOpen ? "w-60" : "w-16"
-        } bg-white  text-black flex flex-shrink-0 h-[90vh] overflow-y-auto transition-all duration-100 z-[1]`}
+        } bg-white  text-black flex flex-shrink-0 h-[90vh] hideScrollBar overflow-y-auto transition-all duration-100 z-[1]`}
       >
         <div className="flex relative w-full">
           <div className="p-0 flex flex-col gap-2 w-full">
