@@ -59,6 +59,23 @@ const userDataSchema = new mongoose.Schema({
       ref: "User",
     },
   ],
+  employeeType: {
+    name:{
+      type: String,
+    },
+    leavesCount: [
+      {
+          leaveType:{
+           type: String,
+          },
+          count:{
+           type: Number,
+           default: 0
+          }
+         
+     }
+     ],
+  },
   designation: String,
   refreshToken: String,
 });

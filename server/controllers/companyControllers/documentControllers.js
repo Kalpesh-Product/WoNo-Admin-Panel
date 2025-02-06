@@ -9,7 +9,7 @@ const uploadCompanyDocument = async (req, res, next) => {
     const file = req.file;
     const user = req.user;
 
-    if (!["template", "sop", "policy"].includes(type)) {
+    if (!["template", "sop", "policy", "agreement"].includes(type)) {
       throw new Error(
         "Invalid document type. Allowed values: template, sop, policy"
       );
@@ -39,7 +39,7 @@ const uploadCompanyDocument = async (req, res, next) => {
     }
 
     const updateField =
-      type === "template" ? "templates" : type === "sop" ? "sop" : "policies";
+      type === "template" ? "templates" : type === "sop" ? "sop" : type === "policy" ? "policies" : "agreements";
 
     await Company.findOneAndUpdate(
       { _id: foundUser.company._id },
@@ -67,7 +67,7 @@ const getCompanyDocuments = async (req, res, next) => {
     const { type } = req.params;
     const user = req.user;
 
-    if (!["templates", "sop", "policies"].includes(type)) {
+    if (!["templates", "sop", "policies", "agreements"].includes(type)) {
       return res.status(400).json({ message: "Invalid document type" });
     }
 
@@ -159,6 +159,52 @@ const uploadDepartmentDocument = async (req, res, next) => {
         department.department.name
       } department`,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const addAgreement = async (req, res, next) => {
+  try {
+    const { agreementName } = req.body;
+    const file = req.file;
+    const user = req.user;
+ 
+    console.log(agreementName)
+    const foundUser = await User.findOne({ _id: user })
+      .select("company")
+      .populate([{ path: "company", select: "companyName" }])
+      .lean()
+      .exec();
+
+    const pdfDoc = await PDFDocument.load(file.buffer);
+     
+    pdfDoc.setTitle(file.originalname?.split(".")[0]);
+    console.log(file.originalname?.split(".")[0])
+    const processedBuffer = await pdfDoc.save();
+
+    const response = await handlePdfUpload(
+      processedBuffer,
+      `${foundUser.company.companyName}/agreements`
+    );
+
+    if (!response.public_id) {
+      throw new Error("falied to upload document");
+    }
+
+    await Company.findOneAndUpdate(
+      { _id: foundUser.company._id },
+      {
+        $push: {
+          agreements: {
+            name: agreementName,
+            documentLink: response.secure_url,
+            documentId: response.public_id,
+          },
+        },
+      }
+    ).exec();
+    return res.status(200).json({ message: "Agreement uploaded successfully" });
   } catch (error) {
     next(error);
   }
