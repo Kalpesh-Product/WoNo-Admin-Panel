@@ -10,12 +10,10 @@ const userDataSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-
   gender: {
     type: String,
     enum: ["Male", "Female", "Other"],
   },
-
   role: [
     {
       type: mongoose.Schema.Types.ObjectId,

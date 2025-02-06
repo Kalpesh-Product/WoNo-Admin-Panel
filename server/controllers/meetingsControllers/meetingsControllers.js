@@ -1,32 +1,35 @@
 const Meeting = require("../../models/meetings/Meetings");
 const ExternalClient = require("../../models/meetings/ExternalClients");
 const User = require("../../models/User");
-const Room = require("../../models/User");
+const { default: mongoose } = require("mongoose");
+const Room = require("../../models/meetings/Rooms");
  
 const addMeetings = async (req, res, next) => {
   try {
+  
     const {
       meetingType,
-      location,
+      bookedRoom,
       startDate,
       endDate,
       startTime,
       endTime,
-      status,
+      agenda,
       internalParticipants,
       externalParticipants,
     } = req.body;
 
     const user = req.userData;  
 
-    if (!location || !startDate || !endDate || !startTime || !endTime || !status) {
+    if (!meetingType || !startDate || !endDate || !startTime || !endTime || !agenda) {
       return res.status(400).json({ message: "Missing required fields" });
     }
  
-    const roomAvailable = await Room.findOne({
-      "roomLocation.name": location,
-      "roomLocation.status": "Available",
-    });
+    if(!mongoose.Types.ObjectId.isValid(bookedRoom)){
+      return res.status(400).json({ message: "Invalid Room Id provided" });
+    }
+
+    const roomAvailable = await Room.findById({_id: bookedRoom,"location.status":"Available"});
 
     if (!roomAvailable) {
       return res.status(404).json({ message: "Room is unavailable" });
@@ -80,15 +83,15 @@ const addMeetings = async (req, res, next) => {
             message: "Missing required fields for external participants",
           });
         }
-
+ 
         const newExternalClient = new ExternalClient({
           companyName,
-          registeredCompanyName: registeredCompanyName || "",
-          companyURL: companyURL || "",
+          registeredCompanyName: registeredCompanyName,
+          companyURL: companyURL,
           email,
           mobileNumber,
-          gstNumber: gstNumber || "",
-          panNumber: panNumber || "",
+          gstNumber: gstNumber,
+          panNumber: panNumber,
           address: address || "",
           personName,
         });
@@ -123,12 +126,13 @@ const addMeetings = async (req, res, next) => {
       startTime,
       endTime,
       bookedRoom: roomAvailable._id,
-      status,
       location,
-      participants, // Includes either internal or external participant IDs
+      agenda,
+      internalParticipants: internalParticipants ? participants : [],  
+      externalParticipants: externalParticipants ? participants : [],  
     });
 
-    const savedMeeting = await meeting.save();
+   await meeting.save();
 
     // Update room status to "Booked"
     roomAvailable.roomLocation.status = "Booked";

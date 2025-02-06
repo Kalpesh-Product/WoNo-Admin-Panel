@@ -1,22 +1,18 @@
 
 const Company = require("../../models/Company");
 const User = require("../../models/User");
+const mongoose = require("mongoose");
 
 const addShift = async (req, res, next) => {
     try {
-      const user = req.user;
+      const companyId = req.userData.company
       const { shiftName } = req.body;
   
-      const foundUser = await User.findOne({ _id: user })
-        .select("company")
-        .lean()
-        .exec();
-  
-      if (!foundUser) {
-        return res.status(400).json({ message: "user not found" });
+      if(!mongoose.Types.ObjectId.isValid(companyId)){
+        return res.status(400).json({ message: "Invalid company Id provided" });
       }
-  
-      const company = await Company.findOne({ _id: foundUser.company })
+
+      const company = await Company.findOne({ _id: companyId })
         .lean()
         .exec();
   
@@ -24,12 +20,16 @@ const addShift = async (req, res, next) => {
         return res.status(400).json({ message: "No such company exists" });
       }
   
-      await Company.findOneAndUpdate(
-        { _id: foundUser.company },
+      const updatedCompany = await Company.findOneAndUpdate(
+        { _id: companyId},
         { $push: { shifts: shiftName } }
       ).exec();
   
-      return res.status(200).json({ message: "work shift added successfully" });
+      if(!updatedCompany){
+        return res.status(400).json({message:"Failed to add shifts"})
+      }
+
+      return res.status(200).json({ message: "Work shift added successfully" });
     } catch (error) {
       next(error);
     }

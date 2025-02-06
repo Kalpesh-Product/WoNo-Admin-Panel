@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+ 
 const meetingSchema = new mongoose.Schema(
   {
     bookedBy: {
@@ -56,9 +56,6 @@ const meetingSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "Company",
     },
-    location: {
-        type: String,
-    }
   },
   { timestamps: true }
 );

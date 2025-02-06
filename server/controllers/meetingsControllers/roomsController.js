@@ -31,7 +31,10 @@ const addRoom = async (req, res, next) => {
     const company = foundUser.company;
 
     // Check if the provided location exists in the company's workLocations
-    const isValidLocation = company.workLocations.some((loc) => loc.name === location);
+    const isValidLocation = company.workLocations.some((loc) => {
+      return loc.name === location.name
+    });
+   
     if (!isValidLocation) {
       return res.status(400).json({ message: "Invalid location. Must be a valid company work location." });
     }
