@@ -562,7 +562,7 @@ const AssetsDashboard = () => {
           icon={<RiPagesLine />}
         />,
         <Card
-          route={"/app/meetings/settings"}
+          route={"/app/assets/settings"}
           title={"Settings"}
           icon={<RiPagesLine />}
         />,

@@ -92,6 +92,8 @@ import AssetsCategoriesLayout from "../pages/Assets/AssetsCategory/AssetsCategor
 import AssetsCategories from "../pages/Assets/AssetsCategory/AssetsCategories";
 import AssetsSubCategories from "../pages/Assets/AssetsCategory/AssetsSubCategories";
 import ListOfAssets from "../pages/Assets/AssetsCategory/ListOfAssets";
+import AssetsSettings from "../pages/Assets/AssetsSettings/AssetsSettings";
+import AssetsBulkUpload from "../pages/Assets/AssetsSettings/BulkUpload";
 
 export const routes = createBrowserRouter([
   {
@@ -497,10 +499,6 @@ export const routes = createBrowserRouter([
                     element: <ManageMeetings />,
                   },
                   {
-                    path: "settings",
-                    element: <MeetingSettings />,
-                  },
-                  {
                     path: "calendar",
                     element: <MeetingCalendar />,
                   },
@@ -514,7 +512,13 @@ export const routes = createBrowserRouter([
                   },
                   {
                     path: "settings",
-                    element: <TicketReports />,
+                    element: <AssetsSettings />,
+                    children: [
+                      {
+                        path: "bulk-upload",
+                        element: <AssetsBulkUpload />,
+                      },
+                    ],
                   },
                 ],
               },
