@@ -42,8 +42,9 @@ const createEvent = async (req, res, next) => {
 const getAllEvents = async (req, res, next) => {
   try {
      
-    const {company} = req.userData
+    const {company} = req.userData;
 
+    console.log(company)
     const events = await Event.find({company:company});
 
     if (!events || events.length === 0) {
@@ -65,6 +66,7 @@ const getAllEvents = async (req, res, next) => {
         },
       };
     });
+
 
     res.status(200).json(eventsData);
   } catch (error) {

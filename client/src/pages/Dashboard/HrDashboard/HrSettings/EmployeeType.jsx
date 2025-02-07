@@ -1,13 +1,29 @@
 import React from 'react'
 import AgTable from "../../../../components/AgTable";
 import { Chip } from "@mui/material";
+import useAxiosPrivate from '../../../../hooks/useAxiosPrivate';
+import { useQuery } from '@tanstack/react-query';
 
 
 const EmployeeType = () => {
 
+  const axios = useAxiosPrivate()
+
+  const { data: employeeTypes = [] } = useQuery({
+    queryKey: ["employeeTypes"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/company/get-company-data/employeeTypes");
+        return response.data.employeeTypes
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
+
   const departmentsColumn = [
-    { field:"srno",headerName:"SR NO"},
-    { field: "employeetype", headerName: "Employee Type",
+    { field:"id",headerName:"SR NO"},
+    { field: "name", headerName: "Employee Type",
       cellRenderer:(params)=>{
         return(
           <div>
@@ -17,32 +33,33 @@ const EmployeeType = () => {
           </div>
         )
       },flex:1},
-    {
-      field: "status",
-      headerName: "Status",
-      cellRenderer: (params) => {
-        const statusColorMap = {
-          Inactive: { backgroundColor: "#FFECC5", color: "#CC8400" }, // Light orange bg, dark orange font
-          Active: { backgroundColor: "#90EE90", color: "#006400" }, // Light green bg, dark green font
-        };
-
-        const { backgroundColor, color } = statusColorMap[params.value] || {
-          backgroundColor: "gray",
-          color: "white",
-        };
-        return (
-          <>
-            <Chip
-              label={params.value}
-              style={{
-                backgroundColor,
-                color,
-              }}
-            />
-          </>
-        );
-      },flex:1
-    },
+     {
+         field: "status",
+         headerName: "Status",
+         flex: 1,
+         cellRenderer: (params) => {
+           const status = params.value ? "Active" : "Inactive"; // Map boolean to string status
+           const statusColorMap = {
+             Inactive: { backgroundColor: "#FFECC5", color: "#CC8400" }, // Light orange bg, dark orange font
+             Active: { backgroundColor: "#90EE90", color: "#006400" }, // Light green bg, dark green font
+           };
+         
+           const { backgroundColor, color } = statusColorMap[status] || {
+             backgroundColor: "gray",
+             color: "white",
+           };
+         
+           return (
+             <Chip
+               label={status}
+               style={{
+                 backgroundColor,
+                 color,
+               }}
+             />
+           );
+         },  
+       },
     {
       field: "actions",
       headerName: "Actions",
@@ -58,34 +75,6 @@ const EmployeeType = () => {
     },
   ];
 
-
-  const rows = [
-    {
-      srno:"1",
-      id: 1,
-      employeetype: "Internship",
-      status: "Active",
-    },
-    {
-      srno:"2",
-      id: 2,
-      employeetype: "Probation",
-      status: "Active",
-    },
-    {
-      srno:"3",
-      id: 3,
-      employeetype: "Full-Time",
-      status: "Inactive",
-    },
-    {
-      srno:"4",
-      id: 4,
-      employeetype: "Part-Time",
-      status: "Active",
-    },
-    
-  ];
   return (
     <div>
         <AgTable
@@ -93,7 +82,13 @@ const EmployeeType = () => {
           searchColumn={"Employee Type"}
           tableTitle={"Employee Type List"}
           buttonTitle={"Add Employee Type"}
-          data={rows}
+          data={[
+            ...employeeTypes.map((type, index) => ({
+              id: index + 1, 
+              name: type.name, 
+              status: type.status 
+            })),
+          ]}
           columns={departmentsColumn}
         />
       </div>

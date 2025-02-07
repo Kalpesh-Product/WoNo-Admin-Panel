@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 const addShift = async (req, res, next) => {
     try {
       const companyId = req.userData.company
-      const { shiftName } = req.body;
+      const { name } = req.body;
   
       if(!mongoose.Types.ObjectId.isValid(companyId)){
         return res.status(400).json({ message: "Invalid company Id provided" });
@@ -22,7 +22,7 @@ const addShift = async (req, res, next) => {
   
       const updatedCompany = await Company.findOneAndUpdate(
         { _id: companyId},
-        { $push: { shifts: shiftName } }
+        { $push: { shifts: name } }
       ).exec();
   
       if(!updatedCompany){

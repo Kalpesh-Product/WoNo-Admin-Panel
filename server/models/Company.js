@@ -145,10 +145,19 @@ const companySchema = new mongoose.Schema({
       },
     },
   ],
-  shifts: [
-    {
-      type: String,
-    },
+  // shifts: [
+  //   {
+  //     name: {
+  //       type: String,
+  //     },
+  //     status: {
+  //       type: Boolean,
+  //       default: true,
+  //     },
+  //   },
+  // ],
+  shifts:[
+    {type: String}
   ],
   templates: [
     {

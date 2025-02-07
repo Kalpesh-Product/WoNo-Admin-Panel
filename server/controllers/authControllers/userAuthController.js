@@ -20,7 +20,7 @@ const login = async (req, res, next) => {
     const userExists = await User.findOne({ email })
       .select("name role email empId password designation company")
       .populate([
-        { path: "company", select: "companyName" },
+        { path: "company", select: "companyName workLocations employeeTypes shifts policies agreements sops" },
         { path: "role", select: "roleTitle" },
       ])
       .lean()
@@ -37,7 +37,7 @@ const login = async (req, res, next) => {
     const accessToken = jwt.sign(
       {
         userInfo: {
-          userId: userExists._id,
+          userId: userExists._id, 
           name: userExists.name,
           role: userExists.role,
           email: userExists.email,
