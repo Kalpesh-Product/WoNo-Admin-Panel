@@ -11,7 +11,9 @@ const addRoom = async (req, res, next) => {
     const user = req.user;
 
     if (!name || !seats || !description || !location) {
-      return res.status(400).json({ message: "All required fields must be provided" });
+      return res
+        .status(400)
+        .json({ message: "All required fields must be provided" });
     }
 
     // Find the user and populate the company
@@ -24,8 +26,12 @@ const addRoom = async (req, res, next) => {
       .lean()
       .exec();
 
+    console.log(foundUser);
+
     if (!foundUser || !foundUser.company) {
-      return res.status(400).json({ message: "Unauthorized or company not found" });
+      return res
+        .status(400)
+        .json({ message: "Unauthorized or company not found" });
     }
 
     const company = foundUser.company;
@@ -36,7 +42,9 @@ const addRoom = async (req, res, next) => {
     });
    
     if (!isValidLocation) {
-      return res.status(400).json({ message: "Invalid location. Must be a valid company work location." });
+      return res.status(400).json({
+        message: "Invalid location. Must be a valid company work location.",
+      });
     }
 
     const roomId = idGenerator("R");
@@ -52,7 +60,10 @@ const addRoom = async (req, res, next) => {
         .toBuffer();
 
       const base64Image = `data:image/webp;base64,${buffer.toString("base64")}`;
-      const uploadResult = await handleFileUpload(base64Image, "/rooms");
+      const uploadResult = await handleFileUpload(
+        base64Image,
+        `${foundUser.company.companyName}/rooms`
+      );
 
       imageId = uploadResult.public_id;
       imageUrl = uploadResult.secure_url;
@@ -83,7 +94,6 @@ const addRoom = async (req, res, next) => {
     next(error);
   }
 };
-
 
 const getRooms = async (req, res, next) => {
   try {

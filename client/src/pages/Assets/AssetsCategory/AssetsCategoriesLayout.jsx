@@ -1,21 +1,22 @@
-import { Tabs } from "@mui/material";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Tabs } from "@mui/material";
 
-const FrontendData = () => {
+const AssetsCategoriesLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
   // Map routes to tabs
   const tabs = [
-    { label: "New Leads", path: "leads" },
-    { label: "Website Issue Reports", path: "website-issue-reports" },
+    { label: "Assets Categories", path: "assets-categories" },
+    { label: "Assets Sub Categories", path: "assets-sub-categories" },
+    { label: "List of Assets", path: "list-of-assets" },
   ];
 
-  // Redirect to "leads" if the current path is "/frontend-dashboard/data"
+  // Redirect to "assets-categories" if the current path is "/assets/categories"
   useEffect(() => {
-    if (location.pathname === "/app/dashboard/frontend-dashboard/data") {
-      navigate("/app/dashboard/frontend-dashboard/data/leads", {
+    if (location.pathname === "/app/assets/categories") {
+      navigate("/app/assets/categories/assets-categories", {
         replace: true,
       });
     }
@@ -75,4 +76,4 @@ const FrontendData = () => {
   );
 };
 
-export default FrontendData;
+export default AssetsCategoriesLayout;

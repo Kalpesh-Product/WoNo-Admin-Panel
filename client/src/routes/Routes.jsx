@@ -93,6 +93,12 @@ import ManageAssets from "../pages/Assets/ManageAssets/ManageAssets";
 import AssignedAssets from "../pages/Assets/ManageAssets/AssignedAssets";
 import Approvals from "../pages/Assets/ManageAssets/Approvals";
 import AssetReports from "../pages/Assets/Reports/AssetReports";
+import AssetsCategoriesLayout from "../pages/Assets/AssetsCategory/AssetsCategoriesLayout";
+import AssetsCategories from "../pages/Assets/AssetsCategory/AssetsCategories";
+import AssetsSubCategories from "../pages/Assets/AssetsCategory/AssetsSubCategories";
+import ListOfAssets from "../pages/Assets/AssetsCategory/ListOfAssets";
+import AssetsSettings from "../pages/Assets/AssetsSettings/AssetsSettings";
+import AssetsBulkUpload from "../pages/Assets/AssetsSettings/BulkUpload";
 
 export const routes = createBrowserRouter([
   {
@@ -160,19 +166,19 @@ export const routes = createBrowserRouter([
                         ],
                       },
                       {
-                        path:'finance',
+                        path: "finance",
                         element: <FrontendFinLayout />,
-                        children:[
+                        children: [
                           {
-                            path:'budget',
-                            element: <FrontendBudget />
+                            path: "budget",
+                            element: <FrontendBudget />,
                           },
                           {
-                            path:'payment-schedule',
-                            element: <FrontendPayment />
+                            path: "payment-schedule",
+                            element: <FrontendPayment />,
                           },
-                        ]
-                      }
+                        ],
+                      },
                     ],
                   },
                   {
@@ -471,8 +477,23 @@ export const routes = createBrowserRouter([
                     index: true,
                   },
                   {
-                    path: "book-meeting",
-                    element: <BookMeetings />, // This is your first page
+                    path: "categories",
+                    element: <AssetsCategoriesLayout />, // This is your first page
+                    children: [
+                      {
+                        path: "assets-categories",
+                        index: true,
+                        element: <AssetsCategories />,
+                      },
+                      {
+                        path: "assets-sub-categories",
+                        element: <AssetsSubCategories />,
+                      },
+                      {
+                        path: "list-of-assets",
+                        element: <ListOfAssets />,
+                      },
+                    ],
                   },
                   {
                     path: "schedule-meeting",
@@ -497,10 +518,6 @@ export const routes = createBrowserRouter([
                     ]
                   },
                   {
-                    path: "settings",
-                    element: <MeetingSettings />,
-                  },
-                  {
                     path: "calendar",
                     element: <MeetingCalendar />,
                   },
@@ -514,7 +531,13 @@ export const routes = createBrowserRouter([
                   },
                   {
                     path: "settings",
-                    element: <TicketReports />,
+                    element: <AssetsSettings />,
+                    children: [
+                      {
+                        path: "bulk-upload",
+                        element: <AssetsBulkUpload />,
+                      },
+                    ],
                   },
                 ],
               },

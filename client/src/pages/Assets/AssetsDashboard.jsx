@@ -44,13 +44,8 @@ const AssetsDashboard = () => {
       layout: 6,
       widgets: [
         <Card
-          route={"/app/meetings/book-meeting"}
-          title={"Asset Category"}
-          icon={<RiPagesLine />}
-        />,
-        <Card
-          route={"/app/meetings/book-meeting"}
-          title={"Assets List"}
+          route={"/app/assets/categories"}
+          title={"Categories"}
           icon={<RiPagesLine />}
         />,
         <Card
@@ -67,6 +62,11 @@ const AssetsDashboard = () => {
           route={"/app/assets/reports"}
           title={"Reports"}
           icon={<CgProfile />}
+        />,
+        <Card
+          route={"/app/meetings/reviews"}
+          title={"Reviews"}
+          icon={<RiPagesLine />}
         />,
         <Card
           route={"/app/meetings/settings"}

@@ -1,6 +1,7 @@
-import React from 'react'
+import React, {useState} from "react";
 import AgTable from "../../../../components/AgTable";
 import { Chip } from "@mui/material";
+import MuiModal from "../../../../components/MuiModal";
 import useAxiosPrivate from '../../../../hooks/useAxiosPrivate';
 import { useQuery } from '@tanstack/react-query';
 
@@ -30,8 +31,10 @@ const WorkLocations = () => {
               {params.value}
             </span>
           </div>
-        )
-      },flex:1},
+        );
+      },
+      flex: 1,
+    },
     {
       field: "status",
       headerName: "Status",
@@ -65,9 +68,9 @@ const WorkLocations = () => {
       cellRenderer: (params) => (
         <>
           <div className="p-2 mb-2 flex gap-2">
-           <span className="text-content text-primary hover:underline cursor-pointer">
-            Make Inactive
-           </span>
+            <span className="text-content text-primary hover:underline cursor-pointer">
+              Make Inactive
+            </span>
           </div>
         </>
       ),
@@ -76,34 +79,43 @@ const WorkLocations = () => {
 
   const rows = [
     {
-      srno:"1",
+      srno: "1",
       id: 1,
       worklocationname: "ST 701A",
       status: "Active",
     },
     {
-      srno:"2",
+      srno: "2",
       id: 2,
       worklocationname: "ST 701B",
       status: "Active",
     },
     {
-      srno:"3",
+      srno: "3",
       id: 3,
       worklocationname: "ST 601A",
       status: "Inactive",
     },
     {
-      srno:"4",
+      srno: "4",
       id: 4,
       worklocationname: "ST 701B",
       status: "Active",
     },
-    
   ];
+
+  const [openModal, setOpenModal] = useState(false);
   
+    const handleCloseModal = () => {
+      setOpenModal(false);
+    };
+
+  const handleAddLocation = () => {
+    setOpenModal(true);
+  };
+
   return (
-    
+    <>
       <div>
         <AgTable
         key={workLocations.length}
@@ -121,8 +133,13 @@ const WorkLocations = () => {
           ]}
         />
       </div>
-    
-  )
-}
 
-export default WorkLocations
+    <MuiModal open={openModal} onClose={handleCloseModal} title={"Add Work Location"}>
+      <span>hello</span>
+    </MuiModal>
+      
+    </>
+  );
+};
+
+export default WorkLocations;
