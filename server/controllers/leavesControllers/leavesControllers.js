@@ -36,13 +36,13 @@ const requestLeave = async (req, res, next) => {
 
     const user = await UserData.findById({_id: loggedInUser}).populate({path: "company", select: "employeeTypes"})
 
-    const leaves = await Leave.find({takenBy: loggedInUser,leaveType})
+    const leaves = await Leave.find({takenBy: loggedInUser})
 
     if(leaves){
 
-       const singleLeaves = leaves.filter((leave)=> leave.leavePeriod === "Single")
+       const singleLeaves = leaves.filter((leave)=> leave.leavePeriod === "Single" && leave.leaveType === leaveType || leave.leaveType === 'Abrupt')
        const singleLeaveHours = singleLeaves.length * 9
-      
+   
        const partialLeaveHours = leaves
        .filter((leave)=> leave.leavePeriod === "Partial")
        .reduce((acc,leave)=> acc + leave.hours,0) 
@@ -62,8 +62,8 @@ const requestLeave = async (req, res, next) => {
     const noOfDays = Math.abs((currDate.getTime() - startDate.getTime() ) / (1000 * 60 * 60 * 24));
   
     let updatedLeaveType = ""
-    if(leaveType === "Privileged Leave" && noOfDays < 7){
-      updatedLeaveType = "Abrupt Leave"
+    if(leaveType === "Privileged" && noOfDays < 7){
+      updatedLeaveType = "Abrupt"
     }
 
     const newLeave = new Leave({

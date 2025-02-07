@@ -10,10 +10,10 @@ const verifyJwt = (req, res, next) => {
 
     req.user = decoded.userInfo.userId;
     req.role = decoded.userInfo.role;
-    req.company = decoded.userInfo.companyId;
+    req.company = decoded.userInfo.company;
     
     req.userData = decoded.userInfo
-   
+ 
   next();
   });
 };

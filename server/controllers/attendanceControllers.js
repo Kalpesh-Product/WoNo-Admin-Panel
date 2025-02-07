@@ -1,6 +1,7 @@
 const Attendance = require("../models/Attendance");
 const UserData = require("../models/UserData");
 const mongoose = require("mongoose")
+const {format} = require("date-fns");
 
 const clockIn = async (req, res, next) => {
   const { inTime, entryType } = req.body;
@@ -57,7 +58,6 @@ const clockOut = async (req, res, next) => {
     }
 
     const clockOut = new Date(outTime);
-    console.log("clockout", clockOut);
     const currDate = new Date();
     if (isNaN(clockOut.getTime())) {
       return res.status(400).json({ message: "Invalid date format" });
@@ -65,11 +65,11 @@ const clockOut = async (req, res, next) => {
 
     const noOfDays = currDate.getDate() - clockOut.getDate();
 
-    if (noOfDays > 1 || noOfDays < 0) {
-      return res
-        .status(400)
-        .json({ message: "Can clock out only for present / previous day" });
-    }
+    // if (noOfDays > 1 || noOfDays < 0) {
+    //   return res
+    //     .status(400)
+    //     .json({ message: "Can clock out only for present / previous day" });
+    // }
 
     const attendance = await Attendance.findOne({ user: loggedInUser })
       .sort({ createdAt: -1 })
@@ -183,7 +183,7 @@ const endBreak = async (req, res, next) => {
 const getAllAttendance = async (req, res, next) => {
   const loggedInUser = req.userData.userId;
   const company = req.userData.company;
-
+ 
   try {
     // const user = await UserData.findById({ _id: loggedInUser }).populate({
     //   path: "role",
@@ -211,26 +211,40 @@ const getAllAttendance = async (req, res, next) => {
       return res.status(400).json({ message: "No attendance exists" });
     }
 
-    const transformedAttendances = attendances.map((attendance)=>{
-
+    const transformedAttendances = attendances.map((attendance) => {
       
-      if(attendance.inTime && attendance.outTime && attendance.breakDuration){
-        const totalMins = (attendance.outTime - attendance.inTime) / (1000 * 60)
-      const workMins = totalMins - attendance.breakDuration
-      const totalHours = totalMins/60
-      const workHours = workMins/60
+      const formatDate = (date) => {
+        if (!date) return "N/A";
+        return format(new Date(date), "dd/MM/yyyy");
+      };
 
+      const formatTime = (timestamp) => {
+        if (!timestamp) return "N/A";
+        return format(new Date(timestamp), "hh:mm a");  
+      };
 
-      }
-      
+      const totalMins = attendance.outTime && attendance.inTime 
+        ? (attendance.outTime - attendance.inTime) / (1000 * 60)
+        : 0;
+    
+      const breakMins = attendance.breakDuration || 0;
+      const workMins = totalMins > breakMins ? totalMins - breakMins : 0;
+    
+      return {
+        date: formatDate(attendance.inTime)|| "N/A",
+        inTime: formatTime(attendance.inTime) || "N/A",
+        outTime: formatTime(attendance.outTime) || "N/A",
+        workHours: (workMins / 60).toFixed(2),  
+        breakHours: (breakMins / 60).toFixed(2),
+        totalHours: (totalMins / 60).toFixed(2),
+        entryType: attendance.entryType || "N/A",
+      };
+    });
+    
+    console.log(transformedAttendances);
+    
 
-      
-
-
-
-    })
-
-    return res.status(200).json(attendances);
+    return res.status(200).json(transformedAttendances);
   } catch (error) {
     next(error);
   }

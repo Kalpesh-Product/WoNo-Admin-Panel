@@ -2,15 +2,30 @@ import React, {useState} from "react";
 import AgTable from "../../../../components/AgTable";
 import { Chip } from "@mui/material";
 import MuiModal from "../../../../components/MuiModal";
+import useAxiosPrivate from '../../../../hooks/useAxiosPrivate';
+import { useQuery } from '@tanstack/react-query';
 
 const WorkLocations = () => {
+   const axios = useAxiosPrivate()
+
+
+  const { data: workLocations = [] } = useQuery({
+    queryKey: ["workLocations"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/company/get-company-data/workLocations");
+        return response.data.workLocations
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
+
   const departmentsColumn = [
-    { field: "srno", headerName: "SR NO" },
-    {
-      field: "worklocationname",
-      headerName: "Work Location Name",
-      cellRenderer: (params) => {
-        return (
+    { field:"id" , headerName:"SR NO"},
+    { field: "name", headerName: "Work Location Name",
+      cellRenderer:(params)=>{
+        return(
           <div>
             <span className="text-primary cursor-pointer hover:underline">
               {params.value}
@@ -23,29 +38,29 @@ const WorkLocations = () => {
     {
       field: "status",
       headerName: "Status",
+      flex: 1,
       cellRenderer: (params) => {
+        const status = params.value ? "Active" : "Inactive"; // Map boolean to string status
         const statusColorMap = {
           Inactive: { backgroundColor: "#FFECC5", color: "#CC8400" }, // Light orange bg, dark orange font
           Active: { backgroundColor: "#90EE90", color: "#006400" }, // Light green bg, dark green font
         };
-
-        const { backgroundColor, color } = statusColorMap[params.value] || {
+      
+        const { backgroundColor, color } = statusColorMap[status] || {
           backgroundColor: "gray",
           color: "white",
         };
+      
         return (
-          <>
-            <Chip
-              label={params.value}
-              style={{
-                backgroundColor,
-                color,
-              }}
-            />
-          </>
+          <Chip
+            label={status}
+            style={{
+              backgroundColor,
+              color,
+            }}
+          />
         );
-      },
-      flex: 1,
+      },  
     },
     {
       field: "actions",
@@ -103,13 +118,19 @@ const WorkLocations = () => {
     <>
       <div>
         <AgTable
+        key={workLocations.length}
           search={true}
           searchColumn={"Work Location"}
           tableTitle={"Work Location List"}
           buttonTitle={"Add Work Location"}
-          data={rows}
           columns={departmentsColumn}
-          handleClick={handleAddLocation}
+          data={[
+            ...workLocations.map((location, index) => ({
+              id: index + 1, // Auto-increment Sr No
+              name: location.name, // Birthday Name
+              status: location.status 
+            })),
+          ]}
         />
       </div>
 

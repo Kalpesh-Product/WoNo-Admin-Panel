@@ -22,7 +22,7 @@ const addWorkLocation = async (req, res, next) => {
       }
   
       const updateWorkLocation = await Company.findByIdAndUpdate({_id:companyId},{$push: {
-        workLocation:{
+        workLocations:{
           name:workLocation
         }
       },new: true});
@@ -32,7 +32,7 @@ const addWorkLocation = async (req, res, next) => {
           message: "Couldn't add work location",
         });
       }
-  
+  console.log(updateWorkLocation)
       return res.status(200).json({
         message: "Work location added successfully",
       });

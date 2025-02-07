@@ -1,12 +1,28 @@
 import React from 'react'
 import AgTable from "../../../../components/AgTable";
 import { Chip } from "@mui/material";
+import useAxiosPrivate from '../../../../hooks/useAxiosPrivate';
+import { useQuery } from '@tanstack/react-query';
 
 
 const HrSettingsPolicies = () => {
 
+  const axios = useAxiosPrivate()
+
+  const { data: policies = [] } = useQuery({
+    queryKey: ["policies"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/company/get-company-documents/policies");
+        return response.data.policies
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
+
    const departmentsColumn = [
-        { field:"srno", headerName:"SR No",width:"100"},
+        { field:"id", headerName:"SR No",width:"100"},
         { field: "policyname", headerName: "POLICY NAME",
           cellRenderer:(params)=>{
             return(
@@ -92,7 +108,9 @@ const HrSettingsPolicies = () => {
           searchColumn={"Policies"}
           tableTitle={"Policy List"}
           buttonTitle={"Add Policy"}
-          data={rows}
+          data={[...policies.map((policy, index)=>({
+            id : index + 1,
+          }))]}
           columns={departmentsColumn}
         />
       </div>
