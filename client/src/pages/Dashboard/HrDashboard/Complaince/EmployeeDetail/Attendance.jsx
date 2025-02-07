@@ -15,7 +15,7 @@ const Attendance = () => {
     queryKey: ["attendance"],
     queryFn: async () => {
       try {
-        const response = await axios.get("/api/attendance/get-attendance");
+        const response = await axios.get("/api/attendance/get-all-attendance");
         return response.data.attendance
       } catch (error) {
         throw new Error(error.response.data.message);

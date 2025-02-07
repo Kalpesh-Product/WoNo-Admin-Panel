@@ -1,7 +1,7 @@
 const Attendance = require("../models/Attendance");
 const UserData = require("../models/UserData");
 const mongoose = require("mongoose")
-const {format} = require("date-fns");
+const { formatDate, formatTime } = require("../utils/formatDateTime");
 
 const clockIn = async (req, res, next) => {
   const { inTime, entryType } = req.body;
@@ -213,16 +213,6 @@ const getAllAttendance = async (req, res, next) => {
 
     const transformedAttendances = attendances.map((attendance) => {
       
-      const formatDate = (date) => {
-        if (!date) return "N/A";
-        return format(new Date(date), "dd/MM/yyyy");
-      };
-
-      const formatTime = (timestamp) => {
-        if (!timestamp) return "N/A";
-        return format(new Date(timestamp), "hh:mm a");  
-      };
-
       const totalMins = attendance.outTime && attendance.inTime 
         ? (attendance.outTime - attendance.inTime) / (1000 * 60)
         : 0;
@@ -241,10 +231,8 @@ const getAllAttendance = async (req, res, next) => {
       };
     });
     
-    console.log(transformedAttendances);
-    
 
-    return res.status(200).json(attendances);
+    return res.status(200).json(transformedAttendances);
   } catch (error) {
     next(error);
   }
