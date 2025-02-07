@@ -379,12 +379,12 @@ const Attendance = () => {
 
       <div>
         <AgTable
-          key={attendance.length}
+          key={isLoading ? 1:attendance.length}
           tableTitle="Aiwin's Attendance Table"
           buttonTitle={"Correction Request"}
           search={true}
           searchColumn={"Date"}
-          data={[...attendance.map((record, index)=>({
+          data={isLoading? []:[...attendance.map((record, index)=>({
             id : index + 1,
             date:record.date,
             inTime : record.inTime,
