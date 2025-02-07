@@ -101,11 +101,7 @@ const getRooms = async (req, res, next) => {
     const rooms = await Room.find().populate("assignedAssets");
 
     // Send the response with the fetched rooms
-    res.status(200).json({
-      success: true,
-      message: "Rooms fetched successfully",
-      data: rooms,
-    });
+    res.status(200).json(rooms);
   } catch (error) {
     next(error);
   }

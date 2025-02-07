@@ -1,8 +1,10 @@
 const Meeting = require("../../models/meetings/Meetings");
 const ExternalClient = require("../../models/meetings/ExternalClients");
-const User = require("../../models/User");
+const User = require("../../models/UserData");
 const { default: mongoose } = require("mongoose");
 const Room = require("../../models/meetings/Rooms");
+const { formatDate, formatTime, formatDuration } = require("../../utils/formatDateTime");
+const { differenceInMinutes } = require("date-fns/differenceInMinutes");
  
 const addMeetings = async (req, res, next) => {
   try {
@@ -20,6 +22,7 @@ const addMeetings = async (req, res, next) => {
     } = req.body;
 
     const user = req.userData;  
+    const company = req.userData.company;  
 
     if (!meetingType || !startDate || !endDate || !startTime || !endTime || !agenda) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -112,6 +115,8 @@ const addMeetings = async (req, res, next) => {
       ],
     });
 
+    console.log(conflictingMeeting)
+
     if (conflictingMeeting) {
       return res.status(409).json({
         message: "Room is already booked for the specified time",
@@ -126,8 +131,8 @@ const addMeetings = async (req, res, next) => {
       startTime,
       endTime,
       bookedRoom: roomAvailable._id,
-      location,
       agenda,
+      company,
       internalParticipants: internalParticipants ? participants : [],  
       externalParticipants: externalParticipants ? participants : [],  
     });
@@ -135,7 +140,7 @@ const addMeetings = async (req, res, next) => {
    await meeting.save();
 
     // Update room status to "Booked"
-    roomAvailable.roomLocation.status = "Booked";
+    roomAvailable.location.status = "Unavailable";
     await roomAvailable.save();
 
     res.status(201).json({
@@ -154,13 +159,32 @@ const getMeetings = async (req,res,next) => {
  
     const company = req.userData.company
 
-    const meetings = await Meeting.find({company})
+    const meetings = await Meeting.find({company}).populate({path:"bookedRoom", select:"name"})
 
     if(!meetings){
       return res.status(400).json({message:"No meetings found"})
     }
 
-    return res.status(200).json(meetings)
+    const transformedMeetings = meetings.map((meeting)=>{
+
+      return {
+        roomName:meeting.bookedRoom.name,
+        date: formatDate(meeting.startDate),
+        startTime: formatTime(meeting.startTime),
+        endTime: formatTime(meeting.endTime),
+        credits: meeting.credits,
+        duration: formatDuration(meeting.startTime, meeting.endTime),
+        status: meeting.status,
+        action: meeting.extend,
+        agenda: meeting.agenda,
+        internalParticipants: meeting.internalParticipants,
+        externalParticipants: meeting.externalParticipants,
+        company:meeting.company,
+
+      }
+    })
+ 
+    return res.status(200).json(transformedMeetings)
     
   } catch (error) {
     next(error)
