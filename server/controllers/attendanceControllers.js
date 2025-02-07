@@ -241,7 +241,7 @@ const getAllAttendance = async (req, res, next) => {
       };
     });
     
-    console.log(transformedAttendances);
+    (transformedAttendances);
     
 
     return res.status(200).json(transformedAttendances);

@@ -33,7 +33,7 @@ const ViewVendors = () => {
   };
 
   const onSubmit = (data) => {
-    console.log("Form Data:", data);
+    ("Form Data:", data);
     setIsEditing(!isEditing);
     toast.success("Vendor details updated successfully");
   };

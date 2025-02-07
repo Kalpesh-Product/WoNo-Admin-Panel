@@ -24,7 +24,7 @@ const generatePassword = (
 };
 
 // Usage example:
-// console.log(
+// (
 //   generatePassword(16, { upper: true, lower: true, number: true, symbol: true })
 // );
 

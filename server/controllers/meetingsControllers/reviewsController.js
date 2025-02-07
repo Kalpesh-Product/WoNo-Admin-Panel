@@ -5,7 +5,7 @@ const Meeting = require("../models/Meeting");
 const addReview = async (req, res, next) => {
   try {
     const { meetingId, review, rate } = req.body;
-    const userId = req.userData._id; // Authenticated user
+    const userId = req.user; // Authenticated user
 
     // Validate inputs
     if (!meetingId || !review || !rate) {
@@ -87,7 +87,9 @@ const updateReview = async (req, res, next) => {
     );
 
     if (!updatedReview) {
-      return res.status(404).json({ message: "Review not found or unauthorized" });
+      return res
+        .status(404)
+        .json({ message: "Review not found or unauthorized" });
     }
 
     res.status(200).json({
@@ -100,35 +102,8 @@ const updateReview = async (req, res, next) => {
   }
 };
 
-// Delete a Review
-const deleteReview = async (req, res, next) => {
-  try {
-    const { reviewId } = req.body;
-    const userId = req.userData._id; // Authenticated user
-
-    // Find and delete the review
-    const deletedReview = await Review.findOneAndDelete({
-      _id: reviewId,
-      user: userId, // Ensure the user is the owner of the review
-    });
-
-    if (!deletedReview) {
-      return res.status(404).json({ message: "Review not found or unauthorized" });
-    }
-
-    res.status(200).json({
-      message: "Review deleted successfully",
-      review: deletedReview,
-    });
-  } catch (error) {
-    console.error("Error deleting review:", error);
-    next(error);
-  }
-};
-
 module.exports = {
   addReview,
   getReviews,
   updateReview,
-  deleteReview,
 };

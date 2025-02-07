@@ -9,7 +9,7 @@ const MemberOnboard = () => {
   const { control, handleSubmit, reset } = useForm();
   
     const onSubmit = (data) => {
-      console.log("Form Data:", data);
+      ("Form Data:", data);
     };
   
     const handleReset = () => {

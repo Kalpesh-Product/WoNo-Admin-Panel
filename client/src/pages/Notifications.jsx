@@ -43,9 +43,9 @@ const Notifications = () => {
   // Helper function to determine the section (Today, Yesterday, Older)
   const getSection = (date) => {
     const now = new Date();
-    console.log(now)
+    (now)
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    console.log(today)
+    (today)
     const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 
     if (date >= today) return "Today";

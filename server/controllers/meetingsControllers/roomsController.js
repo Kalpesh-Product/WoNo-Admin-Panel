@@ -26,7 +26,7 @@ const addRoom = async (req, res, next) => {
       .lean()
       .exec();
 
-    console.log(foundUser);
+    (foundUser);
 
     if (!foundUser || !foundUser.company) {
       return res

@@ -87,7 +87,7 @@ const AssignedAssets = () => {
 
   // Function to handle "Revoke" action
   const handleRevoke = (id) => {
-    console.log("Revoke Clicked for ID:", id);
+    ("Revoke Clicked for ID:", id);
 
     setAssetRows((prevRows) =>
       prevRows.map((row) =>
@@ -99,7 +99,7 @@ const AssignedAssets = () => {
   // 🔄 Ensures AgTable re-renders when `assetRows` changes
   useEffect(() => {
     setUpdatedRows([...assetRows]); // Force UI update
-    console.log("Updated Asset Rows:", assetRows);
+    ("Updated Asset Rows:", assetRows);
   }, [assetRows]);
 
   const assetsColumns = [
