@@ -2,7 +2,6 @@
 import React from "react";
 import { Modal, Box, Typography, IconButton } from "@mui/material";
 import { IoMdClose } from "react-icons/io";
-import { blue } from "@mui/material/colors";
 
 const MuiModal = ({ open, onClose, title, children, headerBackground }) => {
   return (
