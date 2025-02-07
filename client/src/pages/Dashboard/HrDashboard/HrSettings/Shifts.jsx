@@ -1,13 +1,29 @@
 import React from "react";
 import AgTable from "../../../../components/AgTable";
 import { Chip } from "@mui/material";
+import useAxiosPrivate from "../../../../hooks/useAxiosPrivate";
+import { useQuery } from "@tanstack/react-query";
 
 
 const Shifts = () => {
 
+  const axios = useAxiosPrivate()
+
+  const { data: shifts = [] } = useQuery({
+    queryKey: ["shifts"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/company/get-company-data/shifts");
+        return response.data.shifts
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
+
   const departmentsColumn = [
-    { field:"srno" , headerName:"SR NO"},
-      { field: "shiftlist", headerName: "Shift List",
+    { field:"id" , headerName:"SR NO"},
+      { field: "shift", headerName: "Shift List",
         cellRenderer:(params)=>{
           return(
             <div>
@@ -17,45 +33,6 @@ const Shifts = () => {
             </div>
           )
         },flex:1},
-      {
-        field: "status",
-        headerName: "Status",
-        cellRenderer: (params) => {
-          const statusColorMap = {
-            Inactive: { backgroundColor: "#FFECC5", color: "#CC8400" }, // Light orange bg, dark orange font
-            Active: { backgroundColor: "#90EE90", color: "#006400" }, // Light green bg, dark green font
-          };
-  
-          const { backgroundColor, color } = statusColorMap[params.value] || {
-            backgroundColor: "gray",
-            color: "white",
-          };
-          return (
-            <>
-              <Chip
-                label={params.value}
-                style={{
-                  backgroundColor,
-                  color,
-                }}
-              />
-            </>
-          );
-        },flex:1
-      },
-      {
-        field: "actions",
-        headerName: "Actions",
-        cellRenderer: (params) => (
-          <>
-            <div className="p-2 mb-2 flex gap-2">
-             <span className="text-content text-primary hover:underline cursor-pointer">
-              Make Inactive
-             </span>
-            </div>
-          </>
-        ),
-      },
     ];
   
   
@@ -93,7 +70,13 @@ const Shifts = () => {
         searchColumn={"Shifts"}
         tableTitle={"Shift List"}
         buttonTitle={"Add Shift List"}
-        data={rows}
+        data={[
+          ...shifts.map((shift, index) => ({
+            id: index + 1, // Auto-increment Sr No
+            shift: shift
+            ,
+          })),
+        ]}
         columns={departmentsColumn}
       />
     </div>

@@ -137,7 +137,7 @@ const getCompanyLogo = async (req, res, next) => {
 
 const getCompanyData = async (req, res, next) => {
  
-  const {field} = req.params
+  const {field} = req.params // employeeTypes | workLocations | leaveTypes | shifts
   const companyId = req.userData.company
 
   try {
@@ -163,9 +163,8 @@ const getCompanyData = async (req, res, next) => {
         message: "Couldn't fetch the data",
       });
     }
-    
 
-    return res.status(200).json(fetchedData.leaveTypes);
+    return res.status(200).json(fetchedData);
  
   } catch(error) { 
     next(error)

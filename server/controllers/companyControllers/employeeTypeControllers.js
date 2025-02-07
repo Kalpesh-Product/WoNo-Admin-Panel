@@ -20,10 +20,10 @@ const addEmployeeType = async (req, res, next) => {
       }
   
      const updateEmployeeType = await Company.findByIdAndUpdate({_id:companyId},{$push: {
-        employeeType:{
+        employeeTypes:{
           name:employeeType
         }
-      }});
+      },},{new: true});
   
       if(!updateEmployeeType){
         return res.status(400).json({

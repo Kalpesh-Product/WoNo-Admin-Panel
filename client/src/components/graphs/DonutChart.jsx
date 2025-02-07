@@ -12,11 +12,12 @@ const DonutChart = ({ centerLabel, labels, colors, series, title }) => {
   const chartOptions = {
     chart: {
       type: "donut",
+      fontFamily:"Poppins-Regular"
     },
     colors: chartData.colors,
     labels: chartData.labels,
     legend: {
-      position: "bottom",
+      position: "right",
     },
     dataLabels: {
       enabled: true,
@@ -47,12 +48,7 @@ const DonutChart = ({ centerLabel, labels, colors, series, title }) => {
   };
 
   return (
-    <div className="border-borderGray border-default py-4 rounded-md">
-      <div className="border-b-default border-borderGray pb-4 px-4">
-        <span className="text-subtitle">
-          {title}
-        </span>
-      </div>
+    <div className="rounded-md">
       <ReactApexChart
         options={chartOptions}
         series={chartData.series}

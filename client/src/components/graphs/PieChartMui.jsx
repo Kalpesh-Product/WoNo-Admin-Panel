@@ -8,16 +8,24 @@ const PieChartMui = ({ data, options, customLegend, width, height }) => {
   return (
     <div className="">
       <div className="w-full m-0 flex  gap-4">
-        <ReactApexChart
-          options={options} // Use options passed directly from parent
-          series={chartData} // Data values for the pie slices
-          type="pie"
-          width={width ? width : 550}
-          height={height ? height : 350}
-        />
+        <div className="flex-1">
+          <ReactApexChart
+            options={options} // Use options passed directly from parent
+            series={chartData} // Data values for the pie slices
+            type="pie"
+            width={width ? width : 550}
+            height={height ? height : 350}
+          />
+        </div>
 
-         {/* Custom Legend Passed from Parent */}
-         {customLegend && <div className="flex-1 p-4 justify-center items-center">{customLegend}</div>}
+        {/* Custom Legend Passed from Parent */}
+        {customLegend ? (
+          <div className={`${customLegend ? 'flex-1' : ''} p-4 justify-center items-center`}>
+            {customLegend}
+          </div>
+        ) : (
+          <></>
+        )}
       </div>
     </div>
   );

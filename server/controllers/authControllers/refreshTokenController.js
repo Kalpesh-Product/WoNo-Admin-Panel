@@ -13,7 +13,7 @@ const handleRefreshToken = async (req, res, next) => {
     const userExists = await User.findOne({ refreshToken })
       .select("name role email empId company password designation")
       .populate([
-        { path: "company", select: "companyName" },
+        { path: "company", select: "companyName workLocations employeeTypes shifts policies agreements sops" },
         { path: "role", select: "roleTitle" },
       ])
       .lean()
@@ -37,6 +37,7 @@ const handleRefreshToken = async (req, res, next) => {
               email: decoded.email,
               role: userExists.designation,
               userId: userExists._id,
+              company: userExists.company._id
             },
           },
           process.env.ACCESS_TOKEN_SECRET,

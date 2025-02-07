@@ -9,12 +9,21 @@ import {
   Paper,
 } from "@mui/material";
 
-const MuiTable = ({ Title, columns, rows, rowKey = "id", rowsToDisplay, scroll = false }) => {
+const MuiTable = ({
+  Title,
+  columns,
+  rows,
+  rowKey = "id",
+  rowsToDisplay,
+  scroll = false,
+}) => {
   const displayedRows = rowsToDisplay ? rows.slice(0, rowsToDisplay) : rows; // Default to all rows if not provided
 
   return (
     <div className="border-default border-borderGray rounded-md">
-      <div className="font-pbold text-title text-primary p-4 border-b">{Title}</div>
+      <div className="font-pbold text-title text-primary p-4 border-b">
+        {Title}
+      </div>
       <Paper>
         <TableContainer
           style={{
@@ -22,7 +31,7 @@ const MuiTable = ({ Title, columns, rows, rowKey = "id", rowsToDisplay, scroll =
             overflowY: scroll && rowsToDisplay ? "auto" : "hidden",
           }}
         >
-          <Table stickyHeader={scroll && rowsToDisplay}> 
+          <Table stickyHeader={scroll && rowsToDisplay}>
             <TableHead>
               <TableRow>
                 {columns.map((column) => (
@@ -41,7 +50,9 @@ const MuiTable = ({ Title, columns, rows, rowKey = "id", rowsToDisplay, scroll =
                 <TableRow key={row[rowKey]}>
                   {columns.map((column) => (
                     <TableCell key={column.id} align={column.align || "left"}>
-                      {row[column.id]}
+                      {column.renderCell
+                        ? column.renderCell(row)
+                        : row[column.id]}
                     </TableCell>
                   ))}
                 </TableRow>

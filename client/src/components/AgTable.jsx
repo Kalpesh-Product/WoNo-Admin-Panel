@@ -1,69 +1,65 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
-import { TextField, Button, InputAdornment } from "@mui/material";
+import { TextField, MenuItem, Chip } from "@mui/material";
 import MuiAside from "./MuiAside";
-import { IoIosSearch } from "react-icons/io";
 import PrimaryButton from "./PrimaryButton";
 import SecondaryButton from "./SecondaryButton";
 import { MdFilterAlt, MdFilterAltOff } from "react-icons/md";
+import { IoIosSearch } from "react-icons/io";
 
 const AgTable = React.memo(
   ({
     data,
     columns,
+    dropdownColumns = [],
     paginationPageSize,
     highlightFirstRow,
     highlightEditedRow,
     rowSelection,
     search,
-    searchColumn,
     tableTitle,
     handleClick,
     buttonTitle,
-    tableHeight
+    tableHeight,
   }) => {
     const [filteredData, setFilteredData] = useState(data);
     const [searchQuery, setSearchQuery] = useState("");
-    const [filters, setFilters] = useState({}); // Stores filter values for each column
+    const [filters, setFilters] = useState({});
+    const [appliedFilters, setAppliedFilters] = useState({});
     const [isFilterDrawerOpen, setFilterDrawerOpen] = useState(false);
 
     const defaultColDef = {
       resizable: true,
       sortable: true,
       autoHeight: true,
-      cellStyle: {
-        display: "flex",
-        justifyContent: "start",
-        alignItems: "center",
-        padding: "px",
-      },
     };
 
-    // Map headerName to field for filtering
-    const getFieldFromHeaderName = (headerName) => {
-      const column = columns.find((col) => col.headerName === headerName);
-      return column ? column.field : null;
-    };
+    // Get unique values for dropdown columns
+    const columnOptions = useMemo(() => {
+      const options = {};
+      dropdownColumns.forEach((col) => {
+        options[col] = [...new Set(data.map((row) => row[col]))];
+      });
+      return options;
+    }, [data, dropdownColumns]);
 
-    // Handle search input changes
     const handleSearch = (event) => {
       const query = event.target.value.toLowerCase();
       setSearchQuery(query);
-
-      const fieldName = getFieldFromHeaderName(searchColumn);
-      if (query && fieldName) {
-        const filtered = data.filter((row) =>
-          row[fieldName]?.toString().toLowerCase().includes(query)
-        );
-        setFilteredData(filtered);
-      } else {
+      if (!query) {
         setFilteredData(data);
+        return;
       }
+      const filtered = data.filter((row) =>
+        Object.values(row).some((value) =>
+          value?.toString().toLowerCase().includes(query)
+        )
+      );
+      setFilteredData(filtered);
     };
 
-    // Handle column filter value changes
     const handleFilterChange = (field, value) => {
       setFilters((prev) => ({
         ...prev,
@@ -71,8 +67,22 @@ const AgTable = React.memo(
       }));
     };
 
-    // Apply column filters
+    const removeFilter = (field) => {
+      setAppliedFilters((prev) => {
+        const updatedFilters = { ...prev };
+        delete updatedFilters[field];
+        return updatedFilters;
+      });
+      setFilters((prev) => {
+        const updatedFilters = { ...prev };
+        delete updatedFilters[field];
+        return updatedFilters;
+      });
+      applyFilters();
+    };
+
     const applyFilters = () => {
+      setAppliedFilters(filters);
       const filtered = data.filter((row) => {
         return Object.keys(filters).every((field) => {
           const filterValue = filters[field]?.toLowerCase();
@@ -83,58 +93,58 @@ const AgTable = React.memo(
         });
       });
       setFilteredData(filtered);
-      setFilterDrawerOpen(false); // Close the drawer after applying filters
+      setFilterDrawerOpen(false);
     };
 
     return (
-      <div className="py-4 border-b-[1px] border-borderGray">
+      <div className="border-b-[1px] border-borderGray">
         <div className="flex justify-between items-center py-2">
-          {/* Search Field */}
           {search && (
-            <div>
-              <TextField
-                label={`Search by ${searchColumn}`}
-                variant="outlined"
-                size="small"
-                sx={{maxWidth:'25rem'}}
-                value={searchQuery}
-                onChange={handleSearch}
-                placeholder={`${searchColumn}`}
-                slotProps={{
-                  input: {
-                    disableUnderline: true,
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <IoIosSearch size={20} />
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
-            </div>
+            <TextField
+              label="Search"
+              variant="outlined"
+              size="small"
+              value={searchQuery}
+              onChange={handleSearch}
+              placeholder="Search"
+              InputProps={{
+                startAdornment: (
+                  <IoIosSearch size={20} style={{ marginRight: 8 }} />
+                ),
+              }}
+            />
           )}
-          {/* Filter Button */}
-          
           <div className="flex justify-end items-center w-full">
             <PrimaryButton
               title={<MdFilterAlt />}
               handleSubmit={() => setFilterDrawerOpen(true)}
-            >
-              Filter
-            </PrimaryButton>
+            />
             <SecondaryButton
               title={<MdFilterAltOff />}
               handleSubmit={() => {
-                setFilters({}); // Clear all filters
-                setSearchQuery(""); // Clear search query
-                setFilteredData(data); // Reset table data
+                setFilters({});
+                setAppliedFilters({});
+                setSearchQuery("");
+                setFilteredData(data);
               }}
             />
           </div>
         </div>
-
+        <div className="flex gap-2">
+          {Object.keys(appliedFilters).map((field) =>
+            appliedFilters[field] ? (
+              <Chip
+                key={field}
+                label={`${field}: ${appliedFilters[field]}`}
+                onDelete={() => removeFilter(field)}
+              />
+            ) : null
+          )}
+        </div>
         <div className="flex items-center justify-between py-4">
-          <span className="font-pmedium text-title text-primary">{tableTitle}</span>
+          <span className="font-pmedium text-title text-primary">
+            {tableTitle}
+          </span>
           {buttonTitle ? (
             <PrimaryButton title={buttonTitle} handleSubmit={handleClick} />
           ) : (
@@ -142,57 +152,63 @@ const AgTable = React.memo(
           )}
         </div>
 
-        {/* Filter Drawer */}
         <MuiAside
           open={isFilterDrawerOpen}
           onClose={() => setFilterDrawerOpen(false)}
           title="Advanced Filter"
         >
-          {columns.map((column) => (
-            <TextField
-              key={column.field}
-              label={column.headerName}
-              variant="outlined"
-              size="small"
-              fullWidth
-              margin="normal"
-              onChange={(e) => handleFilterChange(column.field, e.target.value)}
-            />
-          ))}
+          {columns.map((column) =>
+            dropdownColumns.includes(column.field) ? (
+              <TextField
+                key={column.field}
+                label={column.headerName}
+                variant="outlined"
+                size="small"
+                select
+                fullWidth
+                margin="normal"
+                value={filters[column.field] || ""}
+                onChange={(e) =>
+                  handleFilterChange(column.field, e.target.value)
+                }
+              >
+                <MenuItem value="">All</MenuItem>
+                {columnOptions[column.field]?.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </TextField>
+            ) : (
+              <TextField
+                key={column.field}
+                label={column.headerName}
+                variant="outlined"
+                size="small"
+                fullWidth
+                margin="normal"
+                onChange={(e) =>
+                  handleFilterChange(column.field, e.target.value)
+                }
+              />
+            )
+          )}
           <div className="flex items-center justify-center py-4">
-            <PrimaryButton
-              title={"Apply Filters"}
-              handleSubmit={applyFilters}
-            />
+            <PrimaryButton title="Apply Filters" handleSubmit={applyFilters} />
           </div>
         </MuiAside>
 
         <div
-          className="ag-theme-quartz border-none w-full"
-          style={{
-            width: "100%",
-            height: tableHeight ? tableHeight : 500,
-            overflowY: "auto",
-            fontFamily: "Poppins-Regular",
-            borderWidth: 0,
-          }}
+          className="ag-theme-quartz border-none w-full font-pregular"
+          style={{ height: tableHeight || 500 }}
         >
           <AgGridReact
-            style={{ width: "100%", height: "100%" }}
-            rowData={filteredData} // Use filtered data here
+            rowData={filteredData}
             columnDefs={columns}
             defaultColDef={defaultColDef}
-            pagination={true}
+            pagination
             paginationPageSize={paginationPageSize}
-            domLayout="normal"
             rowHeight={50}
-            getRowStyle={(params) =>
-              highlightFirstRow && params.node.rowIndex === 0
-                ? { backgroundColor: "#f5f5f5", color: "#b0b0b0" }
-                : highlightEditedRow && params.node.rowIndex === 1
-                ? { backgroundColor: "#beffa9", color: "black" }
-                : null
-            }
             rowSelection={rowSelection}
           />
         </div>
