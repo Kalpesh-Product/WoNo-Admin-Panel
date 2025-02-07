@@ -88,6 +88,10 @@ import FrontendSettings from "../pages/Dashboard/FrontendDashboard/FrontendSetti
 import FrontendBulkUpload from "../pages/Dashboard/FrontendDashboard/FrontendSettings/BulkUpload";
 import AssetsLayout from "../pages/Assets/AssetsLayout";
 import AssetsDashboard from "../pages/Assets/AssetsDashboard";
+import AssetsCategoriesLayout from "../pages/Assets/AssetsCategory/AssetsCategoriesLayout";
+import AssetsCategories from "../pages/Assets/AssetsCategory/AssetsCategories";
+import AssetsSubCategories from "../pages/Assets/AssetsCategory/AssetsSubCategories";
+import ListOfAssets from "../pages/Assets/AssetsCategory/ListOfAssets";
 
 export const routes = createBrowserRouter([
   {
@@ -155,19 +159,19 @@ export const routes = createBrowserRouter([
                         ],
                       },
                       {
-                        path:'finance',
+                        path: "finance",
                         element: <FrontendFinLayout />,
-                        children:[
+                        children: [
                           {
-                            path:'budget',
-                            element: <FrontendBudget />
+                            path: "budget",
+                            element: <FrontendBudget />,
                           },
                           {
-                            path:'payment-schedule',
-                            element: <FrontendPayment />
+                            path: "payment-schedule",
+                            element: <FrontendPayment />,
                           },
-                        ]
-                      }
+                        ],
+                      },
                     ],
                   },
                   {
@@ -466,8 +470,23 @@ export const routes = createBrowserRouter([
                     index: true,
                   },
                   {
-                    path: "book-meeting",
-                    element: <BookMeetings />, // This is your first page
+                    path: "categories",
+                    element: <AssetsCategoriesLayout />, // This is your first page
+                    children: [
+                      {
+                        path: "assets-categories",
+                        index: true,
+                        element: <AssetsCategories />,
+                      },
+                      {
+                        path: "assets-sub-categories",
+                        element: <AssetsSubCategories />,
+                      },
+                      {
+                        path: "list-of-assets",
+                        element: <ListOfAssets />,
+                      },
+                    ],
                   },
                   {
                     path: "schedule-meeting",

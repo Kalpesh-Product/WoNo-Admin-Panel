@@ -41,8 +41,6 @@ const FrontendWebsiteIssueReports = () => {
           handleSubmit={() =>
             console.log("View Details clicked for id", params.data.id)
           }
-          fontSize="text-sm"
-          externalStyles="hover:underline px-2"
         />
       ),
     },

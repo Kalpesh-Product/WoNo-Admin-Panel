@@ -27,7 +27,7 @@ const BulkUpload = () => {
                 <div className="mb-2">{index}</div>
                 <div className="flex space-x-2">
                   {/* Placeholder Input Box */}
-                  <div className="flex items-end w-full   bg-gray-100 border border-gray-300 rounded-md">
+                  <div className="flex items-end w-full border border-gray-200 rounded-md">
                     <span className="text-white bg-gray-600 rounded-md p-2 ml-auto">
                       Choose file
                     </span>

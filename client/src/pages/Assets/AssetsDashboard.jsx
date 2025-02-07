@@ -288,7 +288,9 @@ const AssetsDashboard = () => {
                     room.status === "Available" ? "#28a745" : "#dc3545",
                 }}
               ></span>
-              <span className="text-content text-gray-400">{room.roomName}</span>
+              <span className="text-content text-gray-400">
+                {room.roomName}
+              </span>
             </li>
           ))}
       </ul>
@@ -535,8 +537,8 @@ const AssetsDashboard = () => {
       layout: 6,
       widgets: [
         <Card
-          route={"/app/meetings/book-meeting"}
-          title={"Book a Meeting"}
+          route={"/app/assets/categories"}
+          title={"Categories"}
           icon={<RiPagesLine />}
         />,
         <Card
