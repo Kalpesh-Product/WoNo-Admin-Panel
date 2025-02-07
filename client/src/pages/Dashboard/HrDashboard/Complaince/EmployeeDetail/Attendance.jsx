@@ -6,8 +6,22 @@ import { Chip } from "@mui/material";
 import { toast } from "sonner";
 import BarGraph from "../../../../../components/graphs/BarGraph";
 import DataCard from "../../../../../components/DataCard";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosPrivate from "../../../../../hooks/useAxiosPrivate";
 
 const Attendance = () => {
+  const axios = useAxiosPrivate();
+  const { data: attendance, isLoading } = useQuery({
+    queryKey: ["attendance"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/events/get-birthdays");
+        return response.data;
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
   const attendanceColumns = [
     { field: "date", headerName: "Date", width: 200 },
     { field: "inTime", headerName: "In Time" },
@@ -394,7 +408,9 @@ const Attendance = () => {
           buttonTitle={"Correction Request"}
           search={true}
           searchColumn={"Date"}
-          data={rows}
+          data={[...attendance.map((record, index)=>({
+            id : index + 1,
+          }))]}
           columns={attendanceColumns}
         />
       </div>

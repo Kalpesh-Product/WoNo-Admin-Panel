@@ -4,7 +4,7 @@ import { Modal, Box, Typography, IconButton } from "@mui/material";
 import { IoMdClose } from "react-icons/io";
 import { blue } from "@mui/material/colors";
 
-const MuiModal = ({ open, onClose, title, children, headerBackground,btnTitle }) => {
+const MuiModal = ({ open, onClose, title, children, headerBackground }) => {
   return (
     <Modal open={open} onClose={onClose} className="motion-preset-fade-md">
       <Box
