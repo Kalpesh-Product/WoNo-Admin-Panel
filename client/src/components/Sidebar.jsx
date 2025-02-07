@@ -109,7 +109,6 @@ const Sidebar = () => {
   ];
 
   const handleMenuOpen = (item) => {
-    (isSidebarOpen);
     navigate(item.route);
   };
 

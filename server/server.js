@@ -104,7 +104,5 @@ app.all("*", (req, res) => {
 app.use(errorHandler);
 
 mongoose.connection.once("open", () => {
-  app.listen(PORT, () => {
-    (`server started on port ${PORT}`);
-  });
+  app.listen(PORT);
 });

@@ -1,5 +1,5 @@
-const Review = require("../models/Review");
-const Meeting = require("../models/Meeting");
+const Review = require("../../models/meetings/Reviews");
+const Meeting = require("../../models/meetings/Meetings");
 
 // Add a Review
 const addReview = async (req, res, next) => {
@@ -20,7 +20,9 @@ const addReview = async (req, res, next) => {
     const meeting = await Meeting.findOne({
       _id: meetingId,
       bookedBy: userId,
-    });
+    })
+      .lean()
+      .exec();
 
     if (!meeting) {
       return res.status(403).json({
@@ -33,6 +35,7 @@ const addReview = async (req, res, next) => {
       user: userId,
       review,
       rate,
+      meeting: meetingId,
     });
 
     const savedReview = await newReview.save();
@@ -51,8 +54,8 @@ const addReview = async (req, res, next) => {
 const getReviews = async (req, res, next) => {
   try {
     const reviews = await Review.find()
-      .populate("user", "name email") // Populate user details
-      .sort({ createdAt: -1 }); // Sort by newest first
+      .populate("user", "name email")
+      .sort({ createdAt: -1 }); 
 
     res.status(200).json({
       message: "Reviews fetched successfully",
@@ -68,7 +71,7 @@ const getReviews = async (req, res, next) => {
 const updateReview = async (req, res, next) => {
   try {
     const { reviewId, review, rate } = req.body;
-    const userId = req.userData._id; // Authenticated user
+    const userId = req.user; // Authenticated user
 
     // Validate inputs
     if (!reviewId || !review || !rate) {
