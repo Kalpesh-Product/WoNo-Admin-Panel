@@ -4,7 +4,7 @@ import { Modal, Box, Typography, IconButton } from "@mui/material";
 import { IoMdClose } from "react-icons/io";
 import { blue } from "@mui/material/colors";
 
-const MuiModal = ({ open, onClose, title, children, headerBackground,btnTitle }) => {
+const MuiModal = ({ open, onClose, title, children, headerBackground }) => {
   return (
     <Modal open={open} onClose={onClose} className="motion-preset-fade-md">
       <Box
@@ -17,19 +17,29 @@ const MuiModal = ({ open, onClose, title, children, headerBackground,btnTitle })
           bgcolor: "background.paper",
           boxShadow: 24,
           borderRadius: 2,
-          outline:'none',
-          height:'90vh',
-          overflowY : 'auto'
+          outline: "none",
+          maxHeight: "90vh",
+          overflowY: "auto",
         }}
       >
-        <div className="flex justify-between items-center px-4 py-2  z-[-1] rounded-t-md"  style={{backgroundColor : headerBackground ? headerBackground : 'white', color:headerBackground?'white' : 'black'}}>
-          <div className="text-title w-full text-center text-primary">{title}</div>
-          <IconButton  sx={{ p: 0 }} onClick={onClose}>
-            <IoMdClose  className="text-white" style={{color : headerBackground ? 'white' : 'black'}}/>
+        <div
+          className="flex justify-between items-center px-4 py-2  z-[-1] rounded-t-md"
+          style={{
+            backgroundColor: headerBackground ? headerBackground : "white",
+            color: headerBackground ? "white" : "black",
+          }}
+        >
+          <div className="text-title w-full text-center text-primary">
+            {title}
+          </div>
+          <IconButton sx={{ p: 0 }} onClick={onClose}>
+            <IoMdClose
+              className="text-white"
+              style={{ color: headerBackground ? "white" : "black" }}
+            />
           </IconButton>
         </div>
-        <div className="p-4">{children}</div>
-        
+        <div className="p-4 h-full">{children}</div>
       </Box>
     </Modal>
   );

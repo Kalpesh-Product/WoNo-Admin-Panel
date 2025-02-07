@@ -6,17 +6,17 @@ import { Chip } from "@mui/material";
 import { toast } from "sonner";
 import BarGraph from "../../../../../components/graphs/BarGraph";
 import DataCard from "../../../../../components/DataCard";
-import useAxiosPrivate from "../../../../../hooks/useAxiosPrivate";
 import { useQuery } from "@tanstack/react-query";
+import useAxiosPrivate from "../../../../../hooks/useAxiosPrivate";
 
 const Attendance = () => {
-  const axios = useAxiosPrivate()
-  const { data: attendance = [] } = useQuery({
+  const axios = useAxiosPrivate();
+  const { data: attendance, isLoading } = useQuery({
     queryKey: ["attendance"],
     queryFn: async () => {
       try {
-        const response = await axios.get("/api/attendance/get-attendance");
-        return response.data.attendance
+        const response = await axios.get("/api/attendance/get-all-attendance");
+        return response.data;
       } catch (error) {
         throw new Error(error.response.data.message);
       }
@@ -31,31 +31,6 @@ const Attendance = () => {
 
     { field: "totalHours", headerName: "Total Hours" },
     { field: "entryType", headerName: "Entry Type" },
-    {
-      field: "status",
-      headerName: "Status",
-      cellRenderer: (params) => {
-        const statusColorMap = {
-          Sync: { backgroundColor: "#90EE90", color: "#006400" }, // Light green bg, dark green font
-        };
-
-        const { backgroundColor, color } = statusColorMap[params.value] || {
-          backgroundColor: "gray",
-          color: "white",
-        };
-        return (
-          <>
-            <Chip
-              label={params.value}
-              style={{
-                backgroundColor,
-                color,
-              }}
-            />
-          </>
-        );
-      },
-    },
   ];
   const rows = [
     {
@@ -404,12 +379,20 @@ const Attendance = () => {
 
       <div>
         <AgTable
+          key={attendance.length}
           tableTitle="Aiwin's Attendance Table"
           buttonTitle={"Correction Request"}
           search={true}
           searchColumn={"Date"}
-          data={[...attendance.map((attendance, index)=>({
-            id : index + 1
+          data={[...attendance.map((record, index)=>({
+            id : index + 1,
+            date:record.date,
+            inTime : record.inTime,
+            outTime : record.outTime,
+            workHours : record.workHours,
+            breakHours : record.breakHours,
+            totalHours : record.totalHours,
+            entryType : record.entryType,
           }))]}
           columns={attendanceColumns}
         />

@@ -3,12 +3,12 @@ import { MdUpload } from "react-icons/md";
 
 const BulkUpload = () => {
   const uploadItems = [
-    "Upload Budget",
-    "Upload Budget",
-    "Upload Budget",
-    "Upload Budget",
-    "Upload Budget",
-    "Upload Budget",
+    "Upload Assets",
+    "Upload Assets",
+    "Upload Assets",
+    "Upload Assets",
+    "Upload Assets",
+    "Upload Assets",
   ];
   return (
     <>

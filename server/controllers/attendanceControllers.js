@@ -244,7 +244,7 @@ const getAllAttendance = async (req, res, next) => {
     console.log(transformedAttendances);
     
 
-    return res.status(200).json(attendances);
+    return res.status(200).json(transformedAttendances);
   } catch (error) {
     next(error);
   }
