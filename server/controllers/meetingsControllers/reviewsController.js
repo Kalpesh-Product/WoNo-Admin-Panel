@@ -62,7 +62,6 @@ const getReviews = async (req, res, next) => {
       reviews,
     });
   } catch (error) {
-    console.error("Error fetching reviews:", error);
     next(error);
   }
 };
@@ -100,7 +99,6 @@ const updateReview = async (req, res, next) => {
       review: updatedReview,
     });
   } catch (error) {
-    console.error("Error updating review:", error);
     next(error);
   }
 };
