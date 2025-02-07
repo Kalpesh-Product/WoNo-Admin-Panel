@@ -125,7 +125,7 @@ const fetchUser = async (req, res) => {
       user,
     });
   } catch (error) {
-    console.log("Error fetching users : ", error);
+    ("Error fetching users : ", error);
     res.status(500).json({ error: error.message });
   }
 };

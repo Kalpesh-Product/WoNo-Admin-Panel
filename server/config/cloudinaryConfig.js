@@ -21,7 +21,7 @@ const handleFileUpload = async (file, path) => {
     });
     return res;
   } catch (error) {
-    console.log(error);
+    (error);
     throw new Error(error.message);
   }
 };

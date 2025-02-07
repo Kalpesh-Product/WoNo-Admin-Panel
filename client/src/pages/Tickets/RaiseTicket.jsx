@@ -40,7 +40,7 @@ const RaiseTicket = () => {
         // Set departments and ticket issues
         setDepartments(departmentsResponse?.data?.departments || []); // Ensure fallback to an empty array
 
-        console.log(
+        (
           "Fetched Departments:",
           departmentsResponse?.data?.departments
         );

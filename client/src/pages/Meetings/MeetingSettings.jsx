@@ -144,7 +144,7 @@ const MeetingSettings = () => {
         <div className="flex flex-col gap-4">
           <form
             onSubmit={handleSubmit(() => {
-              console.log("form submitted");
+              ("form submitted");
               setOpenModal(false);
             })}
           >

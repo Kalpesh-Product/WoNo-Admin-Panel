@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
- 
+
 const meetingSchema = new mongoose.Schema(
   {
     bookedBy: {
@@ -56,18 +56,8 @@ const meetingSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "Company",
     },
-    credits:{
-      type: Number,
-      default: 0,
-    },
-    extend:{
-      type: Boolean,
-      default: true,
-    },
-    payment:{
-      type: String,
-      default: "Unpaid",
-      enum:["Paid","Unpaid"]
+    location: {
+        type: String,
     }
   },
   { timestamps: true }

@@ -59,24 +59,24 @@ const MyProfile = ({ handleClose, pageTitle }) => {
   const handleWorkDetailsChange = (field, value) => {
     setWorkDetails((prev) => ({ ...prev, [field]: value }));
 
-    console.log(field);
-    console.log(value);
+    (field);
+    (value);
   };
 
   const handleKycDetailsChange = (field, value) => {
     setKycDetails((prev) => ({ ...prev, [field]: value }));
 
-    console.log("kyc field",field);
-    console.log("kyc value",value);
-    console.log("kyc full",kycDetails);
+    ("kyc field",field);
+    ("kyc value",value);
+    ("kyc full",kycDetails);
   };
 
   const handleBankDetailsChange = (field, value) => {
     setBankDetails((prev) => ({ ...prev, [field]: value }));
 
-    console.log(field);
-    console.log(value);
-    console.log(bankDetails);
+    (field);
+    (value);
+    (bankDetails);
   };
 
   const handleSubmit = async () => {
@@ -87,7 +87,7 @@ const MyProfile = ({ handleClose, pageTitle }) => {
       bankDetails,
     };
 
-    console.log("Submitting Form Data:", consolidatedFormData);
+    ("Submitting Form Data:", consolidatedFormData);
 
     // Send consolidatedFormData to API
 
@@ -114,17 +114,17 @@ const MyProfile = ({ handleClose, pageTitle }) => {
       const response = await api.get("/api/roles/get-roles");
       return response.data.roles;
     } catch (error) {
-      console.log(error);
+      (error);
     }
   }
 
   async function fetchDepartments() {
     try {
       const response = await api.get("/api/departments/get-departments");
-      console.log("dept:", response.data);
+      ("dept:", response.data);
       return response.data.departments;
     } catch (error) {
-      console.log(error);
+      (error);
     }
   }
 
@@ -142,10 +142,10 @@ const MyProfile = ({ handleClose, pageTitle }) => {
         const departments = await fetchDepartments();
 
         const dateString = fetchedUser?.startDate;
-        console.log("date::", dateString);
+        ("date::", dateString);
         const formattedDate = dayjs(dateString).format("MM/DD/YYYY");
 
-        console.log(formattedDate); // Output: "15-01-2023"
+        (formattedDate); // Output: "15-01-2023"
 
         setPersonalDetails({
           name: fetchedUser.name || "",
@@ -186,7 +186,7 @@ const MyProfile = ({ handleClose, pageTitle }) => {
           ifsc: fetchedUser.bankDetails?.ifsc || "",
         });
 
-        console.log("User data fetched and state updated:", fetchedUser);
+        ("User data fetched and state updated:", fetchedUser);
       } catch (error) {
         console.error("Error fetching user data:", error);
       }

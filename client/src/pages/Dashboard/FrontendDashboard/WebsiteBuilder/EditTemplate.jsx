@@ -10,7 +10,7 @@ function EditTemplate({template}) {
   const [editableElements, setEditableElements] = useState([]);
   const iframeRef = useRef(null); // Reference to the iframe
 
-  console.log("Passed template is : ",template)
+  ("Passed template is : ",template)
 
   useEffect(() => {
     if (templateData?.demoLink) {
@@ -70,13 +70,13 @@ function EditTemplate({template}) {
           id: element.getAttribute("data-id"),
           content: element.innerHTML,
         }));
-        console.log("Extracted Editable Elements:", editableData);
+        ("Extracted Editable Elements:", editableData);
         setEditableElements(editableData);
       }
     }
   }, [htmlContent, templateData?.folder]); // Re-run if folder or content changes
 
-  console.log(editableElements);
+  (editableElements);
 
   // Handle input change for an editable element
   const handleElementUpdate = (id, newContent) => {

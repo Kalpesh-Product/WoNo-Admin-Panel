@@ -58,7 +58,7 @@ const AccessProfile = () => {
     const modules = moduleMapping[department];
     const modulesArray = Object.values(modules);
     setDepModules(modulesArray);
-    console.log(depModules);
+    (depModules);
 
     // Initialize selectAll state for each module array
     const initialSelectAllState = modulesArray.map(() => false);
