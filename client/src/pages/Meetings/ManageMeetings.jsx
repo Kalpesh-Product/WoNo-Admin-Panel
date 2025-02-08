@@ -61,7 +61,6 @@ const ManageMeetings = () => {
     const updatedData = [...rowData];
     updatedData[rowIndex].houseKeepingStatus = value;
     setRowData(updatedData);
-    (rowData);
   };
 
   const columns = [

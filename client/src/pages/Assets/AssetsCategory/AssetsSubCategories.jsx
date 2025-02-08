@@ -55,7 +55,6 @@ const AssetsSubCategories = () => {
   ];
 
   const handleAddSubCategory = (data) => {
-    ("Adding new subcategory:", data);
     // Add API call here
     setModalOpen(false);
     reset();

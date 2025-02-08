@@ -97,7 +97,7 @@ const fetchUser = async (req, res) => {
       })
         .select("-password")
         .populate([
-          { path: "reportsTo", select: "name email" },
+          // { path: "reportsTo", select: "name email" },
           { path: "department", select: "name" },
           { path: "company", select: "name" },
           { path: "role", select: "roleTitle modulePermissions" },
@@ -110,7 +110,7 @@ const fetchUser = async (req, res) => {
     const users = await User.find()
       .select("-password")
       .populate([
-        { path: "reportsTo", select: "name email" },
+        // { path: "reportsTo", select: "name email" },
         { path: "department", select: "name" },
         { path: "company", select: "name" },
         { path: "role", select: "roleTitle modulePermissions" },
@@ -120,10 +120,7 @@ const fetchUser = async (req, res) => {
     if (!users) {
       return res.status(404).json({ message: "User not found" });
     }
-    res.status(200).json({
-      message: "User data fetched",
-      user,
-    });
+    res.status(200).json(users);
   } catch (error) {
     ("Error fetching users : ", error);
     res.status(500).json({ error: error.message });
