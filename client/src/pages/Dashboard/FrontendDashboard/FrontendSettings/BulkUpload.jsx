@@ -11,7 +11,7 @@ const BulkUpload = () => {
     "Upload Budget",
   ];
   return (
-    <>
+    <div className="p-4">
       <h2 class="text-title font-pmedium text-primary pb-4">
         Bulk Upload Data
       </h2>
@@ -46,7 +46,7 @@ const BulkUpload = () => {
           );
         })}
       </div>
-    </>
+    </div>
   );
 };
 

@@ -16,7 +16,7 @@ const Attendance = () => {
     queryFn: async () => {
       try {
         const response = await axios.get("/api/attendance/get-all-attendance");
-        return response.data.attendance
+        return response.data;
       } catch (error) {
         throw new Error(error.response.data.message);
       }
@@ -379,12 +379,12 @@ const Attendance = () => {
 
       <div>
         <AgTable
-          key={attendance.length}
+          key={isLoading ? 1:attendance.length}
           tableTitle="Aiwin's Attendance Table"
           buttonTitle={"Correction Request"}
           search={true}
           searchColumn={"Date"}
-          data={[...attendance.map((record, index)=>({
+          data={isLoading? []:[...attendance.map((record, index)=>({
             id : index + 1,
             date:record.date,
             inTime : record.inTime,

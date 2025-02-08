@@ -172,7 +172,7 @@ const endBreak = async (req, res, next) => {
 
     if (!updatedAttendance) {
       return res.status(400).json({ message: "No clock in record exists" });
-    }
+    } 
 
     return res.status(200).json({ message: "Break ended" });
   } catch (error) {
