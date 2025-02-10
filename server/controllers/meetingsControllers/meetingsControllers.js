@@ -26,7 +26,7 @@ const addMeetings = async (req, res, next) => {
       externalCompanyData,
     } = req.body;
 
-    const user = req.userData;
+    const user = req.userData.userId;
     const company = req.userData.company;
 
     if (
@@ -142,7 +142,7 @@ const addMeetings = async (req, res, next) => {
  
     const meeting = new Meeting({
       meetingType,
-      bookedBy: user._id,
+      bookedBy: user,
       startDate: startDateObj,
       endDate: endDateObj,
       startTime: startTimeObj,
@@ -189,6 +189,7 @@ const getMeetings = async (req, res, next) => {
       },
       
     ]);
+
 
     const departments = await User.findById({_id:user}).select("departments")
 
