@@ -8,8 +8,8 @@ const {
   formatTime,
   formatDuration,
 } = require("../../utils/formatDateTime");
-const { differenceInMinutes } = require("date-fns/differenceInMinutes");
-
+const Department = require("../../models/Departments");
+ 
 const addMeetings = async (req, res, next) => {
   try {
     const {
@@ -173,11 +173,22 @@ const addMeetings = async (req, res, next) => {
 const getMeetings = async (req, res, next) => {
   try {
     const company = req.userData.company;
+    const user = req.userData.userId;
 
-    const meetings = await Meeting.find({ company }).populate({
-      path: "bookedRoom",
-      select: "name",
-    });
+    const meetings = await Meeting.find({ company }).populate([
+      {
+        path: "bookedBy",
+        select: "name departments", 
+      },
+      {
+        path: "bookedRoom",
+        select: "name",  
+      },
+    ]);
+
+    const departments = await User.findById({_id:user}).select("departments")
+
+    const department = await Department.findById({_id:departments.departments[0]})
 
     if (!meetings) {
       return res.status(400).json({ message: "No meetings found" });
@@ -185,6 +196,8 @@ const getMeetings = async (req, res, next) => {
 
     const transformedMeetings = meetings.map((meeting) => {
       return {
+        name: meeting.bookedBy.name,
+        department: department.name,
         roomName: meeting.bookedRoom.name,
         date: formatDate(meeting.startDate),
         startTime: formatTime(meeting.startTime),
@@ -194,6 +207,7 @@ const getMeetings = async (req, res, next) => {
         status: meeting.status,
         action: meeting.extend,
         agenda: meeting.agenda,
+        subject: meeting.subject,
         internalParticipants: meeting.internalParticipants,
         externalParticipants: meeting.externalParticipants,
         company: meeting.company,
