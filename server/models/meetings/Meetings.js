@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
- 
+
 const meetingSchema = new mongoose.Schema(
   {
     bookedBy: {
@@ -39,11 +39,16 @@ const meetingSchema = new mongoose.Schema(
     ],
     externalParticipants: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "ExternalClient",
+        name: {
+          type: String
+        }
       },
     ],
     agenda: {
+      type: String,
+      required: true,
+    },
+    subject: {
       type: String,
       required: true,
     },
@@ -56,6 +61,9 @@ const meetingSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "Company",
     },
+    location: {
+        type: String,
+    }
   },
   { timestamps: true }
 );

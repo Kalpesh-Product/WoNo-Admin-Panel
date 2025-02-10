@@ -21,7 +21,7 @@ const createPolicy = async (req, res) => {
     // respond with the new leave (this will be our response in postman / developer tools)
     res.json({ policy: ourCreatedPolicy });
   } catch (error) {
-    console.log(error);
+    (error);
   }
 };
 
@@ -33,7 +33,7 @@ const fetchAllPolicies = async (req, res) => {
     // Respond with them
     res.json({ policies: listOfAllPolicys });
   } catch (error) {
-    console.log(error);
+    (error);
     res.sendStatus(400);
   }
 };
@@ -53,7 +53,7 @@ const fetchAllPolicies = async (req, res) => {
 //     // Respond with a message (eg: leave deleted)
 //     res.json({ success: "Leave Deleted" });
 //   } catch (error) {
-//     console.log(error);
+//     (error);
 //     res.sendStatus(400);
 //   }
 // };
@@ -87,7 +87,7 @@ const softDeletePolicy = async (req, res) => {
     // Respond with the updated leave (after finding it)
     res.json({ policy: updatedPolicy });
   } catch (error) {
-    console.log(error);
+    (error);
     res.sendStatus(400);
   }
 };

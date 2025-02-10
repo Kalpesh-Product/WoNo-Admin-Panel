@@ -8,7 +8,6 @@ const EmployeeOnboard = () => {
   const { control, handleSubmit, reset } = useForm();
 
   const onSubmit = (data) => {
-    console.log("Form Data:", data);
   };
 
   const handleReset = () => {

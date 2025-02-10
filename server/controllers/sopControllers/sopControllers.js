@@ -21,7 +21,7 @@ const createSop = async (req, res) => {
     // respond with the new leave (this will be our response in postman / developer tools)
     res.json({ sop: ourCreatedSop });
   } catch (error) {
-    console.log(error);
+    (error);
   }
 };
 
@@ -33,7 +33,7 @@ const fetchAllSops = async (req, res) => {
     // Respond with them
     res.json({ sops: listOfAllSops });
   } catch (error) {
-    console.log(error);
+    (error);
     res.sendStatus(400);
   }
 };
@@ -53,7 +53,7 @@ const fetchAllSops = async (req, res) => {
 //     // Respond with a message (eg: leave deleted)
 //     res.json({ success: "Leave Deleted" });
 //   } catch (error) {
-//     console.log(error);
+//     (error);
 //     res.sendStatus(400);
 //   }
 // };
@@ -87,7 +87,7 @@ const softDeleteSop = async (req, res) => {
     // Respond with the updated leave (after finding it)
     res.json({ sop: updatedSop });
   } catch (error) {
-    console.log(error);
+    (error);
     res.sendStatus(400);
   }
 };

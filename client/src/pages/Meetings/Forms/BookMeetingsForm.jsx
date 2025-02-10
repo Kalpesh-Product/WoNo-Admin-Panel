@@ -47,7 +47,7 @@ const BookMeetingsForm = () => {
   const meetingType = watch('meetingType');
 
   const onSubmit = (data) => {
-    console.log(data);
+    (data);
     setOpen(false);
   };
 

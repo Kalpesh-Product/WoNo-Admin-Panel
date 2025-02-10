@@ -19,7 +19,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // const createEmploymentAgreement = async (req, res) => {
-//   console.log(req.file);
+//   (req.file);
 //   try {
 //     // Get the sent in data off request body
 //     // const leaveIdFromRequestBody = req.body.leaveId;
@@ -42,12 +42,12 @@ const upload = multer({ storage: storage });
 //     // respond with the new leave (this will be our response in postman / developer tools)
 //     res.json({ employmentAgreement: ourCreatedEmploymentAgreement });
 //   } catch (error) {
-//     console.log(error);
+//     (error);
 //   }
 // };
 
 // const createEmploymentAgreement = async (req, res) => {
-//   console.log(req.file);
+//   (req.file);
 //   try {
 //     // Get the sent-in data from the request body
 //     const employeeFromRequestBody = req.body.employee;
@@ -80,9 +80,9 @@ const upload = multer({ storage: storage });
 //     // Respond with the created employment agreement
 //     res.json({ employmentAgreement: ourCreatedEmploymentAgreement });
 
-//     console.log(pdfId);
-//     console.log(pdfUrl);
-//     console.log(ourCreatedEmploymentAgreement);
+//     (pdfId);
+//     (pdfUrl);
+//     (ourCreatedEmploymentAgreement);
 //   } catch (error) {
 //     console.error(error);
 //     res.status(500).json({ error: "Failed to create employment agreement." });
@@ -90,7 +90,7 @@ const upload = multer({ storage: storage });
 // };
 
 const createEmploymentAgreement = async (req, res) => {
-  console.log(req.file);
+  (req.file);
   try {
     // Get the sent-in data from the request body
     const employeeFromRequestBody = req.body.employee;
@@ -132,9 +132,9 @@ const createEmploymentAgreement = async (req, res) => {
     // Respond with the created employment agreement
     res.json({ employmentAgreement: ourCreatedEmploymentAgreement });
 
-    console.log(pdfId);
-    console.log(pdfUrl);
-    console.log(ourCreatedEmploymentAgreement);
+    (pdfId);
+    (pdfUrl);
+    (ourCreatedEmploymentAgreement);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to create employment agreement." });
@@ -149,7 +149,7 @@ const fetchAllEmploymentAgreements = async (req, res) => {
     // Respond with them
     res.json({ employmentAgreements: listOfAllEmploymentAgreements });
   } catch (error) {
-    console.log(error);
+    (error);
     res.sendStatus(400);
   }
 };
@@ -169,7 +169,7 @@ const fetchAllEmploymentAgreements = async (req, res) => {
 //     // Respond with a message (eg: leave deleted)
 //     res.json({ success: "Leave Deleted" });
 //   } catch (error) {
-//     console.log(error);
+//     (error);
 //     res.sendStatus(400);
 //   }
 // };
@@ -205,7 +205,7 @@ const softDeleteEmploymentAgreement = async (req, res) => {
     // Respond with the updated leave (after finding it)
     res.json({ employmentAgreement: updatedEmploymentAgreement });
   } catch (error) {
-    console.log(error);
+    (error);
     res.sendStatus(400);
   }
 };

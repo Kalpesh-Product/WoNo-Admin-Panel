@@ -44,7 +44,7 @@ const getAllEvents = async (req, res, next) => {
      
     const {company} = req.userData;
 
-    console.log(company)
+    (company)
     const events = await Event.find({company:company});
 
     if (!events || events.length === 0) {
@@ -141,7 +141,7 @@ const  extendEvent = async (req,res,next) => {
   const onGoingMeetings = meetings.some((meeting)=> {
     const startDate = new Date(meeting.start)
     const endDate = new Date(meeting.end)
-    console.log("startDate: ",startDate)
+    ("startDate: ",startDate)
     
     return extendTime > startDate && extendTime < endDate
   })
@@ -176,7 +176,7 @@ const deleteEvent = async (req,res,next) => {
     
   }
   catch(error){
-    console.log('error:',error)
+    ('error:',error)
     next(error)
   }
 };

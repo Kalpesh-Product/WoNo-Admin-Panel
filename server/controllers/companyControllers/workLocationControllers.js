@@ -32,7 +32,7 @@ const addWorkLocation = async (req, res, next) => {
           message: "Couldn't add work location",
         });
       }
-  console.log(updateWorkLocation)
+  (updateWorkLocation)
       return res.status(200).json({
         message: "Work location added successfully",
       });

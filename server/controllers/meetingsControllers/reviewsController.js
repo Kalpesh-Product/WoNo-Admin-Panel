@@ -1,11 +1,11 @@
-const Review = require("../models/Review");
-const Meeting = require("../models/Meeting");
+const Review = require("../../models/meetings/Reviews");
+const Meeting = require("../../models/meetings/Meetings");
 
 // Add a Review
 const addReview = async (req, res, next) => {
   try {
     const { meetingId, review, rate } = req.body;
-    const userId = req.userData._id; // Authenticated user
+    const userId = req.user; // Authenticated user
 
     // Validate inputs
     if (!meetingId || !review || !rate) {
@@ -20,7 +20,9 @@ const addReview = async (req, res, next) => {
     const meeting = await Meeting.findOne({
       _id: meetingId,
       bookedBy: userId,
-    });
+    })
+      .lean()
+      .exec();
 
     if (!meeting) {
       return res.status(403).json({
@@ -33,6 +35,7 @@ const addReview = async (req, res, next) => {
       user: userId,
       review,
       rate,
+      meeting: meetingId,
     });
 
     const savedReview = await newReview.save();
@@ -51,15 +54,14 @@ const addReview = async (req, res, next) => {
 const getReviews = async (req, res, next) => {
   try {
     const reviews = await Review.find()
-      .populate("user", "name email") // Populate user details
-      .sort({ createdAt: -1 }); // Sort by newest first
+      .populate("user", "name email")
+      .sort({ createdAt: -1 }); 
 
     res.status(200).json({
       message: "Reviews fetched successfully",
       reviews,
     });
   } catch (error) {
-    console.error("Error fetching reviews:", error);
     next(error);
   }
 };
@@ -68,7 +70,7 @@ const getReviews = async (req, res, next) => {
 const updateReview = async (req, res, next) => {
   try {
     const { reviewId, review, rate } = req.body;
-    const userId = req.userData._id; // Authenticated user
+    const userId = req.user; // Authenticated user
 
     // Validate inputs
     if (!reviewId || !review || !rate) {
@@ -87,7 +89,9 @@ const updateReview = async (req, res, next) => {
     );
 
     if (!updatedReview) {
-      return res.status(404).json({ message: "Review not found or unauthorized" });
+      return res
+        .status(404)
+        .json({ message: "Review not found or unauthorized" });
     }
 
     res.status(200).json({
@@ -95,33 +99,6 @@ const updateReview = async (req, res, next) => {
       review: updatedReview,
     });
   } catch (error) {
-    console.error("Error updating review:", error);
-    next(error);
-  }
-};
-
-// Delete a Review
-const deleteReview = async (req, res, next) => {
-  try {
-    const { reviewId } = req.body;
-    const userId = req.userData._id; // Authenticated user
-
-    // Find and delete the review
-    const deletedReview = await Review.findOneAndDelete({
-      _id: reviewId,
-      user: userId, // Ensure the user is the owner of the review
-    });
-
-    if (!deletedReview) {
-      return res.status(404).json({ message: "Review not found or unauthorized" });
-    }
-
-    res.status(200).json({
-      message: "Review deleted successfully",
-      review: deletedReview,
-    });
-  } catch (error) {
-    console.error("Error deleting review:", error);
     next(error);
   }
 };
@@ -130,5 +107,4 @@ module.exports = {
   addReview,
   getReviews,
   updateReview,
-  deleteReview,
 };

@@ -64,7 +64,7 @@ const RecievedTickets = ({ title }) => {
   });
 
   const openModal = () => {
-    console.log("I am Clicked");
+    ("I am Clicked");
     setOpen(true);
   };
   

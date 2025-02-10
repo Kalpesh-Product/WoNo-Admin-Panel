@@ -28,7 +28,7 @@ const fetchAllLeaveTypes = async (req, res, next) => {
     // Respond with them
     res.json({ leavesTypes: listOfAllLeaveTypes });
   } catch (error) {
-    console.log(error);
+    (error);
     next(error);
   }
 };
@@ -46,7 +46,7 @@ const deleteLeaveType = async (req, res, next) => {
     // Respond with a message (eg: leave deleted)
     res.json({ success: "Leave Deleted" });
   } catch (error) {
-    console.log(error);
+    (error);
     next(error);
   }
 };
@@ -80,7 +80,7 @@ const softDeleteLeaveType = async (req, res, next) => {
     // Respond with the updated leave (after finding it)
     res.json({ leaveType: updatedLeave });
   } catch (error) {
-    console.log(error);
+    (error);
     next(error);
   }
 };

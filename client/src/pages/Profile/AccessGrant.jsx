@@ -54,7 +54,6 @@ const AccessGrant = ({ pageTitle }) => {
     const modules = moduleMapping[department];
     const modulesArray = Object.values(modules);
     setDepModules(modulesArray);
-    console.log(depModules);
 
     // Initialize selectAll state for each module array
     const initialSelectAllState = modulesArray.map(() => false);

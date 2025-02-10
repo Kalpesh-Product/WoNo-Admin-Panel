@@ -52,7 +52,6 @@ const EditDetails = () => {
   };
 
   const onSubmit = (data) => {
-    console.log("Form Data:", data);
     setIsEditing(!isEditing);
     toast.success("User details updated successfully");
   };

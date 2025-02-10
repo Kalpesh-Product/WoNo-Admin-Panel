@@ -92,7 +92,6 @@ const VendorOnboard = () => {
   ];
 
   const onSubmit = (data) => {
-    console.log("Form Data:", data);
   };
 
   const handleReset = () => {

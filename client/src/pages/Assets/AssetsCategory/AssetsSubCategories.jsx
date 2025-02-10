@@ -40,7 +40,7 @@ const AssetsSubCategories = () => {
         <PrimaryButton
           title="Disable"
           handleSubmit={() =>
-            console.log("Disable clicked for sub-category id", params.data.id)
+            ("Disable clicked for sub-category id", params.data.id)
           }
         />
       ),
@@ -55,7 +55,6 @@ const AssetsSubCategories = () => {
   ];
 
   const handleAddSubCategory = (data) => {
-    console.log("Adding new subcategory:", data);
     // Add API call here
     setModalOpen(false);
     reset();

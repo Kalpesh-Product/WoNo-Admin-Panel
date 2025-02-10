@@ -13,7 +13,7 @@ const roomSchema = new mongoose.Schema({
     status: {
       type: String,
       default: "Available",
-      enum: ["Available", "Unavailable"]
+      enum: ["Available","Occupied","Cleaning"]
     },
   },
   name: {
@@ -36,9 +36,9 @@ const roomSchema = new mongoose.Schema({
     },
     id: String,
   },
-  meetingStatus: {
+  housekeepingStatus: {
     type: String,
-    default: "Available",
+    enum: ["Pending","In Progress","Completed"]
   },
   assignedAssets: [
     {
