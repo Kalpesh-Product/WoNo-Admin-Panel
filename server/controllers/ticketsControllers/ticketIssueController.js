@@ -15,36 +15,22 @@ const addTicketIssue = async (req, res, next) => {
         .json({ message: "Invalid department ID provided" });
     }
 
-    // Find the company containing the department
-    const company = await Company.findOne({
-      "selectedDepartments.department": department,
-    });
+    // Update the department's ticketIssues array atomically
+    const updatedCompany = await Company.findOneAndUpdate(
+      { "selectedDepartments.department": department },
+      {
+        $push: {
+          "selectedDepartments.$.ticketIssues": { title, priority },
+        },
+      },
+      { new: true }
+    );
 
-    if (!company) {
+    if (!updatedCompany) {
       return res
         .status(404)
         .json({ message: "Department not found in any company" });
     }
-
-    // Find the correct department inside the selectedDepartments array
-    const departmentIndex = company.selectedDepartments.findIndex(
-      (dept) => dept.department.toString() === department
-    );
-
-    if (departmentIndex === -1) {
-      return res
-        .status(404)
-        .json({ message: "Department not found in the company" });
-    }
-
-    // Add the new ticket issue
-    company.selectedDepartments[departmentIndex].ticketIssues.push({
-      title,
-      priority,
-    });
-
-    // Save the updated document
-    await company.save();
 
     return res.status(201).json({ message: "New issue added successfully" });
   } catch (error) {
@@ -62,30 +48,19 @@ const getTicketIssue = async (req, res, next) => {
         .json({ message: "Invalid department ID provided" });
     }
 
-    // Find the company containing the department
+    // Find the company containing the department and retrieve the ticket issues
     const company = await Company.findOne(
       { "selectedDepartments.department": department },
-      { selectedDepartments: 1 } // Fetch only the selectedDepartments array
+      { "selectedDepartments.$": 1 }
     ).lean();
 
-    if (!company) {
+    if (!company || !company.selectedDepartments.length) {
       return res
         .status(404)
         .json({ message: "Department not found in any company" });
     }
 
-    // Find the correct department inside selectedDepartments
-    const departmentData = company.selectedDepartments.find(
-      (dept) => dept.department.toString() === department
-    );
-
-    if (!departmentData) {
-      return res
-        .status(404)
-        .json({ message: "Department not found in the company" });
-    }
-
-    const ticketIssues = departmentData.ticketIssues || [];
+    const ticketIssues = company.selectedDepartments[0].ticketIssues || [];
 
     if (ticketIssues.length === 0) {
       return res.status(204).send();
