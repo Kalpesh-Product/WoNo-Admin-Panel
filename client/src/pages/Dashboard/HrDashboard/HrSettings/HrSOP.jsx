@@ -1,13 +1,29 @@
 import React from 'react'
 import AgTable from "../../../../components/AgTable";
 import { Chip } from "@mui/material";
+import useAxiosPrivate from '../../../../hooks/useAxiosPrivate';
+import { useQuery } from '@tanstack/react-query';
 
 
 const HrSOP = () => {
 
+  const axios = useAxiosPrivate()
+
+  const { data: sops = [] } = useQuery({
+    queryKey: ["sops"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/company/get-company-documents/sop");
+        return response.data.sop
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
+
   const departmentsColumn = [
-          { field:"srno" , headerName:"SR NO"},
-          { field: "policyname", headerName: "POLICY NAME",
+          { field:"id" , headerName:"SR NO"},
+          { field: "sopname", headerName: "SOP NAME",
             cellRenderer:(params)=>{
               return(
                 <div>
@@ -21,19 +37,20 @@ const HrSOP = () => {
             field: "status",
             headerName: "Status",
             cellRenderer: (params) => {
+              const status = params.value ? "Active" : "Inactive";
               const statusColorMap = {
                 Inactive: { backgroundColor: "#FFECC5", color: "#CC8400" }, // Light orange bg, dark orange font
                 Active: { backgroundColor: "#90EE90", color: "#006400" }, // Light green bg, dark green font
               };
       
-              const { backgroundColor, color } = statusColorMap[params.value] || {
+              const { backgroundColor, color } = statusColorMap[status] || {
                 backgroundColor: "gray",
                 color: "white",
               };
               return (
                 <>
                   <Chip
-                    label={params.value}
+                    label={status}
                     style={{
                       backgroundColor,
                       color,
@@ -88,11 +105,16 @@ const HrSOP = () => {
   return (
     <div>
         <AgTable
+         key={sops.length}
           search={true}
           searchColumn={"SOPs"}
           tableTitle={"SOP List"}
           buttonTitle={"Add SOP"}
-          data={rows}
+          data={[...sops.map((sop, index)=>({
+            id : index + 1,
+            sopname: sop.name,  
+            status: sop.isActive 
+          }))]}
           columns={departmentsColumn}
         />
       </div>

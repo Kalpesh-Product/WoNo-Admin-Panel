@@ -31,12 +31,14 @@ const onboardVendor = async (req, res, next) => {
       .lean()
       .exec();
 
+      
+
     if (!currentUser) {
       return res.status(404).json({ message: "User not found" });
     }
 
     // Check if the user is part of the given department
-    if (!currentUser.department.includes(departmentId)) {
+    if (!currentUser.department.find(dept => dept._id.toString() === departmentId)) {
       return res.status(403).json({
         message: "You are not a member of this department.",
       });

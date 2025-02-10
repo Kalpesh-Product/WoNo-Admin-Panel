@@ -78,9 +78,9 @@ const Agreements = () => {
           buttonTitle={"Add Agreement"}
           data={[
             ...agreements.map((agreement, index) => ({
-              id: index + 1, // Auto-increment Sr No
-              name: agreement.name, // Birthday Name
-              status: agreement.status 
+              id: index + 1,  
+              name: agreement.name,  
+              status: agreement.isActive 
             })),
           ]}
           columns={agreementColumn}

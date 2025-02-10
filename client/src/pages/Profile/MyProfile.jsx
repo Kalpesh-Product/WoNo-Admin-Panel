@@ -116,7 +116,7 @@ const MyProfile = ({ handleClose, pageTitle }) => {
     } catch (error) {
     }
   }
-
+ 
   useEffect(() => {
     const fetchUser = async () => {
       try {

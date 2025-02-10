@@ -39,11 +39,16 @@ const meetingSchema = new mongoose.Schema(
     ],
     externalParticipants: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "ExternalClient",
+        name: {
+          type: String
+        }
       },
     ],
     agenda: {
+      type: String,
+      required: true,
+    },
+    subject: {
       type: String,
       required: true,
     },
