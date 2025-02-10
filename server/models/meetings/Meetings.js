@@ -47,19 +47,16 @@ const meetingSchema = new mongoose.Schema(
     externalCompanyData: {
       companyName: {
         type: String,
-        required: true,
       },
       companyURL: {
         type: String,
       },
       email: {
         type: String,
-        required: true,
         unique: true,
       },
       mobileNumber: {
         type: String,
-        required: true,
       },
       gstNumber: {
         type: String,
@@ -74,7 +71,6 @@ const meetingSchema = new mongoose.Schema(
       },
       personName: {
         type: String,
-        required: true,
       },
     },
     agenda: {

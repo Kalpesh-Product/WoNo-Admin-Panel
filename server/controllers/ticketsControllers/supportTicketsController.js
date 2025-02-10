@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const SupportTicket = require("../../models/tickets/supportTickets");
-const User = require("../../models/User");
+const User = require("../../models/UserData");
 const Ticket = require("../../models/tickets/Tickets");
 
 const supportTicket = async (req, res, next) => {
