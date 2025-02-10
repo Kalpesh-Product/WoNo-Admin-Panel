@@ -1,7 +1,5 @@
  
 const Event = require("../../models/Events");
-const User = require("../../models/User");
-const checkPermission = require("../../utils/checkPermission");
 
 const createEvent = async (req, res, next) => {
   try {

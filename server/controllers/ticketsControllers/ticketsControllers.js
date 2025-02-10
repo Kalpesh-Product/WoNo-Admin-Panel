@@ -1,10 +1,16 @@
 const Tickets = require("../../models/tickets/Tickets");
 const TicketIssues = require("../../models/tickets/TicketIssues");
-const User = require("../../models/User");
+const User = require("../../models/UserData");
 const mongoose = require("mongoose");
 const Ticket = require("../../models/tickets/Tickets");
 const Department = require("../../models/Departments");
-const { filterCloseTickets, filterAcceptTickets, filterSupportTickets, filterEscalatedTickets, filterAssignedTickets } = require("../../utils/filterTickets");
+const {
+  filterCloseTickets,
+  filterAcceptTickets,
+  filterSupportTickets,
+  filterEscalatedTickets,
+  filterAssignedTickets,
+} = require("../../utils/filterTickets");
 
 const raiseTicket = async (req, res, next) => {
   try {
@@ -39,7 +45,7 @@ const raiseTicket = async (req, res, next) => {
       .exec();
 
     if (!loggedInUser) {
-      return res.sendStatus(403) 
+      return res.sendStatus(403);
     }
 
     const newTicket = new Ticket({
@@ -60,10 +66,10 @@ const raiseTicket = async (req, res, next) => {
 const getTickets = async (req, res, next) => {
   try {
     const { user } = req;
-    const loggedInUser = await User.findOne({ _id: user }) 
-    .populate({path:"role",select:"roleTitle"})
-    .lean()
-    .exec();
+    const loggedInUser = await User.findOne({ _id: user })
+      .populate({ path: "role", select: "roleTitle" })
+      .lean()
+      .exec();
 
     if (!loggedInUser || !loggedInUser.department) {
       return res.sendStatus(403);
@@ -73,29 +79,21 @@ const getTickets = async (req, res, next) => {
       dept.toString()
     );
 
-    
-    let matchingTickets 
-    
-    
-    if(loggedInUser.role.roleTitle === "Master-Admin"){ 
-       
-        matchingTickets = await Ticket.find({
-          $and: [
-            { accepted: { $exists: false } },
-            { raisedBy: { $ne: loggedInUser._id } },
-            {status:"Pending"}
-          ],
-         }
-      )
-        .populate([ 
+    let matchingTickets;
+
+    if (loggedInUser.role.roleTitle === "Master-Admin") {
+      matchingTickets = await Ticket.find({
+        $and: [
+          { accepted: { $exists: false } },
+          { raisedBy: { $ne: loggedInUser._id } },
+          { status: "Pending" },
+        ],
+      }).populate([
         { path: "ticket" },
         { path: "raisedBy", select: "name" },
-        { path: "raisedToDepartment", select: "name" }
-      ])
-   
-    } 
-    else{
-      
+        { path: "raisedToDepartment", select: "name" },
+      ]);
+    } else {
       matchingTickets = await Ticket.find({
         $and: [
           {
@@ -106,7 +104,7 @@ const getTickets = async (req, res, next) => {
           },
           { accepted: { $exists: false } },
           { raisedBy: { $ne: loggedInUser._id } },
-          {status:"Pending"}
+          { status: "Pending" },
         ],
       })
         .populate([
@@ -117,8 +115,6 @@ const getTickets = async (req, res, next) => {
         .lean()
         .exec();
     }
-
-     
 
     if (matchingTickets.length) {
       return res.status(200).json(matchingTickets);
@@ -315,7 +311,7 @@ const closeTicket = async (req, res, next) => {
         return res.status(400).json({ message: "Invalid ticket ID provided" });
       }
     }
- 
+
     const userDepartments = foundUser.department.map((dept) => dept.toString());
 
     const ticketInDepartment = userDepartments.some((id) =>
@@ -337,12 +333,12 @@ const closeTicket = async (req, res, next) => {
 const fetchFilteredTickets = async (req, res, next) => {
   try {
     const { user } = req;
- 
+
     const { flag } = req.params;
 
     const loggedInUser = await User.findOne({ _id: user })
       .select("-refreshToken -password")
-      .populate({path:"role",select:"roleTitle"})
+      .populate({ path: "role", select: "roleTitle" })
       .lean()
       .exec();
     if (!loggedInUser) {
@@ -351,7 +347,7 @@ const fetchFilteredTickets = async (req, res, next) => {
 
     const userDepartments = loggedInUser.department.map((dept) =>
       dept.toString()
-    ); 
+    );
 
     if (
       !userDepartments ||
@@ -361,19 +357,34 @@ const fetchFilteredTickets = async (req, res, next) => {
       return res.status(400).json("Invalid or empty userDepartments array");
     }
 
-    let filteredTickets = []
+    let filteredTickets = [];
     switch (flag) {
-      case  'accept': filteredTickets = await filterAcceptTickets(user,loggedInUser)
+      case "accept":
+        filteredTickets = await filterAcceptTickets(user, loggedInUser);
         break;
-      case  'assign': filteredTickets = await filterAssignedTickets(userDepartments,loggedInUser)
+      case "assign":
+        filteredTickets = await filterAssignedTickets(
+          userDepartments,
+          loggedInUser
+        );
         break;
-      case  'close': filteredTickets = await filterCloseTickets(userDepartments,loggedInUser)
+      case "close":
+        filteredTickets = await filterCloseTickets(
+          userDepartments,
+          loggedInUser
+        );
         break;
-      case  'support': filteredTickets = await filterSupportTickets(user,loggedInUser)
+      case "support":
+        filteredTickets = await filterSupportTickets(user, loggedInUser);
         break;
-      case  'escalate': filteredTickets = await filterEscalatedTickets(userDepartments,loggedInUser)
+      case "escalate":
+        filteredTickets = await filterEscalatedTickets(
+          userDepartments,
+          loggedInUser
+        );
         break;
-      default: return res.sendStatus(404);
+      default:
+        return res.sendStatus(404);
     }
 
     return res.status(200).json(filteredTickets);
