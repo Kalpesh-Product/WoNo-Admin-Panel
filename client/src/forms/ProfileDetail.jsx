@@ -124,7 +124,7 @@ export const WorkDetails = ({ formData, handleChange, isEditable }) => {
 };
 
 export const KycDetails = ({ formData, handleChange, isEditable }) => {
-  console.log(formData?.aadhaar)
+  (formData?.aadhaar)
   return (
     <div>
       <h3 className="text-subtitle font-pmedium my-4">KYC Details</h3>

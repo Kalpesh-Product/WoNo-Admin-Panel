@@ -14,7 +14,7 @@ const Profile = () => {
     setActiveTab(newValue);
   };
 
-  console.log('tab:',activeTab)
+  ('tab:',activeTab)
   return (
     <div className="w-full rounded-md bg-white p-4">
       <Tabs

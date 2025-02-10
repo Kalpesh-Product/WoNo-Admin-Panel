@@ -1,5 +1,5 @@
 const Roles = require("../../models/Roles");
-const User = require("../../models/User");
+const User = require("../../models/UserData");
 const mongoose = require("mongoose");
 
 const grantAccess = async (req, res, next) => {

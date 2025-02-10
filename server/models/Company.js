@@ -109,17 +109,17 @@ const companySchema = new mongoose.Schema({
         default: true,
       },
       leavesCount: [
-       {
-        leaveType:{
-         name:{
-          type: String,
-         },
-         count:{
-          type: Number,
-          default: 0
-         }
+        {
+          leaveType: {
+            name: {
+              type: String,
+            },
+            count: {
+              type: Number,
+              default: 0,
+            },
+          },
         },
-      }
       ],
     },
   ],
@@ -145,20 +145,7 @@ const companySchema = new mongoose.Schema({
       },
     },
   ],
-  // shifts: [
-  //   {
-  //     name: {
-  //       type: String,
-  //     },
-  //     status: {
-  //       type: Boolean,
-  //       default: true,
-  //     },
-  //   },
-  // ],
-  shifts:[
-    {type: String}
-  ],
+  shifts: [{ type: String }],
   templates: [
     {
       name: {

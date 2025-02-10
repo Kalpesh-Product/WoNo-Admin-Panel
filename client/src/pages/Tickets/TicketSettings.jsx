@@ -12,7 +12,7 @@ const TicketSettings = () => {
 
   const toggleRowExpansion = (rowId) => {
 
-    console.log('RowId',rowId);
+    ('RowId',rowId);
     setExpandedRow((prevState) => ({
       ...prevState,
       [rowId]: !prevState[rowId], // Toggle the specific row

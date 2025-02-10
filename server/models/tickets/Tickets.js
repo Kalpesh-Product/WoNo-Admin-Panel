@@ -6,14 +6,14 @@ const ticketsSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "TicketIssue",
     },
-    raisedToDepartment:{
-     type: mongoose.Schema.Types.ObjectId,
-      ref: "Department",
-     },
-     raisedBy:{
+    raisedToDepartment: {
       type: mongoose.Schema.Types.ObjectId,
-       ref: "User",
-      },
+      ref: "Department",
+    },
+    raisedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "UserData",
+    },
     description: {
       type: String,
       required: true,

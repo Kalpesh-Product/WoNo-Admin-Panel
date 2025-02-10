@@ -39,7 +39,7 @@ const FrontendWebsiteIssueReports = () => {
         <PrimaryButton
           title="View Details"
           handleSubmit={() =>
-            console.log("View Details clicked for id", params.data.id)
+            ("View Details clicked for id", params.data.id)
           }
         />
       ),

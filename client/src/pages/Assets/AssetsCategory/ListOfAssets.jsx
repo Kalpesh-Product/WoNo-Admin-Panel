@@ -182,7 +182,7 @@ const ListOfAssets = () => {
       // Logic to add new asset
       try {
         // await axios.post('/api/assets', assetData);
-        console.log("Adding new asset:", assetData);
+        ("Adding new asset:", assetData);
       } catch (error) {
         console.error("Error adding asset:", error);
       }
@@ -190,7 +190,7 @@ const ListOfAssets = () => {
       // Logic to update existing asset
       try {
         // await axios.put(`/api/assets/${assetData.id}`, assetData);
-        console.log("Updating asset:", assetData);
+        ("Updating asset:", assetData);
       } catch (error) {
         console.error("Error updating asset:", error);
       }

@@ -13,16 +13,12 @@ const credentials = require("./middlewares/credentials");
 const ticketsRoutes = require("./routes/ticketRoutes");
 const leaveRoutes = require("./routes/leaveRoutes");
 const employeeAgreementRoutes = require("./routes/employeeAgreementRoutes");
-const sopRoutes = require("./routes/SopRoutes");
-const policyRoutes = require("./routes/PolicyRoutes");
 const meetingsRoutes = require("./routes/meetingRoutes");
 const assetsRoutes = require("./routes/assetsRoutes");
 const departmentsRoutes = require("./routes/departmentRoutes");
 const companyRoutes = require("./routes/companyRoutes");
 const userRoutes = require("./routes/userRoutes");
 const designationRoutes = require("./routes/designationRoutes");
-const moduleRoutes = require("./routes/moduleRoutes");
-const subModuleRoutes = require("./routes/subModuleRoutes");
 const roleRoutes = require("./routes/roleRoutes");
 const eventRoutes = require("./routes/eventsRoutes");
 const taskRoutes = require("./routes/tasksRoutes");
@@ -67,12 +63,8 @@ app.use("/api/meetings",verifyJwt, meetingsRoutes);
 app.use("/api/tickets", verifyJwt, ticketsRoutes);
 app.use("/api/leaves", verifyJwt, leaveRoutes);
 app.use("/api/employee-agreements", employeeAgreementRoutes);
-app.use("/api/sops", sopRoutes);
-app.use("/api/policies", policyRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/roles", roleRoutes);
-app.use("/api/modules", moduleRoutes);
-app.use("/api/sub-modules", subModuleRoutes);
 app.use("/api/vendors", verifyJwt, vendorRoutes);
 app.use("/api/events", verifyJwt, eventRoutes);
 app.use("/api/payroll", payrollRoutes);
@@ -104,7 +96,5 @@ app.all("*", (req, res) => {
 app.use(errorHandler);
 
 mongoose.connection.once("open", () => {
-  app.listen(PORT, () => {
-    console.log(`server started on port ${PORT}`);
-  });
+  app.listen(PORT);
 });
