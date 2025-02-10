@@ -1,6 +1,5 @@
 
 const Company = require("../../models/Company");
-const User = require("../../models/User");
 const mongoose = require("mongoose");
 
 const addShift = async (req, res, next) => {
