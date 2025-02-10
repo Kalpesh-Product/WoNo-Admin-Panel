@@ -3,8 +3,11 @@ import WidgetSection from "../../components/WidgetSection";
 import Card from "../../components/Card";
 import AgTable from "../../components/AgTable";
 import { Chip, MenuItem, Select } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 
 const ManageMeetings = () => {
+  const axios = useAxiosPrivate()
   const statusColors = {
     Scheduled: { bg: "#E3F2FD", text: "#1565C0" }, // Light Blue
     Ongoing: { bg: "#FFF3E0", text: "#E65100" }, // Light Orange
@@ -61,7 +64,6 @@ const ManageMeetings = () => {
     const updatedData = [...rowData];
     updatedData[rowIndex].houseKeepingStatus = value;
     setRowData(updatedData);
-    (rowData);
   };
 
   const columns = [
@@ -147,6 +149,8 @@ const ManageMeetings = () => {
       ),
     },
   ];
+
+
 
   return (
     <div className="p-4 flex flex-col gap-4">
