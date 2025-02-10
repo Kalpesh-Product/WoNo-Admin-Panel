@@ -40,7 +40,6 @@ const AssetsCategories = () => {
   ];
 
   const handleAddCategory = (data) => {
-    ("Adding new category:", data.categoryName);
     // Add API call here
     setModalOpen(false);
     reset();

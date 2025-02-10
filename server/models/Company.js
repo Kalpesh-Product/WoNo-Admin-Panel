@@ -104,7 +104,7 @@ const companySchema = new mongoose.Schema({
       name: {
         type: String,
       },
-      status: {
+      isActive: {
         type: Boolean,
         default: true,
       },
@@ -128,7 +128,7 @@ const companySchema = new mongoose.Schema({
       name: {
         type: String,
       },
-      status: {
+      isActive: {
         type: Boolean,
         default: true,
       },
@@ -139,7 +139,7 @@ const companySchema = new mongoose.Schema({
       name: {
         type: String,
       },
-      status: {
+      isActive: {
         type: Boolean,
         default: true,
       },

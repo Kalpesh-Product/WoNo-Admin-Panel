@@ -86,7 +86,7 @@ const EmployeeType = () => {
             ...employeeTypes.map((type, index) => ({
               id: index + 1, 
               name: type.name, 
-              status: type.status 
+              status: type.isActive 
             })),
           ]}
           columns={departmentsColumn}

@@ -59,24 +59,16 @@ const MyProfile = ({ handleClose, pageTitle }) => {
   const handleWorkDetailsChange = (field, value) => {
     setWorkDetails((prev) => ({ ...prev, [field]: value }));
 
-    (field);
-    (value);
   };
 
   const handleKycDetailsChange = (field, value) => {
     setKycDetails((prev) => ({ ...prev, [field]: value }));
 
-    ("kyc field",field);
-    ("kyc value",value);
-    ("kyc full",kycDetails);
   };
 
   const handleBankDetailsChange = (field, value) => {
     setBankDetails((prev) => ({ ...prev, [field]: value }));
 
-    (field);
-    (value);
-    (bankDetails);
   };
 
   const handleSubmit = async () => {
@@ -87,7 +79,6 @@ const MyProfile = ({ handleClose, pageTitle }) => {
       bankDetails,
     };
 
-    ("Submitting Form Data:", consolidatedFormData);
 
     // Send consolidatedFormData to API
 
@@ -114,20 +105,18 @@ const MyProfile = ({ handleClose, pageTitle }) => {
       const response = await api.get("/api/roles/get-roles");
       return response.data.roles;
     } catch (error) {
-      (error);
+
     }
   }
 
   async function fetchDepartments() {
     try {
       const response = await api.get("/api/departments/get-departments");
-      ("dept:", response.data);
       return response.data.departments;
     } catch (error) {
-      (error);
     }
   }
-
+ 
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -142,10 +131,8 @@ const MyProfile = ({ handleClose, pageTitle }) => {
         const departments = await fetchDepartments();
 
         const dateString = fetchedUser?.startDate;
-        ("date::", dateString);
         const formattedDate = dayjs(dateString).format("MM/DD/YYYY");
 
-        (formattedDate); // Output: "15-01-2023"
 
         setPersonalDetails({
           name: fetchedUser.name || "",
@@ -186,7 +173,6 @@ const MyProfile = ({ handleClose, pageTitle }) => {
           ifsc: fetchedUser.bankDetails?.ifsc || "",
         });
 
-        ("User data fetched and state updated:", fetchedUser);
       } catch (error) {
         console.error("Error fetching user data:", error);
       }

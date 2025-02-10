@@ -38,7 +38,7 @@ const userDataSchema = new mongoose.Schema({
     ref: "Company",
     required: true,
   },
-  department: [
+  departments: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Department",

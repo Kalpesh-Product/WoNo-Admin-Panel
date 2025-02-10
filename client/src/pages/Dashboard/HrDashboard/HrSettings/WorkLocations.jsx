@@ -128,7 +128,7 @@ const WorkLocations = () => {
             ...workLocations.map((location, index) => ({
               id: index + 1, // Auto-increment Sr No
               name: location.name, // Birthday Name
-              status: location.status 
+              status: location.isActive 
             })),
           ]}
         />

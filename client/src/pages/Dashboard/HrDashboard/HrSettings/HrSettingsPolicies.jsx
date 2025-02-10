@@ -37,19 +37,20 @@ const HrSettingsPolicies = () => {
           field: "status",
           headerName: "Status",
           cellRenderer: (params) => {
+            const status = params.value ? "Active" : "Inactive";
             const statusColorMap = {
               Inactive: { backgroundColor: "#FFECC5", color: "#CC8400" }, // Light orange bg, dark orange font
               Active: { backgroundColor: "#90EE90", color: "#006400" }, // Light green bg, dark green font
             };
     
-            const { backgroundColor, color } = statusColorMap[params.value] || {
+            const { backgroundColor, color } = statusColorMap[status] || {
               backgroundColor: "gray",
               color: "white",
             };
             return (
               <>
                 <Chip
-                  label={params.value}
+                  label={status}
                   style={{
                     backgroundColor,
                     color,
@@ -104,12 +105,15 @@ const HrSettingsPolicies = () => {
   return (
     <div>
         <AgTable
+         key={policies.length}
           search={true}
           searchColumn={"Policies"}
           tableTitle={"Policy List"}
           buttonTitle={"Add Policy"}
           data={[...policies.map((policy, index)=>({
             id : index + 1,
+            policyname: policy.name,  
+            status: policy.isActive 
           }))]}
           columns={departmentsColumn}
         />

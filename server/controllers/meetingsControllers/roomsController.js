@@ -1,8 +1,8 @@
 const Room = require("../../models/meetings/Rooms");
 const idGenerator = require("../../utils/idGenerator");
 const User = require("../../models/UserData");
-const Company = require("../../models/Company");
 const sharp = require("sharp");
+const mongoose = require("mongoose");
 const { handleFileUpload } = require("../../config/cloudinaryConfig");
 
 const addRoom = async (req, res, next) => {
@@ -170,4 +170,33 @@ const updateRoom = async (req, res, next) => {
   }
 };
 
-module.exports = { addRoom, getRooms, updateRoom };
+
+const updateHousekeepingStatus = async (req,res,next) => {
+
+  try {
+  
+    const {housekeepingStatus,bookedRoom} = req.body
+
+    if(!mongoose.Types.ObjectId.isValid){
+      return res.status(400).json({message:"Invalid room Id provided"})
+    }
+
+    const roomStatus = housekeepingStatus === "Pending" ? "Occupied" : housekeepingStatus === "In Progress" ? "Cleaning" : housekeepingStatus === "Completed" ? "Available" : ""
+
+    const foundRoom = await Room.findByIdAndUpdate({_id:bookedRoom},{
+      housekeepingStatus,
+      "location.status": roomStatus
+    },
+  {new: true})
+
+    if(!foundRoom){
+      return res.status(400).json({message: "Failed to update status"})
+    }
+
+    return res.status(200).json({message: "Status updated successfully"})
+  } catch (error) {
+    next(error)
+  }
+}
+
+module.exports = { addRoom, getRooms, updateRoom, updateHousekeepingStatus };
