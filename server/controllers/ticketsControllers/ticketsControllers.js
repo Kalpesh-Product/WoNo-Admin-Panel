@@ -59,8 +59,7 @@ const raiseTicket = async (req, res, next) => {
     if (!department) {
       return res.status(400).json({ message: "Invalid Department ID" });
     }
-
-    console.log(department)
+ 
     // Check if the issue exists in the department's ticketIssues
     const foundIssue = department.ticketIssues.find(
       (ticketIssue) => ticketIssue._id.toString() === issue
