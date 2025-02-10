@@ -165,7 +165,6 @@ const addMeetings = async (req, res, next) => {
       message: "Meeting added successfully",
     });
   } catch (error) {
-    console.error("Error adding meeting:", error);
     next(error);
   }
 };
@@ -196,8 +195,6 @@ const getMeetings = async (req, res, next) => {
     const department = await Department.findById({_id:departments.departments[0]})
  
     const internalParticipants =  meetings.map((meeting)=> meeting.internalParticipants.map((participants)=>participants.name))
- 
-    console.log(internalParticipants)
 
     if (!meetings) {
       return res.status(400).json({ message: "No meetings found" });
