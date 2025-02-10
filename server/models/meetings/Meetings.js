@@ -44,6 +44,39 @@ const meetingSchema = new mongoose.Schema(
         }
       },
     ],
+    externalCompanyData: {
+      companyName: {
+        type: String,
+        required: true,
+      },
+      companyURL: {
+        type: String,
+      },
+      email: {
+        type: String,
+        required: true,
+        unique: true,
+      },
+      mobileNumber: {
+        type: String,
+        required: true,
+      },
+      gstNumber: {
+        type: String,
+        unique: true,
+      },
+      panNumber: {
+        type: String,
+        unique: true,
+      },
+      address: {
+        type: String,
+      },
+      personName: {
+        type: String,
+        required: true,
+      },
+    },
     agenda: {
       type: String,
       required: true,

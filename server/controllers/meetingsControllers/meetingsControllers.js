@@ -94,7 +94,7 @@ const addMeetings = async (req, res, next) => {
     } else if (externalCompanyData) {
       const {
         companyName,
-        registeredCompanyName,
+        // registeredCompanyName,
         companyURL,
         email,
         mobileNumber,
@@ -112,7 +112,7 @@ const addMeetings = async (req, res, next) => {
 
       const newExternalClient = new ExternalClient({
         companyName,
-        registeredCompanyName,
+        // registeredCompanyName,
         companyURL,
         email,
         mobileNumber,
@@ -184,17 +184,26 @@ const getMeetings = async (req, res, next) => {
         path: "bookedRoom",
         select: "name",  
       },
+      {
+        path: "internalParticipants",
+        select: "name",  
+      },
+      
     ]);
 
     const departments = await User.findById({_id:user}).select("departments")
 
     const department = await Department.findById({_id:departments.departments[0]})
+ 
+    const internalParticipants =  meetings.map((meeting)=> meeting.internalParticipants.map((participants)=>participants.name))
+ 
+    console.log(internalParticipants)
 
     if (!meetings) {
       return res.status(400).json({ message: "No meetings found" });
     }
 
-    const transformedMeetings = meetings.map((meeting) => {
+    const transformedMeetings = meetings.map((meeting,index) => {
       return {
         name: meeting.bookedBy.name,
         department: department.name,
@@ -208,7 +217,7 @@ const getMeetings = async (req, res, next) => {
         action: meeting.extend,
         agenda: meeting.agenda,
         subject: meeting.subject,
-        internalParticipants: meeting.internalParticipants,
+        internalParticipants: internalParticipants[index],
         externalParticipants: meeting.externalParticipants,
         company: meeting.company,
       };
