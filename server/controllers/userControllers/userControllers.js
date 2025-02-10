@@ -2,14 +2,29 @@ const Company = require("../../models/Company");
 const bcrypt = require("bcryptjs");
 const User = require("../../models/UserData"); 
 const Role = require("../../models/Roles");
+const { default: mongoose } = require("mongoose");
+const Department = require("../../models/Departments");
 
 const createUser = async (req, res, next) => {
   try {
-    const { empId, name, gender, email, phone, role, companyId } = req.body;
+    const { empId, name, gender, email, phone, role, companyId,departments, employeeType } = req.body;
 
     // Validate required fields
-    if (!empId || !name || !email || !phone || !companyId) {
+    if (!empId || !name || !email || !phone || !companyId || !employeeType || !departments ) {
       return res.status(400).json({ message: "Missing required fields" });
+    }
+ 
+    const invalidDepartmentIds = departments.filter((id)=> !mongoose.Types.ObjectId.isValid(id))
+ 
+    if(invalidDepartmentIds.length > 0){
+      return res.status(400).json({ message: "Invalid department Id provided" });
+    }
+
+    // Check if department exists
+    const departmentExists = await Department.find({ _id: {$in : departments} }).lean().exec();
+
+    if (!departmentExists) {
+      return res.status(404).json({ message: "Department not found" });
     }
 
     // Check if company exists
@@ -64,6 +79,8 @@ const createUser = async (req, res, next) => {
       role,
       company: companyId,
       password: hashedPassword,
+      departments,
+      employeeType
     });
 
     // Save the user
