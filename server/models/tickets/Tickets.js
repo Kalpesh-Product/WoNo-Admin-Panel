@@ -32,14 +32,18 @@ const ticketsSchema = new mongoose.Schema(
     assignees: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        ref: "UserData",
       },
     ],
     accepted: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "UserData",
     },
     resolvedDate: Date,
+    company: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+    },
   },
   { timestamps: true }
 );

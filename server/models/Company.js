@@ -31,6 +31,21 @@ const companySchema = new mongoose.Schema({
           ref: "UserData",
         },
       ],
+      ticketIssues: [
+        {
+          title: {
+            type: String,
+            required: true,
+          },
+        },
+        {
+          priority: {
+            type: String,
+            enum: ["High", "Medium", "Low"],
+            default: "Low",
+          },
+        },
+      ],
       policies: [
         {
           name: {
