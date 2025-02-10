@@ -115,7 +115,7 @@ const fetchUser = async (req, res) => {
         .select("-password")
         .populate([
           // { path: "reportsTo", select: "name email" },
-          { path: "department", select: "name" },
+          { path: "departments", select: "name" },
           { path: "company", select: "name" },
           { path: "role", select: "roleTitle modulePermissions" },
         ]);
@@ -128,7 +128,7 @@ const fetchUser = async (req, res) => {
       .select("-password")
       .populate([
         // { path: "reportsTo", select: "name email" },
-        { path: "department", select: "name" },
+        { path: "departments", select: "name" },
         { path: "company", select: "name" },
         { path: "role", select: "roleTitle modulePermissions" },
       ])
@@ -151,7 +151,7 @@ const fetchSingleUser = async (req, res) => {
       .select("-password")
       .populate([
         { path: "reportsTo", select: "name email" },
-        { path: "department", select: "name" },
+        { path: "departments", select: "name" },
         { path: "company", select: "name" },
         { path: "role", select: "roleTitle modulePermissions" },
       ])
