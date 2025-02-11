@@ -140,6 +140,53 @@ const addMeetings = async (req, res, next) => {
         message: "Room is already booked for the specified time",
       });
     }
+
+
+    //Adding housekeeping checklist
+
+    const housekeepingChecklist = [
+      {
+        name: "Clean and arrange chairs and tables",
+        status: "Pending",
+      },
+      {
+        name: "Check projector functionality",
+        status: "Pending",
+      },
+      {
+        name: "Ensure AC is working",
+        status: "Pending",
+      },
+      {
+        name: "Clean whiteboard and provide markers",
+        status: "Pending",
+      },
+      {
+        name: "Vacuum and clean the floor",
+        status: "Pending",
+      },
+      {
+        name: "Check lighting and replace bulbs if necessary",
+        status: "Pending",
+      },
+      {
+        name: "Ensure Wi-Fi connectivity",
+        status: "Pending",
+      },
+      {
+        name: "Stock water bottles and glasses",
+        status: "Pending",
+      },
+      {
+        name: "Inspect electrical sockets and outlets",
+        status: "Pending",
+      },
+      {
+        name: "Remove any trash or debris",
+        status: "Pending",
+      },
+    ];
+    
  
     const meeting = new Meeting({
       meetingType,
@@ -152,6 +199,7 @@ const addMeetings = async (req, res, next) => {
       subject,
       agenda,
       company,
+      housekeepingChecklist,
       internalParticipants: internalParticipants ? participants : [],
       externalParticipants: externalParticipants ? externalParticipants : [],
     });
@@ -227,5 +275,16 @@ const getMeetings = async (req, res, next) => {
     next(error);
   }
 };
+
+
+// const updateHousekeepingChecklist = async (req, res, next) => {
+
+//   try {
+//     const 
+//   } catch (error) {
+    
+//   }
+// }
+
 
 module.exports = { addMeetings, getMeetings };

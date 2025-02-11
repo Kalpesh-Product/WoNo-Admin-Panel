@@ -143,7 +143,7 @@ const getCompanyLogo = async (req, res, next) => {
 };
 
 const getCompanyData = async (req, res, next) => {
-  const { field } = req.params; // employeeTypes | workLocations | leaveTypes | shifts
+  const { field } = req.body; // employeeTypes | workLocations | leaveTypes | shifts
   const companyId = req.userData.company;
 
   try {
