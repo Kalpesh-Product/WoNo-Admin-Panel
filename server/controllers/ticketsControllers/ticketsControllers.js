@@ -195,7 +195,7 @@ const acceptTicket = async (req, res, next) => {
       }
     }
 
-    const userDepartments = foundUser.department.map((dept) => dept.toString());
+    const userDepartments = foundUser.departments.map((dept) => dept.toString());
 
     const ticketInDepartment = userDepartments.some((id) =>
       foundTicket.raisedToDepartment.equals(id)
@@ -251,7 +251,7 @@ const assignTicket = async (req, res, next) => {
       }
     }
 
-    const userDepartments = foundUser.department.map((dept) => dept.toString());
+    const userDepartments = foundUser.departments.map((dept) => dept.toString());
 
     const ticketInDepartment = userDepartments.some((id) =>
       foundTicket.raisedToDepartment.equals(id)
@@ -310,7 +310,7 @@ const escalateTicket = async (req, res, next) => {
       return res.status(400).json({ message: "Ticket doesn't exists" });
     }
 
-    const userDepartments = foundUser.department.map((dept) => dept.toString());
+    const userDepartments = foundUser.departments.map((dept) => dept.toString());
 
     const foundTickets = await Tickets.find({
       raisedToDepartment: {
@@ -356,7 +356,7 @@ const closeTicket = async (req, res, next) => {
       }
     }
 
-    const userDepartments = foundUser.department.map((dept) => dept.toString());
+    const userDepartments = foundUser.departments.map((dept) => dept.toString());
 
     const ticketInDepartment = userDepartments.some((id) =>
       foundTicket.raisedToDepartment.equals(id)
