@@ -71,7 +71,7 @@ const raiseTicket = async (req, res, next) => {
 
     // Now create the ticket
     const newTicket = new Tickets({
-      ticket: foundIssue._id,
+      ticket: foundIssue.title,
       description,
       raisedToDepartment: departmentId,
       raisedBy: loggedInUser._id,
@@ -389,7 +389,7 @@ const fetchFilteredTickets = async (req, res, next) => {
       return res.status(400).json({ message: "No such user found" });
     }
 
-    const userDepartments = loggedInUser.department.map((dept) =>
+    const userDepartments = loggedInUser.departments.map((dept) =>
       dept.toString()
     );
 

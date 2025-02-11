@@ -22,7 +22,7 @@ const ClosedTickets = ({ title }) => {
           id: ticket._id,
           raisedBy: ticket.raisedBy?.name || "Unknown",
           fromDepartment: ticket.raisedToDepartment?.name || "N/A",
-          ticketTitle: ticket.ticket?.title || "No Title",
+          ticketTitle: ticket?.ticket || "No Title",
           status: ticket.status || "Pending",
         }));
   };
