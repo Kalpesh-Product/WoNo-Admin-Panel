@@ -27,7 +27,7 @@ router.get("/get-companies", getCompanies);
 router.post("/add-employee-type", addEmployeeType);
 router.post("/add-leave-type", addLeaveType);
 router.post("/add-work-location", addWorkLocation);
-router.get("/get-company-data/:field", getCompanyData);
+router.get("/get-company-data", getCompanyData);
 router.post("/update-active-status/:field", updateActiveStatus);
 router.post("/add-company-logo", upload.single("logo"), addCompanyLogo);
 router.get("/get-company-logo", getCompanyLogo);
