@@ -39,7 +39,7 @@ const meetingSchema = new mongoose.Schema(
     ],
     externalParticipants: [
       {
-        name: {
+        email: {
           type: String
         }
       },
