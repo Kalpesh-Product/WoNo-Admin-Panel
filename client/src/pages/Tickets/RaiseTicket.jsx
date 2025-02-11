@@ -34,12 +34,13 @@ const RaiseTicket = () => {
       setDeptLoading(true);
       try {
         const [departmentsResponse] = await Promise.all([
-          axios.get("api/departments/get-departments"),
+          axios.get(
+            "api/company/get-company-data?field=selectedDepartments"
+          ),
         ]);
 
         // Set departments and ticket issues
         setDepartments(departmentsResponse?.data?.departments || []); // Ensure fallback to an empty array
-
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
