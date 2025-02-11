@@ -48,6 +48,9 @@ const meetingSchema = new mongoose.Schema(
       companyName: {
         type: String,
       },
+      registeredCompanyName: {
+        type: String,
+      },
       companyURL: {
         type: String,
       },
