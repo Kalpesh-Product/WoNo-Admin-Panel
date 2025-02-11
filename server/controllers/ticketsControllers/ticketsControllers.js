@@ -95,7 +95,7 @@ const getTickets = async (req, res, next) => {
       .lean()
       .exec();
 
-    if (!loggedInUser || !loggedInUser.department) {
+    if (!loggedInUser || !loggedInUser.departments) {
       return res.sendStatus(403);
     }
 
@@ -109,7 +109,7 @@ const getTickets = async (req, res, next) => {
       return res.status(400).json({ message: "Company not found" });
     }
 
-    const userDepartments = loggedInUser.department.map((dept) =>
+    const userDepartments = loggedInUser.departments.map((dept) =>
       dept.toString()
     );
 

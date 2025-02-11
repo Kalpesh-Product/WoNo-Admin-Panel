@@ -143,7 +143,7 @@ const getCompanyLogo = async (req, res, next) => {
 };
 
 const getCompanyData = async (req, res, next) => {
-  const { field } = req.body; // employeeTypes | workLocations | leaveTypes | shifts
+  const { field } = req.query; // employeeTypes | workLocations | leaveTypes | shifts
   const companyId = req.userData.company;
 
   try {
@@ -157,9 +157,9 @@ const getCompanyData = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid company ID provided" });
     }
 
-    const fetchedData = await Company.findOne({ _id: companyId }).select(
-      `${field}`
-    );
+    const fetchedData = await Company.findOne({ _id: companyId })
+      .select(`${field}`)
+      .populate(field);
 
     if (!fetchedData) {
       return res.status(400).json({
