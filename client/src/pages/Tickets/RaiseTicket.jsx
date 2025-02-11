@@ -34,13 +34,10 @@ const RaiseTicket = () => {
       setDeptLoading(true);
       try {
         const [departmentsResponse] = await Promise.all([
-          axios.get(
-            "api/company/get-company-data?field=selectedDepartments"
-          ),
+          axios.get("api/company/get-company-data?field=selectedDepartments"),
         ]);
-
         // Set departments and ticket issues
-        setDepartments(departmentsResponse?.data?.departments || []); // Ensure fallback to an empty array
+        setDepartments(departmentsResponse?.data?.selectedDepartments || []); // Ensure fallback to an empty array
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -178,8 +175,11 @@ const RaiseTicket = () => {
                 <CircularProgress color="black" />
               ) : (
                 departments?.map((dept) => (
-                  <MenuItem key={dept._id} value={dept._id}>
-                    {dept.name}
+                  <MenuItem
+                    key={dept.department._id}
+                    value={dept.department._id}
+                  >
+                    {dept.department.name}
                   </MenuItem>
                 ))
               )}
