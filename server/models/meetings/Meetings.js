@@ -95,7 +95,17 @@ const meetingSchema = new mongoose.Schema(
     },
     location: {
         type: String,
-    }
+    },
+    housekeepingChecklist: [
+      {
+        name:{
+          type:String
+        },
+        status:{
+          type:String
+        }
+      }
+    ]
   },
   { timestamps: true }
 );
