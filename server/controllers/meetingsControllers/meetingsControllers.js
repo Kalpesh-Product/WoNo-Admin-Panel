@@ -14,6 +14,7 @@ const addMeetings = async (req, res, next) => {
   try {
     const {
       meetingType,
+      bookedBy,
       bookedRoom,
       startDate,
       endDate,
@@ -26,7 +27,7 @@ const addMeetings = async (req, res, next) => {
       externalCompanyData,
     } = req.body;
 
-    const user = req.userData.userId;
+    // const user = req.userData.userId;
     const company = req.userData.company;
 
     if (
@@ -94,7 +95,7 @@ const addMeetings = async (req, res, next) => {
     } else if (externalCompanyData) {
       const {
         companyName,
-        // registeredCompanyName,
+        registeredCompanyName,
         companyURL,
         email,
         mobileNumber,
@@ -112,7 +113,7 @@ const addMeetings = async (req, res, next) => {
 
       const newExternalClient = new ExternalClient({
         companyName,
-        // registeredCompanyName,
+        registeredCompanyName,
         companyURL,
         email,
         mobileNumber,
@@ -142,7 +143,7 @@ const addMeetings = async (req, res, next) => {
  
     const meeting = new Meeting({
       meetingType,
-      bookedBy: user,
+      bookedBy: bookedBy,
       startDate: startDateObj,
       endDate: endDateObj,
       startTime: startTimeObj,
