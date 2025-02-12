@@ -160,7 +160,17 @@ const companySchema = new mongoose.Schema({
       },
     },
   ],
-  shifts: [{ type: String }],
+  shifts: [ 
+    {
+      name: {
+        type: String,
+      },
+      isActive: {
+        type: Boolean,
+        default: true,
+      },
+    }
+  ],
   templates: [
     {
       name: {

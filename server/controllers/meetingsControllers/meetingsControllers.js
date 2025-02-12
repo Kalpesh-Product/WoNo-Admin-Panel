@@ -257,6 +257,8 @@ const getMeetings = async (req, res, next) => {
         department: department.name,
         roomName: meeting.bookedRoom.name,
         roomStatus: meeting.bookedRoom.location.status,
+        location: meeting.bookedRoom.location.name,
+        meetingType: meeting.meetingType,
         housekeepingStatus: meeting.bookedRoom.housekeepingStatus,
         date: formatDate(meeting.startDate),
         startTime: formatTime(meeting.startTime),
