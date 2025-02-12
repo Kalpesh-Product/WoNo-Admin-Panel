@@ -1,5 +1,5 @@
 const upload = require("../config/multerConfig");
-const { addMeetings, getMeetings, addHousekeepingTask, updateHousekeepingTasks, getHousekeepingTasks } = require("../controllers/meetingsControllers/meetingsControllers");
+const { addMeetings, getMeetings, addHousekeepingTask, updateHousekeepingTasks, getHousekeepingTasks, deleteHousekeepingTask } = require("../controllers/meetingsControllers/meetingsControllers");
 const { getReviews, addReview, replyReview } = require("../controllers/meetingsControllers/reviewsController");
 const { addRoom, getRooms } = require("../controllers/meetingsControllers/roomsController");
 
@@ -12,9 +12,9 @@ router.post("/create-review",addReview);
 router.get("/get-rooms", getRooms);
 router.get("/get-meetings", getMeetings);
 router.get("/get-reviews", getReviews);
-router.get("/get-housekeeping-checklist", getHousekeepingTasks);
 router.post("/add-reply", replyReview);
 router.patch("/add-housekeeping-tasks", addHousekeepingTask);
 router.patch("/update-housekeeping-tasks", updateHousekeepingTasks);
+router.delete("/delete-housekeeping-tasks", deleteHousekeepingTask);
  
 module.exports = router;
