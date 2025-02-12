@@ -2,9 +2,13 @@ const mongoose = require("mongoose");
 
 const reviewSchema = new mongoose.Schema(
   {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "UserData",
+    reviewerName: {
+      type: String,
+      required: true,
+    },
+    reviewerEmail:{
+      type: String,
+      required: true,
     },
     meeting: {
       type: mongoose.Schema.Types.ObjectId,
@@ -19,10 +23,12 @@ const reviewSchema = new mongoose.Schema(
       required: true,
     },
     reply: {
-      replier: {
-        type: mongoose.Schema.Types.ObjectId,
-      ref: "UserData",
+      replierName: {
+        type: String,
       },
+      replierEmail:{
+        type: String,
+      }, 
       text: {
         type:String
       }

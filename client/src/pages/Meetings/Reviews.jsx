@@ -12,6 +12,19 @@ import TextField from "@mui/material/TextField";
 const Reviews = () => {
   const [openSidebar, setOpenSidebar] = useState(false);
   const [reviewData, setReviewData] = useState({});
+
+  const { data: reviews = [] } = useQuery({
+    queryKey: ["reviews"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/meetings/get-reviews");
+        return response.data
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
+
   const departmentsColumn = [
     { field: "srno", headerName: "SR No" },
     {

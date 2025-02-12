@@ -5,11 +5,11 @@ const mongoose = require("mongoose")
 const addReview = async (req, res, next) => {
   try {
     
-    const { meetingId, review, rate} = req.body;
+    const { meetingId, review, rate, reviewerEmail, reviewerName} = req.body;
     const userId = req.user; // Authenticated user
 
     // Validate inputs
-    if (!meetingId || !review || !rate) {
+    if (!meetingId || !review || !rate || !reviewerEmail || !reviewerName) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -33,7 +33,8 @@ const addReview = async (req, res, next) => {
 
     // Create and save the review
     const newReview = new Review({
-      user: userId,
+      reviewerEmail,
+      reviewerName,
       review,
       rate,
       meeting: meetingId,
@@ -55,7 +56,6 @@ const getReviews = async (req, res, next) => {
   try {
     const reviews = await Review.find()
       .populate([
-        {path: "user", select: "name  _id"},
         {path: "meeting", select: "startDate"}
       ])
       .sort({ createdAt: -1 }); 
@@ -68,10 +68,9 @@ const getReviews = async (req, res, next) => {
 
 const replyReview = async (req, res, next) => {
   try {
-    const { reviewId, reply} = req.body;
-    const user = req.userData.userId
-
-    if(!reply || !reviewId){
+    const { reviewId, reply, replierEmail, replierName} = req.body;
+ 
+    if(!reply || !reviewId || !replierEmail || !replierName){
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -81,7 +80,8 @@ const replyReview = async (req, res, next) => {
 
     const reviews = await Review.findByIdAndUpdate({_id: reviewId},
        {
-        "reply.replier": user,
+        "reply.replierEmail": replierEmail,
+        "reply.replierName": replierName,
         "reply.text": reply,
        },
       {new:true})
