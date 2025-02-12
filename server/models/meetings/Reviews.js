@@ -4,7 +4,7 @@ const reviewSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "UserData",
     },
     meeting: {
       type: mongoose.Schema.Types.ObjectId,
@@ -17,6 +17,15 @@ const reviewSchema = new mongoose.Schema(
     rate: {
       type: Number,
       required: true,
+    },
+    reply: {
+      replier: {
+        type: mongoose.Schema.Types.ObjectId,
+      ref: "UserData",
+      },
+      text: {
+        type:String
+      }
     },
   },
   { timestamps: true }

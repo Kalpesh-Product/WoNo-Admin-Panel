@@ -101,9 +101,6 @@ const meetingSchema = new mongoose.Schema(
         name:{
           type:String
         },
-        status:{
-          type:String
-        }
       }
     ]
   },
