@@ -1,4 +1,4 @@
-const Asset = require("../../models/Assets");
+const Asset = require("../../models/assets/Assets");
 
 const addAsset = async (req, res, next) => {
   try {

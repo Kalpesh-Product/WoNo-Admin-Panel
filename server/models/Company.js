@@ -37,8 +37,7 @@ const companySchema = new mongoose.Schema({
             type: String,
             required: true,
           },
-        },
-        {
+
           priority: {
             type: String,
             enum: ["High", "Medium", "Low"],

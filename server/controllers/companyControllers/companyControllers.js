@@ -148,26 +148,36 @@ const getCompanyData = async (req, res, next) => {
 
   try {
     if (!field) {
-      return res.status(400).json({
-        message: "All feilds are required",
-      });
+      return res.status(400).json({ message: "Field is required" });
     }
 
     if (!mongoose.Types.ObjectId.isValid(companyId)) {
       return res.status(400).json({ message: "Invalid company ID provided" });
     }
 
-    const fetchedData = await Company.findOne({ _id: companyId }).select(
-      `${field}`
-    );
+    // Define fields that require population
+    const fieldsToPopulate = {
+      selectedDepartments: "selectedDepartments.department",
+      employeeTypes: "employeeTypes.leavesCount.leaveType",
+      workLocations: "",
+      leaveTypes: "",
+      shifts: "",
+    };
 
-    if (!fetchedData) {
-      return res.status(400).json({
-        message: "Couldn't fetch the data",
-      });
+    let query = Company.findOne({ _id: companyId }).select(field);
+
+    // Populate if the field is in the fieldsToPopulate map
+    if (fieldsToPopulate[field]) {
+      query = query.populate(fieldsToPopulate[field]);
     }
 
-    return res.status(200).json(fetchedData);
+    const fetchedData = await query.exec();
+
+    if (!fetchedData || !fetchedData[field]) {
+      return res.status(400).json({ message: "Couldn't fetch the data" });
+    }
+
+    return res.status(200).json({ [field]: fetchedData[field] });
   } catch (error) {
     next(error);
   }
