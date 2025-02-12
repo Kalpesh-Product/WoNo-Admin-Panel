@@ -252,6 +252,7 @@ const getMeetings = async (req, res, next) => {
  
     const transformedMeetings = meetings.map((meeting,index) => {
       return {
+        _id: meeting._id,
         name: meeting.bookedBy.name,
         department: department.name,
         roomName: meeting.bookedRoom.name,
@@ -330,26 +331,37 @@ const addHousekeepingTask = async (req, res, next) => {
 }
 
 
-// const getHousekeepingTasks = async (req, res, next) => {
+const deleteHousekeepingTask = async (req, res, next) => {
+  try {
+    const { housekeepingTask, meetingId } = req.body;
 
-//   try {
+    if (!housekeepingTask || !meetingId) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
 
-//      const meetingId = req.params
-//     const company = req.userData.company
+    if (!mongoose.Types.ObjectId.isValid(meetingId)) {
+      return res.status(400).json({ message: "Invalid meeting ID provided" });
+    }
 
-//     const housekeepingChecklist = await Meeting.find(
-//       {_id:meetingId, company}).select("housekeepingChecklist")
+    const updatedMeeting = await Meeting.findByIdAndUpdate(
+      meetingId,
+      { $pull: { housekeepingChecklist: { name: housekeepingTask } } },
+      { new: true }
+    );
 
-//     if(!housekeepingChecklist){
-//       return res.status(400).json({message:"Failed to fetch meetings"})
-//     }
+    if (!updatedMeeting) {
+      return res.status(400).json({ message: "Failed to delete housekeeping task" });
+    }
 
-//     return res.status(200).json(housekeepingChecklist)
+    return res.status(200).json({
+      message: "Housekeeping task deleted successfully"
+    });
 
-//   } catch (error) {
-//     next(error)
-//   }
-// }
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 const updateHousekeepingTasks = async (req, res, next) => {
 
@@ -393,4 +405,4 @@ const updateHousekeepingTasks = async (req, res, next) => {
  
 
 
-module.exports = { addMeetings, getMeetings, addHousekeepingTask,updateHousekeepingTasks };
+module.exports = { addMeetings, getMeetings, addHousekeepingTask,updateHousekeepingTasks,deleteHousekeepingTask };
