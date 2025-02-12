@@ -14,7 +14,7 @@ const Company = require("../../models/Company");
 const raiseTicket = async (req, res, next) => {
   try {
     const user = req.user;
-    const { departmentId, issue, description } = req.body;
+    const { departmentId, issue, newIssue, description } = req.body;
     if (!mongoose.Types.ObjectId.isValid(departmentId)) {
       return res
         .status(400)
@@ -27,10 +27,6 @@ const raiseTicket = async (req, res, next) => {
       description?.replace(/\s/g, "")?.length > 100
     ) {
       return res.status(400).json({ message: "Invalid description provided" });
-    }
-
-    if (!mongoose.Types.ObjectId.isValid(issue)) {
-      return res.status(400).json({ message: "Invalid issue provided" });
     }
 
     const loggedInUser = await User.findOne({ _id: user })
@@ -59,19 +55,26 @@ const raiseTicket = async (req, res, next) => {
     if (!department) {
       return res.status(400).json({ message: "Invalid Department ID" });
     }
- 
-    // Check if the issue exists in the department's ticketIssues
-    const foundIssue = department.ticketIssues.find(
-      (ticketIssue) => ticketIssue._id.toString() === issue
-    );
 
-    if (!foundIssue) {
-      return res.status(400).json({ message: "Invalid Issue ID provided" });
+    // Check if the issue exists in the department's ticketIssues
+    let foundIssue;
+    if (issue) {
+      if (!mongoose.Types.ObjectId.isValid(issue)) {
+        return res.status(400).json({ message: "Invalid issue provided" });
+      }
+
+      foundIssue = department.ticketIssues.find(
+        (ticketIssue) => ticketIssue._id.toString() === issue
+      );
+
+      if (!foundIssue) {
+        return res.status(400).json({ message: "Invalid Issue ID provided" });
+      }
     }
 
     // Now create the ticket
     const newTicket = new Tickets({
-      ticket: foundIssue.title,
+      ticket: foundIssue ? foundIssue.title : newIssue,
       description,
       raisedToDepartment: departmentId,
       raisedBy: loggedInUser._id,
@@ -195,7 +198,9 @@ const acceptTicket = async (req, res, next) => {
       }
     }
 
-    const userDepartments = foundUser.departments.map((dept) => dept.toString());
+    const userDepartments = foundUser.departments.map((dept) =>
+      dept.toString()
+    );
 
     const ticketInDepartment = userDepartments.some((id) =>
       foundTicket.raisedToDepartment.equals(id)
@@ -251,7 +256,9 @@ const assignTicket = async (req, res, next) => {
       }
     }
 
-    const userDepartments = foundUser.departments.map((dept) => dept.toString());
+    const userDepartments = foundUser.departments.map((dept) =>
+      dept.toString()
+    );
 
     const ticketInDepartment = userDepartments.some((id) =>
       foundTicket.raisedToDepartment.equals(id)
@@ -310,7 +317,9 @@ const escalateTicket = async (req, res, next) => {
       return res.status(400).json({ message: "Ticket doesn't exists" });
     }
 
-    const userDepartments = foundUser.departments.map((dept) => dept.toString());
+    const userDepartments = foundUser.departments.map((dept) =>
+      dept.toString()
+    );
 
     const foundTickets = await Tickets.find({
       raisedToDepartment: {
@@ -356,7 +365,9 @@ const closeTicket = async (req, res, next) => {
       }
     }
 
-    const userDepartments = foundUser.departments.map((dept) => dept.toString());
+    const userDepartments = foundUser.departments.map((dept) =>
+      dept.toString()
+    );
 
     const ticketInDepartment = userDepartments.some((id) =>
       foundTicket.raisedToDepartment.equals(id)
