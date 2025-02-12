@@ -12,7 +12,6 @@ router.post("/create-review",addReview);
 router.get("/get-rooms", getRooms);
 router.get("/get-meetings", getMeetings);
 router.get("/get-reviews", getReviews);
-router.get("/get-housekeeping-checklist", getHousekeepingTasks);
 router.post("/add-reply", replyReview);
 router.patch("/add-housekeeping-tasks", addHousekeepingTask);
 router.patch("/update-housekeeping-tasks", updateHousekeepingTasks);

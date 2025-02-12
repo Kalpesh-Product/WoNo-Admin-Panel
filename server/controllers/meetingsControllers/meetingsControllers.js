@@ -194,7 +194,7 @@ const getMeetings = async (req, res, next) => {
       },
       {
         path: "bookedRoom",
-        select: "name",  
+        select: "name location housekeepingStatus",  
       },
       {
         path: "internalParticipants",
@@ -255,6 +255,8 @@ const getMeetings = async (req, res, next) => {
         name: meeting.bookedBy.name,
         department: department.name,
         roomName: meeting.bookedRoom.name,
+        roomStatus: meeting.bookedRoom.location.status,
+        housekeepingStatus: meeting.bookedRoom.housekeepingStatus,
         date: formatDate(meeting.startDate),
         startTime: formatTime(meeting.startTime),
         endTime: formatTime(meeting.endTime),
@@ -282,9 +284,9 @@ const addHousekeepingTask = async (req, res, next) => {
 
   try {
 
-    const {housekeepingTasks,meetingId} = req.body 
+    const {housekeepingTasks,meetingId,roomName} = req.body 
 
-    if(!housekeepingTasks || !meetingId){
+    if(!housekeepingTasks || !meetingId || !roomName){
       return res.status(400).json({message:"All feilds are required"})
     }
 
@@ -302,12 +304,22 @@ const addHousekeepingTask = async (req, res, next) => {
 
     const foundMeeting = await Meeting.findByIdAndUpdate(
       {_id:meetingId},
-      { $push: { housekeepingChecklist: completedTasks  } },
+      { $push: { housekeepingChecklist: completedTasks  }, 
+     },
       {new:true}
     )
 
+    const room = await Room.findOneAndUpdate({name:roomName},{housekeepingStatus:"Completed","location.status":"Available"},
+      {new:true}
+    )
+
+
     if(!foundMeeting){
       return res.status(400).json({message:"Failed to add the housekeeping tasks"})
+    }
+
+    if(!room){
+      return res.status(400).json({message:"Failed to update the room status"})
     }
 
     return res.status(200).json({message: "Housekeeping tasks added successfully"})
@@ -318,26 +330,26 @@ const addHousekeepingTask = async (req, res, next) => {
 }
 
 
-const getHousekeepingTasks = async (req, res, next) => {
+// const getHousekeepingTasks = async (req, res, next) => {
 
-  try {
+//   try {
 
-     const meetingId = req.params
-    const company = req.userData.company
+//      const meetingId = req.params
+//     const company = req.userData.company
 
-    const housekeepingChecklist = await Meeting.find(
-      {_id:meetingId, company}).select("housekeepingChecklist")
+//     const housekeepingChecklist = await Meeting.find(
+//       {_id:meetingId, company}).select("housekeepingChecklist")
 
-    if(!housekeepingChecklist){
-      return res.status(400).json({message:"Failed to fetch meetings"})
-    }
+//     if(!housekeepingChecklist){
+//       return res.status(400).json({message:"Failed to fetch meetings"})
+//     }
 
-    return res.status(200).json(housekeepingChecklist)
+//     return res.status(200).json(housekeepingChecklist)
 
-  } catch (error) {
-    next(error)
-  }
-}
+//   } catch (error) {
+//     next(error)
+//   }
+// }
 
 const updateHousekeepingTasks = async (req, res, next) => {
 
@@ -381,4 +393,4 @@ const updateHousekeepingTasks = async (req, res, next) => {
  
 
 
-module.exports = { addMeetings, getMeetings, addHousekeepingTask,updateHousekeepingTasks,getHousekeepingTasks };
+module.exports = { addMeetings, getMeetings, addHousekeepingTask,updateHousekeepingTasks };

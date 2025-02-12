@@ -102,7 +102,11 @@ const meetingSchema = new mongoose.Schema(
           type:String
         },
       }
-    ]
+    ],
+    houeskeepingStatus: {
+      type:String,
+      default: "Pending"
+    }
   },
   { timestamps: true }
 );
