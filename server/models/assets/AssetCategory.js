@@ -20,20 +20,21 @@ const categorySchema = new mongoose.Schema({
   subCategories: [
     {
       name: {
-      type: String,
-    },
-    assets: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Asset",
+        type: String,
+        required: true,
       },
-    ],
-    isActive: {
-      type: Boolean,
-      default: true,
-    }
-  }
-  ]
+      assets: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Asset",
+        },
+      ],
+      isActive: {
+        type: Boolean,
+        default: true,
+      },
+    },
+  ],
 });
 
 const AssetCategory = mongoose.model("AssetCategory", categorySchema);

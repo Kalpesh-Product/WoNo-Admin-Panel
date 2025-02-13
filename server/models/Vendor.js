@@ -14,7 +14,6 @@ const vendorSchema = new mongoose.Schema(
     },
     state: { type: String, required: true },
     country: { type: String, required: true },
-    pinCode: { type: String, required: true },
     panItNo: { type: String, required: true, unique: true },
     gstUin: { type: String, required: true, unique: true },
     registrationType: { type: String, required: true },
