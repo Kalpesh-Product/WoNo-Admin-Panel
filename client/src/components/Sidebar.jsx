@@ -38,6 +38,11 @@ const Sidebar = () => {
       route: "assets",
     },
     {
+      name: "Tasks",
+      icon: <TbReportSearch />,
+      route: "tasks",
+    },
+    {
       name: "Reports",
       icon: <TbReportSearch />,
       route: "#",
