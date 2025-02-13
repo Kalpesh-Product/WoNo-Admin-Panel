@@ -13,6 +13,7 @@ const AssignedAssets = () => {
       location: "ST-701",
       status: "Active",
       isRevoked: false,
+      assignmentDate: "21/11/2024",
     },
     {
       id: 2,
@@ -24,6 +25,7 @@ const AssignedAssets = () => {
       location: "ST-601",
       status: "Revoked",
       isRevoked: true,
+      assignmentDate: "21/11/2024",
     },
     {
       id: 3,
@@ -35,6 +37,7 @@ const AssignedAssets = () => {
       location: "ST-701",
       status: "Active",
       isRevoked: false,
+      assignmentDate: "21/11/2024",
     },
     {
       id: 4,
@@ -46,6 +49,7 @@ const AssignedAssets = () => {
       location: "ST-702",
       status: "Active",
       isRevoked: false,
+      assignmentDate: "21/11/2024",
     },
     {
       id: 5,
@@ -57,6 +61,7 @@ const AssignedAssets = () => {
       location: "ST-602",
       status: "Revoked",
       isRevoked: true,
+      assignmentDate: "21/11/2024",
     },
     {
       id: 6,
@@ -68,6 +73,7 @@ const AssignedAssets = () => {
       location: "ST-701",
       status: "Active",
       isRevoked: false,
+      assignmentDate: "21/11/2024",
     },
     {
       id: 7,
@@ -79,6 +85,7 @@ const AssignedAssets = () => {
       location: "ST-701",
       status: "Revoked",
       isRevoked: true,
+      assignmentDate: "21/11/2024",
     },
   ]);
 
@@ -87,7 +94,6 @@ const AssignedAssets = () => {
 
   // Function to handle "Revoke" action
   const handleRevoke = (id) => {
-
     setAssetRows((prevRows) =>
       prevRows.map((row) =>
         row.id === id ? { ...row, status: "Revoked", isRevoked: true } : row
@@ -103,12 +109,13 @@ const AssignedAssets = () => {
   const assetsColumns = [
     { field: "id", headerName: "ID", width: 100 },
     { field: "department", headerName: "Department", width: 150 },
-    { field: "assetNumber", headerName: "Asset Number", width: 150 },
     { field: "assigneeName", headerName: "Assignee Name", width: 150 },
+    { field: "assetNumber", headerName: "Asset Number", width: 150 },
     { field: "category", headerName: "Category", width: 150 },
     { field: "brand", headerName: "Brand", width: 150 },
     { field: "location", headerName: "Location", flex: 1 },
     { field: "status", headerName: "Status", flex: 1 },
+    { field: "assignmentDate", headerName: "Assignment Date", flex: 1 },
     {
       field: "actions",
       headerName: "Actions",

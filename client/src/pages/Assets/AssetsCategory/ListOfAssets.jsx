@@ -212,7 +212,7 @@ const ListOfAssets = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleSubmit}
-        initialData={selectedAsset}
+        assetData={selectedAsset}
         onModeChange={setModalMode}
       />
     </>

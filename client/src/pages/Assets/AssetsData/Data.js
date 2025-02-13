@@ -47,6 +47,36 @@ const usedAssetValues = {
   Mar: 5,
 }; // Values in crores
 
+const assetsUnderMaintenance = {
+  Apr: 50,
+  May: 30,
+  Jun: 40,
+  Jul: 10,
+  Aug: 10,
+  Sep: 10,
+  Oct: 8,
+  Nov: 10,
+  Dec: 10,
+  Jan: 10,
+  Feb: 10,
+  Mar: 10,
+};
+
+const assetsDamaged = {
+  Apr: 10,
+  May: 20,
+  Jun: 10,
+  Jul: 10,
+  Aug: 10,
+  Sep: 10,
+  Oct: 10,
+  Nov: 10,
+  Dec: 10,
+  Jan: 10,
+  Feb: 10,
+  Mar: 5,
+};
+
 const assetUtilizationData = financialYearMonths.map((month) => {
   return ((usedAssetValues[month] / totalAssetValues[month]) * 100).toFixed(2);
 });
@@ -84,6 +114,8 @@ const assetUtilizationOptions = {
       const month = financialYearMonths[dataPointIndex];
       const totalValue = totalAssetValues[month].toFixed(2);
       const usedValue = usedAssetValues[month].toFixed(2);
+      const underMaintenance = assetsUnderMaintenance[month];
+      const damaged = assetsDamaged[month];
 
       return `
                 <div style="padding: 10px; background: white; border-radius: 5px; box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);">
@@ -91,7 +123,9 @@ const assetUtilizationOptions = {
                         <strong>${month}</strong><br>
                     </div> 
                     Total Assets Value: ₹${totalValue} Cr<br>
-                    Asset Value Used: ₹${usedValue} Cr
+                    Asset Value Used: ₹${usedValue} Cr<br>
+                    Under Maintenance: ₹${underMaintenance} k<br>
+                    Assets Damaged: ₹${damaged} k
                 </div>
             `;
     },
