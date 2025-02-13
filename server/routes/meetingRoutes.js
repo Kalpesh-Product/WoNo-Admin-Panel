@@ -14,7 +14,7 @@ router.get("/get-meetings", getMeetings);
 router.get("/get-reviews", getReviews);
 router.post("/add-reply", replyReview);
 router.patch("/add-housekeeping-tasks", addHousekeepingTask);
-router.patch("/update-housekeeping-tasks", updateHousekeepingTasks);
+// router.patch("/update-housekeeping-tasks", updateHousekeepingTasks);
 router.delete("/delete-housekeeping-tasks", deleteHousekeepingTask);
  
 module.exports = router;
