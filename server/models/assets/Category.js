@@ -13,22 +13,24 @@ const categorySchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Company",
   },
-  subCategories: {
-    name: {
-      type: String,
-      required: true,
-    },
-    assets: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Asset",
+  subCategories: [
+    {
+      name: {
+        type: String,
+        required: true,
       },
-    ],
-    isActive: {
-      type: Boolean,
-      default: true,
+      assets: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Asset",
+        },
+      ],
+      isActive: {
+        type: Boolean,
+        default: true,
+      },
     },
-  },
+  ],
 });
 
 const assetCategory = mongoose.model("AssetCategory", categorySchema);
