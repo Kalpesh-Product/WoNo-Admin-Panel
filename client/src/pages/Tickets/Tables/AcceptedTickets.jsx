@@ -44,7 +44,7 @@ const AcceptedTickets = ({ title }) => {
           id: ticket._id,
           raisedBy: ticket.raisedBy?.name || "Unknown",
           raisedToDepartment: ticket.raisedToDepartment.name || "N/A",
-          ticketTitle: ticket.ticket?.title || "No Title",
+          ticketTitle: ticket?.ticket || "No Title",
           status: ticket.status || "Pending",
         }));
   };

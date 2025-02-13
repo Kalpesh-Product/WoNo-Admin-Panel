@@ -1,8 +1,6 @@
 const Tickets = require("../../models/tickets/Tickets");
-const TicketIssues = require("../../models/tickets/TicketIssues");
 const User = require("../../models/UserData");
 const mongoose = require("mongoose");
-const Ticket = require("../../models/tickets/Tickets");
 const Department = require("../../models/Departments");
 const {
   filterCloseTickets,
@@ -11,11 +9,12 @@ const {
   filterEscalatedTickets,
   filterAssignedTickets,
 } = require("../../utils/filterTickets");
+const Company = require("../../models/Company");
 
 const raiseTicket = async (req, res, next) => {
   try {
     const user = req.user;
-    const { departmentId, issue, description } = req.body;
+    const { departmentId, issue, newIssue, description } = req.body;
     if (!mongoose.Types.ObjectId.isValid(departmentId)) {
       return res
         .status(400)
@@ -30,15 +29,6 @@ const raiseTicket = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid description provided" });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(issue)) {
-      return res.status(400).json({ message: "Invalid issue provided" });
-    }
-
-    const foundIssue = await TicketIssues.findOne({ _id: issue }).lean().exec();
-    if (!foundIssue) {
-      return res.status(400).json({ message: "Invalid Issue ID provided" });
-    }
-
     const loggedInUser = await User.findOne({ _id: user })
       .select("-refreshToken -password")
       .lean()
@@ -48,15 +38,50 @@ const raiseTicket = async (req, res, next) => {
       return res.sendStatus(403);
     }
 
-    const newTicket = new Ticket({
-      ticket: foundIssue?._id,
+    const company = await Company.findOne({ _id: loggedInUser.company })
+      .select("selectedDepartments")
+      .lean()
+      .exec();
+
+    if (!company) {
+      return res.status(400).json({ message: "Company not found" });
+    }
+
+    // Find the department in selectedDepartments
+    const department = company.selectedDepartments.find(
+      (dept) => dept.department.toString() === departmentId
+    );
+
+    if (!department) {
+      return res.status(400).json({ message: "Invalid Department ID" });
+    }
+
+    // Check if the issue exists in the department's ticketIssues
+    let foundIssue;
+    if (issue) {
+      if (!mongoose.Types.ObjectId.isValid(issue)) {
+        return res.status(400).json({ message: "Invalid issue provided" });
+      }
+
+      foundIssue = department.ticketIssues.find(
+        (ticketIssue) => ticketIssue._id.toString() === issue
+      );
+
+      if (!foundIssue) {
+        return res.status(400).json({ message: "Invalid Issue ID provided" });
+      }
+    }
+
+    // Now create the ticket
+    const newTicket = new Tickets({
+      ticket: foundIssue ? foundIssue.title : newIssue,
       description,
       raisedToDepartment: departmentId,
-      raisedBy: loggedInUser?._id,
+      raisedBy: loggedInUser._id,
+      company: loggedInUser.company,
     });
 
     await newTicket.save();
-
     return res.status(201).json({ message: "Ticket raised successfully" });
   } catch (error) {
     next(error);
@@ -66,49 +91,57 @@ const raiseTicket = async (req, res, next) => {
 const getTickets = async (req, res, next) => {
   try {
     const { user } = req;
+
+    // Fetch logged-in user details
     const loggedInUser = await User.findOne({ _id: user })
       .populate({ path: "role", select: "roleTitle" })
       .lean()
       .exec();
 
-    if (!loggedInUser || !loggedInUser.department) {
+    if (!loggedInUser || !loggedInUser.departments) {
       return res.sendStatus(403);
     }
 
-    const userDepartments = loggedInUser.department.map((dept) =>
+    // Fetch the company document to get selectedDepartments and ticketIssues
+    const company = await Company.findOne({ _id: loggedInUser.company })
+      .select("selectedDepartments")
+      .lean()
+      .exec();
+
+    if (!company) {
+      return res.status(400).json({ message: "Company not found" });
+    }
+
+    const userDepartments = loggedInUser.departments.map((dept) =>
       dept.toString()
     );
 
     let matchingTickets;
 
     if (loggedInUser.role.roleTitle === "Master-Admin") {
-      matchingTickets = await Ticket.find({
-        $and: [
-          { accepted: { $exists: false } },
-          { raisedBy: { $ne: loggedInUser._id } },
-          { status: "Pending" },
-        ],
+      // Master-Admin can view all pending tickets in the company
+      matchingTickets = await Tickets.find({
+        accepted: { $exists: false },
+        raisedBy: { $ne: loggedInUser._id },
+        status: "Pending",
+        company: loggedInUser.company,
       }).populate([
-        { path: "ticket" },
         { path: "raisedBy", select: "name" },
         { path: "raisedToDepartment", select: "name" },
       ]);
     } else {
-      matchingTickets = await Ticket.find({
-        $and: [
-          {
-            $or: [
-              { raisedToDepartment: { $in: userDepartments } },
-              { escalatedTo: { $in: userDepartments } },
-            ],
-          },
-          { accepted: { $exists: false } },
-          { raisedBy: { $ne: loggedInUser._id } },
-          { status: "Pending" },
+      // Department admins or users can view tickets in their departments
+      matchingTickets = await Tickets.find({
+        $or: [
+          { raisedToDepartment: { $in: userDepartments } },
+          { escalatedTo: { $in: userDepartments } },
         ],
+        accepted: { $exists: false },
+        raisedBy: { $ne: loggedInUser._id },
+        company: loggedInUser.company,
+        status: "Pending",
       })
         .populate([
-          { path: "ticket" },
           { path: "raisedBy", select: "name" },
           { path: "raisedToDepartment", select: "name" },
         ])
@@ -116,14 +149,28 @@ const getTickets = async (req, res, next) => {
         .exec();
     }
 
-    if (matchingTickets.length) {
-      return res.status(200).json(matchingTickets);
-    }
-
     if (!matchingTickets.length) {
       return res.status(404).json({ message: "No tickets available" });
     }
-    return res.sendStatus(403);
+
+    // Attach ticket issue title from Company.selectedDepartments.ticketIssues
+    const ticketsWithIssueTitle = matchingTickets.map((ticket) => {
+      const department = company.selectedDepartments.find(
+        (dept) =>
+          dept.department.toString() === ticket.raisedToDepartment.toString()
+      );
+
+      const ticketIssue = department?.ticketIssues.find(
+        (issue) => issue._id.toString() === ticket.ticket.toString()
+      );
+
+      return {
+        ...ticket,
+        ticketIssueTitle: ticketIssue ? ticketIssue.title : "Issue not found",
+      };
+    });
+
+    return res.status(200).json(ticketsWithIssueTitle);
   } catch (error) {
     next(error);
   }
@@ -151,7 +198,9 @@ const acceptTicket = async (req, res, next) => {
       }
     }
 
-    const userDepartments = foundUser.department.map((dept) => dept.toString());
+    const userDepartments = foundUser.departments.map((dept) =>
+      dept.toString()
+    );
 
     const ticketInDepartment = userDepartments.some((id) =>
       foundTicket.raisedToDepartment.equals(id)
@@ -207,7 +256,9 @@ const assignTicket = async (req, res, next) => {
       }
     }
 
-    const userDepartments = foundUser.department.map((dept) => dept.toString());
+    const userDepartments = foundUser.departments.map((dept) =>
+      dept.toString()
+    );
 
     const ticketInDepartment = userDepartments.some((id) =>
       foundTicket.raisedToDepartment.equals(id)
@@ -217,9 +268,9 @@ const assignTicket = async (req, res, next) => {
       return res.sendStatus(403);
     }
 
-    await Tickets.findByIdAndUpdate(
+    await Tickets.findOneAndUpdate(
       { _id: ticketId },
-      { $push: { assignees: assignee }, status: "In Progress" }
+      { $addToSet: { assignees: assignee }, status: "In Progress" }
     );
 
     return res.status(200).json({ message: "Ticket assigned successfully" });
@@ -266,9 +317,11 @@ const escalateTicket = async (req, res, next) => {
       return res.status(400).json({ message: "Ticket doesn't exists" });
     }
 
-    const userDepartments = foundUser.department.map((dept) => dept.toString());
+    const userDepartments = foundUser.departments.map((dept) =>
+      dept.toString()
+    );
 
-    const foundTickets = await Ticket.find({
+    const foundTickets = await Tickets.find({
       raisedToDepartment: {
         $in: userDepartments.map((id) => new mongoose.Types.ObjectId(id)),
       },
@@ -312,13 +365,15 @@ const closeTicket = async (req, res, next) => {
       }
     }
 
-    const userDepartments = foundUser.department.map((dept) => dept.toString());
+    const userDepartments = foundUser.departments.map((dept) =>
+      dept.toString()
+    );
 
     const ticketInDepartment = userDepartments.some((id) =>
       foundTicket.raisedToDepartment.equals(id)
     );
 
-    if (!ticketInDepartment) {
+    if (!ticketInDepartment && !foundTicket.assignees.includes(foundUser._id)) {
       return res.sendStatus(403);
     }
 
@@ -345,7 +400,7 @@ const fetchFilteredTickets = async (req, res, next) => {
       return res.status(400).json({ message: "No such user found" });
     }
 
-    const userDepartments = loggedInUser.department.map((dept) =>
+    const userDepartments = loggedInUser.departments.map((dept) =>
       dept.toString()
     );
 

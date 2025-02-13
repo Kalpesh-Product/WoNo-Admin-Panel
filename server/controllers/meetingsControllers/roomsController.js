@@ -171,32 +171,32 @@ const updateRoom = async (req, res, next) => {
 };
 
 
-const updateHousekeepingStatus = async (req,res,next) => {
+// const updateHousekeepingStatus = async (req,res,next) => {
 
-  try {
+//   try {
   
-    const {housekeepingStatus,bookedRoom} = req.body
+//     const {housekeepingStatus,bookedRoom} = req.body
 
-    if(!mongoose.Types.ObjectId.isValid){
-      return res.status(400).json({message:"Invalid room Id provided"})
-    }
+//     if(!mongoose.Types.ObjectId.isValid){
+//       return res.status(400).json({message:"Invalid room Id provided"})
+//     }
 
-    const roomStatus = housekeepingStatus === "Pending" ? "Occupied" : housekeepingStatus === "In Progress" ? "Cleaning" : housekeepingStatus === "Completed" ? "Available" : ""
+//     const roomStatus = housekeepingStatus === "Pending" ? "Occupied" : housekeepingStatus === "In Progress" ? "Cleaning" : housekeepingStatus === "Completed" ? "Available" : ""
 
-    const foundRoom = await Room.findByIdAndUpdate({_id:bookedRoom},{
-      housekeepingStatus,
-      "location.status": roomStatus
-    },
-  {new: true})
+//     const foundRoom = await Room.findByIdAndUpdate({_id:bookedRoom},{
+//       housekeepingStatus,
+//       "location.status": roomStatus
+//     },
+//   {new: true})
 
-    if(!foundRoom){
-      return res.status(400).json({message: "Failed to update status"})
-    }
+//     if(!foundRoom){
+//       return res.status(400).json({message: "Failed to update status"})
+//     }
 
-    return res.status(200).json({message: "Status updated successfully"})
-  } catch (error) {
-    next(error)
-  }
-}
+//     return res.status(200).json({message: "Status updated successfully"})
+//   } catch (error) {
+//     next(error)
+//   }
+// }
 
-module.exports = { addRoom, getRooms, updateRoom, updateHousekeepingStatus };
+module.exports = { addRoom, getRooms, updateRoom };

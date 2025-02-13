@@ -1,7 +1,7 @@
 import React from "react";
 import AreaGraph from "../../components/graphs/AreaGraph";
 import { RiArchiveDrawerLine, RiPagesLine } from "react-icons/ri";
-import { MdFormatListBulleted } from "react-icons/md";
+import { MdFormatListBulleted, MdMiscellaneousServices } from "react-icons/md";
 import { CgProfile } from "react-icons/cg";
 import Card from "../../components/Card";
 import DonutChart from "../../components/graphs/DonutChart";
@@ -41,7 +41,7 @@ const AssetsDashboard = () => {
       ],
     },
     {
-      layout: 5,
+      layout: 6,
       widgets: [
         <Card
           route={"/app/assets/categories"}
@@ -49,9 +49,14 @@ const AssetsDashboard = () => {
           icon={<RiPagesLine />}
         />,
         <Card
+          route={"/app/assets/categories/list-of-assets"}
+          title={"Assets List"}
+          icon={<RiPagesLine />}
+        />,
+        <Card
           route={"/app/assets/manage-assets"}
           title={"Manage Assets"}
-          icon={<RiArchiveDrawerLine />}
+          icon={<MdFormatListBulleted />}
         />,
         <Card
           route={"/app/meetings/calendar"}
@@ -66,7 +71,7 @@ const AssetsDashboard = () => {
         <Card
           route={"/app/assets/settings"}
           title={"Settings"}
-          icon={<RiPagesLine />}
+          icon={<MdMiscellaneousServices />}
         />,
       ],
     },
@@ -101,13 +106,17 @@ const AssetsDashboard = () => {
     {
       layout: 2,
       widgets: [
-        <WidgetSection layout={1} title={"Asset Availability"} border>
+        <WidgetSection
+          layout={1}
+          title={"Assigned v/s Unassigned Assets"}
+          border
+        >
           <PieChartMui
             data={assetAvailabilityData}
             options={assetAvailabilityOptions}
           />
         </WidgetSection>,
-        <WidgetSection layout={1} title={"Physical v/s Digital "} border>
+        <WidgetSection layout={1} title={"Physical v/s Digital Assets"} border>
           <PieChartMui
             data={physicalDigitalPieData}
             options={physicalDigitalOptions}
@@ -120,12 +129,13 @@ const AssetsDashboard = () => {
       widgets: [
         <WidgetSection layout={1} padding>
           <MuiTable
-            Title="Asset Inventory"
+            Title="Recently Added Assets"
             columns={recentAssetsColumns}
             rows={recentAssetsData}
             rowKey="id"
-            rowsToDisplay={5}
+            rowsToDisplay={10}
             scroll={true}
+            className="h-full"
           />
         </WidgetSection>,
       ],
@@ -133,13 +143,13 @@ const AssetsDashboard = () => {
     {
       layout: 2,
       widgets: [
-        <WidgetSection layout={1} title={"Asset Availability"} border>
+        <WidgetSection layout={1} title={"Department Wise Asset Usage"} border>
           <PieChartMui
             data={departmentPieData}
             options={departmentPieOptions}
           />
         </WidgetSection>,
-        <WidgetSection layout={1} title={"Physical v/s Digital "} border>
+        <WidgetSection layout={1} title={"Asset Categories"} border>
           <DonutChart {...assetCategoriesData} />
         </WidgetSection>,
       ],

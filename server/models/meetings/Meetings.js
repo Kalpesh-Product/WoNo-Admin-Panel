@@ -39,11 +39,43 @@ const meetingSchema = new mongoose.Schema(
     ],
     externalParticipants: [
       {
-        name: {
+        email: {
           type: String
         }
       },
     ],
+    externalCompanyData: {
+      companyName: {
+        type: String,
+      },
+      registeredCompanyName: {
+        type: String,
+      },
+      companyURL: {
+        type: String,
+      },
+      email: {
+        type: String,
+        unique: true,
+      },
+      mobileNumber: {
+        type: String,
+      },
+      gstNumber: {
+        type: String,
+        unique: true,
+      },
+      panNumber: {
+        type: String,
+        unique: true,
+      },
+      address: {
+        type: String,
+      },
+      personName: {
+        type: String,
+      },
+    },
     agenda: {
       type: String,
       required: true,
@@ -63,6 +95,17 @@ const meetingSchema = new mongoose.Schema(
     },
     location: {
         type: String,
+    },
+    housekeepingChecklist: [
+      {
+        name:{
+          type:String
+        },
+      }
+    ],
+    houeskeepingStatus: {
+      type:String,
+      default: "Pending"
     }
   },
   { timestamps: true }

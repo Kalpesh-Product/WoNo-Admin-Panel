@@ -34,12 +34,10 @@ const RaiseTicket = () => {
       setDeptLoading(true);
       try {
         const [departmentsResponse] = await Promise.all([
-          axios.get("api/departments/get-departments"),
+          axios.get("api/company/get-company-data?field=selectedDepartments"),
         ]);
-
         // Set departments and ticket issues
-        setDepartments(departmentsResponse?.data?.departments || []); // Ensure fallback to an empty array
-
+        setDepartments(departmentsResponse?.data?.selectedDepartments || []); // Ensure fallback to an empty array
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -148,15 +146,14 @@ const RaiseTicket = () => {
     });
   };
 
-  const handleDepartmentSelect = async (e) => {
-    try {
-      const response = await axios.get(`/api/tickets/get-ticket-issue/${e}`);
-      setTicketIssues(response.data);
-      setTicketIssues(response.data);
-      setSelectedDepartment(e);
-    } catch (error) {
-      toast.error(error?.message);
-    }
+  const handleDepartmentSelect = (deptId) => {
+    setSelectedDepartment(deptId);
+
+    // Find the selected department and get its ticketIssues
+    const selectedDept = departments.find(
+      (dept) => dept.department._id === deptId
+    );
+    setTicketIssues(selectedDept?.ticketIssues || []);
   };
 
   return (
@@ -177,8 +174,11 @@ const RaiseTicket = () => {
                 <CircularProgress color="black" />
               ) : (
                 departments?.map((dept) => (
-                  <MenuItem key={dept._id} value={dept._id}>
-                    {dept.name}
+                  <MenuItem
+                    key={dept.department._id}
+                    value={dept.department._id}
+                  >
+                    {dept.department.name}
                   </MenuItem>
                 ))
               )}
@@ -192,11 +192,15 @@ const RaiseTicket = () => {
               onChange={(e) => handleChange("ticketTitle", e.target.value)}
             >
               <MenuItem value="">Select Ticket Title</MenuItem>
-              {ticketIssues.map((issue) => (
-                <MenuItem key={issue._id} value={issue._id}>
-                  {issue.title}
-                </MenuItem>
-              ))}
+              {ticketIssues.length > 0 ? (
+                ticketIssues.map((issue) => (
+                  <MenuItem key={issue._id} value={issue._id}>
+                    {issue.title}
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem disabled>No Issues Available</MenuItem>
+              )}
               <MenuItem value="Others">Others</MenuItem>
             </Select>
           </FormControl>

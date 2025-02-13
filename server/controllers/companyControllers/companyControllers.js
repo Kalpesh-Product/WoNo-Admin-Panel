@@ -2,7 +2,12 @@ const sharp = require("sharp");
 const mongoose = require("mongoose");
 const { handleFileUpload } = require("../../config/cloudinaryConfig");
 const Company = require("../../models/Company");
-const { updateWorkLocationStatus, updateShiftStatus, updateLeaveTypeStatus,  UpdateEmployeeTypeStatus } = require("../../utils/companyData");
+const {
+  updateWorkLocationStatus,
+  updateShiftStatus,
+  updateLeaveTypeStatus,
+  UpdateEmployeeTypeStatus,
+} = require("../../utils/companyData");
 
 const addCompany = async (req, res, next) => {
   try {
@@ -70,7 +75,7 @@ const getCompanies = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-}
+};
 
 const addCompanyLogo = async (req, res, next) => {
   try {
@@ -107,7 +112,7 @@ const addCompanyLogo = async (req, res, next) => {
 
     if (!newCompanyLogo) {
       return res.status(400).json({
-        message: "Couldn't add company logo"
+        message: "Couldn't add company logo",
       });
     }
 
@@ -118,15 +123,17 @@ const addCompanyLogo = async (req, res, next) => {
     next(error);
   }
 };
- 
+
 const getCompanyLogo = async (req, res, next) => {
   try {
-    const companyId = req.userData.company
+    const companyId = req.userData.company;
 
-    const company = await Company.findById({_id:companyId}).select("companyLogo");
+    const company = await Company.findById({ _id: companyId }).select(
+      "companyLogo"
+    );
 
-    if(!company){
-      return res.status(400).json({message: "Couldn't fetch company logo"});
+    if (!company) {
+      return res.status(400).json({ message: "Couldn't fetch company logo" });
     }
 
     return res.status(200).json(company.companyLogo);
@@ -136,46 +143,50 @@ const getCompanyLogo = async (req, res, next) => {
 };
 
 const getCompanyData = async (req, res, next) => {
- 
-  const {field} = req.params // employeeTypes | workLocations | leaveTypes | shifts
-  const companyId = req.userData.company
+  const { field } = req.query; // employeeTypes | workLocations | leaveTypes | shifts
+  const companyId = req.userData.company;
 
   try {
-
-    if(!field){
-      return res.status(400).json({
-        message: "All feilds are required",
-      });
+    if (!field) {
+      return res.status(400).json({ message: "Field is required" });
     }
 
-     if (!mongoose.Types.ObjectId.isValid(companyId)) {
-          return res
-            .status(400)
-            .json({ message: "Invalid company ID provided" });
-        }
-
-        const fetchedData = await Company.findOne(
-          { _id: companyId}
-        ).select(`${field}`);
-
-    if(!fetchedData){
-      return res.status(400).json({
-        message: "Couldn't fetch the data",
-      });
+    if (!mongoose.Types.ObjectId.isValid(companyId)) {
+      return res.status(400).json({ message: "Invalid company ID provided" });
     }
 
-    return res.status(200).json(fetchedData);
- 
-  } catch(error) { 
-    next(error)
+    // Define fields that require population
+    const fieldsToPopulate = {
+      selectedDepartments: "selectedDepartments.department",
+      employeeTypes: "employeeTypes.leavesCount.leaveType",
+      workLocations: "",
+      leaveTypes: "",
+      shifts: "",
+    };
+
+    let query = Company.findOne({ _id: companyId }).select(field);
+
+    // Populate if the field is in the fieldsToPopulate map
+    if (fieldsToPopulate[field]) {
+      query = query.populate(fieldsToPopulate[field]);
+    }
+
+    const fetchedData = await query.exec();
+
+    if (!fetchedData || !fetchedData[field]) {
+      return res.status(400).json({ message: "Couldn't fetch the data" });
+    }
+
+    return res.status(200).json({ [field]: fetchedData[field] });
+  } catch (error) {
+    next(error);
   }
-}
+};
 
 const updateActiveStatus = async (req, res, next) => {
-
-  const {status,name} = req.body 
-  const {field} = req.params
-  const companyId = req.userData.company
+  const { status, name } = req.body;
+  const { field } = req.params;
+  const companyId = req.userData.company;
 
   try {
     if (!field) {
@@ -203,7 +214,7 @@ const updateActiveStatus = async (req, res, next) => {
 
     const updatedFunction = updateHandlers[field];
 
-    const updatedStatus = await updatedFunction(companyId,name,status)
+    const updatedStatus = await updatedFunction(companyId, name, status);
 
     if (!updatedStatus) {
       return res.status(400).json({
@@ -219,4 +230,11 @@ const updateActiveStatus = async (req, res, next) => {
   }
 };
 
-module.exports = { addCompany,addCompanyLogo, getCompanies, updateActiveStatus, getCompanyData, getCompanyLogo };
+module.exports = {
+  addCompany,
+  addCompanyLogo,
+  getCompanies,
+  updateActiveStatus,
+  getCompanyData,
+  getCompanyLogo,
+};

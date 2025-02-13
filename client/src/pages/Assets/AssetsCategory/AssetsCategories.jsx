@@ -24,9 +24,9 @@ const AssetsCategories = () => {
       cellRenderer: (params) => (
         <PrimaryButton
           title="Disable"
-          handleSubmit={() =>
-            ("Disable clicked for category id", params.data.id)
-          }
+          handleSubmit={() => (
+            "Disable clicked for category id", params.data.id
+          )}
         />
       ),
     },
@@ -55,6 +55,7 @@ const AssetsCategories = () => {
         data={rows}
         columns={categoriesColumn}
         handleClick={() => setModalOpen(true)}
+        tableHeight={350}
       />
 
       <MuiModal

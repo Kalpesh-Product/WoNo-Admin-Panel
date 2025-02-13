@@ -25,10 +25,30 @@ const companySchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Department",
       },
+      assetCategories: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Category",
+        }
+      ],
       admin: [
         {
           type: mongoose.Schema.Types.ObjectId,
           ref: "UserData",
+        },
+      ],
+      ticketIssues: [
+        {
+          title: {
+            type: String,
+            required: true,
+          },
+
+          priority: {
+            type: String,
+            enum: ["High", "Medium", "Low"],
+            default: "Low",
+          },
         },
       ],
       policies: [
@@ -145,7 +165,17 @@ const companySchema = new mongoose.Schema({
       },
     },
   ],
-  shifts: [{ type: String }],
+  shifts: [ 
+    {
+      name: {
+        type: String,
+      },
+      isActive: {
+        type: Boolean,
+        default: true,
+      },
+    }
+  ],
   templates: [
     {
       name: {

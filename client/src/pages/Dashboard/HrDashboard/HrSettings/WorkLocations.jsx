@@ -13,7 +13,7 @@ const WorkLocations = () => {
     queryKey: ["workLocations"],
     queryFn: async () => {
       try {
-        const response = await axios.get("/api/company/get-company-data/workLocations");
+        const response = await axios.get("/api/company/get-company-data?field=workLocations");
         return response.data.workLocations
       } catch (error) {
         throw new Error(error.response.data.message);
