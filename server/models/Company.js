@@ -25,6 +25,12 @@ const companySchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Department",
       },
+      assetCategories: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Category",
+        }
+      ],
       admin: [
         {
           type: mongoose.Schema.Types.ObjectId,

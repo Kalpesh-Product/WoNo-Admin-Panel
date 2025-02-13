@@ -5,6 +5,10 @@ const categorySchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
   department: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",
@@ -13,10 +17,10 @@ const categorySchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Company",
   },
-  subCategories: {
-    name: {
+  subCategories: [
+    {
+      name: {
       type: String,
-      required: true,
     },
     assets: [
       {
@@ -27,6 +31,10 @@ const categorySchema = new mongoose.Schema({
     isActive: {
       type: Boolean,
       default: true,
-    },
-  },
+    }
+  }
+  ]
 });
+
+const Category = mongoose.model("Category", categorySchema);
+module.exports = Category;
