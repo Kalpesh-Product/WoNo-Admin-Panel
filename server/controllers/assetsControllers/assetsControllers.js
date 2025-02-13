@@ -1,7 +1,7 @@
 const Asset = require("../../models/assets/Assets");
 const User = require("../../models/UserData");
 const Company = require("../../models/Company");
-const Category = require("../../models/assets/Category");
+const Category = require("../../models/assets/AssetCategory");
 
 const addAsset = async (req, res, next) => {
   try {
