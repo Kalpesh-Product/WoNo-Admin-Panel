@@ -3,8 +3,8 @@ const mongoose = require("mongoose");
 const ticketsSchema = new mongoose.Schema(
   {
     ticket: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "TicketIssue",
+      type: String,
+      required: true,
     },
     raisedToDepartment: {
       type: mongoose.Schema.Types.ObjectId,

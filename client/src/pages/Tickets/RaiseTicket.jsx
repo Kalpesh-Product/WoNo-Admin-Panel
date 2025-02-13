@@ -146,15 +146,14 @@ const RaiseTicket = () => {
     });
   };
 
-  const handleDepartmentSelect = async (e) => {
-    try {
-      const response = await axios.get(`/api/tickets/get-ticket-issue/${e}`);
-      setTicketIssues(response.data);
-      setTicketIssues(response.data);
-      setSelectedDepartment(e);
-    } catch (error) {
-      toast.error(error?.message);
-    }
+  const handleDepartmentSelect = (deptId) => {
+    setSelectedDepartment(deptId);
+
+    // Find the selected department and get its ticketIssues
+    const selectedDept = departments.find(
+      (dept) => dept.department._id === deptId
+    );
+    setTicketIssues(selectedDept?.ticketIssues || []);
   };
 
   return (
@@ -193,11 +192,15 @@ const RaiseTicket = () => {
               onChange={(e) => handleChange("ticketTitle", e.target.value)}
             >
               <MenuItem value="">Select Ticket Title</MenuItem>
-              {ticketIssues.map((issue) => (
-                <MenuItem key={issue._id} value={issue._id}>
-                  {issue.title}
-                </MenuItem>
-              ))}
+              {ticketIssues.length > 0 ? (
+                ticketIssues.map((issue) => (
+                  <MenuItem key={issue._id} value={issue._id}>
+                    {issue.title}
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem disabled>No Issues Available</MenuItem>
+              )}
               <MenuItem value="Others">Others</MenuItem>
             </Select>
           </FormControl>

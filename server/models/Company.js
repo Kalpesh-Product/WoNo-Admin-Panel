@@ -25,6 +25,12 @@ const companySchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Department",
       },
+      assetCategories: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Category",
+        }
+      ],
       admin: [
         {
           type: mongoose.Schema.Types.ObjectId,
@@ -37,8 +43,7 @@ const companySchema = new mongoose.Schema({
             type: String,
             required: true,
           },
-        },
-        {
+
           priority: {
             type: String,
             enum: ["High", "Medium", "Low"],
@@ -160,7 +165,17 @@ const companySchema = new mongoose.Schema({
       },
     },
   ],
-  shifts: [{ type: String }],
+  shifts: [ 
+    {
+      name: {
+        type: String,
+      },
+      isActive: {
+        type: Boolean,
+        default: true,
+      },
+    }
+  ],
   templates: [
     {
       name: {

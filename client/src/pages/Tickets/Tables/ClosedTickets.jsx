@@ -10,9 +10,9 @@ const ClosedTickets = ({ title }) => {
     queryKey: ["closed-tickets"],
     queryFn: async () => {
       const response = await axios.get("/api/tickets/filtered-tickets/close");
-      return response.data || []; // Ensure it always returns an array
+      return response.data || []; 
     },
-    initialData: [], // Initialize with an empty array
+    initialData: [], 
   });
 
   const transformTicketsData = (tickets) => {
@@ -22,7 +22,7 @@ const ClosedTickets = ({ title }) => {
           id: ticket._id,
           raisedBy: ticket.raisedBy?.name || "Unknown",
           fromDepartment: ticket.raisedToDepartment?.name || "N/A",
-          ticketTitle: ticket.ticket?.title || "No Title",
+          ticketTitle: ticket?.ticket || "No Title",
           status: ticket.status || "Pending",
         }));
   };

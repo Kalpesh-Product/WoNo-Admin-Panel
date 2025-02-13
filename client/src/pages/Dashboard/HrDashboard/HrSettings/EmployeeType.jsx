@@ -13,7 +13,7 @@ const EmployeeType = () => {
     queryKey: ["employeeTypes"],
     queryFn: async () => {
       try {
-        const response = await axios.get("/api/company/get-company-data/employeeTypes");
+        const response = await axios.get("/api/company/get-company-data/?field=employeeTypes");
         return response.data.employeeTypes
       } catch (error) {
         throw new Error(error.response.data.message);
