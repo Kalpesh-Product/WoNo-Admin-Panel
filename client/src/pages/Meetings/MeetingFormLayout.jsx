@@ -3,11 +3,11 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import MuiModal from "../../components/MuiModal";
 import { useForm, Controller } from "react-hook-form";
 import {
-  Button,
+  Autocomplete,
   FormControl,
   InputLabel,
   MenuItem,
@@ -23,6 +23,9 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import PrimaryButton from "../../components/PrimaryButton";
 import dayjs from "dayjs";
 import { toast } from "sonner";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import { queryClient } from "../../index";
 
 const MeetingFormLayout = () => {
   const [open, setOpen] = useState(false);
@@ -34,12 +37,93 @@ const MeetingFormLayout = () => {
   const meetingRoom = searchParams.get("meetingRoom");
   const [events, setEvents] = useState([]);
 
+  const locationState = useLocation().state;
+  const roomId = locationState?.roomId;
+
+  const axios = useAxiosPrivate();
+
+  // Fetch companies
+  // const { data: company = [], isLoadingCompany } = useQuery({
+  //   queryKey: ["companies"],
+  //   queryFn: async () => {
+  //     const response = await axios.get("/api/company/get-companies");
+  //     console.log(response.data);
+  //     return response.data;
+  //   },
+  // });
+
+  // Fetch meetings
+  const { data: meetings = [], isLoading } = useQuery({
+    queryKey: ["meetings"],
+    queryFn: async () => {
+      const response = await axios.get("/api/meetings/get-meetings");
+      const filteredMeetings = response.data.filter(
+        (meeting) => meeting.roomName === meetingRoom
+      );
+      console.log(filteredMeetings);
+      return filteredMeetings;
+    },
+  });
+
+  const meetingMutation = useMutation({
+    mutationFn: async (data) => {
+      await axios.post("/api/meetings/create-meeting", data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["meetings"]);
+      toast.success("Meeting booked successfully");
+      setOpen(false);
+    },
+    onError: () => {
+      toast.error("Failed to book meeting");
+    },
+  });
+
   useEffect(() => {
     if (!location || !meetingRoom) {
       alert("Missing required parameters. Redirecting...");
       window.location.href = "/";
     }
   }, [location, meetingRoom]);
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    const newEvents = meetings.map((meeting) => ({
+      title: meeting.subject || "Meeting",
+      start: dayjs(
+        `${meeting.date} ${meeting.startTime}`,
+        "DD-MM-YYYY hh:mm A"
+      ).format("YYYY-MM-DDTHH:mm:ss"),
+      end: dayjs(
+        `${meeting.date} ${meeting.endTime}`,
+        "DD-MM-YYYY hh:mm A"
+      ).format("YYYY-MM-DDTHH:mm:ss"),
+      allDay: false,
+      extendedProps: {
+        location: location,
+        meetingRoom: meeting.roomName,
+        agenda: meeting.agenda,
+      },
+    }));
+
+    console.log(newEvents);
+
+    // setEvents((prevEvents) => {
+    //   // Prevent unnecessary re-renders
+    //   console.log(prevEvents.length);
+    //   if (
+    //     JSON.stringify(prevEvents) === JSON.stringify(newEvents)
+    //     // && !prevEvents.length
+    //   ) {
+    //     console.log("I AM HEREEEE");
+    //     return prevEvents; // No changes, so don't update state
+    //   }
+    //   return newEvents;
+    // });
+
+    setEvents(newEvents);
+  }, [meetings, isLoading]);
 
   const { control, handleSubmit, setValue, watch } = useForm({
     defaultValues: {
@@ -71,7 +155,9 @@ const MeetingFormLayout = () => {
     const startTime = dayjs(arg.start); // Keep as a Dayjs object
     const endTime = dayjs(arg.start).add(30, "minute");
     const selectedDate = dayjs(arg.start).startOf("day"); // Get only the date part
-    setValue("date", selectedDate); // Set only the date
+    // setValue("date", selectedDate); // Set only the date
+    setValue("startDate", selectedDate); // Set only the date
+    setValue("endDate", selectedDate); // Set only the date
     setValue("startTime", startTime); // Set the correct format for MUI TimePicker
     setValue("endTime", endTime);
 
@@ -80,28 +166,40 @@ const MeetingFormLayout = () => {
     setOpen(true);
   };
 
-
   const meetingType = watch("meetingType");
 
   const onSubmit = (data) => {
-
-    // Create a new event object
-    const newEvent = {
-      title: data.subject || "Meeting", // Use the subject or a default title
-      start: data.startTime.toISOString(), // Convert Dayjs object to ISO string
-      end: data.endTime.toISOString(), // Convert Dayjs object to ISO string
-      allDay: false,
-      extendedProps: {
-        location: data.location,
-        meetingRoom: data.meetingRoom,
-        agenda: data.agenda,
-        personName: data.personName,
-        companyName: data.companyName,
-      },
+    const formattedData = {
+      meetingType: data.meetingType,
+      bookedRoom: roomId,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      startTime: data.startTime,
+      endTime: data.endTime,
+      subject: data.subject,
+      agenda: data.agenda,
+      internalParticipants: [], // todo
+      externalParticipants:
+        data.meetingType === "External"
+          ? data.bookingFor?.map((email) => ({ email })) // Convert to object array
+          : [],
+      externalCompanyData:
+        data.meetingType === "External"
+          ? {
+              companyName: data.companyName,
+              registeredCompanyName: data.registeredCompanyName,
+              companyURL: data.companyUrl,
+              email: data.emailId,
+              mobileNumber: data.mobileNo,
+              gstNumber: data.gst,
+              panNumber: data.pan,
+              address: data.Address,
+              personName: data.personName,
+            }
+          : null,
     };
-    setEvents((prevEvents) => [...prevEvents, newEvent]);
-    setOpen(false);
-    toast.success("Meeting booked")
+
+    meetingMutation.mutate(formattedData);
   };
 
   return (
@@ -112,21 +210,26 @@ const MeetingFormLayout = () => {
         </span>
       </div>
       <div className="w-full h-full overflow-y-auto">
-        <FullCalendar
-          headerToolbar={{
-            left: "prev title next",
-            right: "dayGridMonth,timeGridWeek,timeGridDay",
-          }}
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          initialView="timeGridDay"
-          contentHeight={425}
-          dayMaxEvents={2}
-          eventDisplay="block"
-          selectable={true}
-          selectMirror={true}
-          select={handleDateClick}
-          events={events} // Pass the events state here
-        />
+        {isLoading ? (
+          <div>Loading...</div>
+        ) : (
+          <FullCalendar
+            key={events.length}
+            headerToolbar={{
+              left: "prev title next",
+              right: "dayGridMonth,timeGridWeek,timeGridDay",
+            }}
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            initialView="timeGridDay"
+            contentHeight={425}
+            dayMaxEvents={2}
+            eventDisplay="block"
+            selectable={true}
+            selectMirror={true}
+            select={handleDateClick}
+            events={events} // Pass the events state here
+          />
+        )}
       </div>
 
       <MuiModal
@@ -167,20 +270,40 @@ const MeetingFormLayout = () => {
           </div>
 
           {/* Date Picker */}
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <Controller
-              name="date"
-              control={control}
-              render={({ field }) => (
-                <DesktopDatePicker
-                  label="Select Date"
-                  value={field.value ? dayjs(field.value) : null} // Ensure it's a Dayjs object
-                  onChange={(newValue) => field.onChange(newValue)}
-                  renderInput={(params) => <TextField fullWidth {...params} />}
-                />
-              )}
-            />
-          </LocalizationProvider>
+          <div className="flex gap-4">
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <Controller
+                name="startDate"
+                control={control}
+                render={({ field }) => (
+                  <DesktopDatePicker
+                    label="Start Date"
+                    value={field.value ? dayjs(field.value) : null} // Ensure it's a Dayjs object
+                    onChange={(newValue) => field.onChange(newValue)}
+                    renderInput={(params) => (
+                      <TextField fullWidth {...params} />
+                    )}
+                  />
+                )}
+              />
+            </LocalizationProvider>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <Controller
+                name="endDate"
+                control={control}
+                render={({ field }) => (
+                  <DesktopDatePicker
+                    label="End Date"
+                    value={field.value ? dayjs(field.value) : null} // Ensure it's a Dayjs object
+                    onChange={(newValue) => field.onChange(newValue)}
+                    renderInput={(params) => (
+                      <TextField fullWidth {...params} />
+                    )}
+                  />
+                )}
+              />
+            </LocalizationProvider>
+          </div>
 
           {/* Start & End Time */}
           <div className="flex gap-4 mb-4">
@@ -246,6 +369,7 @@ const MeetingFormLayout = () => {
                       <Select {...field} label="Company Name">
                         <MenuItem value={1}>Option 1</MenuItem>
                         <MenuItem value={2}>Option 2</MenuItem>
+                        {}
                       </Select>
                     )}
                   />
@@ -403,19 +527,43 @@ const MeetingFormLayout = () => {
           )}
 
           <div className="flex flex-col gap-2">
-            <FormControl fullWidth>
-              <InputLabel>Booking For</InputLabel>
+            {meetingType === "External" ? (
               <Controller
                 name="bookingFor"
                 control={control}
                 render={({ field }) => (
-                  <Select {...field} label="Booking For">
-                    <MenuItem value={1}>Option 1</MenuItem>
-                    <MenuItem value={2}>Option 2</MenuItem>
-                  </Select>
+                  <Autocomplete
+                    {...field}
+                    multiple
+                    freeSolo
+                    options={[]} // No predefined options; users can enter anything
+                    onChange={(_, value) => field.onChange(value)} // Updates the field value
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Booking For"
+                        placeholder="Type emails and press Enter"
+                        fullWidth
+                      />
+                    )}
+                  />
                 )}
               />
-            </FormControl>
+            ) : (
+              <FormControl fullWidth>
+                <InputLabel>Booking For</InputLabel>
+                <Controller
+                  name="bookingFor"
+                  control={control}
+                  render={({ field }) => (
+                    <Select {...field} label="Booking For">
+                      <MenuItem value={1}>Option 1</MenuItem>
+                      <MenuItem value={2}>Option 2</MenuItem>
+                    </Select>
+                  )}
+                />
+              </FormControl>
+            )}
             <Controller
               name="subject"
               control={control}
