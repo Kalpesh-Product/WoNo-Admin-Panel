@@ -60,7 +60,7 @@ const onSubmit = async (data) => {
   formData.append("name", data.roomName);
   formData.append("seats", data.seats);
   formData.append("description", data.description);
-  formData.append("location", JSON.stringify({ name: "ST-701A" })); // Default location
+  formData.append("location", JSON.stringify({ name: data.location })); // Default location
 
   if (selectedFile) {
     formData.append("roomImage", selectedFile);
