@@ -1,51 +1,61 @@
 const Asset = require("../../models/assets/Assets");
+const User = require("../../models/UserData");
+const Company = require("../../models/Company");
+const Category = require("../../models/assets/Category");
 
 const addAsset = async (req, res, next) => {
   try {
     const {
-      assetNumber,
-      category,
-      departmentName,
-      brand,
-      model,
-      price,
+      departmentId,
+      categoryId,
+      vendorId,
+      name,
       purchaseDate,
-      invoice,
-      vendor,
-      warranty,
-      location,
+      quantity,
+      price,
+      brand,
       status,
     } = req.body;
 
-    // Validate and fetch the referenced department
-    const department = await Department.findOne({ name: departmentName });
-    if (!department) {
-      return res.status(404).json({ message: "Department not found" });
+    const user = req.user;
+    const foundUser = await User.findOne({ _id: user })
+      .select("company departments role")
+      .populate([{ path: "role", select: "roleTitle" }])
+      .lean()
+      .exec();
+
+    if (!foundUser) {
+      return res.status(400).json({ message: "No user found" });
     }
 
-    // Create the asset
-    const asset = new Asset({
-      assetNumber,
-      category,
-      department: [department._id], // Reference to the department
-      brand,
-      model,
-      price,
-      purchaseDate,
-      invoice,
-      vendor,
-      warranty,
-      location,
-      status,
-    });
+    const foundCompany = await Company.findOne({
+      _id: foundUser.company,
+    })
+      .select("selectedDepartments")
+      .lean()
+      .exec();
 
-    const savedAsset = await asset.save();
-    res.status(201).json({
-      message: "Asset added successfully",
-      asset: savedAsset,
-    });
+    if (!foundCompany) {
+      return res.status(400).json({ message: "company not found" });
+    }
+
+    doesDepartmentExists = foundCompany.selectedDepartments.find(
+      (dept) => dept._id.toString() === departmentId
+    );
+
+    if (!doesDepartmentExists) {
+      return res
+        .status(400)
+        .json({ message: "department not selected by your company" });
+    }
+
+    const foundCategory = await Category.findOne({ _id: categoryId })
+      .lean()
+      .exec();
+    if (!foundCategory) {
+      return res.status(400).json({ message: "No category found" });
+    }
   } catch (error) {
-    console.error("Error adding asset:", error);
     next(error);
   }
 };
