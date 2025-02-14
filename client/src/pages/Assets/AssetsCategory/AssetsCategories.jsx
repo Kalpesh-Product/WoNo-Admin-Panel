@@ -7,9 +7,11 @@ import MuiModal from "../../../components/MuiModal";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
+import useAuth from "../../../hooks/useAuth";
 
 const AssetsCategories = () => {
   const axios = useAxiosPrivate();
+  const { auth } = useAuth();
   const [isModalOpen, setModalOpen] = useState(false);
 
   const {
@@ -123,28 +125,28 @@ const AssetsCategories = () => {
               />
             )}
           />
-                <Controller
-                name="department"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <FormControl size="small" fullWidth>
-                    <InputLabel>Department</InputLabel>
-                    <Select {...field} label="Department">
-                      <MenuItem value="">Select Department</MenuItem>
-                      {auth.user.company.selectedDepartments.length > 0 ? (
-                        auth.user.company.selectedDepartments.map((loc) => (
-                          <MenuItem key={loc._id} value={loc.name}>
-                            {loc.name}
-                          </MenuItem>
-                        ))
-                      ) : (
-                        <MenuItem disabled>No Locations Available</MenuItem>
-                      )}
-                    </Select>
-                  </FormControl>
-                )}
-              />
+          <Controller
+            name="department"
+            control={control}
+            defaultValue=""
+            render={({ field }) => (
+              <FormControl size="small" fullWidth>
+                <InputLabel>Department</InputLabel>
+                <Select {...field} label="Department">
+                  <MenuItem value="">Select Department</MenuItem>
+                  {auth.user.company.selectedDepartments.length > 0 ? (
+                    auth.user.company.selectedDepartments.map((loc) => (
+                      <MenuItem key={loc._id} value={loc.name}>
+                        {loc.name}
+                      </MenuItem>
+                    ))
+                  ) : (
+                    <MenuItem disabled>No Locations Available</MenuItem>
+                  )}
+                </Select>
+              </FormControl>
+            )}
+          />
 
           <PrimaryButton
             title="Submit"
