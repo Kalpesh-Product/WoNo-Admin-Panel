@@ -4,26 +4,66 @@ const User = require("../../models/UserData");
 const Role = require("../../models/Roles");
 const { default: mongoose } = require("mongoose");
 const Department = require("../../models/Departments");
+ 
 
 const createUser = async (req, res, next) => {
   try {
-    const { empId, name, gender, email, phone, role, companyId,departments, employeeType } = req.body;
+    const {
+      empId,
+      firstName,
+      middleName,
+      lastName,
+      gender,
+      dateOfBirth,
+      phone,
+      email,
+      role,
+      companyId,
+      departments,
+      employeeType,
+      designation,
+      startDate,
+      workLocation,
+      reportsTo,
+      assetDescription,
+      policies,
+      homeAddress,
+      bankInformation,
+      panAadhaarDetails,
+      payrollInformation,
+      familyInformation,
+    } = req.body;
 
     // Validate required fields
-    if (!empId || !name || !email || !phone || !companyId || !employeeType || !departments ) {
+    if (
+      !empId ||
+      !firstName ||
+      !lastName ||
+      !email ||
+      !phone ||
+      !companyId ||
+      !employeeType ||
+      !departments
+    ) {
       return res.status(400).json({ message: "Missing required fields" });
     }
- 
-    const invalidDepartmentIds = departments.filter((id)=> !mongoose.Types.ObjectId.isValid(id))
- 
-    if(invalidDepartmentIds.length > 0){
+
+    const invalidDepartmentIds = departments.filter(
+      (id) => !mongoose.Types.ObjectId.isValid(id)
+    );
+
+    if (invalidDepartmentIds.length > 0) {
       return res.status(400).json({ message: "Invalid department Id provided" });
     }
 
     // Check if department exists
-    const departmentExists = await Department.find({ _id: {$in : departments} }).lean().exec();
+    const departmentExists = await Department.find({
+      _id: { $in: departments },
+    })
+      .lean()
+      .exec();
 
-    if (!departmentExists) {
+    if (!departmentExists || departmentExists.length === 0) {
       return res.status(404).json({ message: "Department not found" });
     }
 
@@ -35,7 +75,7 @@ const createUser = async (req, res, next) => {
 
     // Check if the employee ID or email is already registered
     const existingUser = await User.findOne({
-      $or: [{ company,empId }, { email }],
+      $or: [{ company: companyId, empId }, { email }],
     }).exec();
     if (existingUser) {
       return res
@@ -43,12 +83,13 @@ const createUser = async (req, res, next) => {
         .json({ message: "Employee ID or email already exists" });
     }
 
+    // Check role validity
     const roleValue = await Role.findOne({ _id: role }).lean().exec();
     if (!roleValue) {
       return res.status(400).json({ message: "Invalid role provided" });
     }
 
-    let newUser;
+    // Master Admin check
     if (roleValue.roleTitle === "Master Admin") {
       const doesMasterAdminExists = await User.findOne({
         role: { $in: [roleValue._id] },
@@ -61,26 +102,40 @@ const createUser = async (req, res, next) => {
       ) {
         return res
           .status(400)
-          .json({ message: "a master admin already exists" });
+          .json({ message: "A master admin already exists" });
       }
     }
 
     // Hash password
-    const defaultPassword = "123456"; // Use a better default or generate one securely
+    const defaultPassword = "123456"; // Use a more secure default in production
     const hashedPassword = await bcrypt.hash(defaultPassword, 10);
 
-    // Create user object
-    newUser = new User({
+    // Create user object with all provided fields
+    const newUser = new User({
       empId,
-      name,
+      firstName,
+      middleName,
+      lastName,
       gender,
-      email,
+      dateOfBirth,
       phone,
+      email,
       role,
       company: companyId,
       password: hashedPassword,
       departments,
-      employeeType
+      employeeType,
+      designation,
+      startDate,
+      workLocation,
+      reportsTo,
+      assetDescription,
+      policies,
+      homeAddress,
+      bankInformation,
+      panAadhaarDetails,
+      payrollInformation,
+      familyInformation,
     });
 
     // Save the user
@@ -92,7 +147,9 @@ const createUser = async (req, res, next) => {
       user: {
         id: savedUser._id,
         empId: savedUser.empId,
-        name: savedUser.name,
+        firstName: savedUser.firstName,
+        middleName: savedUser.middleName,
+        lastName: savedUser.lastName,
         email: savedUser.email,
         phone: savedUser.phone,
         companyId: savedUser.company,
@@ -104,6 +161,7 @@ const createUser = async (req, res, next) => {
     next(error);
   }
 };
+
 
 const fetchUser = async (req, res) => {
   const { deptId } = req.params;
@@ -172,80 +230,254 @@ const fetchSingleUser = async (req, res) => {
   }
 };
 
-const updateSingleUser = async (req, res) => {
+// const updateSingleUser = async (req, res) => {
+//   try {
+//     const { id } = req.params; // Extract user ID from request parameters
+//     const updateData = req.body; // Data to update comes from the request body
+
+//     // Define a whitelist of updatable fields, including nested objects
+//     const allowedFields = [
+//       "name",
+//       "gender",
+//       "fatherName",
+//       "motherName",
+//       "kycDetails.aadhaar",
+//       "kycDetails.pan",
+//       "bankDetails.bankName",
+//       "bankDetails.accountNumber",
+//       "bankDetails.ifsc",
+//     ];
+
+//     // Filter the updateData to include only allowed fields
+//     const filteredUpdateData = {};
+
+//     Object.keys(updateData).forEach((key) => {
+//       if (allowedFields.includes(key)) {
+//         // Direct field
+//         filteredUpdateData[key] = updateData[key];
+//       } else {
+//         // Check for nested fields
+//         const nestedFieldMatch = allowedFields.find((field) =>
+//           field.startsWith(`${key}.`)
+//         );
+//         if (nestedFieldMatch && typeof updateData[key] === "object") {
+//           // If a nested field matches, process its properties
+//           const nestedFieldPrefix = `${key}.`;
+//           filteredUpdateData[key] = Object.keys(updateData[key]).reduce(
+//             (nestedObj, nestedKey) => {
+//               if (allowedFields.includes(`${nestedFieldPrefix}${nestedKey}`)) {
+//                 nestedObj[nestedKey] = updateData[key][nestedKey];
+//               }
+//               return nestedObj;
+//             },
+//             {}
+//           );
+//         }
+//       }
+//     });
+
+//     if (Object.keys(filteredUpdateData).length === 0) {
+//       return res.status(400).json({ message: "No valid fields to update" });
+//     }
+
+//     // Perform the update operation
+//     const updatedUser = await User.findByIdAndUpdate(
+//       id,
+//       { $set: filteredUpdateData }, // Use `$set` to update specific fields
+//       { new: true, runValidators: true } // Return the updated document and enforce validation
+//     )
+//       .select("-password") // Exclude the password field
+//       .populate("reportsTo", "name email")
+//       .populate("departments", "name")
+//       .populate("company", "name")
+//       .populate("role", "roleTitle modulePermissions");
+
+//     if (!updatedUser) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+
+//     res.status(200).json({
+//       message: "User data updated successfully",
+//       user: updatedUser,
+//     });
+//   } catch (error) {
+//     console.error("Error updating user: ", error);
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
+// const updateSingleUser = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const updateData = req.body;
+
+//     // Define allowed top-level fields
+//     const allowedFields = ["name", "gender", "fatherName", "motherName"];
+
+//     // Initialize an object to hold the validated data
+//     const filteredUpdateData = {};
+
+//     // Process top-level allowed fields
+//     allowedFields.forEach((field) => {
+//       if (updateData[field] !== undefined) {
+//         filteredUpdateData[field] = updateData[field];
+//       }
+//     });
+
+//     // Process nested fields for kycDetails
+//     if (updateData.kycDetails && typeof updateData.kycDetails === "object") {
+//       const allowedKycFields = ["aadhaar", "pan"];
+//       filteredUpdateData.kycDetails = {};
+
+//       allowedKycFields.forEach((field) => {
+//         if (updateData.kycDetails[field] !== undefined) {
+//           filteredUpdateData.kycDetails[field] = updateData.kycDetails[field];
+//         }
+//       });
+
+//       // Remove kycDetails if no allowed fields were added
+//       if (Object.keys(filteredUpdateData.kycDetails).length === 0) {
+//         delete filteredUpdateData.kycDetails;
+//       }
+//     }
+
+//     // Process nested fields for bankDetails
+//     if (updateData.bankDetails && typeof updateData.bankDetails === "object") {
+//       const allowedBankFields = ["bankName", "accountNumber", "ifsc"];
+//       filteredUpdateData.bankDetails = {};
+
+//       allowedBankFields.forEach((field) => {
+//         if (updateData.bankDetails[field] !== undefined) {
+//           filteredUpdateData.bankDetails[field] = updateData.bankDetails[field];
+//         }
+//       });
+
+//       // Remove bankDetails if no allowed fields were added
+//       if (Object.keys(filteredUpdateData.bankDetails).length === 0) {
+//         delete filteredUpdateData.bankDetails;
+//       }
+//     }
+
+//     // If there's nothing to update, return an error response
+//     if (Object.keys(filteredUpdateData).length === 0) {
+//       return res.status(400).json({ message: "No valid fields to update" });
+//     }
+ 
+//     // Perform the update operation
+//     const updatedUser = await User.findByIdAndUpdate(
+//      { _id:id},
+//       { $set: filteredUpdateData },
+//       { new: true }
+//     )
+//       .select("-password")
+//       .populate("reportsTo", "name email")
+//       .populate("departments", "name")
+//       .populate("company", "name")
+//       .populate("role", "roleTitle modulePermissions");
+
+//       console.log(updatedUser)
+//     if (!updatedUser) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+
+//     res.status(200).json({
+//       message: "User data updated successfully",
+//       user: updatedUser,
+//     });
+//   } catch (error) {
+//     console.error("Error updating user: ", error);
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
+const updateSingleUser = async (req, res, next) => {
   try {
-    const { id } = req.params; // Extract user ID from request parameters
-    const updateData = req.body; // Data to update comes from the request body
+    const { id } = req.params;
+    const updateData = req.body;
 
-    // Define a whitelist of updatable fields, including nested objects
-    const allowedFields = [
-      "name",
-      "gender",
-      "fatherName",
-      "motherName",
-      "kycDetails.aadhaar",
-      "kycDetails.pan",
-      "bankDetails.bankName",
-      "bankDetails.accountNumber",
-      "bankDetails.ifsc",
-    ];
-
-    // Filter the updateData to include only allowed fields
+    // Allowed top-level fields according to new schema
+    const allowedFields = ["firstName", "middleName", "lastName", "gender"];
     const filteredUpdateData = {};
 
-    Object.keys(updateData).forEach((key) => {
-      if (allowedFields.includes(key)) {
-        // Direct field
-        filteredUpdateData[key] = updateData[key];
-      } else {
-        // Check for nested fields
-        const nestedFieldMatch = allowedFields.find((field) =>
-          field.startsWith(`${key}.`)
-        );
-        if (nestedFieldMatch && typeof updateData[key] === "object") {
-          // If a nested field matches, process its properties
-          const nestedFieldPrefix = `${key}.`;
-          filteredUpdateData[key] = Object.keys(updateData[key]).reduce(
-            (nestedObj, nestedKey) => {
-              if (allowedFields.includes(`${nestedFieldPrefix}${nestedKey}`)) {
-                nestedObj[nestedKey] = updateData[key][nestedKey];
-              }
-              return nestedObj;
-            },
-            {}
-          );
-        }
+    // Process top-level allowed fields
+    allowedFields.forEach((field) => {
+      if (updateData[field] !== undefined) {
+        filteredUpdateData[field] = updateData[field];
       }
     });
 
+    // Process nested fields for familyInformation (fatherName, motherName)
+    if (updateData.familyInformation && typeof updateData.familyInformation === "object") {
+      const allowedFamilyFields = ["fatherName", "motherName"];
+      filteredUpdateData.familyInformation = {};
+      allowedFamilyFields.forEach((field) => {
+        if (updateData.familyInformation[field] !== undefined) {
+          filteredUpdateData.familyInformation[field] = updateData.familyInformation[field];
+        }
+      });
+      if (Object.keys(filteredUpdateData.familyInformation).length === 0) {
+        delete filteredUpdateData.familyInformation;
+      }
+    }
+
+    // Process nested fields for panAadhaarDetails (aadhaarId, pan)
+    if (updateData.panAadhaarDetails && typeof updateData.panAadhaarDetails === "object") {
+      const allowedPanFields = ["aadhaarId", "pan"];
+      filteredUpdateData.panAadhaarDetails = {};
+      allowedPanFields.forEach((field) => {
+        if (updateData.panAadhaarDetails[field] !== undefined) {
+          filteredUpdateData.panAadhaarDetails[field] = updateData.panAadhaarDetails[field];
+        }
+      });
+      if (Object.keys(filteredUpdateData.panAadhaarDetails).length === 0) {
+        delete filteredUpdateData.panAadhaarDetails;
+      }
+    }
+
+    // Process nested fields for bankInformation (bankName, accountNumber, bankIFSC)
+    if (updateData.bankInformation && typeof updateData.bankInformation === "object") {
+      const allowedBankFields = ["bankName", "accountNumber", "bankIFSC"];
+      filteredUpdateData.bankInformation = {};
+      allowedBankFields.forEach((field) => {
+        if (updateData.bankInformation[field] !== undefined) {
+          filteredUpdateData.bankInformation[field] = updateData.bankInformation[field];
+        }
+      });
+      if (Object.keys(filteredUpdateData.bankInformation).length === 0) {
+        delete filteredUpdateData.bankInformation;
+      }
+    }
+
+    // If there's nothing to update, return an error response
     if (Object.keys(filteredUpdateData).length === 0) {
       return res.status(400).json({ message: "No valid fields to update" });
     }
 
-    // Perform the update operation
+    // Perform the update operation using the id directly
+  
     const updatedUser = await User.findByIdAndUpdate(
-      id,
-      { $set: filteredUpdateData }, // Use `$set` to update specific fields
-      { new: true, runValidators: true } // Return the updated document and enforce validation
+     { _id:id},
+      { $set: updateData },
+      { new: true, runValidators: true }
     )
-      .select("-password") // Exclude the password field
-      .populate("reportsTo", "name email")
-      .populate("department", "name")
+      .select("-password")
+      .populate("reportsTo", "firstName lastName email")
+      .populate("departments", "name")
       .populate("company", "name")
       .populate("role", "roleTitle modulePermissions");
-
+ 
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
     }
 
     res.status(200).json({
-      message: "User data updated successfully",
-      user: updatedUser,
+      message: "User data updated successfully"
     });
   } catch (error) {
-    console.error("Error updating user: ", error);
-    res.status(500).json({ error: error.message });
+    next(error)
   }
 };
+
+
 
 module.exports = { createUser, fetchUser, fetchSingleUser, updateSingleUser };

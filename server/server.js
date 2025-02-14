@@ -33,7 +33,6 @@ const PORT = process.env.PORT || 5000;
 
 connectDb(process.env.DB_URL);
 
-app.use("/files", express.static("files"));
 app.use(credentials);
 app.use(cors(corsConfig));
 app.use(cookieParser());
@@ -58,8 +57,8 @@ app.use("/api/company", verifyJwt, companyRoutes);
 app.use("/api/budget", verifyJwt, budgetRoutes);
 app.use("/api/departments", departmentsRoutes);
 app.use("/api/designations", designationRoutes);
-app.use("/api/assets",verifyJwt, assetsRoutes);
-app.use("/api/meetings",verifyJwt, meetingsRoutes);
+app.use("/api/assets", verifyJwt, assetsRoutes);
+app.use("/api/meetings", verifyJwt, meetingsRoutes);
 app.use("/api/tickets", verifyJwt, ticketsRoutes);
 app.use("/api/leaves", verifyJwt, leaveRoutes);
 app.use("/api/employee-agreements", employeeAgreementRoutes);
