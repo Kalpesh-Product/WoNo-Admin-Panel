@@ -32,6 +32,18 @@ const AssetsCategories = () => {
     },
   ];
 
+  const { data: assetsCategories = [] } = useQuery({
+    queryKey: "assetsCategories",
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/assets/get-category");
+        return response.data;
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
+
   const rows = [
     { id: 1, categoryName: "Laptops" },
     { id: 2, categoryName: "Chairs" },
@@ -48,11 +60,15 @@ const AssetsCategories = () => {
   return (
     <>
       <AgTable
+        key={assetsCategories.length}
         search={true}
         searchColumn="Category Name"
         tableTitle="Assets Categories"
         buttonTitle="Add Category"
-        data={rows}
+        data={[...assetsCategories.map((category, index)=>({
+          id : index + 1,
+          categoryName : category.categoryName
+        }))]}
         columns={categoriesColumn}
         handleClick={() => setModalOpen(true)}
         tableHeight={350}
