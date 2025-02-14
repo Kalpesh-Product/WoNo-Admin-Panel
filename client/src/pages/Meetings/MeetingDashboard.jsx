@@ -11,8 +11,29 @@ import MuiTable from "../../components/Tables/MuiTable";
 import BarGraph from "../../components/graphs/BarGraph";
 import PieChartMui from "../../components/graphs/PieChartMui";
 import HeatMap from "../../components/graphs/HeatMap";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 
 const MeetingDashboard = () => {
+  const axios = useAxiosPrivate();
+
+  // Fetch meetings
+  const { data: meetingsInternal = [], isLoading } = useQuery({
+    queryKey: ["meetingsInternal"],
+    queryFn: async () => {
+      const response = await axios.get(
+        "/api/meetings/get-meetings-type?type=Internal"
+      );
+      // const filteredMeetings = response.data.filter(
+      //   (meeting) => meeting.meetingStatus === "Completed"
+      // );
+      // console.log("Fetched Meetings:", filteredMeetings);
+      // return filteredMeetings;
+      console.log("Fetched Meetings Internal");
+      return response.data;
+    },
+  });
+
   const meetingInternalColumns = [
     { id: "id", label: "ID", align: "left" },
     { id: "company", label: "Company", align: "left" },
@@ -288,7 +309,9 @@ const MeetingDashboard = () => {
                     room.status === "Available" ? "#28a745" : "#dc3545",
                 }}
               ></span>
-              <span className="text-content text-gray-400">{room.roomName}</span>
+              <span className="text-content text-gray-400">
+                {room.roomName}
+              </span>
             </li>
           ))}
       </ul>

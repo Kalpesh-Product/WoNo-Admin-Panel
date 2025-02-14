@@ -19,7 +19,7 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { queryClient } from "../../index";
 
 const ManageMeetings = () => {
-  const axios = useAxiosPrivate()
+  const axios = useAxiosPrivate();
   const statusColors = {
     Scheduled: { bg: "#E3F2FD", text: "#1565C0" }, // Light Blue
     Ongoing: { bg: "#FFF3E0", text: "#E65100" }, // Light Orange
@@ -32,18 +32,18 @@ const ManageMeetings = () => {
     "In Progress": { bg: "#FBE9E7", text: "#BF360C" },
   };
 
-const defaultChecklist = [
-  { name: "Clean and arrange chairs and tables", checked: false },
-  { name: "Check projector functionality", checked: false },
-  { name: "Ensure AC is working", checked: false },
-  { name: "Clean whiteboard and provide markers", checked: false },
-  { name: "Vacuum and clean the floor", checked: false },
-  { name: "Check lighting and replace bulbs if necessary", checked: false },
-  { name: "Ensure Wi-Fi connectivity", checked: false },
-  { name: "Stock water bottles and glasses", checked: false },
-  { name: "Inspect electrical sockets and outlets", checked: false },
-  { name: "Remove any trash or debris", checked: false },
-];
+  const defaultChecklist = [
+    { name: "Clean and arrange chairs and tables", checked: false },
+    { name: "Check projector functionality", checked: false },
+    { name: "Ensure AC is working", checked: false },
+    { name: "Clean whiteboard and provide markers", checked: false },
+    { name: "Vacuum and clean the floor", checked: false },
+    { name: "Check lighting and replace bulbs if necessary", checked: false },
+    { name: "Ensure Wi-Fi connectivity", checked: false },
+    { name: "Stock water bottles and glasses", checked: false },
+    { name: "Inspect electrical sockets and outlets", checked: false },
+    { name: "Remove any trash or debris", checked: false },
+  ];
   const [checklistModalOpen, setChecklistModalOpen] = useState(false);
   const [selectedMeetingId, setSelectedMeetingId] = useState(null);
   const [checklists, setChecklists] = useState({});
@@ -168,9 +168,9 @@ const defaultChecklist = [
     );
     if (!selectedMeeting) return;
 
-    const { defaultItems, customItems } = checklists[selectedMeetingId];
+    const { customItems } = checklists[selectedMeetingId];
 
-    const housekeepingTasks = [...defaultItems, ...customItems].map((item) => ({
+    const housekeepingTasks = customItems.map((item) => ({
       name: item.name,
       status: "Completed",
     }));

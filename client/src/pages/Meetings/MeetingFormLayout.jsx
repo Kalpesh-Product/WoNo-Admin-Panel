@@ -8,6 +8,7 @@ import MuiModal from "../../components/MuiModal";
 import { useForm, Controller } from "react-hook-form";
 import {
   Autocomplete,
+  CircularProgress,
   FormControl,
   InputLabel,
   MenuItem,
@@ -29,30 +30,73 @@ import { queryClient } from "../../index";
 
 const MeetingFormLayout = () => {
   const [open, setOpen] = useState(false);
-  const [selectedStartTime, setSelectedStartTime] = useState("");
-  const [selectedEndTime, setSelectedEndTime] = useState("");
-  const [selectedDate, setSelectedDate] = useState("");
+  // const [selectedStartTime, setSelectedStartTime] = useState("");
+  // const [selectedEndTime, setSelectedEndTime] = useState("");
   const [searchParams] = useSearchParams();
   const location = searchParams.get("location");
   const meetingRoom = searchParams.get("meetingRoom");
   const [events, setEvents] = useState([]);
-
   const locationState = useLocation().state;
   const roomId = locationState?.roomId;
-
   const axios = useAxiosPrivate();
 
-  // Fetch companies
-  // const { data: company = [], isLoadingCompany } = useQuery({
-  //   queryKey: ["companies"],
-  //   queryFn: async () => {
-  //     const response = await axios.get("/api/company/get-companies");
-  //     console.log(response.data);
-  //     return response.data;
-  //   },
-  // });
+  const { control, handleSubmit, setValue, watch } = useForm({
+    defaultValues: {
+      meetingType: "Internal",
+      location: location,
+      meetingRoom: meetingRoom,
+      startDate: null, // Ensure null
+      endDate: null, // Ensure null
+      startTime: null, // Watch startTime dynamically
+      endTime: null,
+      companyName: "",
+      personName: "",
+      registeredCompanyName: "",
+      companyUrl: "",
+      emailId: "",
+      mobileNo: "",
+      gst: "",
+      pan: "",
+      address: "",
+      bookingForInternal: [],
+      bookingForExternal: [],
+      subject: "",
+      agenda: "",
+    },
+  });
 
-  // Fetch meetings
+  const meetingType = watch("meetingType");
+
+  const {
+    data: users = [],
+    isLoading: usersLoading,
+    error: usersError,
+  } = useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const response = await axios.get("/api/users/fetch-users");
+      const formattedUsers = response.data.map((user) => ({
+        label: user.name,
+        id: user._id,
+      }));
+      console.log(formattedUsers);
+      return formattedUsers;
+    },
+  });
+
+  const {
+    data: companies = [],
+    isLoading: companiesLoading,
+    error: companiesError,
+  } = useQuery({
+    queryKey: ["companies"],
+    queryFn: async () => {
+      const response = await axios.get("/api/company/get-companies");
+      console.log(response.data);
+      return response.data;
+    },
+  });
+
   const { data: meetings = [], isLoading } = useQuery({
     queryKey: ["meetings"],
     queryFn: async () => {
@@ -125,30 +169,6 @@ const MeetingFormLayout = () => {
     setEvents(newEvents);
   }, [meetings, isLoading]);
 
-  const { control, handleSubmit, setValue, watch } = useForm({
-    defaultValues: {
-      meetingType: "Internal",
-      location: location,
-      meetingRoom: meetingRoom,
-      date: null,
-      startTime: null, // Watch startTime dynamically
-      endTime: null,
-      companyName: "",
-      personName: "",
-      registeredCompanyName: "",
-      companyUrl: "",
-      anotherCompanyUrl: "",
-      emailId: "",
-      mobileNo: "",
-      gst: "",
-      pan: "",
-      Address: "",
-      bookingFor: "",
-      subject: "",
-      agenda: "",
-    },
-  });
-
   const handleDateClick = (arg) => {
     if (!arg.start) return;
 
@@ -161,12 +181,10 @@ const MeetingFormLayout = () => {
     setValue("startTime", startTime); // Set the correct format for MUI TimePicker
     setValue("endTime", endTime);
 
-    setSelectedStartTime(startTime);
-    setSelectedEndTime(endTime);
+    // setSelectedStartTime(startTime);
+    // setSelectedEndTime(endTime);
     setOpen(true);
   };
-
-  const meetingType = watch("meetingType");
 
   const onSubmit = (data) => {
     const formattedData = {
@@ -178,10 +196,13 @@ const MeetingFormLayout = () => {
       endTime: data.endTime,
       subject: data.subject,
       agenda: data.agenda,
-      internalParticipants: [], // todo
+      internalParticipants:
+        data.meetingType === "Internal"
+          ? data.bookingForInternal?.map((participant) => participant.id) // Convert to object array
+          : [],
       externalParticipants:
         data.meetingType === "External"
-          ? data.bookingFor?.map((email) => ({ email })) // Convert to object array
+          ? data.bookingForExternal?.map((email) => ({ email })) // Convert to object array
           : [],
       externalCompanyData:
         data.meetingType === "External"
@@ -367,9 +388,23 @@ const MeetingFormLayout = () => {
                     control={control}
                     render={({ field }) => (
                       <Select {...field} label="Company Name">
-                        <MenuItem value={1}>Option 1</MenuItem>
-                        <MenuItem value={2}>Option 2</MenuItem>
-                        {}
+                        <MenuItem value="">Select Company</MenuItem>
+                        {companiesLoading ? (
+                          <MenuItem disabled>
+                            <CircularProgress size={20} />
+                          </MenuItem>
+                        ) : companiesError ? (
+                          <MenuItem disabled>Error fetching companies</MenuItem>
+                        ) : (
+                          companies.map((company) => (
+                            <MenuItem
+                              key={company._id}
+                              value={company.companyName}
+                            >
+                              {company.companyName}
+                            </MenuItem>
+                          ))
+                        )}
                       </Select>
                     )}
                   />
@@ -445,18 +480,6 @@ const MeetingFormLayout = () => {
               </div>
 
               <div className="flex gap-4">
-                {/* <Controller
-                  name="anotherCompanyUrl"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      label="Another Company URL"
-                      variant="outlined"
-                    />
-                  )}
-                /> */}
                 <Controller
                   name="emailId"
                   control={control}
@@ -511,7 +534,7 @@ const MeetingFormLayout = () => {
                   )}
                 />
                 <Controller
-                  name="Address"
+                  name="address"
                   control={control}
                   render={({ field }) => (
                     <TextField
@@ -527,22 +550,31 @@ const MeetingFormLayout = () => {
           )}
 
           <div className="flex flex-col gap-2">
-            {meetingType === "External" ? (
+            {meetingType === "Internal" &&
+            !usersLoading &&
+            !usersError &&
+            Array.isArray(users) &&
+            users.length > 0 ? (
               <Controller
-                name="bookingFor"
+                name="bookingForInternal"
                 control={control}
+                defaultValue={[]} // Ensure default value is an array
                 render={({ field }) => (
                   <Autocomplete
                     {...field}
                     multiple
-                    freeSolo
-                    options={[]} // No predefined options; users can enter anything
-                    onChange={(_, value) => field.onChange(value)} // Updates the field value
+                    options={Array.isArray(users) ? users : []} // Ensure users is always an array
+                    getOptionLabel={(option) =>
+                      typeof option === "string" ? option : option.label
+                    }
+                    isOptionEqualToValue={(option, value) =>
+                      option?.id === value?.id
+                    }
+                    onChange={(_, value) => field.onChange(value)}
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label="Booking For"
-                        placeholder="Type emails and press Enter"
+                        label="Booking For Internal"
                         fullWidth
                       />
                     )}
@@ -550,20 +582,29 @@ const MeetingFormLayout = () => {
                 )}
               />
             ) : (
-              <FormControl fullWidth>
-                <InputLabel>Booking For</InputLabel>
-                <Controller
-                  name="bookingFor"
-                  control={control}
-                  render={({ field }) => (
-                    <Select {...field} label="Booking For">
-                      <MenuItem value={1}>Option 1</MenuItem>
-                      <MenuItem value={2}>Option 2</MenuItem>
-                    </Select>
-                  )}
-                />
-              </FormControl>
+              <Controller
+                name="bookingForExternal"
+                control={control}
+                render={({ field }) => (
+                  <Autocomplete
+                    {...field}
+                    multiple
+                    freeSolo
+                    options={[]} // No predefined options; users can enter anything
+                    onChange={(_, value) => field.onChange(value)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Booking For External"
+                        placeholder="Type emails and press Enter"
+                        fullWidth
+                      />
+                    )}
+                  />
+                )}
+              />
             )}
+
             <Controller
               name="subject"
               control={control}
