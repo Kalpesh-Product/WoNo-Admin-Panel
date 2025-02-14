@@ -48,6 +48,7 @@ const assetsSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: ["Active", "Inactive"],
+    default: "Active",
   },
   assignedTo: {
     type: mongoose.Schema.Types.ObjectId,

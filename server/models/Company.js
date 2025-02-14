@@ -91,6 +91,12 @@ const companySchema = new mongoose.Schema({
           },
         },
       ],
+      assetCategories: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "AssetCategory",
+        },
+      ],
     },
   ],
   companyName: {

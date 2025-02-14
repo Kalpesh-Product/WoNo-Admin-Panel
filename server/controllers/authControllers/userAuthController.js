@@ -41,7 +41,8 @@ const login = async (req, res, next) => {
           name: userExists.name,
           role: userExists.role,
           email: userExists.email,
-          company: userExists.company._id
+          company: userExists.company._id,
+          departments: userExists.departments
         },
       },
       process.env.ACCESS_TOKEN_SECRET,

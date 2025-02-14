@@ -58,7 +58,7 @@ app.use("/api/company", verifyJwt, companyRoutes);
 app.use("/api/budget", verifyJwt, budgetRoutes);
 app.use("/api/departments", departmentsRoutes);
 app.use("/api/designations", designationRoutes);
-app.use("/api/assets", assetsRoutes);
+app.use("/api/assets",verifyJwt, assetsRoutes);
 app.use("/api/meetings",verifyJwt, meetingsRoutes);
 app.use("/api/tickets", verifyJwt, ticketsRoutes);
 app.use("/api/leaves", verifyJwt, leaveRoutes);
