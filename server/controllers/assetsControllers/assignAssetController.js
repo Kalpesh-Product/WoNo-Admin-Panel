@@ -48,12 +48,12 @@ const assignAsset = async (req, res, next) => {
       return res.status(404).json({ message: "User not found." });
     }
 
-    const isDepartmentAdmin = user.departments.some((dept) =>
-      requester.departments.includes(dept)
-    );
-    if (!isDepartmentAdmin) {
-      return res.status(403).json({ message: "Unauthorized action." });
-    }
+    // const isDepartmentAdmin = user.departments.some((dept) =>
+    //   requester.departments.includes(dept)
+    // );
+    // if (!isDepartmentAdmin) {
+    //   return res.status(403).json({ message: "Unauthorized action." });
+    // }
 
     const assignEntry = new AssignAsset({
       asset: assetId,
@@ -176,4 +176,4 @@ const revokeAsset = async (req, res, next) => {
   }
 };
 
-module.exports = { assignAsset, processAssetRequest, revokeAsset };
+module.exports = {getAssetRequests, assignAsset, processAssetRequest, revokeAsset };

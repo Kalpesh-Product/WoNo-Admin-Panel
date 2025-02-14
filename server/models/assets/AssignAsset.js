@@ -19,7 +19,7 @@ const assignAsset = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["Approved", "Rejected"],
+    enum: ["Approved", "Rejected", "Pending"],
   },
   assignType: {
     type: String,
