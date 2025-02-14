@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
@@ -23,12 +23,34 @@ const AgTable = React.memo(
     handleClick,
     buttonTitle,
     tableHeight,
+    enableCheckbox, // ✅ New prop to enable checkboxes
   }) => {
     const [filteredData, setFilteredData] = useState(data);
     const [searchQuery, setSearchQuery] = useState("");
     const [filters, setFilters] = useState({});
     const [appliedFilters, setAppliedFilters] = useState({});
     const [isFilterDrawerOpen, setFilterDrawerOpen] = useState(false);
+    const [selectedRows, setSelectedRows] = useState([]); // ✅ Track selected rows
+    const [isTableInView, setTableInView] = useState(true); // ✅ Track table visibility
+
+    const tableRef = useRef(null); // ✅ Reference to track table visibility
+
+    useEffect(() => {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          setTableInView(entry.isIntersecting);
+        },
+        { threshold: 0.6 } // 20% of the table must be visible
+      );
+
+      if (tableRef.current) {
+        observer.observe(tableRef.current);
+      }
+
+      return () => {
+        if (tableRef.current) observer.unobserve(tableRef.current);
+      };
+    }, []);
 
     const defaultColDef = {
       resizable: true,
@@ -96,8 +118,31 @@ const AgTable = React.memo(
       setFilterDrawerOpen(false);
     };
 
+    const handleSelectionChanged = useCallback((params) => {
+      setSelectedRows(params.api.getSelectedRows()); // ✅ Update selected rows
+    }, []);
+
+    const handleActionClick = () => {
+      alert(`Performing action on ${selectedRows.length} selected items!`);
+      // You can implement delete, edit, or any batch operation here
+    };
+
+    // ✅ Modify columns to conditionally include checkboxes
+    const modifiedColumns = useMemo(() => {
+      if (!enableCheckbox) return columns; // No change if checkboxes are not needed
+      return [
+        {
+          field: "",
+          headerCheckboxSelection: true, // Select all checkbox in header
+          checkboxSelection: true, // Enable row selection checkboxes
+          width: 50,
+        },
+        ...columns, // Append existing columns after checkbox column
+      ];
+    }, [columns, enableCheckbox]);
+
     return (
-      <div className="border-b-[1px] border-borderGray">
+      <div   className="border-b-[1px] border-borderGray">
         <div className="flex justify-between items-center py-2">
           {search && (
             <TextField
@@ -199,19 +244,31 @@ const AgTable = React.memo(
         </MuiAside>
 
         <div
+          ref={tableRef}
           className="ag-theme-quartz border-none w-full font-pregular"
           style={{ height: tableHeight || 500 }}
         >
           <AgGridReact
             rowData={filteredData}
-            columnDefs={columns}
+            columnDefs={modifiedColumns} // ✅ Use modified columns with checkboxes
             defaultColDef={defaultColDef}
             pagination
             paginationPageSize={paginationPageSize}
             rowHeight={50}
-            rowSelection={rowSelection}
+            rowSelection={enableCheckbox ? "multiple" : rowSelection} // ✅ Enable multiple selection only when checkboxes are on
+            onSelectionChanged={handleSelectionChanged}
           />
         </div>
+
+        {/* Floating Action Button */}
+        {selectedRows.length > 0 && isTableInView && (
+          <div
+            className="fixed bottom-8 right-[38rem] bg-blue-600 text-white px-6 py-3 rounded-full shadow-lg cursor-pointer hover:bg-blue-700 transition motion-preset-slide-up-sm"
+            onClick={handleActionClick}
+          >
+           Mark as Done ({selectedRows.length})
+          </div>
+        )}
       </div>
     );
   }
