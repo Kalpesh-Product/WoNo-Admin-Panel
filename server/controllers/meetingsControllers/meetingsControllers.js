@@ -417,19 +417,16 @@ const getMeetingsByTypes = async (req, res, next) => {
     }
  
 
-    const meetings = await Meeting.find({ company }).populate([
+    const meetings = await Meeting.find({meetingType:type}).populate([
       {
-        path: "bookedBy",
-        select: "name departments", 
+        path: "company",
+        select: "companyName", 
       },
       {
         path: "bookedRoom",
-        select: "name location housekeepingStatus",  
+        select: "name location",  
       },
-      {
-        path: "internalParticipants",
-        select: "name",  
-      },
+      
       
     ]);
 
@@ -443,8 +440,9 @@ const getMeetingsByTypes = async (req, res, next) => {
         _id: meeting._id,
         roomName: meeting.bookedRoom.name,
         location: meeting.bookedRoom.location.name,
+        meetingType:meeting.meetingType,
         endTime: formatTime(meeting.endTime),
-        company: meeting.company,
+        company: meeting.company.companyName,
       };
     });
 
