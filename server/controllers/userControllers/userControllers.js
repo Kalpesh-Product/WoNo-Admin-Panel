@@ -165,10 +165,13 @@ const createUser = async (req, res, next) => {
 
 const fetchUser = async (req, res) => {
   const { deptId } = req.params;
+  const company = req.company 
+
   try {
     if (deptId) {
       const users = await User.find({
         department: { $elemMatch: { $eq: deptId } },
+        company
       })
         .select("-password")
         .populate([
@@ -177,12 +180,13 @@ const fetchUser = async (req, res) => {
           { path: "company", select: "name" },
           { path: "role", select: "roleTitle modulePermissions" },
         ]);
-      res.status(200).json({
-        message: "Users data fetched",
-        users,
-      });
+
+
+      res.status(200).json(users);
+
     }
-    const users = await User.find()
+    console.log(company)
+    const users = await User.find({company})
       .select("-password")
       .populate([
         // { path: "reportsTo", select: "name email" },
@@ -292,90 +296,6 @@ const fetchSingleUser = async (req, res) => {
 //       .populate("company", "name")
 //       .populate("role", "roleTitle modulePermissions");
 
-//     if (!updatedUser) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-
-//     res.status(200).json({
-//       message: "User data updated successfully",
-//       user: updatedUser,
-//     });
-//   } catch (error) {
-//     console.error("Error updating user: ", error);
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-
-// const updateSingleUser = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const updateData = req.body;
-
-//     // Define allowed top-level fields
-//     const allowedFields = ["name", "gender", "fatherName", "motherName"];
-
-//     // Initialize an object to hold the validated data
-//     const filteredUpdateData = {};
-
-//     // Process top-level allowed fields
-//     allowedFields.forEach((field) => {
-//       if (updateData[field] !== undefined) {
-//         filteredUpdateData[field] = updateData[field];
-//       }
-//     });
-
-//     // Process nested fields for kycDetails
-//     if (updateData.kycDetails && typeof updateData.kycDetails === "object") {
-//       const allowedKycFields = ["aadhaar", "pan"];
-//       filteredUpdateData.kycDetails = {};
-
-//       allowedKycFields.forEach((field) => {
-//         if (updateData.kycDetails[field] !== undefined) {
-//           filteredUpdateData.kycDetails[field] = updateData.kycDetails[field];
-//         }
-//       });
-
-//       // Remove kycDetails if no allowed fields were added
-//       if (Object.keys(filteredUpdateData.kycDetails).length === 0) {
-//         delete filteredUpdateData.kycDetails;
-//       }
-//     }
-
-//     // Process nested fields for bankDetails
-//     if (updateData.bankDetails && typeof updateData.bankDetails === "object") {
-//       const allowedBankFields = ["bankName", "accountNumber", "ifsc"];
-//       filteredUpdateData.bankDetails = {};
-
-//       allowedBankFields.forEach((field) => {
-//         if (updateData.bankDetails[field] !== undefined) {
-//           filteredUpdateData.bankDetails[field] = updateData.bankDetails[field];
-//         }
-//       });
-
-//       // Remove bankDetails if no allowed fields were added
-//       if (Object.keys(filteredUpdateData.bankDetails).length === 0) {
-//         delete filteredUpdateData.bankDetails;
-//       }
-//     }
-
-//     // If there's nothing to update, return an error response
-//     if (Object.keys(filteredUpdateData).length === 0) {
-//       return res.status(400).json({ message: "No valid fields to update" });
-//     }
- 
-//     // Perform the update operation
-//     const updatedUser = await User.findByIdAndUpdate(
-//      { _id:id},
-//       { $set: filteredUpdateData },
-//       { new: true }
-//     )
-//       .select("-password")
-//       .populate("reportsTo", "name email")
-//       .populate("departments", "name")
-//       .populate("company", "name")
-//       .populate("role", "roleTitle modulePermissions");
-
-//       console.log(updatedUser)
 //     if (!updatedUser) {
 //       return res.status(404).json({ message: "User not found" });
 //     }
