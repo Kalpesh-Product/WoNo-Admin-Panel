@@ -1,5 +1,17 @@
 import React, { useEffect, useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import {
+  Button,
+  Typography,
+  Box,
+  MenuItem,
+  Select,
+  TextField,
+  FormControl,
+  InputLabel,
+} from "@mui/material";
 import AgTable from "../../../components/AgTable";
+import MuiModal from "../../../components/MuiModal";
 
 const AssignedAssets = () => {
   const [assetRows, setAssetRows] = useState([
@@ -89,22 +101,81 @@ const AssignedAssets = () => {
     },
   ]);
 
+  // Modal state
+  const [isDetailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [selectedAsset, setSelectedAsset] = useState(null);
+  const [assetToRevoke, setAssetToRevoke] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+
+  // React Hook Form
+  const { control, handleSubmit, reset } = useForm();
+
+  // 🔥 Reset the form when `selectedAsset` changes
+  useEffect(() => {
+    if (selectedAsset) {
+      reset({
+        assignType: "", // Default value
+        department: selectedAsset.department,
+        assigneeName: selectedAsset.assigneeName,
+        location: selectedAsset.location,
+      });
+    }
+  }, [selectedAsset, reset]);
+
   // 🔥 Fix: Force re-render after revocation
-  const [updatedRows, setUpdatedRows] = useState(assetRows);
+  // const [updatedRows, setUpdatedRows] = useState(assetRows);
 
   // Function to handle "Revoke" action
-  const handleRevoke = (id) => {
+  // const handleRevoke = (id) => {
+  //   setAssetRows((prevRows) =>
+  //     prevRows.map((row) =>
+  //       row.id === id ? { ...row, status: "Revoked", isRevoked: true } : row
+  //     )
+  //   );
+  // };
+
+  // Function to handle "Revoke" action
+  const handleRevoke = () => {
+    if (assetToRevoke) {
+      setAssetRows((prevRows) =>
+        prevRows.map((row) =>
+          row.id === assetToRevoke.id
+            ? { ...row, status: "Revoked", isRevoked: true }
+            : row
+        )
+      );
+    }
+    setConfirmModalOpen(false);
+  };
+
+  // Function to show the confirmation modal
+  const confirmRevoke = (asset) => {
+    setAssetToRevoke(asset);
+    setConfirmModalOpen(true);
+  };
+
+  // Function to show details modal
+  const showDetails = (asset) => {
+    setSelectedAsset(asset);
+    setIsEditMode(false); // Default to view mode
+    setDetailsModalOpen(true);
+  };
+
+  // Function to handle edit save
+  const handleSave = (data) => {
     setAssetRows((prevRows) =>
       prevRows.map((row) =>
-        row.id === id ? { ...row, status: "Revoked", isRevoked: true } : row
+        row.id === selectedAsset.id ? { ...row, ...data } : row
       )
     );
+    setDetailsModalOpen(false);
   };
 
   // 🔄 Ensures AgTable re-renders when `assetRows` changes
-  useEffect(() => {
-    setUpdatedRows([...assetRows]); // Force UI update
-  }, [assetRows]);
+  // useEffect(() => {
+  //   setUpdatedRows([...assetRows]); // Force UI update
+  // }, [assetRows]);
 
   const assetsColumns = [
     { field: "id", headerName: "ID", width: 100 },
@@ -120,19 +191,25 @@ const AssignedAssets = () => {
       field: "actions",
       headerName: "Actions",
       cellRenderer: (params) => {
-        const { id, isRevoked } = params.data;
-        if (isRevoked) return null;
+        // const { id, isRevoked } = params.data;
+        const asset = params.data;
+        // if (isRevoked) return null;
         return (
           <div className="p-2 mb-2 flex gap-2 items-center">
-            <button className="p-2 py-2 bg-primary rounded-md text-white text-content leading-5">
+            <button
+              className="p-2 py-2 bg-primary rounded-md text-white text-content leading-5"
+              onClick={() => showDetails(asset)}
+            >
               Details
             </button>
-            <button
-              onClick={() => handleRevoke(id)}
-              className="p-2 py-2 bg-red-200 rounded-md text-red-600 text-content leading-5"
-            >
-              Revoke
-            </button>
+            {!asset.isRevoked && (
+              <button
+                className="p-2 py-2 bg-red-200 rounded-md text-red-600 text-content leading-5"
+                onClick={() => confirmRevoke(asset)}
+              >
+                Revoke
+              </button>
+            )}
           </div>
         );
       },
@@ -146,7 +223,8 @@ const AssignedAssets = () => {
           search={true}
           searchColumn={"assetNumber"}
           tableTitle={"Assigned Assets"}
-          data={updatedRows} // ✅ Pass updatedRows instead of assetRows
+          // data={updatedRows} // ✅ Pass updatedRows instead of assetRows
+          data={assetRows}
           columns={assetsColumns}
           rowStyle={(params) => ({
             backgroundColor: params.data.isRevoked ? "#f2f2f2" : "white",
@@ -154,6 +232,175 @@ const AssignedAssets = () => {
           })}
         />
       </div>
+
+      {/* Confirmation Modal for Revoking */}
+      <MuiModal
+        open={isConfirmModalOpen}
+        onClose={() => setConfirmModalOpen(false)}
+        title="Confirm Revocation"
+      >
+        <Typography variant="body1">
+          Are you sure you want to revoke this asset assignment?
+        </Typography>
+        <Box display="flex" justifyContent="flex-end" mt={3} gap={2}>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => setConfirmModalOpen(false)}
+          >
+            No
+          </Button>
+          <Button variant="contained" color="error" onClick={handleRevoke}>
+            Yes, Revoke
+          </Button>
+        </Box>
+      </MuiModal>
+
+      {/* Details/Edit Modal */}
+      <MuiModal
+        open={isDetailsModalOpen}
+        onClose={() => {
+          setDetailsModalOpen(false);
+          reset();
+        }}
+        title="Assignee Details"
+      >
+        {selectedAsset && (
+          <>
+            {!isEditMode ? (
+              // 🔹 View Mode
+              <div className="grid grid-cols-2 gap-6 px-6 pb-6">
+                <div className="flex items-center justify-between">
+                  <span className="text-content font-medium">Assign Type</span>
+                  <span className="text-content text-gray-500">
+                    {selectedAsset.assignType}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-content font-medium">Department</span>
+                  <span className="text-content text-gray-500">
+                    {selectedAsset.department}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-content font-medium">
+                    Assignee Name
+                  </span>
+                  <span className="text-content text-gray-500">
+                    {selectedAsset.assigneeName}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-content font-medium">Location</span>
+                  <span className="text-content text-gray-500">
+                    {selectedAsset.location}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-content font-medium">Status</span>
+                  <span
+                    className={`text-content font-semibold ${
+                      selectedAsset.status === "Revoked"
+                        ? "text-red-500"
+                        : "text-green-500"
+                    }`}
+                  >
+                    {selectedAsset.status}
+                  </span>
+                </div>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => setIsEditMode(true)}
+                  disabled={selectedAsset.status === "Revoked"}
+                >
+                  Edit
+                </Button>
+              </div>
+            ) : (
+              // 🔹 Edit Mode (Form)
+              <form
+                onSubmit={handleSubmit(handleSave)}
+                className="grid grid-cols-2 gap-6 px-6 pb-6"
+              >
+                <FormControl fullWidth>
+                  <InputLabel>Assign Type</InputLabel>
+                  <Controller
+                    name="assignType"
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => (
+                      <Select {...field} label="Assign Type">
+                        <MenuItem value="Rental">Rental</MenuItem>
+                        <MenuItem value="Permanent">Permanent</MenuItem>
+                      </Select>
+                    )}
+                  />
+                </FormControl>
+
+                <FormControl fullWidth>
+                  <InputLabel>Department</InputLabel>
+                  <Controller
+                    name="department"
+                    control={control}
+                    defaultValue={selectedAsset.department}
+                    render={({ field }) => (
+                      <Select {...field} label="Department">
+                        <MenuItem value="HR">HR</MenuItem>
+                        <MenuItem value="IT">IT</MenuItem>
+                        <MenuItem value="Finance">Finance</MenuItem>
+                        <MenuItem value="Marketing">Marketing</MenuItem>
+                        <MenuItem value="Admin">Admin</MenuItem>
+                        <MenuItem value="Operations">Operations</MenuItem>
+                      </Select>
+                    )}
+                  />
+                </FormControl>
+
+                <Controller
+                  name="assigneeName"
+                  control={control}
+                  defaultValue={selectedAsset.assigneeName}
+                  render={({ field }) => (
+                    <TextField {...field} label="Assignee Name" fullWidth />
+                  )}
+                />
+
+                <FormControl fullWidth>
+                  <InputLabel>Location</InputLabel>
+                  <Controller
+                    name="location"
+                    control={control}
+                    defaultValue={selectedAsset.location}
+                    render={({ field }) => (
+                      <Select {...field} label="Location">
+                        <MenuItem value="ST-601">ST-601</MenuItem>
+                        <MenuItem value="ST-602">ST-602</MenuItem>
+                        <MenuItem value="ST-701">ST-701</MenuItem>
+                        <MenuItem value="ST-702">ST-702</MenuItem>
+                      </Select>
+                    )}
+                  />
+                </FormControl>
+
+                <Button type="submit" variant="contained" color="success">
+                  Save
+                </Button>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={() => {
+                    setIsEditMode(false);
+                    reset();
+                  }}
+                >
+                  Cancel
+                </Button>
+              </form>
+            )}
+          </>
+        )}
+      </MuiModal>
     </div>
   );
 };

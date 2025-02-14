@@ -4,7 +4,11 @@ import {
   Avatar,
   InputAdornment,
   Popover,
-  Button,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Divider,
 } from "@mui/material";
 import {
   IoIosArrowForward,
@@ -19,6 +23,8 @@ import Abrar from "../assets/abrar.jpeg";
 import useAuth from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import useLogout from "../hooks/useLogout";
+import { FaUserTie } from "react-icons/fa6";
+import { FiLogOut } from "react-icons/fi";
 
 const Header = () => {
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
@@ -40,6 +46,11 @@ const Header = () => {
   const handleSignOut = async () => {
     await logout();
     navigate("/"); // Navigate to the login page after sign-out
+  };
+
+  const handleProfileClick = () => {
+    navigate("/app/profile");
+    handlePopoverClose();
   };
 
   const open = Boolean(anchorEl);
@@ -102,7 +113,9 @@ const Header = () => {
             )}
           </Avatar>
           <div className="w-full">
-            <h1 className="text-xl font-semibold">{auth.user.name.split(" ")[0]}</h1>
+            <h1 className="text-xl font-semibold">
+              {auth.user.name.split(" ")[0]}
+            </h1>
             <span className="text-content">{auth.user.designation}</span>
           </div>
         </div>
@@ -123,15 +136,34 @@ const Header = () => {
           horizontal: "center",
         }}
       >
-        <div className="p-4">
-          <Button
-            variant="contained"
-            color="primary"
-            fullWidth
-            onClick={handleSignOut}
-          >
-            Sign Out
-          </Button>
+        <div className="p-4 w-48">
+          <List>
+            {/* Profile Option */}
+            <ListItem
+              button
+              onClick={handleProfileClick}
+              className="hover:text-primary transition-all duration-100 text-gray-500"
+            >
+              <ListItemIcon>
+                <FaUserTie className="text-gray-500" />
+              </ListItemIcon>
+              <ListItemText primary="Profile" />
+            </ListItem>
+
+            <Divider />
+
+            {/* Sign Out Option */}
+            <ListItem
+              button
+              onClick={handleSignOut}
+              className="hover:text-red-600 transition-all duration-100 text-gray-500"
+            >
+              <ListItemIcon>
+                <FiLogOut className="text-gray-500" />
+              </ListItemIcon>
+              <ListItemText primary="Sign Out" />
+            </ListItem>
+          </List>
         </div>
       </Popover>
     </>
