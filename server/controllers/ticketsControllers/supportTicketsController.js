@@ -22,9 +22,7 @@ const supportTicket = async (req, res, next) => {
     }
 
     if (mongoose.Types.ObjectId.isValid(ticketId)) {
-      const foundTicket = await Ticket.findOne({ _id: ticketId })
-        .lean()
-        .exec();
+      const foundTicket = await Ticket.findOne({ _id: ticketId }).lean().exec();
 
       if (!foundTicket) {
         return res.status(400).json({ message: "Invalid ticket ID provided" });
@@ -35,7 +33,9 @@ const supportTicket = async (req, res, next) => {
       dept.toString()
     );
 
-    const foundTickets = await Ticket.find({raisedToDepartment: { $in: userDepartments }})
+    const foundTickets = await Ticket.find({
+      raisedToDepartment: { $in: userDepartments },
+    });
 
     if (!foundTickets) {
       return res.status(400).json({ message: "Tickets not found" });
@@ -51,12 +51,29 @@ const supportTicket = async (req, res, next) => {
 
     await supportTicket.save();
 
-
-
     return res.status(201).json({ message: "Support request sent" });
   } catch (error) {
     next(error);
   }
 };
 
-module.exports = { supportTicket };
+const getSupportedTickets = async (req, res, next) => {
+  const company = req.company;
+
+  try {
+    const supportTickets = await SupportTicket.find({ company }).populate({
+      path: "ticket",
+      select: "_id ticket raisedToDepartment raisedBy status company",
+    });
+
+    if (supportTickets.length < 0) {
+      return res.status(400).json({ message: "No Support tickets found" });
+    }
+
+    return res.status(200).json(supportTickets);
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { supportTicket, getSupportedTickets };

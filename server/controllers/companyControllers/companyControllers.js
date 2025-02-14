@@ -68,10 +68,7 @@ const addCompany = async (req, res, next) => {
 const getCompanies = async (req, res, next) => {
   try {
     const companies = await Company.find();
-    return res.status(200).json({
-      message: "Company data fetched",
-      companies,
-    });
+    return res.status(200).json(companies);
   } catch (error) {
     next(error);
   }

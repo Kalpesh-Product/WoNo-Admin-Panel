@@ -14,7 +14,7 @@ const Company = require("../../models/Company");
 const raiseTicket = async (req, res, next) => {
   try {
     const user = req.user;
-    const { departmentId, issue, newIssue, description } = req.body;
+    const { departmentId, issueId, newIssue, description } = req.body;
     if (!mongoose.Types.ObjectId.isValid(departmentId)) {
       return res
         .status(400)
@@ -56,15 +56,15 @@ const raiseTicket = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid Department ID" });
     }
 
-    // Check if the issue exists in the department's ticketIssues
+    // Check if the issueId exists in the department's ticketIssues
     let foundIssue;
-    if (issue) {
-      if (!mongoose.Types.ObjectId.isValid(issue)) {
-        return res.status(400).json({ message: "Invalid issue provided" });
+    if (issueId) {
+      if (!mongoose.Types.ObjectId.isValid(issueId)) {
+        return res.status(400).json({ message: "Invalid issueId provided" });
       }
 
       foundIssue = department.ticketIssues.find(
-        (ticketIssue) => ticketIssue._id.toString() === issue
+        (ticketIssue) => ticketIssue._id.toString() === issueId
       );
 
       if (!foundIssue) {
@@ -153,7 +153,7 @@ const getTickets = async (req, res, next) => {
       return res.status(404).json({ message: "No tickets available" });
     }
 
-    // Attach ticket issue title from Company.selectedDepartments.ticketIssues
+    // Attach ticket issueId title from Company.selectedDepartments.ticketIssues
     const ticketsWithIssueTitle = matchingTickets.map((ticket) => {
       const department = company.selectedDepartments.find(
         (dept) =>
@@ -161,7 +161,7 @@ const getTickets = async (req, res, next) => {
       );
 
       const ticketIssue = department?.ticketIssues.find(
-        (issue) => issue._id.toString() === ticket.ticket.toString()
+        (issueId) => issueId._id.toString() === ticket.ticket.toString()
       );
 
       return {

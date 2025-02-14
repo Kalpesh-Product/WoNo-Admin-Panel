@@ -92,7 +92,7 @@ const userDataSchema = new mongoose.Schema({
   },
   reportsTo: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: "UserData",
   },
   assetDescription: {
     type: String,

@@ -203,19 +203,17 @@ const getMeetings = async (req, res, next) => {
       
     ]);
 
-
     const departments = await User.findById({_id:user}).select("departments")
 
     const department = await Department.findById({_id:departments.departments[0]})
  
-   
-    const internalParticipants =  meetings.map((meeting)=> meeting.internalParticipants.map((participants)=>participants?.name))
- 
-    if (!meetings) {
-      return res.status(400).json({ message: "No meetings found" });
-    }
-
-     //Adding housekeeping checklist
+    const internalParticipants = meetings.map((meeting) => {
+      if (!Array.isArray(meeting.internalParticipants)) {
+        return [];
+      }
+      
+      return meetings.map((meeting)=> meeting.internalParticipants.map((participant)=>participant?.name))
+    });
 
      const housekeepingChecklist = [
       {
@@ -249,8 +247,9 @@ const getMeetings = async (req, res, next) => {
         name: "Remove any trash or debris",
       },
     ];
- 
+
     const transformedMeetings = meetings.map((meeting,index) => {
+      
       return {
         _id: meeting._id,
         name: meeting.bookedBy.name,
@@ -406,5 +405,53 @@ const updateHousekeepingTasks = async (req, res, next) => {
 }
  
 
+const getMeetingsByTypes = async (req, res, next) => {
 
-module.exports = { addMeetings, getMeetings, addHousekeepingTask,updateHousekeepingTasks,deleteHousekeepingTask };
+  try {
+
+    const {type} = req.query
+    const company = req.company
+
+    if(!type){
+      return res.status(400).json({message:"Please send the meeting type"})
+    }
+ 
+
+    const meetings = await Meeting.find({meetingType:type}).populate([
+      {
+        path: "company",
+        select: "companyName", 
+      },
+      {
+        path: "bookedRoom",
+        select: "name location",  
+      },
+      
+      
+    ]);
+
+    if(!meetings){
+      return res.status(400).json({message:`Failed to fetch ${type} meetings`})
+    }
+
+    const transformedMeetings = meetings.map((meeting) => {
+      
+      return {
+        _id: meeting._id,
+        roomName: meeting.bookedRoom.name,
+        location: meeting.bookedRoom.location.name,
+        meetingType:meeting.meetingType,
+        endTime: formatTime(meeting.endTime),
+        company: meeting.company.companyName,
+      };
+    });
+
+    return res.status(200).json(transformedMeetings)
+
+  } catch (error) {
+    next(error)
+  }
+}
+
+
+module.exports = { addMeetings, getMeetings, addHousekeepingTask,updateHousekeepingTasks,deleteHousekeepingTask,getMeetingsByTypes };
