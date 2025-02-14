@@ -27,11 +27,10 @@ import { toast } from "sonner";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { queryClient } from "../../index";
+import { convertToISOFormat } from "../../utils/dateFormat";
 
 const MeetingFormLayout = () => {
   const [open, setOpen] = useState(false);
-  // const [selectedStartTime, setSelectedStartTime] = useState("");
-  // const [selectedEndTime, setSelectedEndTime] = useState("");
   const [searchParams] = useSearchParams();
   const location = searchParams.get("location");
   const meetingRoom = searchParams.get("meetingRoom");
@@ -131,43 +130,27 @@ const MeetingFormLayout = () => {
   }, [location, meetingRoom]);
 
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading || !Array.isArray(meetings)) return;
 
-    const newEvents = meetings.map((meeting) => ({
-      title: meeting.subject || "Meeting",
-      start: dayjs(
-        `${meeting.date} ${meeting.startTime}`,
-        "DD-MM-YYYY hh:mm A"
-      ).format("YYYY-MM-DDTHH:mm:ss"),
-      end: dayjs(
-        `${meeting.date} ${meeting.endTime}`,
-        "DD-MM-YYYY hh:mm A"
-      ).format("YYYY-MM-DDTHH:mm:ss"),
-      allDay: false,
-      extendedProps: {
-        location: location,
-        meetingRoom: meeting.roomName,
-        agenda: meeting.agenda,
-      },
-    }));
+    const newEvents = meetings.map((meeting) => {
+      const startDate = convertToISOFormat(meeting.date, meeting.startTime);
+      const endDate = convertToISOFormat(meeting.date, meeting.endTime);
 
-    console.log(newEvents);
-
-    // setEvents((prevEvents) => {
-    //   // Prevent unnecessary re-renders
-    //   console.log(prevEvents.length);
-    //   if (
-    //     JSON.stringify(prevEvents) === JSON.stringify(newEvents)
-    //     // && !prevEvents.length
-    //   ) {
-    //     console.log("I AM HEREEEE");
-    //     return prevEvents; // No changes, so don't update state
-    //   }
-    //   return newEvents;
-    // });
+      return {
+        title: meeting.subject || "Meeting",
+        start: startDate,
+        end: endDate,
+        allDay: false,
+        extendedProps: {
+          // location: location,
+          // meetingRoom: meeting.roomName,
+          // agenda: meeting.agenda,
+        },
+      };
+    });
 
     setEvents(newEvents);
-  }, [meetings, isLoading]);
+  }, [meetings, isLoading, location]);
 
   const handleDateClick = (arg) => {
     if (!arg.start) return;
@@ -175,14 +158,12 @@ const MeetingFormLayout = () => {
     const startTime = dayjs(arg.start); // Keep as a Dayjs object
     const endTime = dayjs(arg.start).add(30, "minute");
     const selectedDate = dayjs(arg.start).startOf("day"); // Get only the date part
-    // setValue("date", selectedDate); // Set only the date
+
     setValue("startDate", selectedDate); // Set only the date
     setValue("endDate", selectedDate); // Set only the date
     setValue("startTime", startTime); // Set the correct format for MUI TimePicker
     setValue("endTime", endTime);
 
-    // setSelectedStartTime(startTime);
-    // setSelectedEndTime(endTime);
     setOpen(true);
   };
 
