@@ -1,12 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import PrimaryButton from "../../components/PrimaryButton";
-import { Button, Card, CardContent, CardMedia, TextField } from "@mui/material";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardMedia,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+} from "@mui/material";
 import { FiMonitor, FiSun, FiWifi } from "react-icons/fi";
 import MuiModal from "../../components/MuiModal";
 import { Controller, useForm } from "react-hook-form";
-import { useQuery, useMutation, useQueryClient  } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { toast } from "sonner";
+import useAuth from "../../hooks/useAuth";
 
 const MeetingSettings = () => {
   const axios = useAxiosPrivate();
@@ -14,6 +25,8 @@ const MeetingSettings = () => {
   const [openModal, setOpenModal] = useState(false);
   const { control, reset, handleSubmit } = useForm();
   const [selectedFile, setSelectedFile] = useState(null);
+  const { auth } = useAuth();
+  const inputRef = useRef();
 
   // Fetch Meeting Rooms from API
   const { data: meetingRooms = [] } = useQuery({
@@ -34,8 +47,8 @@ const MeetingSettings = () => {
     field.onChange(file); // Update React Hook Form state
   };
 
-   // Mutation for creating a room
-   const createRoomMutation = useMutation({
+  // Mutation for creating a room
+  const createRoomMutation = useMutation({
     mutationFn: async (formData) => {
       return axios.post("/api/meetings/create-room", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -46,6 +59,7 @@ const MeetingSettings = () => {
       queryClient.invalidateQueries(["meetingRooms"]); // Refresh the room list
       handleCloseModal();
       reset(); // Reset form fields
+      inputRef.current.value = null;
     },
     onError: (error) => {
       toast.error(error.response?.data?.message || "Failed to add room.");
@@ -53,22 +67,22 @@ const MeetingSettings = () => {
   });
 
   // Handle form submission
-// Handle form submission
-const onSubmit = async (data) => {
-  // Prepare FormData for multipart request
-  const formData = new FormData();
-  formData.append("name", data.roomName);
-  formData.append("seats", data.seats);
-  formData.append("description", data.description);
-  formData.append("location", JSON.stringify({ name: data.location })); // Default location
+  // Handle form submission
+  const onSubmit = async (data) => {
+    // Prepare FormData for multipart request
+    const formData = new FormData();
+    formData.append("name", data.roomName);
+    formData.append("seats", data.seats);
+    formData.append("description", data.description);
+    formData.append("location", data.location); // Default location
 
-  if (selectedFile) {
-    formData.append("roomImage", selectedFile);
-  }
+    if (selectedFile) {
+      formData.append("room", selectedFile);
+    }
 
-  // Make API request
-  createRoomMutation.mutate(formData);
-};
+    // Make API request
+    createRoomMutation.mutate(formData);
+  };
 
   const handleOpenModal = () => {
     setOpenModal(true);
@@ -76,6 +90,8 @@ const onSubmit = async (data) => {
 
   const handleCloseModal = () => {
     setOpenModal(false);
+    inputRef.current.value = "";
+    reset();
   };
 
   return (
@@ -86,7 +102,10 @@ const onSubmit = async (data) => {
             <span className="text-title text-primary">Meeting Rooms</span>
           </div>
           <div>
-            <PrimaryButton handleSubmit={handleOpenModal} title={"Add New Room"} />
+            <PrimaryButton
+              handleSubmit={handleOpenModal}
+              title={"Add New Room"}
+            />
           </div>
         </div>
 
@@ -108,12 +127,12 @@ const onSubmit = async (data) => {
                   <span className="text-subtitle">{room.name}</span>
                   <span
                     className={`px-4 py-1 text-content font-pregular rounded-full ${
-                      room.meetingStatus === "Available"
+                      room.location.status === "Available"
                         ? "bg-green-100 text-green-600"
                         : "bg-red-100 text-red-600"
                     }`}
                   >
-                    {room.meetingStatus}
+                    {room.location.status}
                   </span>
                 </div>
                 <div className="flex items-center space-x-2 mb-4 text-gray-500">
@@ -122,7 +141,10 @@ const onSubmit = async (data) => {
                   <FiMonitor />
                 </div>
                 <p className="mb-2 text-sm font-medium text-gray-800">
-                  <span role="img" aria-label="person">👥</span> Fits {room.seats} people
+                  <span role="img" aria-label="person">
+                    👥
+                  </span>{" "}
+                  Fits {room.seats} people
                 </p>
                 <div className="mt-4">
                   <PrimaryButton title={"Edit Room"} />
@@ -134,17 +156,26 @@ const onSubmit = async (data) => {
       </div>
 
       {/* Modal for Adding New Room */}
-      <MuiModal open={openModal} onClose={handleCloseModal} title={"Add a Meeting Room"}>
+      <MuiModal
+        open={openModal}
+        onClose={handleCloseModal}
+        title={"Add a Meeting Room"}
+      >
         <div className="flex flex-col gap-4">
-          <form onSubmit={ handleSubmit(onSubmit)}
-          >
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-4">
               <Controller
                 name="roomName"
                 control={control}
                 defaultValue={""}
                 render={({ field }) => (
-                  <TextField {...field} label={"Room Name"} variant={"outlined"} size="small" fullWidth />
+                  <TextField
+                    {...field}
+                    label={"Room Name"}
+                    variant={"outlined"}
+                    size="small"
+                    fullWidth
+                  />
                 )}
               />
               <Controller
@@ -152,7 +183,13 @@ const onSubmit = async (data) => {
                 control={control}
                 defaultValue={""}
                 render={({ field }) => (
-                  <TextField {...field} label={"Seats"} variant={"outlined"} size="small" fullWidth />
+                  <TextField
+                    {...field}
+                    label={"Seats"}
+                    variant={"outlined"}
+                    size="small"
+                    fullWidth
+                  />
                 )}
               />
               <Controller
@@ -160,9 +197,39 @@ const onSubmit = async (data) => {
                 control={control}
                 defaultValue={""}
                 render={({ field }) => (
-                  <TextField {...field} label={"Description"} variant={"outlined"} multiline rows={5} fullWidth />
+                  <TextField
+                    {...field}
+                    label={"Description"}
+                    variant={"outlined"}
+                    multiline
+                    rows={5}
+                    fullWidth
+                  />
                 )}
               />
+              <Controller
+                name="location"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <FormControl size="small" fullWidth>
+                    <InputLabel>Location</InputLabel>
+                    <Select {...field} label="Work Location">
+                      <MenuItem value="">Select Location</MenuItem>
+                      {auth.user.company.workLocations.length > 0 ? (
+                        auth.user.company.workLocations.map((loc) => (
+                          <MenuItem key={loc._id} value={loc.name}>
+                            {loc.name}
+                          </MenuItem>
+                        ))
+                      ) : (
+                        <MenuItem disabled>No Locations Available</MenuItem>
+                      )}
+                    </Select>
+                  </FormControl>
+                )}
+              />
+
               <Controller
                 name="roomImage"
                 control={control}
@@ -176,14 +243,25 @@ const onSubmit = async (data) => {
                         accept="image/*"
                         style={{ display: "none" }}
                         id="upload-file"
+                        ref={inputRef}
                         onChange={(event) => handleFileChange(event, field)}
                       />
                       <label htmlFor="upload-file">
-                        <Button sx={{ backgroundColor: "#ebf5ff", color: "#4b5d87", fontFamily: "Poppins-Bold" }} variant="contained" component="span">
+                        <Button
+                          sx={{
+                            backgroundColor: "#ebf5ff",
+                            color: "#4b5d87",
+                            fontFamily: "Poppins-Bold",
+                          }}
+                          variant="contained"
+                          component="span"
+                        >
                           Choose File
                         </Button>
                       </label>
-                      <span className="text-content">{selectedFile ? selectedFile.name : "No file chosen"}</span>
+                      <span className="text-content">
+                        {selectedFile ? selectedFile.name : "No file chosen"}
+                      </span>
                     </div>
                   </div>
                 )}

@@ -16,6 +16,8 @@ const addRoom = async (req, res, next) => {
         .json({ message: "All required fields must be provided" });
     }
 
+    console.log(name, seats, description, location)
+
     // Find the user and populate the company
     const foundUser = await User.findById(user)
       .select("company")
@@ -26,7 +28,6 @@ const addRoom = async (req, res, next) => {
       .lean()
       .exec();
 
-    (foundUser);
 
     if (!foundUser || !foundUser.company) {
       return res
@@ -38,7 +39,7 @@ const addRoom = async (req, res, next) => {
 
     // Check if the provided location exists in the company's workLocations
     const isValidLocation = company.workLocations.some((loc) => {
-      return loc.name === location.name
+      return loc.name === location
     });
    
     if (!isValidLocation) {
