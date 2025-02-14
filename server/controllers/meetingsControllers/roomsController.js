@@ -16,8 +16,6 @@ const addRoom = async (req, res, next) => {
         .json({ message: "All required fields must be provided" });
     }
 
-    console.log(name, seats, description, location)
-
     // Find the user and populate the company
     const foundUser = await User.findById(user)
       .select("company")
