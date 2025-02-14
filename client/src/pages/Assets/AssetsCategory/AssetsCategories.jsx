@@ -4,9 +4,12 @@ import { TextField } from "@mui/material";
 import AgTable from "../../../components/AgTable";
 import PrimaryButton from "../../../components/PrimaryButton";
 import MuiModal from "../../../components/MuiModal";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
 const AssetsCategories = () => {
   const [isModalOpen, setModalOpen] = useState(false);
+  const axios = useAxiosPrivate();
 
   const {
     control,
@@ -65,10 +68,12 @@ const AssetsCategories = () => {
         searchColumn="Category Name"
         tableTitle="Assets Categories"
         buttonTitle="Add Category"
-        data={[...assetsCategories.map((category, index)=>({
-          id : index + 1,
-          categoryName : category.categoryName
-        }))]}
+        data={[
+          ...assetsCategories.map((category, index) => ({
+            id: index + 1,
+            categoryName: category.categoryName,
+          })),
+        ]}
         columns={categoriesColumn}
         handleClick={() => setModalOpen(true)}
         tableHeight={350}
@@ -97,6 +102,29 @@ const AssetsCategories = () => {
                 error={!!errors.categoryName}
                 helperText={errors.categoryName?.message}
               />
+            )}
+          />
+
+          <Controller
+            name="department"
+            control={control}
+            defaultValue=""
+            render={({ field }) => (
+              <FormControl size="small" fullWidth>
+                <InputLabel>Department</InputLabel>
+                <Select {...field} label="Department">
+                  <MenuItem value="">Select Department</MenuItem>
+                  {auth.user.company.selectedDepartments.length > 0 ? (
+                    auth.user.company.selectedDepartments.map((loc) => (
+                      <MenuItem key={loc._id} value={loc.name}>
+                        {loc.name}
+                      </MenuItem>
+                    ))
+                  ) : (
+                    <MenuItem disabled>No Locations Available</MenuItem>
+                  )}
+                </Select>
+              </FormControl>
             )}
           />
 
