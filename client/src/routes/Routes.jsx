@@ -103,6 +103,9 @@ import TasksLayout from "../pages/Tasks/TasksLayout";
 import TasksDashboard from "../pages/Tasks/TasksDashboard";
 import MyTaskListLayout from "../pages/Tasks/My-Tasklist/MyTaskListLayout";
 import DailyTasks from "../pages/Tasks/My-Tasklist/DailyTasks";
+import MonthlyTasks from "../pages/Tasks/My-Tasklist/MonthlyTasks";
+import AdditionalTasks from "../pages/Tasks/My-Tasklist/AdditionalTasks";
+import TeamMember from "../pages/Tasks/TeamMembers/TeamMember";
 
 export const routes = createBrowserRouter([
   {
@@ -547,10 +550,10 @@ export const routes = createBrowserRouter([
               },
               {
                 path: "tasks", // Parent path
-                element: <TasksLayout />, // Parent component for tickets
+                element: <TasksLayout />, // Parent component for tasks
                 children: [
                   {
-                    path: "", // Default route for /app/assets
+                    path: "", // Default route for /app/tasks
                     element: <TasksDashboard />, // Dashboard is rendered by default
                     index: true,
                   },
@@ -564,18 +567,18 @@ export const routes = createBrowserRouter([
                         element: <DailyTasks />,
                       },
                       {
-                        path: "assets-sub-categories",
-                        element: <AssetsSubCategories />,
+                        path: "monthly-tasks",
+                        element: <MonthlyTasks />,
                       },
                       {
-                        path: "list-of-assets",
-                        element: <ListOfAssets />,
+                        path: "additional-Tasks",
+                        element: <AdditionalTasks />,
                       },
                     ],
                   },
                   {
-                    path: "schedule-meeting",
-                    element: <MeetingFormLayout />, // This is your second page
+                    path: "team-members",
+                    element: <TeamMember />, 
                   },
                   {
                     path: "manage-assets",

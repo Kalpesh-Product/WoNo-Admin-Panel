@@ -52,7 +52,7 @@ const TasksDashboard = () => {
         />,
         <Card route={"my-tasklist"} title={"My Task List"} icon={<RiPagesLine />} />,
         <Card
-          route={""}
+          route={"team-members"}
           title={"Team Members"}
           icon={<MdFormatListBulleted />}
         />,
