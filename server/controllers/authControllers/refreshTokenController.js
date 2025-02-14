@@ -11,7 +11,7 @@ const handleRefreshToken = async (req, res, next) => {
 
     const refreshToken = cookies.clientCookie;
     const userExists = await User.findOne({ refreshToken })
-      .select("name role email empId company password designation")
+      .select("firstName lastName role email empId company password designation")
       .populate([
         { path: "company", select: "companyName workLocations employeeTypes shifts policies agreements sops" },
         { path: "role", select: "roleTitle" },
