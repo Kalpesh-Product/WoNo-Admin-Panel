@@ -99,6 +99,13 @@ import AssetsSubCategories from "../pages/Assets/AssetsCategory/AssetsSubCategor
 import ListOfAssets from "../pages/Assets/AssetsCategory/ListOfAssets";
 import AssetsSettings from "../pages/Assets/AssetsSettings/AssetsSettings";
 import AssetsBulkUpload from "../pages/Assets/AssetsSettings/BulkUpload";
+import TasksLayout from "../pages/Tasks/TasksLayout";
+import TasksDashboard from "../pages/Tasks/TasksDashboard";
+import MyTaskListLayout from "../pages/Tasks/My-Tasklist/MyTaskListLayout";
+import DailyTasks from "../pages/Tasks/My-Tasklist/DailyTasks";
+import MonthlyTasks from "../pages/Tasks/My-Tasklist/MonthlyTasks";
+import AdditionalTasks from "../pages/Tasks/My-Tasklist/AdditionalTasks";
+import TeamMember from "../pages/Tasks/TeamMembers/TeamMember";
 
 export const routes = createBrowserRouter([
   {
@@ -498,6 +505,80 @@ export const routes = createBrowserRouter([
                   {
                     path: "schedule-meeting",
                     element: <MeetingFormLayout />, // This is your second page
+                  },
+                  {
+                    path: "manage-assets",
+                    element: <ManageAssets />,
+                    children:[
+                      {
+                        path:'assign-assets',
+                        element:<AssignAssets />
+                      },
+                      {
+                        path:'assigned-assets',
+                        element:<AssignedAssets />
+                      },
+                      {
+                        path:'approvals',
+                        element:<Approvals />
+                      },
+                    ]
+                  },
+                  {
+                    path: "calendar",
+                    element: <MeetingCalendar />,
+                  },
+                  {
+                    path: "reports",
+                    element: <AssetReports />,
+                  },
+                  {
+                    path: "reviews",
+                    element: <Reviews />,
+                  },
+                  {
+                    path: "settings",
+                    element: <AssetsSettings />,
+                    children: [
+                      {
+                        path: "bulk-upload",
+                        element: <AssetsBulkUpload />,
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                path: "tasks", // Parent path
+                element: <TasksLayout />, // Parent component for tasks
+                children: [
+                  {
+                    path: "", // Default route for /app/tasks
+                    element: <TasksDashboard />, // Dashboard is rendered by default
+                    index: true,
+                  },
+                  {
+                    path: "my-tasklist",
+                    element: <MyTaskListLayout />, // This is your first page
+                    children: [
+                      {
+                        path: "daily-tasks",
+                        index: true,
+                        element: <DailyTasks />,
+                      },
+                      {
+                        path: "monthly-tasks",
+                        element: <MonthlyTasks />,
+                      },
+                      {
+                        path: "additional-Tasks",
+                        element: <AdditionalTasks />,
+                      },
+                    ],
+                  },
+                  {
+                    path: "team-members",
+                    element: <TeamMember />, 
                   },
                   {
                     path: "manage-assets",

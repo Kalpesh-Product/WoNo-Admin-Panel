@@ -17,7 +17,6 @@ export default function useRefresh() {
           user: response.data.user,
         };
       });
-      navigate("/app/dashboard/frontend-dashboard");
       return response.data;
     } catch (error) {
       setAuth((prevState) => {

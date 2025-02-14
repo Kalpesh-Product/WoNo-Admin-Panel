@@ -1,31 +1,86 @@
-import React, { useState } from "react";
-import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
-import MuiModal from "../../components/MuiModal";
+import React from "react";
+import {
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  CircularProgress,
+} from "@mui/material";
 import PrimaryButton from "../../components/PrimaryButton";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import { useQuery } from "@tanstack/react-query";
 
 const BookMeetings = () => {
   const navigate = useNavigate();
+  const axios = useAxiosPrivate();
 
-  const { control, handleSubmit } = useForm({
+  const { control, handleSubmit, watch } = useForm({
     defaultValues: {
       location: "",
       meetingRoom: "",
     },
   });
 
+  const selectedLocation = watch("location");
+
+  // Fetch Work Locations
+  const {
+    data: workLocations = [],
+    isLoading: locationsLoading,
+    error: locationsError,
+  } = useQuery({
+    queryKey: ["workLocations"],
+    queryFn: async () => {
+      const response = await axios.get(
+        "/api/company/get-company-data?field=workLocations"
+      );
+      console.log(response.data.workLocations);
+      return response.data.workLocations;
+    },
+  });
+
+  // Fetch all Meeting Rooms
+  const {
+    data: allMeetingRooms = [],
+    isLoading: meetingRoomsLoading,
+    error: meetingRoomsError,
+  } = useQuery({
+    queryKey: ["meetingRooms"],
+    queryFn: async () => {
+      const response = await axios.get("/api/meetings/get-rooms");
+      console.log(response.data);
+      return response.data;
+    },
+  });
+
+  // Filter meeting rooms based on selected location
+  const filteredMeetingRooms = selectedLocation
+    ? allMeetingRooms.filter((room) => room.location.name === selectedLocation)
+    : [];
+
   const onSubmit = (data) => {
     const { location, meetingRoom } = data;
 
-    // Ensure both fields are selected
     if (!location || !meetingRoom) {
       alert("Please select both location and meeting room.");
       return;
     }
 
-    // Navigate to second page with query parameters
-    navigate(`/app/meetings/schedule-meeting?location=${location}&meetingRoom=${meetingRoom}`);
+    const selectedRoom = allMeetingRooms.find(
+      (room) => room.name === meetingRoom
+    );
+
+    if (!selectedRoom) {
+      alert("Invalid meeting room selected.");
+      return;
+    }
+
+    navigate(
+      `/app/meetings/schedule-meeting?location=${location}&meetingRoom=${meetingRoom}`,
+      { state: { roomId: selectedRoom._id } } // Passing _id in state
+    );
   };
 
   return (
@@ -38,6 +93,7 @@ const BookMeetings = () => {
         className="flex flex-col items-center"
       >
         <div className="flex justify-center gap-4 mb-10 px-20 w-full">
+          {/* Location Dropdown */}
           <FormControl className="w-1/2">
             <InputLabel>Select Location</InputLabel>
             <Controller
@@ -46,23 +102,60 @@ const BookMeetings = () => {
               render={({ field }) => (
                 <Select {...field} label="Select Location">
                   <MenuItem value="">Select Location</MenuItem>
-                  <MenuItem value={'ST-701'}>ST-701</MenuItem>
-                  <MenuItem value={'Location 2'}>Location 2</MenuItem>
+                  {locationsLoading ? (
+                    <MenuItem disabled>
+                      <CircularProgress size={20} />
+                    </MenuItem>
+                  ) : locationsError ? (
+                    <MenuItem disabled>Error fetching locations</MenuItem>
+                  ) : (
+                    workLocations.map((location) => (
+                      <MenuItem key={location.id} value={location.name}>
+                        {location.name}
+                      </MenuItem>
+                    ))
+                  )}
                 </Select>
               )}
             />
           </FormControl>
 
+          {/* Meeting Room Dropdown */}
           <FormControl className="w-1/2">
             <InputLabel>Select Meeting Room</InputLabel>
             <Controller
               name="meetingRoom"
               control={control}
               render={({ field }) => (
-                <Select {...field} label="Select Meeting Room">
+                <Select
+                  {...field}
+                  label="Select Meeting Room"
+                  disabled={!selectedLocation || meetingRoomsLoading}
+                  value={
+                    filteredMeetingRooms.some(
+                      (room) => room.name === field.value
+                    )
+                      ? field.value
+                      : ""
+                  }
+                  onChange={(event) => field.onChange(event.target.value)}
+                >
                   <MenuItem value="">Select Meeting Room</MenuItem>
-                  <MenuItem value={'Baga'}>Baga</MenuItem>
-                  <MenuItem value={'Room 2'}>Room 2</MenuItem>
+                  {meetingRoomsLoading ? (
+                    <MenuItem disabled>
+                      <CircularProgress size={20} />
+                    </MenuItem>
+                  ) : meetingRoomsError ? (
+                    <MenuItem disabled>Error fetching meeting rooms</MenuItem>
+                  ) : filteredMeetingRooms.length === 0 ? (
+                    <MenuItem disabled>No rooms available</MenuItem>
+                  ) : (
+                    filteredMeetingRooms.map((room) => (
+                      <MenuItem key={room._id} value={room.name}>
+                        {room.name}
+                      </MenuItem>
+                    ))
+                  )}
                 </Select>
               )}
             />
