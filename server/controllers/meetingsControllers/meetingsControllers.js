@@ -14,7 +14,7 @@ const addMeetings = async (req, res, next) => {
   try {
     const {
       meetingType,
-      bookedBy,
+      // bookedBy,
       bookedRoom,
       startDate,
       endDate,
@@ -27,7 +27,7 @@ const addMeetings = async (req, res, next) => {
       externalCompanyData,
     } = req.body;
 
-    // const user = req.userData.userId;
+    const user = req.userData.userId;
     const company = req.userData.company;
 
     if (
@@ -45,6 +45,18 @@ const addMeetings = async (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(bookedRoom)) {
       return res.status(400).json({ message: "Invalid Room Id provided" });
     }
+    // if (!mongoose.Types.ObjectId.isValid(bookedBy)) {
+    //   return res.status(400).json({ message: "Invalid Room Id provided" });
+    // }
+
+    // let userExists 
+    // if(meetingType === 'Internal'){
+    //    userExists = await User.findOne({name:bookedBy})
+    // }
+
+    // if(!userExists){
+    //   return res.status(400).json({ message: "User not found" });
+    // }
 
     const startDateObj = new Date(startDate)
     const endDateObj = new Date(endDate)
@@ -141,56 +153,9 @@ const addMeetings = async (req, res, next) => {
       });
     }
 
-
-    //Adding housekeeping checklist
-
-    const housekeepingChecklist = [
-      {
-        name: "Clean and arrange chairs and tables",
-        status: "Pending",
-      },
-      {
-        name: "Check projector functionality",
-        status: "Pending",
-      },
-      {
-        name: "Ensure AC is working",
-        status: "Pending",
-      },
-      {
-        name: "Clean whiteboard and provide markers",
-        status: "Pending",
-      },
-      {
-        name: "Vacuum and clean the floor",
-        status: "Pending",
-      },
-      {
-        name: "Check lighting and replace bulbs if necessary",
-        status: "Pending",
-      },
-      {
-        name: "Ensure Wi-Fi connectivity",
-        status: "Pending",
-      },
-      {
-        name: "Stock water bottles and glasses",
-        status: "Pending",
-      },
-      {
-        name: "Inspect electrical sockets and outlets",
-        status: "Pending",
-      },
-      {
-        name: "Remove any trash or debris",
-        status: "Pending",
-      },
-    ];
-    
- 
     const meeting = new Meeting({
       meetingType,
-      bookedBy: bookedBy,
+      bookedBy: user,
       startDate: startDateObj,
       endDate: endDateObj,
       startTime: startTimeObj,
@@ -199,7 +164,6 @@ const addMeetings = async (req, res, next) => {
       subject,
       agenda,
       company,
-      housekeepingChecklist,
       internalParticipants: internalParticipants ? participants : [],
       externalParticipants: externalParticipants ? externalParticipants : [],
     });
@@ -230,7 +194,7 @@ const getMeetings = async (req, res, next) => {
       },
       {
         path: "bookedRoom",
-        select: "name",  
+        select: "name location housekeepingStatus",  
       },
       {
         path: "internalParticipants",
@@ -244,26 +208,68 @@ const getMeetings = async (req, res, next) => {
 
     const department = await Department.findById({_id:departments.departments[0]})
  
-    const internalParticipants =  meetings.map((meeting)=> meeting.internalParticipants.map((participants)=>participants.name))
-
+   
+    const internalParticipants =  meetings.map((meeting)=> meeting.internalParticipants.map((participants)=>participants?.name))
+ 
     if (!meetings) {
       return res.status(400).json({ message: "No meetings found" });
     }
 
+     //Adding housekeeping checklist
+
+     const housekeepingChecklist = [
+      {
+        name: "Clean and arrange chairs and tables",
+      },
+      {
+        name: "Check projector functionality",
+      },
+      {
+        name: "Ensure AC is working",
+      },
+      {
+        name: "Clean whiteboard and provide markers",
+      },
+      {
+        name: "Vacuum and clean the floor",
+      },
+      {
+        name: "Check lighting and replace bulbs if necessary",
+      },
+      {
+        name: "Ensure Wi-Fi connectivity",
+      },
+      {
+        name: "Stock water bottles and glasses",
+      },
+      {
+        name: "Inspect electrical sockets and outlets",
+      },
+      {
+        name: "Remove any trash or debris",
+      },
+    ];
+ 
     const transformedMeetings = meetings.map((meeting,index) => {
       return {
+        _id: meeting._id,
         name: meeting.bookedBy.name,
         department: department.name,
         roomName: meeting.bookedRoom.name,
+        roomStatus: meeting.bookedRoom.location.status,
+        location: meeting.bookedRoom.location.name,
+        meetingType: meeting.meetingType,
+        housekeepingStatus: meeting.bookedRoom.housekeepingStatus,
         date: formatDate(meeting.startDate),
         startTime: formatTime(meeting.startTime),
         endTime: formatTime(meeting.endTime),
         credits: meeting.credits,
         duration: formatDuration(meeting.startTime, meeting.endTime),
-        status: meeting.status,
+        meetingStatus: meeting.status,
         action: meeting.extend,
         agenda: meeting.agenda,
         subject: meeting.subject,
+        housekeepingChecklist:  [...(meeting.housekeepingChecklist ?? [])],
         internalParticipants: internalParticipants[index],
         externalParticipants: meeting.externalParticipants,
         company: meeting.company,
@@ -277,14 +283,128 @@ const getMeetings = async (req, res, next) => {
 };
 
 
-// const updateHousekeepingChecklist = async (req, res, next) => {
+const addHousekeepingTask = async (req, res, next) => {
 
-//   try {
-//     const 
-//   } catch (error) {
-    
-//   }
-// }
+  try {
+
+    const {housekeepingTasks,meetingId,roomName} = req.body 
+
+    if(!housekeepingTasks || !meetingId || !roomName){
+      return res.status(400).json({message:"All feilds are required"})
+    }
+
+    if(!mongoose.Types.ObjectId.isValid(meetingId)){
+      return res.status(400).json({message:"Invalid meeting id provided"})
+    }
+
+    const inCompleteTasks = housekeepingTasks.filter((task) => task.status === "Pending")
+
+    if(inCompleteTasks.length > 0){
+      return res.status(400).json({message:"Please check out the tasks before submitting"})
+    }
+
+    const completedTasks = housekeepingTasks.map((task)=> ({name:task.name}))
+
+    const foundMeeting = await Meeting.findByIdAndUpdate(
+      {_id:meetingId},
+      { $push: { housekeepingChecklist: completedTasks  }, 
+     },
+      {new:true}
+    )
+
+    const room = await Room.findOneAndUpdate({name:roomName},{housekeepingStatus:"Completed","location.status":"Available"},
+      {new:true}
+    )
 
 
-module.exports = { addMeetings, getMeetings };
+    if(!foundMeeting){
+      return res.status(400).json({message:"Failed to add the housekeeping tasks"})
+    }
+
+    if(!room){
+      return res.status(400).json({message:"Failed to update the room status"})
+    }
+
+    return res.status(200).json({message: "Housekeeping tasks added successfully"})
+
+  } catch (error) {
+    next(error)
+  }
+}
+
+
+const deleteHousekeepingTask = async (req, res, next) => {
+  try {
+    const { housekeepingTask, meetingId } = req.body;
+
+    if (!housekeepingTask || !meetingId) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(meetingId)) {
+      return res.status(400).json({ message: "Invalid meeting ID provided" });
+    }
+
+    const updatedMeeting = await Meeting.findByIdAndUpdate(
+      meetingId,
+      { $pull: { housekeepingChecklist: { name: housekeepingTask } } },
+      { new: true }
+    );
+
+    if (!updatedMeeting) {
+      return res.status(400).json({ message: "Failed to delete housekeeping task" });
+    }
+
+    return res.status(200).json({
+      message: "Housekeeping task deleted successfully"
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+const updateHousekeepingTasks = async (req, res, next) => {
+
+  try {
+
+    const {meetingId,housekeepingTasks} = req.body
+
+    if(!meetingId || !housekeepingTasks){
+      return res.status(400).json({message:"All feilds are required"})
+    }
+
+    if(!mongoose.Types.ObjectId.isValid(meetingId)){
+      return res.status(400).json({message:"Invalid meeting id provided"})
+    }
+
+    const updatedHousekeepingCheckLlist = await Meeting.updateOne(
+      { _id: meetingId },
+      {
+        $set: {
+          "housekeepingChecklist.$[task].status": "Completed",
+        },
+      },
+      {
+        arrayFilters: [
+          { "task.name": { $in: housekeepingTasks.map((task) => task.name) } },
+        ],
+        new: true,
+      }
+    );
+
+    if(!updatedHousekeepingCheckLlist){
+      return res.status(400).json({message:"Failed to add the housekeeping tasks"})
+    }
+
+    return res.status(200).json({message: "Housekeeping tasks added successfully"})
+
+  } catch (error) {
+    next(error)
+  }
+}
+ 
+
+
+module.exports = { addMeetings, getMeetings, addHousekeepingTask,updateHousekeepingTasks,deleteHousekeepingTask };

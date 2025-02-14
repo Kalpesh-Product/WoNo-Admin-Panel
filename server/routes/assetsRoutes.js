@@ -5,6 +5,7 @@ const {
   editAsset,
   getAssets,
 } = require("../controllers/assetsControllers/assetsControllers");
+const { addCategory, addSubCategory } = require("../controllers/assetsControllers/categoryControllers");
 
 const {
   assignAsset,

@@ -13,7 +13,7 @@ const Shifts = () => {
     queryKey: ["shifts"],
     queryFn: async () => {
       try {
-        const response = await axios.get("/api/company/get-company-data/shifts");
+        const response = await axios.get("/api/company/get-company-data/?field=shifts");
         return response.data.shifts
       } catch (error) {
         throw new Error(error.response.data.message);
@@ -33,6 +33,33 @@ const Shifts = () => {
             </div>
           )
         },flex:1},
+         {
+                 field: "status",
+                 headerName: "Status",
+                 flex: 1,
+                 cellRenderer: (params) => {
+                   const status = params.value ? "Active" : "Inactive"; // Map boolean to string status
+                   const statusColorMap = {
+                     Inactive: { backgroundColor: "#FFECC5", color: "#CC8400" }, // Light orange bg, dark orange font
+                     Active: { backgroundColor: "#90EE90", color: "#006400" }, // Light green bg, dark green font
+                   };
+                 
+                   const { backgroundColor, color } = statusColorMap[status] || {
+                     backgroundColor: "gray",
+                     color: "white",
+                   };
+                 
+                   return (
+                     <Chip
+                       label={status}
+                       style={{
+                         backgroundColor,
+                         color,
+                       }}
+                     />
+                   );
+                 },  
+               }
     ];
   
   
@@ -73,7 +100,8 @@ const Shifts = () => {
         data={[
           ...shifts.map((shift, index) => ({
             id: index + 1, // Auto-increment Sr No
-            shift: shift
+            shift: shift.name,
+            status:shift.isActive
             ,
           })),
         ]}

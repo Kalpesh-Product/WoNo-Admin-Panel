@@ -1,14 +1,15 @@
 const Review = require("../../models/meetings/Reviews");
 const Meeting = require("../../models/meetings/Meetings");
-
+const mongoose = require("mongoose")
 // Add a Review
 const addReview = async (req, res, next) => {
   try {
-    const { meetingId, review, rate } = req.body;
+    
+    const { meetingId, review, rate, reviewerEmail, reviewerName} = req.body;
     const userId = req.user; // Authenticated user
 
     // Validate inputs
-    if (!meetingId || !review || !rate) {
+    if (!meetingId || !review || !rate || !reviewerEmail || !reviewerName) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -32,7 +33,8 @@ const addReview = async (req, res, next) => {
 
     // Create and save the review
     const newReview = new Review({
-      user: userId,
+      reviewerEmail,
+      reviewerName,
       review,
       rate,
       meeting: meetingId,
@@ -45,7 +47,6 @@ const addReview = async (req, res, next) => {
       review: savedReview,
     });
   } catch (error) {
-    console.error("Error adding review:", error);
     next(error);
   }
 };
@@ -54,13 +55,42 @@ const addReview = async (req, res, next) => {
 const getReviews = async (req, res, next) => {
   try {
     const reviews = await Review.find()
-      .populate("user", "name email")
+      .populate([
+        {path: "meeting", select: "startDate"}
+      ])
       .sort({ createdAt: -1 }); 
 
-    res.status(200).json({
-      message: "Reviews fetched successfully",
-      reviews,
-    });
+    res.status(200).json(reviews);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const replyReview = async (req, res, next) => {
+  try {
+    const { reviewId, reply, replierEmail, replierName} = req.body;
+ 
+    if(!reply || !reviewId || !replierEmail || !replierName){
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    if(!mongoose.Types.ObjectId.isValid){
+      return res.status(400).json({ message: "Invalid review id provided" });
+    }
+
+    const reviews = await Review.findByIdAndUpdate({_id: reviewId},
+       {
+        "reply.replierEmail": replierEmail,
+        "reply.replierName": replierName,
+        "reply.text": reply,
+       },
+      {new:true})
+
+      if(!reviews){
+        return res.status(400).json({ message: "Failed to add the reply" });
+      }
+
+    res.status(200).json({message: "You replied to the review"});
   } catch (error) {
     next(error);
   }
@@ -107,4 +137,5 @@ module.exports = {
   addReview,
   getReviews,
   updateReview,
+  replyReview
 };

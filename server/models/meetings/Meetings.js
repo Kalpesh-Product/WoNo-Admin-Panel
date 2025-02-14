@@ -101,11 +101,12 @@ const meetingSchema = new mongoose.Schema(
         name:{
           type:String
         },
-        status:{
-          type:String
-        }
       }
-    ]
+    ],
+    houeskeepingStatus: {
+      type:String,
+      default: "Pending"
+    }
   },
   { timestamps: true }
 );
