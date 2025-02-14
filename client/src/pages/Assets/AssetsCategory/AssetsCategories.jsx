@@ -123,6 +123,28 @@ const AssetsCategories = () => {
               />
             )}
           />
+                <Controller
+                name="department"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <FormControl size="small" fullWidth>
+                    <InputLabel>Department</InputLabel>
+                    <Select {...field} label="Department">
+                      <MenuItem value="">Select Department</MenuItem>
+                      {auth.user.company.selectedDepartments.length > 0 ? (
+                        auth.user.company.selectedDepartments.map((loc) => (
+                          <MenuItem key={loc._id} value={loc.name}>
+                            {loc.name}
+                          </MenuItem>
+                        ))
+                      ) : (
+                        <MenuItem disabled>No Locations Available</MenuItem>
+                      )}
+                    </Select>
+                  </FormControl>
+                )}
+              />
 
           <PrimaryButton
             title="Submit"
