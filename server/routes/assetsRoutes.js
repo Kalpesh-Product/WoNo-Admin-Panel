@@ -8,6 +8,14 @@ const {
 const { assignAsset } = require("../controllers/assetsControllers/assignAssetController");
 const { addSubCategory, addAssetCategory, disableCategory, disableSubCategory, getCategory, getSubCategory } = require("../controllers/assetsControllers/categoryControllers");
 
+const {
+  assignAsset,
+  processAssetRequest,
+  revokeAsset,
+  getAssetRequests,
+} = require("../controllers/assetsControllers/assignAssetController");
+
+// Asset Management Routes
 router.post("/create-asset", upload.single("asset-image"), addAsset);
 router.patch("/update-asset/:assetId", upload.single("asset-image"), editAsset);
 router.get("/get-assets", getAssets);
@@ -20,5 +28,11 @@ router.get("/get-subcategory/:categoryId", getSubCategory);
 router.post("/assign-asset/", assignAsset);
  
 
+
+// Asset Assignment Routes
+router.post("/new-asset-assignment", assignAsset);
+router.post("/process-asset-request", processAssetRequest);
+router.post("/revoke-asset", revokeAsset);
+router.get("/get-asset-requests", getAssetRequests);
 
 module.exports = router;

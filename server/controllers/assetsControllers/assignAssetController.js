@@ -176,4 +176,9 @@ const revokeAsset = async (req, res, next) => {
   }
 };
 
-module.exports = {getAssetRequests, assignAsset, processAssetRequest, revokeAsset };
+module.exports = {
+  assignAsset,
+  processAssetRequest,
+  revokeAsset,
+  getAssetRequests,
+};
