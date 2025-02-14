@@ -29,7 +29,7 @@ import { FiLogOut } from "react-icons/fi";
 const Header = () => {
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
   const navigate = useNavigate();
-  const { auth, signOut } = useAuth(); // Assuming signOut is a method from useAuth()
+  const { auth } = useAuth(); // Assuming signOut is a method from useAuth()
   const logout = useLogout();
 
   // State for Popover
@@ -109,13 +109,11 @@ const Header = () => {
             {auth.user.name === "Abrar Shaikh" ? (
               <img src={Abrar} alt="" />
             ) : (
-              auth.user.name.charAt(0)
+              auth.user.firstName.charAt(0)
             )}
           </Avatar>
           <div className="w-full">
-            <h1 className="text-xl font-semibold">
-              {auth.user.name.split(" ")[0]}
-            </h1>
+            <h1 className="text-xl font-semibold">{auth.user.firstName}</h1>
             <span className="text-content">{auth.user.designation}</span>
           </div>
         </div>

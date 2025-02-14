@@ -18,7 +18,7 @@ const login = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid credentials" });
 
     const userExists = await User.findOne({ email })
-      .select("name role email empId password designation company")
+      .select("firstName lastName role email empId password designation company")
       .populate([
         { path: "company", select: "companyName workLocations employeeTypes shifts policies agreements sops" },
         { path: "role", select: "roleTitle" },

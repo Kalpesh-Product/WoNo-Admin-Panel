@@ -11,8 +11,14 @@ import {
 import AgTable from "../../../components/AgTable";
 import PrimaryButton from "../../../components/PrimaryButton";
 import MuiModal from "../../../components/MuiModal";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+import useAuth from "../../../hooks/useAuth";
 
 const AssetsCategories = () => {
+  const axios = useAxiosPrivate();
+  const { auth } = useAuth();
   const [isModalOpen, setModalOpen] = useState(false);
 
   const {
@@ -42,6 +48,35 @@ const AssetsCategories = () => {
     },
   ];
 
+  const { data: assetsCategories = [] } = useQuery({
+    queryKey: "assetsCategories",
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/assets/get-category");
+        return response.data;
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: async (data) => {
+      const response = await axios.post(
+        "/api/assets/create-asset-category",
+        data
+      );
+      return response.data;
+    },
+
+    onSuccess: function (data) {
+      toast.success(data.message);
+    },
+    onError: function (data) {
+      toast.error(data.response.data.message || "Failed to add category");
+    },
+  });
+
   const rows = [
     { id: 1, categoryName: "Laptops", department: "IT" },
     { id: 2, categoryName: "Chairs", department: "Administration" },
@@ -51,7 +86,7 @@ const AssetsCategories = () => {
 
   const handleAddCategory = (data) => {
     // Add API call here
-    console.log("Submitted Data:", data);
+    mutate(data);
     setModalOpen(false);
     reset();
   };
@@ -59,11 +94,17 @@ const AssetsCategories = () => {
   return (
     <>
       <AgTable
+        key={assetsCategories.length}
         search={true}
         searchColumn="Category Name"
         tableTitle="Assets Categories"
         buttonTitle="Add Category"
-        data={rows}
+        data={[
+          ...assetsCategories.map((category, index) => ({
+            id: index + 1,
+            categoryName: category.categoryName,
+          })),
+        ]}
         columns={categoriesColumn}
         handleClick={() => setModalOpen(true)}
         tableHeight={350}
@@ -95,31 +136,32 @@ const AssetsCategories = () => {
               />
             )}
           />
-
-          {/* Department Dropdown */}
-          <FormControl sx={{ width: "80%" }} error={!!errors.department}>
-            <InputLabel>Select Department</InputLabel>
-            <Controller
-              name="department"
-              control={control}
-              defaultValue=""
-              rules={{ required: "Department is required" }}
-              render={({ field }) => (
-                <Select {...field} label="Select Department">
-                  {departments.map((dept) => (
-                    <MenuItem key={dept} value={dept}>
-                      {dept}
-                    </MenuItem>
-                  ))}
+          <Controller
+            name="department"
+            control={control}
+            defaultValue=""
+            render={({ field }) => (
+              <FormControl size="small" fullWidth>
+                <InputLabel>Department</InputLabel>
+                <Select {...field} label="Department">
+                  <MenuItem value="">Select Department</MenuItem>
+                  {auth.user.company.selectedDepartments.length > 0 ? (
+                    auth.user.company.selectedDepartments.map((loc) => (
+                      <MenuItem key={loc._id} value={loc.name}>
+                        {loc.name}
+                      </MenuItem>
+                    ))
+                  ) : (
+                    <MenuItem disabled>No Locations Available</MenuItem>
+                  )}
                 </Select>
-              )}
-            />
-            <FormHelperText>{errors.department?.message}</FormHelperText>
-          </FormControl>
+              </FormControl>
+            )}
+          />
 
-          {/* Submit Button */}
           <PrimaryButton
             title="Submit"
+            disabled={isPending}
             handleSubmit={handleSubmit(handleAddCategory)}
           />
         </form>
