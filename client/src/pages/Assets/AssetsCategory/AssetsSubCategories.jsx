@@ -47,6 +47,18 @@ const AssetsSubCategories = () => {
     },
   ];
 
+  const { data: assetsSubCategories = [] } = useQuery({
+    queryKey: "assetsSubCategories",
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/assets/get-sub-category");
+        return response.data;
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
+
   const rows = [
     { id: 1, categoryName: "Chairs", subCategoryName: "Plastic Chair" },
     { id: 2, categoryName: "Chairs", subCategoryName: "Ergonomic Chair" },
