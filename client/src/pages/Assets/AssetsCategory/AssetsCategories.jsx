@@ -4,8 +4,12 @@ import { TextField } from "@mui/material";
 import AgTable from "../../../components/AgTable";
 import PrimaryButton from "../../../components/PrimaryButton";
 import MuiModal from "../../../components/MuiModal";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 const AssetsCategories = () => {
+  const axios = useAxiosPrivate();
   const [isModalOpen, setModalOpen] = useState(false);
 
   const {
@@ -44,6 +48,23 @@ const AssetsCategories = () => {
     },
   });
 
+  const { mutate, isPending } = useMutation({
+    mutationFn: async (data) => {
+      const response = await axios.post(
+        "/api/assets/create-asset-category",
+        data
+      );
+      return response.data;
+    },
+
+    onSuccess: function (data) {
+      toast.success(data.message);
+    },
+    onError: function (data) {
+      toast.error(data.response.data.message || "Failed to add category");
+    },
+  });
+
   const rows = [
     { id: 1, categoryName: "Laptops" },
     { id: 2, categoryName: "Chairs" },
@@ -53,6 +74,7 @@ const AssetsCategories = () => {
 
   const handleAddCategory = (data) => {
     // Add API call here
+    mutate(data);
     setModalOpen(false);
     reset();
   };
@@ -65,10 +87,12 @@ const AssetsCategories = () => {
         searchColumn="Category Name"
         tableTitle="Assets Categories"
         buttonTitle="Add Category"
-        data={[...assetsCategories.map((category, index)=>({
-          id : index + 1,
-          categoryName : category.categoryName
-        }))]}
+        data={[
+          ...assetsCategories.map((category, index) => ({
+            id: index + 1,
+            categoryName: category.categoryName,
+          })),
+        ]}
         columns={categoriesColumn}
         handleClick={() => setModalOpen(true)}
         tableHeight={350}
@@ -102,6 +126,7 @@ const AssetsCategories = () => {
 
           <PrimaryButton
             title="Submit"
+            disabled={isPending}
             handleSubmit={handleSubmit(handleAddCategory)}
           />
         </form>
