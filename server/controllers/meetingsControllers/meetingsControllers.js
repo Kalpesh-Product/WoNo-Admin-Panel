@@ -417,13 +417,38 @@ const getMeetingsByTypes = async (req, res, next) => {
     }
  
 
-    const meetings = await Meeting.find({meetingType:type, company})
+    const meetings = await Meeting.find({ company }).populate([
+      {
+        path: "bookedBy",
+        select: "name departments", 
+      },
+      {
+        path: "bookedRoom",
+        select: "name location housekeepingStatus",  
+      },
+      {
+        path: "internalParticipants",
+        select: "name",  
+      },
+      
+    ]);
 
     if(!meetings){
       return res.status(400).json({message:`Failed to fetch ${type} meetings`})
     }
 
-    return res.status(200).json(meetings)
+    const transformedMeetings = meetings.map((meeting) => {
+      
+      return {
+        _id: meeting._id,
+        roomName: meeting.bookedRoom.name,
+        location: meeting.bookedRoom.location.name,
+        endTime: formatTime(meeting.endTime),
+        company: meeting.company,
+      };
+    });
+
+    return res.status(200).json(transformedMeetings)
 
   } catch (error) {
     next(error)
