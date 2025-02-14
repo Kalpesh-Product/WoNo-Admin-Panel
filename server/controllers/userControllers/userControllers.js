@@ -163,7 +163,7 @@ const createUser = async (req, res, next) => {
 };
 
 
-const fetchUser = async (req, res) => {
+const fetchUser = async (req, res, next) => {
   const { deptId } = req.params;
   const company = req.company 
 
@@ -185,7 +185,7 @@ const fetchUser = async (req, res) => {
       res.status(200).json(users);
 
     }
-    console.log(company)
+     
     const users = await User.find({company})
       .select("-password")
       .populate([
@@ -201,8 +201,7 @@ const fetchUser = async (req, res) => {
     }
     res.status(200).json(users);
   } catch (error) {
-    ("Error fetching users : ", error);
-    res.status(500).json({ error: error.message });
+     next(error)
   }
 };
 
