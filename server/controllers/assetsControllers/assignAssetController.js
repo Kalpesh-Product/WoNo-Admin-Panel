@@ -1,12 +1,12 @@
 const Asset = require("../../models/assets/Assets");
 const User = require("../../models/UserData");
-const AssignAsset = require("../../models/assets/AssignAsset");
+const RequestedAsset = require("../../models/assets/RequestedAsset");
 
 const getAssetRequests = async (req, res, next) => {
   try {
     // Get logged-in user
     const userId = req.user;
-    const user = await UserData.findById(userId);
+    const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -15,15 +15,11 @@ const getAssetRequests = async (req, res, next) => {
     const companyId = user.company; // Get company from logged-in user
 
     // Fetch assigned assets for the user's company
-    const assignedAssets = await AssignAsset.find({ company: companyId })
+    const assignedAssets = await RequestedAsset.find({ company: companyId,status:"Pending" })
       .populate("asset assignee company") // Populate referenced fields
       .sort({ dateOfAssigning: -1 }); // Sort by latest assignments
 
-    res.status(200).json({
-      success: true,
-      totalAssignedAssets: assignedAssets.length,
-      assignedAssets,
-    });
+    res.status(200).json(assignedAssets);
   } catch (error) {
     next(error);
   }
@@ -55,7 +51,7 @@ const assignAsset = async (req, res, next) => {
     //   return res.status(403).json({ message: "Unauthorized action." });
     // }
 
-    const assignEntry = new AssignAsset({
+    const assignEntry = new RequestedAsset({
       asset: assetId,
       assignee: userId,
       company: user.company,
@@ -95,7 +91,7 @@ const processAssetRequest = async (req, res, next) => {
         .json({ message: "Invalid action. Use 'Approved' or 'Rejected'." });
     }
 
-    const request = await AssignAsset.findById(requestId);
+    const request = await RequestedAsset.findById(requestId);
     if (!request) {
       return res.status(404).json({ message: "Assignment request not found." });
     }
@@ -110,8 +106,7 @@ const processAssetRequest = async (req, res, next) => {
         return res.status(400).json({ message: "Asset is already assigned." });
       }
 
-      request.approvalStatus = "Approved";
-      request.status = "Approve";
+      request.status = "Approved";
       asset.assignedTo = request.assignee;
 
       await User.findByIdAndUpdate(
@@ -122,8 +117,7 @@ const processAssetRequest = async (req, res, next) => {
 
       await asset.save();
     } else {
-      request.approvalStatus = "Rejected";
-      request.status = "Reject";
+       request.status = "Rejected";
     }
 
     await request.save();

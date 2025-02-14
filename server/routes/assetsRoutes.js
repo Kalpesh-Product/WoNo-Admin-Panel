@@ -5,7 +5,6 @@ const {
   editAsset,
   getAssets,
 } = require("../controllers/assetsControllers/assetsControllers");
-const { assignAsset } = require("../controllers/assetsControllers/assignAssetController");
 const { addSubCategory, addAssetCategory, disableCategory, disableSubCategory, getCategory, getSubCategory } = require("../controllers/assetsControllers/categoryControllers");
 
 const {
@@ -25,8 +24,7 @@ router.patch("/disable-asset-category", disableCategory);
 router.patch("/disable-asset-subcategory", disableSubCategory);
 router.get("/get-category", getCategory);
 router.get("/get-subcategory/:categoryId", getSubCategory);
-router.post("/assign-asset/", assignAsset);
- 
+  
 
 
 // Asset Assignment Routes
