@@ -3,7 +3,7 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { useLocation, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import MuiModal from "../../components/MuiModal";
 import { useForm, Controller } from "react-hook-form";
 import {
@@ -38,6 +38,7 @@ const MeetingFormLayout = () => {
   const locationState = useLocation().state;
   const roomId = locationState?.roomId;
   const axios = useAxiosPrivate();
+  const navigate = useNavigate();
 
   const { control, handleSubmit, setValue, watch } = useForm({
     defaultValues: {
@@ -116,6 +117,7 @@ const MeetingFormLayout = () => {
       queryClient.invalidateQueries(["meetings"]);
       toast.success("Meeting booked successfully");
       setOpen(false);
+      navigate("/app/meetings/calendar");
     },
     onError: () => {
       toast.error("Failed to book meeting");
