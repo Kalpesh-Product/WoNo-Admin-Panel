@@ -50,7 +50,7 @@ const getAssets = async (req, res, next) => {
 
     // Fetch assets (without pagination)
     const assets = await Asset.find(filter)
-      .populate("vendor company department assignedTo") // Populate references
+      .populate("department assignedTo").select("-company") // Populate references
       .sort({ [sortField]: sortOrder });
 
     res.status(200).json(assets);
