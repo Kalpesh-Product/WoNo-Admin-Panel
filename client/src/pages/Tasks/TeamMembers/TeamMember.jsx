@@ -1,5 +1,6 @@
 import React from "react";
 import AgTable from "../../../components/AgTable";
+import { BsThreeDotsVertical } from "react-icons/bs";
 
 const TeamMember = () => {
   const teamMembersColumn = [
@@ -15,9 +16,7 @@ const TeamMember = () => {
       cellRenderer: (params) => (
         <>
           <div className="p-2 mb-2 flex gap-2">
-          <span className="text-primary hover:underline text-content cursor-pointer">
-              View KRA
-            </span>
+            <BsThreeDotsVertical />
           </div>
         </>
       ),

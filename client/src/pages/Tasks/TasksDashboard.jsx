@@ -140,7 +140,7 @@ const TasksDashboard = () => {
       ],
     },
     {
-      layout: 2,
+      layout: 1,
       widgets: [
         <WidgetSection layout={1} padding>
           <MuiTable
@@ -153,11 +153,6 @@ const TasksDashboard = () => {
             className="h-full"
           />
         </WidgetSection>,
-        <WidgetSection
-          layout={1}
-          title={"Asset Categories"}
-          border
-        ></WidgetSection>,
       ],
     },
   ];

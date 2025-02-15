@@ -233,7 +233,7 @@ const getSubCategory = async (req, res, next) => {
       return res.status(400).json({ message: "Company doesn't exists" });
     }
  
-      const assetSubCategories = await AssetCategory.findById({_id: categoryId}).select("subCategories");
+      const assetSubCategories = await AssetCategory.find({company}) ;
 
     if (!assetSubCategories) {
       res.status(400).json({ message: "Failed to fetch categories" });

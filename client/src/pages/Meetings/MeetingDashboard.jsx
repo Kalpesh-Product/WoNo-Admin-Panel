@@ -432,26 +432,26 @@ const MeetingDashboard = () => {
         columnWidth: "40%",
       },
     },
-    annotations: {
-      yaxis: [
-        {
-          y: 100, // Line at 100%
-          borderColor: "#ff0000", // Red color for visibility
-          borderWidth: 3,
-          strokeDashArray: 0, // Solid line
-          label: {
-            text: "100% Utilization",
-            position: "center",
-            offsetX: 10,
-            offsetY: -10, // Move annotation text slightly above
-            style: {
-              color: "#ff0000",
-              fontWeight: "bold",
-            },
-          },
-        },
-      ],
-    },
+    // annotations: {
+    //   yaxis: [
+    //     {
+    //       y: 100,
+    //       borderColor: "#ff0000", 
+    //       borderWidth: 3,
+    //       strokeDashArray: 0, // Solid line
+    //       label: {
+    //         text: "100% Utilization",
+    //         position: "center",
+    //         offsetX: 10,
+    //         offsetY: -10,
+    //         style: {
+    //           color: "#ff0000",
+    //           fontWeight: "bold",
+    //         },
+    //       },
+    //     },
+    //   ],
+    // },
   };
 
   const rooms = [

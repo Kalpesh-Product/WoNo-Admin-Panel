@@ -1,11 +1,7 @@
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import {
-  TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
+  FormControl, InputLabel, MenuItem, Select, TextField,
   FormHelperText,
 } from "@mui/material";
 import AgTable from "../../../components/AgTable";
@@ -32,7 +28,7 @@ const AssetsCategories = () => {
 
   const categoriesColumn = [
     { field: "categoryName", headerName: "Category Name", flex: 3 },
-    { field: "department", headerName: "Department", flex: 2 },
+    // { field: "department", headerName: "Department", flex: 2 },
     {
       field: "action",
       headerName: "Action",

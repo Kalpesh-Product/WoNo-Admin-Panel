@@ -426,8 +426,6 @@ const getMeetingsByTypes = async (req, res, next) => {
         path: "bookedRoom",
         select: "name location",  
       },
-      
-      
     ]);
 
     if(!meetings){

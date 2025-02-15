@@ -40,6 +40,7 @@ const EditProject = () => {
       <AgTable
         buttonTitle={"Edit"}
         data={projectData}
+        search={true}
         columns={columnDefs}
         tableTitle="Project Details"
         paginationPageSize={5}
