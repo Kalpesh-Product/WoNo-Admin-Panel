@@ -22,8 +22,11 @@ import {
   InputLabel,
   FormHelperText,
 } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
 const AssetsSubCategories = () => {
+   const axios = useAxiosPrivate();
   const [isModalOpen, setModalOpen] = useState(false);
 
   const {
@@ -32,6 +35,30 @@ const AssetsSubCategories = () => {
     formState: { errors },
     reset,
   } = useForm();
+
+  const { data: assetsSubCategories = [] } = useQuery({
+    queryKey: "assetsSubCategories",
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/assets/get-subcategory");
+        return response.data;
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
+
+  // const { data: assetsCategories = [] } = useQuery({
+  //   queryKey: "assetsCategories",
+  //   queryFn: async () => {
+  //     try {
+  //       const response = await axios.get("/api/assets/get-category");
+  //       return response.data;
+  //     } catch (error) {
+  //       throw new Error(error.response.data.message);
+  //     }
+  //   },
+  // });
 
   const categories = [
     { id: 1, name: "Chairs" },
@@ -62,7 +89,9 @@ const AssetsSubCategories = () => {
       subCategories: filteredSubCategories,
     };
   });
+ 
 
+  console.log(categorizedData)
   const handleAddSubCategory = (data) => {
     // Add API call here
     setModalOpen(false);
@@ -84,11 +113,11 @@ const AssetsSubCategories = () => {
         />
       </Box>
 
-      {categorizedData.map((category) => (
-        <Accordion key={category.id}>
+      {assetsSubCategories.map((category) => (
+        <Accordion key={category._id}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Box display="flex" justifyContent="space-between" width="100%">
-              <Typography variant="h6">{category.name}</Typography>
+              <Typography variant="h6">{category.categoryName}</Typography>
               <Typography variant="body1">
                 {category.subCategories.length}{" "}
                 {category.subCategories.length === 1
@@ -107,16 +136,16 @@ const AssetsSubCategories = () => {
             <List>
               {category.subCategories.map((subCategory) => (
                 <ListItem
-                  key={subCategory.id}
+                  key={subCategory._id}
                   sx={{ display: "flex", justifyContent: "space-between" }}
                 >
-                  <ListItemText primary={subCategory.subCategoryName} />
+                  <ListItemText primary={subCategory.name} />
                   <Button
                     variant="contained"
                     color="secondary"
                     size="small"
                     onClick={() =>
-                      console.log("Disable clicked for", subCategory.id)
+                      console.log("Disable clicked for", subCategory._id)
                     }
                   >
                     Disable

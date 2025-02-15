@@ -23,7 +23,7 @@ router.post("/create-asset-subcategory", addSubCategory);
 router.patch("/disable-asset-category", disableCategory);
 router.patch("/disable-asset-subcategory", disableSubCategory);
 router.get("/get-category", getCategory);
-router.get("/get-subcategory/:categoryId", getSubCategory);
+router.get("/get-subcategory/", getSubCategory);
   
   
 

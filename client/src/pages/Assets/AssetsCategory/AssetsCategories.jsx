@@ -20,7 +20,7 @@ const AssetsCategories = () => {
   const axios = useAxiosPrivate();
   const { auth } = useAuth();
   const [isModalOpen, setModalOpen] = useState(false);
-  const axios = useAxiosPrivate();
+
 
   const {
     control,
