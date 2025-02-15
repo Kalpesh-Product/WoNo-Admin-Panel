@@ -39,7 +39,7 @@ const AssignAssets = () => {
     { field: "price", headerName: "Price", flex: 1 },
     { field: "quantity", headerName: "Quantity", flex: 1 },
     { field: "purchaseDate", headerName: "Purchase Date", flex: 1 },
-    { field: "warranty", headerName: "Warranty", flex: 1 },
+    { field: "warranty", headerName: "Warranty (Months)", flex: 1 },
     { field: "location", headerName: "Location", flex: 1 },
     {
       field: "actions",

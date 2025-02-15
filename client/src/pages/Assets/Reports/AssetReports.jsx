@@ -75,6 +75,7 @@ const AssetReports = () => {
           data={rows}
           columns={assetsColumns}
           dropdownColumns={["department", "category", "brand"]} // Specify which columns should be dropdowns
+          buttonTitle={"Export"}
         />
       </div>
     </div>

@@ -110,7 +110,7 @@ const BookMeetings = () => {
                     <MenuItem disabled>Error fetching locations</MenuItem>
                   ) : (
                     workLocations.map((location) => (
-                      <MenuItem key={location.id} value={location.name}>
+                      <MenuItem key={location._id} value={location.name}>
                         {location.name}
                       </MenuItem>
                     ))

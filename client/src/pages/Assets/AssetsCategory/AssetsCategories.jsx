@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import {
+  FormControl, InputLabel, MenuItem, Select, TextField,
+  FormHelperText,
+} from "@mui/material";
 import AgTable from "../../../components/AgTable";
 import PrimaryButton from "../../../components/PrimaryButton";
 import MuiModal from "../../../components/MuiModal";
@@ -21,8 +24,11 @@ const AssetsCategories = () => {
     reset,
   } = useForm();
 
+  const departments = ["IT", "HR", "Finance", "Administration"];
+
   const categoriesColumn = [
-    { field: "categoryName", headerName: "Category Name", flex: 4 },
+    { field: "categoryName", headerName: "Category Name", flex: 3 },
+    // { field: "department", headerName: "Department", flex: 2 },
     {
       field: "action",
       headerName: "Action",
@@ -30,9 +36,9 @@ const AssetsCategories = () => {
       cellRenderer: (params) => (
         <PrimaryButton
           title="Disable"
-          handleSubmit={() => (
-            "Disable clicked for category id", params.data.id
-          )}
+          handleSubmit={() =>
+            console.log("Disable clicked for category id", params.data.id)
+          }
         />
       ),
     },
@@ -70,10 +76,10 @@ const AssetsCategories = () => {
   });
 
   const rows = [
-    { id: 1, categoryName: "Laptops" },
-    { id: 2, categoryName: "Chairs" },
-    { id: 3, categoryName: "Cables" },
-    { id: 4, categoryName: "Monitors" },
+    { id: 1, categoryName: "Laptops", department: "IT" },
+    { id: 2, categoryName: "Chairs", department: "Administration" },
+    { id: 3, categoryName: "Cables", department: "IT" },
+    { id: 4, categoryName: "Monitors", department: "IT" },
   ];
 
   const handleAddCategory = (data) => {
@@ -113,8 +119,9 @@ const AssetsCategories = () => {
       >
         <form
           onSubmit={handleSubmit(handleAddCategory)}
-          className="flex flex-col items-center gap-10"
+          className="flex flex-col items-center gap-6 w-full"
         >
+          {/* Category Name Input */}
           <Controller
             name="categoryName"
             control={control}

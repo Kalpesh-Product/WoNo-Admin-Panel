@@ -19,7 +19,8 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { queryClient } from "../../index";
 
 const ManageMeetings = () => {
-  const axios = useAxiosPrivate()
+  const axios = useAxiosPrivate();
+
   const statusColors = {
     Scheduled: { bg: "#E3F2FD", text: "#1565C0" }, // Light Blue
     Ongoing: { bg: "#FFF3E0", text: "#E65100" }, // Light Orange
@@ -32,22 +33,24 @@ const ManageMeetings = () => {
     "In Progress": { bg: "#FBE9E7", text: "#BF360C" },
   };
 
-const defaultChecklist = [
-  { name: "Clean and arrange chairs and tables", checked: false },
-  { name: "Check projector functionality", checked: false },
-  { name: "Ensure AC is working", checked: false },
-  { name: "Clean whiteboard and provide markers", checked: false },
-  { name: "Vacuum and clean the floor", checked: false },
-  { name: "Check lighting and replace bulbs if necessary", checked: false },
-  { name: "Ensure Wi-Fi connectivity", checked: false },
-  { name: "Stock water bottles and glasses", checked: false },
-  { name: "Inspect electrical sockets and outlets", checked: false },
-  { name: "Remove any trash or debris", checked: false },
-];
+  const defaultChecklist = [
+    { name: "Clean and arrange chairs and tables", checked: false },
+    { name: "Check projector functionality", checked: false },
+    { name: "Ensure AC is working", checked: false },
+    { name: "Clean whiteboard and provide markers", checked: false },
+    { name: "Vacuum and clean the floor", checked: false },
+    { name: "Check lighting and replace bulbs if necessary", checked: false },
+    { name: "Ensure Wi-Fi connectivity", checked: false },
+    { name: "Stock water bottles and glasses", checked: false },
+    { name: "Inspect electrical sockets and outlets", checked: false },
+    { name: "Remove any trash or debris", checked: false },
+  ];
+
   const [checklistModalOpen, setChecklistModalOpen] = useState(false);
   const [selectedMeetingId, setSelectedMeetingId] = useState(null);
   const [checklists, setChecklists] = useState({});
   const [newItem, setNewItem] = useState("");
+  const [modalMode, setModalMode] = useState("update"); // 'update', or 'view'
 
   // Fetch meetings
   const { data: meetings = [], isLoading } = useQuery({
@@ -91,7 +94,8 @@ const defaultChecklist = [
     }
   }, [meetings]);
 
-  const handleOpenChecklistModal = (meetingId) => {
+  const handleOpenChecklistModal = (mode, meetingId) => {
+    setModalMode(mode);
     setSelectedMeetingId(meetingId);
     setChecklistModalOpen(true);
   };
@@ -168,9 +172,9 @@ const defaultChecklist = [
     );
     if (!selectedMeeting) return;
 
-    const { defaultItems, customItems } = checklists[selectedMeetingId];
+    const { customItems } = checklists[selectedMeetingId];
 
-    const housekeepingTasks = [...defaultItems, ...customItems].map((item) => ({
+    const housekeepingTasks = customItems.map((item) => ({
       name: item.name,
       status: "Completed",
     }));
@@ -182,11 +186,6 @@ const defaultChecklist = [
     };
 
     housekeepingMutation.mutate(payload);
-  };
-
-  const handleViewDetails = (meetingData) => {
-    console.log("Viewing details for:", meetingData);
-    // Add logic here to navigate, open a modal, or display details.
   };
 
   const columns = useMemo(() => {
@@ -246,19 +245,21 @@ const defaultChecklist = [
         cellRenderer: (params) => (
           <Box sx={{ display: "flex", gap: 1, minWidth: "250px" }}>
             <Button
-              variant="outlined"
+              variant="contained"
               disabled={params.data.housekeepingStatus === "Completed"}
-              onClick={() => handleOpenChecklistModal(params.data._id)}
+              onClick={() =>
+                handleOpenChecklistModal("update", params.data._id)
+              }
             >
-              View Checklist
+              Update Checklist
             </Button>
 
             <Button
-              variant="contained"
-              color="primary"
-              onClick={() => handleViewDetails(params.data)}
+              variant="outlined"
+              // onClick={() => handleViewDetails(params.data)}
+              onClick={() => handleOpenChecklistModal("view", params.data._id)}
             >
-              View Details
+              View Checklist
             </Button>
           </Box>
         ),
@@ -307,6 +308,7 @@ const defaultChecklist = [
                 (item, index) => (
                   <ListItem key={index}>
                     <Checkbox
+                      disabled={modalMode === "view"}
                       checked={item.checked}
                       onChange={() =>
                         handleToggleChecklistItem(index, "defaultItems")
@@ -318,66 +320,83 @@ const defaultChecklist = [
               )}
             </List>
 
-            {/* Add New Checklist Item Section */}
-            <Box sx={{ mt: 2, display: "flex", alignItems: "center", gap: 2 }}>
-              <TextField
-                fullWidth
-                label="Add Checklist Task"
-                value={newItem}
-                onChange={(e) => setNewItem(e.target.value)}
-              />
-              <Button
-                onClick={handleAddChecklistItem}
-                variant="contained"
-                sx={{ whiteSpace: "nowrap" }} // Prevents text from wrapping
-              >
-                Add
-              </Button>
-            </Box>
+            {checklists[selectedMeetingId]?.customItems?.length > 0 && (
+              <>
+                <Typography variant="subtitle1" sx={{ mt: 1 }}>
+                  Custom Tasks
+                </Typography>
+                <List>
+                  {checklists[selectedMeetingId]?.customItems.map(
+                    (item, index) => (
+                      <ListItem key={index}>
+                        <Checkbox
+                          disabled={modalMode === "view"}
+                          checked={item.checked}
+                          onChange={() =>
+                            handleToggleChecklistItem(index, "customItems")
+                          }
+                        />
+                        {item.name}
+                        {modalMode === "update" && (
+                          <IconButton
+                            onClick={() => handleRemoveChecklistItem(index)}
+                            color="error"
+                          >
+                            <Delete />
+                          </IconButton>
+                        )}
+                      </ListItem>
+                    )
+                  )}
+                </List>
+              </>
+            )}
 
-            <Typography variant="subtitle1" sx={{ mt: 3 }}>
-              Custom Tasks
-            </Typography>
-            <List>
-              {checklists[selectedMeetingId]?.customItems.map((item, index) => (
-                <ListItem key={index}>
-                  <Checkbox
-                    checked={item.checked}
-                    onChange={() =>
-                      handleToggleChecklistItem(index, "customItems")
-                    }
-                  />
-                  {item.name}
-                  <IconButton
-                    onClick={() => handleRemoveChecklistItem(index)}
-                    color="error"
-                  >
-                    <Delete />
-                  </IconButton>
-                </ListItem>
-              ))}
-            </List>
+            {/* Add New Checklist Item Section */}
+            {modalMode === "update" && (
+              <Box
+                sx={{ mt: 2, display: "flex", alignItems: "center", gap: 2 }}
+              >
+                <TextField
+                  disabled={modalMode === "view"}
+                  fullWidth
+                  label="Add Checklist Task"
+                  value={newItem}
+                  onChange={(e) => setNewItem(e.target.value)}
+                />
+                <Button
+                  disabled={modalMode === "view"}
+                  onClick={handleAddChecklistItem}
+                  variant="contained"
+                  sx={{ whiteSpace: "nowrap" }} // Prevents text from wrapping
+                >
+                  Add
+                </Button>
+              </Box>
+            )}
           </Box>
 
           {/* Sticky Footer Section */}
-          <Box
-            sx={{
-              p: 3,
-              borderTop: "1px solid #e0e0e0",
-              position: "sticky",
-              bottom: 0,
-              bgcolor: "white",
-            }}
-          >
-            <Button
-              fullWidth
-              variant="contained"
-              disabled={isSubmitDisabled()}
-              onClick={handleSubmitChecklist}
+          {modalMode === "update" && (
+            <Box
+              sx={{
+                p: 3,
+                borderTop: "1px solid #e0e0e0",
+                position: "sticky",
+                bottom: 0,
+                bgcolor: "white",
+              }}
             >
-              Submit
-            </Button>
-          </Box>
+              <Button
+                fullWidth
+                variant="contained"
+                disabled={isSubmitDisabled()}
+                onClick={handleSubmitChecklist}
+              >
+                Submit
+              </Button>
+            </Box>
+          )}
         </Box>
       </Modal>
     </div>

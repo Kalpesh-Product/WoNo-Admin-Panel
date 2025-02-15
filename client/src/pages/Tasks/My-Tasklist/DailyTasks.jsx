@@ -1,6 +1,7 @@
 import React from "react";
 import AgTable from "../../../components/AgTable";
 import { Chip } from "@mui/material";
+import { BsThreeDotsVertical } from "react-icons/bs";
 
 const DailyTasks = () => {
   const dailyTaskColumns = [
@@ -41,9 +42,7 @@ const DailyTasks = () => {
       cellRenderer: (params) => (
         <>
           <div className="p-2 mb-2 flex gap-2">
-            <span className="text-primary hover:underline text-content cursor-pointer">
-              View KRA
-            </span>
+              <BsThreeDotsVertical />
           </div>
         </>
       ),

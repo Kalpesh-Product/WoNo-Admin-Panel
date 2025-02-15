@@ -155,7 +155,7 @@ const getCompanyData = async (req, res, next) => {
     // Define fields that require population
     const fieldsToPopulate = {
       selectedDepartments: "selectedDepartments.department",
-      employeeTypes: "employeeTypes.leavesCount.leaveType",
+      employeeTypes: "",
       workLocations: "",
       leaveTypes: "",
       shifts: "",
