@@ -1,13 +1,6 @@
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import {
-  TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  FormHelperText,
-} from "@mui/material";
+import { FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import AgTable from "../../../components/AgTable";
 import PrimaryButton from "../../../components/PrimaryButton";
 import MuiModal from "../../../components/MuiModal";
@@ -20,7 +13,6 @@ const AssetsCategories = () => {
   const axios = useAxiosPrivate();
   const { auth } = useAuth();
   const [isModalOpen, setModalOpen] = useState(false);
-
 
   const {
     control,
@@ -65,7 +57,9 @@ const AssetsCategories = () => {
     mutationFn: async (data) => {
       const response = await axios.post(
         "/api/assets/create-asset-category",
-        data
+        {departmentId : data.department,
+          assetCategoryName : data.categoryName
+        }
       );
       return response.data;
     },
@@ -92,6 +86,10 @@ const AssetsCategories = () => {
     reset();
   };
 
+  const handleRevokeCategory = () =>{
+    setModalOpen(true)
+  }
+
   return (
     <>
       <AgTable
@@ -100,6 +98,7 @@ const AssetsCategories = () => {
         searchColumn="Category Name"
         tableTitle="Assets Categories"
         buttonTitle="Add Category"
+        handleClick={handleRevokeCategory}
         data={[
           ...assetsCategories.map((category, index) => ({
             id: index + 1,
@@ -107,7 +106,6 @@ const AssetsCategories = () => {
           })),
         ]}
         columns={categoriesColumn}
-        handleClick={() => setModalOpen(true)}
         tableHeight={350}
       />
 
@@ -147,9 +145,9 @@ const AssetsCategories = () => {
                 <Select {...field} label="Department">
                   <MenuItem value="">Select Department</MenuItem>
                   {auth.user.company.selectedDepartments.length > 0 ? (
-                    auth.user.company.selectedDepartments.map((loc) => (
-                      <MenuItem key={loc._id} value={loc.name}>
-                        {loc.name}
+                    auth.user.company.selectedDepartments.map((dep) => (
+                      <MenuItem key={dep.department._id} value={dep.department._id}>
+                        {dep.department.name}
                       </MenuItem>
                     ))
                   ) : (
