@@ -62,10 +62,10 @@ const AssetsCategories = () => {
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data) => {
-      const response = await axios.post(
-        "/api/assets/create-asset-category",
-        data
-      );
+      const response = await axios.post("/api/assets/create-asset-category", {
+        departmentId: data.department,
+        assetCategoryName: data.categoryName,
+      });
       return response.data;
     },
 
@@ -91,6 +91,10 @@ const AssetsCategories = () => {
     reset();
   };
 
+  const handleRevokeCategory = () => {
+    setModalOpen(true);
+  };
+
   return (
     <>
       <AgTable
@@ -99,6 +103,7 @@ const AssetsCategories = () => {
         searchColumn="Category Name"
         tableTitle="Assets Categories"
         buttonTitle="Add Category"
+        handleClick={handleRevokeCategory}
         data={[
           ...assetsCategories.map((category, index) => ({
             id: index + 1,
@@ -106,7 +111,6 @@ const AssetsCategories = () => {
           })),
         ]}
         columns={categoriesColumn}
-        handleClick={() => setModalOpen(true)}
         tableHeight={350}
       />
 
@@ -146,9 +150,12 @@ const AssetsCategories = () => {
                 <Select {...field} label="Department">
                   <MenuItem value="">Select Department</MenuItem>
                   {auth.user.company.selectedDepartments.length > 0 ? (
-                    auth.user.company.selectedDepartments.map((loc) => (
-                      <MenuItem key={loc._id} value={loc.name}>
-                        {loc.name}
+                    auth.user.company.selectedDepartments.map((dep) => (
+                      <MenuItem
+                        key={dep.department._id}
+                        value={dep.department._id}
+                      >
+                        {dep.department.name}
                       </MenuItem>
                     ))
                   ) : (

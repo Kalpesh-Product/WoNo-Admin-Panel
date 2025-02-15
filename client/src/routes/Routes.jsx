@@ -106,6 +106,8 @@ import DailyTasks from "../pages/Tasks/My-Tasklist/DailyTasks";
 import MonthlyTasks from "../pages/Tasks/My-Tasklist/MonthlyTasks";
 import AdditionalTasks from "../pages/Tasks/My-Tasklist/AdditionalTasks";
 import TeamMember from "../pages/Tasks/TeamMembers/TeamMember";
+import ProjectList from "../pages/Tasks/ProjectList/ProjectList";
+import EditProject from "../pages/Tasks/ProjectList/EditProject";
 
 export const routes = createBrowserRouter([
   {
@@ -556,6 +558,14 @@ export const routes = createBrowserRouter([
                     path: "", // Default route for /app/tasks
                     element: <TasksDashboard />, // Dashboard is rendered by default
                     index: true,
+                  },
+                  {
+                    path: "project-list", // Default route for /app/tasks
+                    element: <ProjectList />, // Dashboard is rendered by default
+                  },
+                  {
+                    path: "project-list/edit-project/:id", // Default route for /app/tasks
+                    element: <EditProject />, // Dashboard is rendered by default
                   },
                   {
                     path: "my-tasklist",
