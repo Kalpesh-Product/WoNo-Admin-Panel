@@ -11,11 +11,13 @@ import { Checkbox, FormControlLabel, FormGroup } from "@mui/material";
 import dayjs from "dayjs";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import { convertToISOFormat } from "../../utils/dateFormat";
 
 const MeetingCalendar = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const axios = useAxiosPrivate();
+  const [eventsToBeRenamed, setEventsToBeRenamed] = useState([]);
 
   const closeDrawer = () => {
     setIsDrawerOpen(false);
@@ -107,11 +109,12 @@ const MeetingCalendar = () => {
 
   // Filter events by selected departments
 
-  const { data: meetingsCheck = [] } = useQuery({
+  const { data: meetingsCheck = [], isLoading } = useQuery({
     queryKey: ["meetingsCheck"],
     queryFn: async () => {
       try {
         const response = await axios.get("/api/meetings/get-meetings");
+        console.log(response.data);
         return response.data;
       } catch (error) {
         throw new Error(error.response.data.message);
@@ -119,24 +122,47 @@ const MeetingCalendar = () => {
     },
   });
 
+  useEffect(() => {
+    if (isLoading || !Array.isArray(meetingsCheck)) return;
+
+    const newEvents = meetingsCheck.map((meeting) => {
+      const startDate = convertToISOFormat(meeting.date, meeting.startTime);
+      const endDate = convertToISOFormat(meeting.date, meeting.endTime);
+
+      return {
+        title: meeting.subject || "Meeting",
+        start: startDate,
+        end: endDate,
+        allDay: false,
+        extendedProps: {},
+      };
+    });
+
+    setEventsToBeRenamed(newEvents);
+  }, [meetingsCheck, isLoading]);
+
   // Convert meeting data to FullCalendar event format
   const events = meetingsCheck.map((meeting, index) => {
     // Convert date from "DD-MM-YYYY" to "YYYY-MM-DD"
     const [day, month, year] = meeting.date.split("-");
     const formattedDate = `${year}-${month}-${day}`;
-  
+
     // Create valid Date objects
-    const start = new Date(`${formattedDate}T${convertTo24Hour(meeting.startTime)}`);
-    const end = new Date(`${formattedDate}T${convertTo24Hour(meeting.endTime)}`);
-  
+    const start = new Date(
+      `${formattedDate}T${convertTo24Hour(meeting.startTime)}`
+    );
+    const end = new Date(
+      `${formattedDate}T${convertTo24Hour(meeting.endTime)}`
+    );
+
     // Define event color based on status
     const eventColor = meeting.status === "Cancelled" ? "#FD352E" : "#05C3F0"; // Red for Cancelled, Blue for others
-  
+
     return {
       id: index.toString(),
       title: `${meeting.roomName} - ${meeting.status}`,
-      start, 
-      end,   
+      start,
+      end,
       backgroundColor: eventColor, // Set event background color
       borderColor: eventColor, // Set border color
       extendedProps: {
@@ -148,7 +174,6 @@ const MeetingCalendar = () => {
       },
     };
   });
-  
 
   // Function to convert "12:00 PM" to "12:00" in 24-hour format
   function convertTo24Hour(time) {
@@ -250,7 +275,8 @@ const MeetingCalendar = () => {
               contentHeight={520}
               plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
               initialView="dayGridMonth"
-              events={filteredEvents} // Use filtered events
+              // events={filteredEvents} // Use filtered events
+              events={eventsToBeRenamed}
             />
           </div>
         </div>

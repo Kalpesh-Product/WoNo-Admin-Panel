@@ -11,12 +11,76 @@ import MuiTable from "../../components/Tables/MuiTable";
 import BarGraph from "../../components/graphs/BarGraph";
 import PieChartMui from "../../components/graphs/PieChartMui";
 import HeatMap from "../../components/graphs/HeatMap";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 
 const MeetingDashboard = () => {
-  const meetingInternalColumns = [
-    { id: "id", label: "ID", align: "left" },
+  const axios = useAxiosPrivate();
+
+  // Fetch internal meetings
+  const { data: meetingsInternal = [] } = useQuery({
+    queryKey: ["meetingsInternal"],
+    queryFn: async () => {
+      const response = await axios.get(
+        "/api/meetings/get-meetings-type?type=Internal"
+      );
+
+      const parseTime = (timeStr) => {
+        const [time, modifier] = timeStr.split(" ");
+        let [hours, minutes] = time.split(":").map(Number);
+        if (modifier === "PM" && hours !== 12) hours += 12;
+        if (modifier === "AM" && hours === 12) hours = 0;
+        return hours * 60 + minutes; // Convert to total minutes for comparison
+      };
+
+      const sortedMeetings = response.data.sort(
+        (a, b) => parseTime(a.endTime) - parseTime(b.endTime)
+      );
+
+      const formattedMeetings = sortedMeetings.map((meeting, index) => ({
+        srNo: index + 1, // Assign serial number after sorting
+        ...meeting,
+      }));
+
+      console.log("Sorted & Formatted Internal Meetings:", formattedMeetings);
+      return formattedMeetings;
+    },
+  });
+
+  // Fetch external meetings
+  const { data: meetingsExternal = [] } = useQuery({
+    queryKey: ["meetingsExternal"],
+    queryFn: async () => {
+      const response = await axios.get(
+        "/api/meetings/get-meetings-type?type=External"
+      );
+
+      const parseTime = (timeStr) => {
+        const [time, modifier] = timeStr.split(" ");
+        let [hours, minutes] = time.split(":").map(Number);
+        if (modifier === "PM" && hours !== 12) hours += 12;
+        if (modifier === "AM" && hours === 12) hours = 0;
+        return hours * 60 + minutes; // Convert to total minutes for comparison
+      };
+
+      const sortedMeetings = response.data.sort(
+        (a, b) => parseTime(a.endTime) - parseTime(b.endTime)
+      );
+
+      const formattedMeetings = sortedMeetings.map((meeting, index) => ({
+        srNo: index + 1, // Assign serial number after sorting
+        ...meeting,
+      }));
+
+      console.log("Sorted & Formatted External Meetings:", formattedMeetings);
+      return formattedMeetings;
+    },
+  });
+
+  const meetingColumns = [
+    { id: "srNo", label: "ID", align: "left" },
     { id: "company", label: "Company", align: "left" },
-    { id: "meetingRooms", label: "Meeting Rooms", align: "left" },
+    { id: "roomName", label: "Meeting Rooms", align: "left" },
     { id: "location", label: "Location", align: "left" },
     { id: "endTime", label: "End Time", align: "left" },
   ];
@@ -288,7 +352,9 @@ const MeetingDashboard = () => {
                     room.status === "Available" ? "#28a745" : "#dc3545",
                 }}
               ></span>
-              <span className="text-content text-gray-400">{room.roomName}</span>
+              <span className="text-content text-gray-400">
+                {room.roomName}
+              </span>
             </li>
           ))}
       </ul>
@@ -603,15 +669,17 @@ const MeetingDashboard = () => {
       widgets: [
         <MuiTable
           Title={"Internal Ongoing Meeting Hourly"}
-          rows={meetingInternalRows}
-          columns={meetingInternalColumns}
+          // rows={meetingInternalRows}
+          rows={meetingsInternal}
+          columns={meetingColumns}
           rowsToDisplay={5}
           scroll={true}
         />,
         <MuiTable
           Title={"External Ongoing Meeting Hourly"}
-          rows={meetingExternalRows}
-          columns={meetingInternalColumns}
+          // rows={meetingExternalRows}
+          rows={meetingsExternal}
+          columns={meetingColumns}
           rowsToDisplay={5}
           scroll={true}
         />,

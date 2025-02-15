@@ -1,4 +1,18 @@
 import { useState } from "react";
+import {
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Typography,
+  List,
+  ListItem,
+  ListItemText,
+  Box,
+  Button,
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import PrimaryButton from "../../../components/PrimaryButton";
+import MuiModal from "../../../components/MuiModal";
 import { useForm, Controller } from "react-hook-form";
 import {
   TextField,
@@ -8,9 +22,6 @@ import {
   InputLabel,
   FormHelperText,
 } from "@mui/material";
-import AgTable from "../../../components/AgTable";
-import PrimaryButton from "../../../components/PrimaryButton";
-import MuiModal from "../../../components/MuiModal";
 
 const AssetsSubCategories = () => {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -29,42 +40,28 @@ const AssetsSubCategories = () => {
     { id: 4, name: "Monitors" },
   ];
 
-  const subCategoriesColumn = [
-    { field: "categoryName", headerName: "Category Name", flex: 3 },
-    { field: "subCategoryName", headerName: "Sub Category Name", flex: 5 },
-    {
-      field: "action",
-      headerName: "Action",
-      flex: 2,
-      cellRenderer: (params) => (
-        <PrimaryButton
-          title="Disable"
-          handleSubmit={() => (
-            "Disable clicked for sub-category id", params.data.id
-          )}
-        />
-      ),
-    },
-  ];
-
-  const { data: assetsSubCategories = [] } = useQuery({
-    queryKey: "assetsSubCategories",
-    queryFn: async () => {
-      try {
-        const response = await axios.get("/api/assets/get-sub-category");
-        return response.data;
-      } catch (error) {
-        throw new Error(error.response.data.message);
-      }
-    },
-  });
-
-  const rows = [
+  const subCategories = [
     { id: 1, categoryName: "Chairs", subCategoryName: "Plastic Chair" },
     { id: 2, categoryName: "Chairs", subCategoryName: "Ergonomic Chair" },
     { id: 3, categoryName: "Chairs", subCategoryName: "Leather Chair" },
     { id: 4, categoryName: "Chairs", subCategoryName: "Office Chair" },
+    { id: 5, categoryName: "Laptops", subCategoryName: "Gaming Laptop" },
+    { id: 6, categoryName: "Laptops", subCategoryName: "Ultrabook" },
+    { id: 7, categoryName: "Cables", subCategoryName: "HDMI Cable" },
+    { id: 8, categoryName: "Cables", subCategoryName: "USB-C Cable" },
+    { id: 9, categoryName: "Monitors", subCategoryName: "Curved Monitor" },
   ];
+
+  // Grouping subcategories by category
+  const categorizedData = categories.map((category) => {
+    const filteredSubCategories = subCategories.filter(
+      (sub) => sub.categoryName === category.name
+    );
+    return {
+      ...category,
+      subCategories: filteredSubCategories,
+    };
+  });
 
   const handleAddSubCategory = (data) => {
     // Add API call here
@@ -73,17 +70,63 @@ const AssetsSubCategories = () => {
   };
 
   return (
-    <>
-      <AgTable
-        search={true}
-        searchColumn="Sub Category Name"
-        tableTitle="Assets Sub Categories"
-        buttonTitle="Add Sub Category"
-        data={rows}
-        columns={subCategoriesColumn}
-        handleClick={() => setModalOpen(true)}
-        tableHeight={350}
-      />
+    <Box>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={2}
+      >
+        <Typography variant="h5">Assets Sub Categories</Typography>
+        <PrimaryButton
+          title="Add Sub Category"
+          handleSubmit={() => setModalOpen(true)}
+        />
+      </Box>
+
+      {categorizedData.map((category) => (
+        <Accordion key={category.id}>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Box display="flex" justifyContent="space-between" width="100%">
+              <Typography variant="h6">{category.name}</Typography>
+              <Typography variant="body1">
+                {category.subCategories.length}{" "}
+                {category.subCategories.length === 1
+                  ? "Subcategory"
+                  : "Subcategories"}
+              </Typography>
+            </Box>
+          </AccordionSummary>
+          <AccordionDetails
+            sx={{
+              maxHeight: 200,
+              overflowY: "auto",
+              borderTop: "1px solid #e0e0e0",
+            }}
+          >
+            <List>
+              {category.subCategories.map((subCategory) => (
+                <ListItem
+                  key={subCategory.id}
+                  sx={{ display: "flex", justifyContent: "space-between" }}
+                >
+                  <ListItemText primary={subCategory.subCategoryName} />
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    size="small"
+                    onClick={() =>
+                      console.log("Disable clicked for", subCategory.id)
+                    }
+                  >
+                    Disable
+                  </Button>
+                </ListItem>
+              ))}
+            </List>
+          </AccordionDetails>
+        </Accordion>
+      ))}
 
       <MuiModal
         open={isModalOpen}
@@ -139,7 +182,7 @@ const AssetsSubCategories = () => {
           />
         </form>
       </MuiModal>
-    </>
+    </Box>
   );
 };
 
