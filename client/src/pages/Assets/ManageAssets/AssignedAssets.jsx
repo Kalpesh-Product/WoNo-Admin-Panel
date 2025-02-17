@@ -12,6 +12,8 @@ import {
 } from "@mui/material";
 import AgTable from "../../../components/AgTable";
 import MuiModal from "../../../components/MuiModal";
+import PrimaryButton from "../../../components/PrimaryButton";
+import SecondaryButton from "../../../components/SecondaryButton";
 
 const AssignedAssets = () => {
   const [assetRows, setAssetRows] = useState([
@@ -243,13 +245,12 @@ const AssignedAssets = () => {
           Are you sure you want to revoke this asset assignment?
         </Typography>
         <Box display="flex" justifyContent="flex-end" mt={3} gap={2}>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={() => setConfirmModalOpen(false)}
-          >
-            No
-          </Button>
+          <SecondaryButton
+            title={"No"}
+            // variant="contained"
+            // color="secondary"
+            handleSubmit={() => setConfirmModalOpen(false)}
+          />
           <Button variant="contained" color="error" onClick={handleRevoke}>
             Yes, Revoke
           </Button>
@@ -269,7 +270,7 @@ const AssignedAssets = () => {
           <>
             {!isEditMode ? (
               // 🔹 View Mode
-              <div className="grid grid-cols-2 gap-6 px-6 pb-6">
+              <div className="grid grid-cols-2 gap-6 px-6 pb-0">
                 <div className="flex items-center justify-between">
                   <span className="text-content font-medium">Assign Type</span>
                   <span className="text-content text-gray-500">
@@ -308,35 +309,29 @@ const AssignedAssets = () => {
                     {selectedAsset.status}
                   </span>
                 </div>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => setIsEditMode(true)}
-                  disabled={selectedAsset.status === "Revoked"}
-                >
-                  Edit
-                </Button>
+                <div className="flex col-span-2 justify-center">
+                  <PrimaryButton title={"Edit"} handleSubmit={() => setIsEditMode(true)}/>
+                </div>
               </div>
             ) : (
               // 🔹 Edit Mode (Form)
               <form
                 onSubmit={handleSubmit(handleSave)}
-                className="grid grid-cols-2 gap-6 px-6 pb-6"
+                className="grid grid-cols-2 gap-6 px-6 pb-0"
               >
-                <FormControl fullWidth>
-                  <InputLabel>Assign Type</InputLabel>
                   <Controller
                     name="assignType"
                     control={control}
                     defaultValue=""
                     render={({ field }) => (
-                      <Select {...field} label="Assign Type">
+                      <Select {...field} size="small" displayEmpty >
+                        <MenuItem value="" disabled>Select Assign Type</MenuItem>
                         <MenuItem value="Rental">Rental</MenuItem>
                         <MenuItem value="Permanent">Permanent</MenuItem>
                       </Select>
                     )}
                   />
-                </FormControl>
+
 
                 <FormControl fullWidth>
                   <InputLabel>Department</InputLabel>
@@ -345,7 +340,7 @@ const AssignedAssets = () => {
                     control={control}
                     defaultValue={selectedAsset.department}
                     render={({ field }) => (
-                      <Select {...field} label="Department">
+                      <Select {...field} label="Department" size="small">
                         <MenuItem value="HR">HR</MenuItem>
                         <MenuItem value="IT">IT</MenuItem>
                         <MenuItem value="Finance">Finance</MenuItem>
@@ -362,7 +357,7 @@ const AssignedAssets = () => {
                   control={control}
                   defaultValue={selectedAsset.assigneeName}
                   render={({ field }) => (
-                    <TextField {...field} label="Assignee Name" fullWidth />
+                    <TextField {...field} label="Assignee Name" fullWidth size="small"/>
                   )}
                 />
 
@@ -373,7 +368,7 @@ const AssignedAssets = () => {
                     control={control}
                     defaultValue={selectedAsset.location}
                     render={({ field }) => (
-                      <Select {...field} label="Location">
+                      <Select {...field} label="Location" size="small">
                         <MenuItem value="ST-601">ST-601</MenuItem>
                         <MenuItem value="ST-602">ST-602</MenuItem>
                         <MenuItem value="ST-701">ST-701</MenuItem>
@@ -383,19 +378,20 @@ const AssignedAssets = () => {
                   />
                 </FormControl>
 
-                <Button type="submit" variant="contained" color="success">
-                  Save
-                </Button>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  onClick={() => {
-                    setIsEditMode(false);
-                    reset();
-                  }}
-                >
-                  Cancel
-                </Button>
+                <div className="flex gap-2 col-span-2">
+                  <div className="w-1/2 justify-items-end">
+                    <PrimaryButton title={"Save"} type="submit" />
+                  </div>
+                  <div className="w-1/2">
+                    <SecondaryButton
+                      title={"Cancel"}
+                      handleSubmit={() => {
+                        setIsEditMode(false);
+                        reset();
+                      }}
+                    />
+                  </div>
+                </div>
               </form>
             )}
           </>

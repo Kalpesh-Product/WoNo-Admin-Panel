@@ -253,7 +253,10 @@ const departmentPieChartOptions = {
 const myTasksColumns = [
   { id: "id", label: "ID" },
   { id: "task", label: "Task" },
-  { id: "type", label: "Type" },
+  { id: "type", label: "Type", renderCell: (row) => (
+    <Chip label={row.type}  sx={{backgroundColor:'#d1d5db', color:'#1E3D73'}}/>    
+  ), },
+  
   { id: "due", label: "Due" },
 ];
 
