@@ -20,8 +20,8 @@ router.patch("/update-asset/:assetId", upload.single("asset-image"), editAsset);
 router.get("/get-assets", getAssets);
 router.post("/create-asset-category", addAssetCategory);
 router.post("/create-asset-subcategory", addSubCategory);
-router.patch("/disable-asset-category", disableCategory);
-router.patch("/disable-asset-subcategory", disableSubCategory);
+router.patch("/disable-asset-category/:assetCategoryId", disableCategory);
+router.patch("/disable-asset-subcategory/:assetSubCategoryId", disableSubCategory);
 router.get("/get-category", getCategory);
 router.get("/get-subcategory/", getSubCategory);
   
