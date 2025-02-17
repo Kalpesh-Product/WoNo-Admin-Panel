@@ -1,19 +1,24 @@
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import {
-  FormControl, InputLabel, MenuItem, Select, TextField,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
   FormHelperText,
 } from "@mui/material";
 import AgTable from "../../../components/AgTable";
 import PrimaryButton from "../../../components/PrimaryButton";
 import MuiModal from "../../../components/MuiModal";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import useAuth from "../../../hooks/useAuth";
 
 const AssetsCategories = () => {
   const axios = useAxiosPrivate();
+  const queryClient = new QueryClient();
   const { auth } = useAuth();
   const [isModalOpen, setModalOpen] = useState(false);
 
@@ -58,20 +63,34 @@ const AssetsCategories = () => {
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data) => {
-      const response = await axios.post(
-        "/api/assets/create-asset-category",
-        {departmentId : data.department,
-          assetCategoryName : data.categoryName
-        }
-      );
+      const response = await axios.post("/api/assets/create-asset-category", {
+        departmentId: data.department,
+        assetCategoryName: data.categoryName,
+      });
       return response.data;
     },
-
     onSuccess: function (data) {
       toast.success(data.message);
     },
     onError: function (data) {
       toast.error(data.response.data.message || "Failed to add category");
+    },
+  });
+
+  const { mutate: disableCategory, isPending: isRevoking } = useMutation({
+    mutationFn: async (assetCatgoryId) => {
+      const response = await axios.patch("/api/assets/disable-asset-category", {
+        assetCatgoryId,
+      });
+
+      return response.data;
+    },
+    onSuccess: (data) => {
+      toast.success(data.message);
+      queryClient.invalidateQueries(["assetCategories"]);
+    },
+    onError: (error) => {
+      toast.error(error.response.data.message || "Failed to disable category");
     },
   });
 
@@ -89,9 +108,10 @@ const AssetsCategories = () => {
     reset();
   };
 
-  const handleRevokeCategory = () =>{
-    setModalOpen(true)
-  }
+  const handleRevokeCategory = (data) => {
+    disableCategory(data)
+    toast.success("Successfully revoked")
+  };
 
   return (
     <>
@@ -101,7 +121,7 @@ const AssetsCategories = () => {
         searchColumn="Category Name"
         tableTitle="Assets Categories"
         buttonTitle="Add Category"
-        handleClick={handleRevokeCategory}
+        handleClick={(data)=>handleRevokeCategory(data)}
         data={[
           ...assetsCategories.map((category, index) => ({
             id: index + 1,
@@ -149,7 +169,10 @@ const AssetsCategories = () => {
                   <MenuItem value="">Select Department</MenuItem>
                   {auth.user.company.selectedDepartments.length > 0 ? (
                     auth.user.company.selectedDepartments.map((dep) => (
-                      <MenuItem key={dep.department._id} value={dep.department._id}>
+                      <MenuItem
+                        key={dep.department._id}
+                        value={dep.department._id}
+                      >
                         {dep.department.name}
                       </MenuItem>
                     ))
