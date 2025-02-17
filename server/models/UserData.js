@@ -94,9 +94,6 @@ const userDataSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
-  assetDescription: {
-    type: String,
-  },
   refreshToken: String,
 
   // New fields added
@@ -134,8 +131,8 @@ const userDataSchema = new mongoose.Schema({
     payrollBatch: { type: String },
     professionTaxExemption: { type: Boolean },
     includePF: { type: Boolean },
-    pfContributionRate: { type: Number },
-    employeePF: { type: Number },
+    pfContributionRate: { type: String },
+    employeePF: { type: String },
   },
   familyInformation: {
     fatherName: { type: String },

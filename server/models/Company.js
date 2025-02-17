@@ -29,7 +29,7 @@ const companySchema = new mongoose.Schema({
         {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Category",
-        }
+        },
       ],
       admin: [
         {
@@ -154,6 +154,8 @@ const companySchema = new mongoose.Schema({
       name: {
         type: String,
       },
+      fullAddress: String,
+      unitNo: String,
       isActive: {
         type: Boolean,
         default: true,
@@ -171,7 +173,7 @@ const companySchema = new mongoose.Schema({
       },
     },
   ],
-  shifts: [ 
+  shifts: [
     {
       name: {
         type: String,
@@ -180,7 +182,7 @@ const companySchema = new mongoose.Schema({
         type: Boolean,
         default: true,
       },
-    }
+    },
   ],
   templates: [
     {
