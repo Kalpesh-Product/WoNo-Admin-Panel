@@ -12,21 +12,24 @@ const handleRefreshToken = async (req, res, next) => {
     const refreshToken = cookies.clientCookie;
 
     const userExists = await User.findOne({ refreshToken })
-  .select("firstName lastName role email empId company password designation")
-  .populate([
-    { 
-      path: "company", 
-      select: "companyName selectedDepartments workLocations employeeTypes shifts policies agreements sops",
-      populate: {
-        path: "selectedDepartments.department",
-        model: "Department",  
-        select: "name",       
-      }
-    },
-    { path: "role", select: "roleTitle" },
-  ])
-  .lean()
-  .exec();
+      .select(
+        "firstName lastName role email empId company password designation selectedDepartments"
+      )
+      .populate([
+        {
+          path: "company",
+          select:
+            "companyName selectedDepartments workLocations employeeTypes shifts policies agreements sops",
+          populate: {
+            path: "selectedDepartments.department",
+            select: "name",
+            model: "Department",
+          },
+        },
+        { path: "role", select: "roleTitle" },
+      ])
+      .lean()
+      .exec();
 
     if (!userExists) {
       return res.sendStatus(403);
