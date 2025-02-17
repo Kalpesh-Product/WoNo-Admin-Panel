@@ -419,7 +419,7 @@ const TableView = ({ projects }) => {
 
               <TableCell>
                 <AvatarGroup max={4}>
-                  {project.assignees.map((name, index) => (
+                  {Object.keys(project.assignees).map((name, index) => (
                     <Avatar key={index}>{name[0]}</Avatar>
                   ))}
                 </AvatarGroup>

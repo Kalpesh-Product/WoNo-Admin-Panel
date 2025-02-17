@@ -128,7 +128,7 @@ const AssetsCategories = () => {
         searchColumn="Category Name"
         tableTitle="Assets Categories"
         buttonTitle="Add Category"
-        handleClick={handleAddCategory}
+        handleClick={()=>setModalOpen(true)}
         data={[
           ...assetsCategories.map((category, index) => ({
             id: index + 1,

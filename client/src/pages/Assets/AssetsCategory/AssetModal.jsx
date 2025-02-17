@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import MuiModal from "../../../components/MuiModal";
 import PrimaryButton from "../../../components/PrimaryButton";
+import SecondaryButton from "../../../components/SecondaryButton";
 
 const AssetModal = ({
   mode = "add", // 'add', 'view', or 'edit'
@@ -87,24 +88,6 @@ const AssetModal = ({
 
     onSubmit(formattedData);
     onClose();
-  };
-
-  // Render different buttons based on mode
-  const renderModalActions = () => {
-    if (mode === "view") {
-      return (
-        <Button
-          variant="contained"
-          onClick={() => {
-            onModeChange("edit");
-          }}
-        >
-          Edit Asset
-        </Button>
-      );
-    }
-
-    return <PrimaryButton title={mode === "add" ? "Submit" : "Update"} />;
   };
 
   return (
@@ -418,19 +401,16 @@ const AssetModal = ({
 
           {/* Conditionally render submit/edit button */}
           <div className="flex gap-4">
-            {renderModalActions()}
-
+            <PrimaryButton title={mode === "add" ? "Submit" : "Update"} />
             {/* Cancel button for edit mode */}
             {mode === "edit" && (
-              <Button
-                variant="outlined"
-                onClick={() => {
+              <SecondaryButton
+                title={"Cancel"}
+                handleSubmit={() => {
                   onModeChange("view");
                   reset();
                 }}
-              >
-                Cancel
-              </Button>
+              />
             )}
           </div>
         </form>
@@ -514,7 +494,12 @@ const AssetModal = ({
             </div>
           </div>
           <div className="w-full flex justify-center">
-            {renderModalActions()}
+            <PrimaryButton
+              title={"Edit"}
+              handleSubmit={() => {
+                onModeChange("edit");
+              }}
+            />
           </div>
         </>
       )}

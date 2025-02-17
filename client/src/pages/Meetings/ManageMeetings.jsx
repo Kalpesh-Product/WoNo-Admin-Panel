@@ -5,7 +5,6 @@ import { Delete } from "@mui/icons-material";
 import {
   Button,
   Chip,
-  Modal,
   Box,
   TextField,
   Checkbox,
@@ -17,9 +16,16 @@ import {
 import AgTable from "../../components/AgTable";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { queryClient } from "../../index";
+import MuiModal from "../../components/MuiModal";
+import PrimaryButton from "../../components/PrimaryButton";
 
 const ManageMeetings = () => {
   const axios = useAxiosPrivate();
+  const [checklistModalOpen, setChecklistModalOpen] = useState(false);
+  const [selectedMeetingId, setSelectedMeetingId] = useState(null);
+  const [checklists, setChecklists] = useState({});
+  const [newItem, setNewItem] = useState("");
+  const [modalMode, setModalMode] = useState("update"); // 'update', or 'view'
 
   const statusColors = {
     Scheduled: { bg: "#E3F2FD", text: "#1565C0" }, // Light Blue
@@ -45,12 +51,6 @@ const ManageMeetings = () => {
     { name: "Inspect electrical sockets and outlets", checked: false },
     { name: "Remove any trash or debris", checked: false },
   ];
-
-  const [checklistModalOpen, setChecklistModalOpen] = useState(false);
-  const [selectedMeetingId, setSelectedMeetingId] = useState(null);
-  const [checklists, setChecklists] = useState({});
-  const [newItem, setNewItem] = useState("");
-  const [modalMode, setModalMode] = useState("update"); // 'update', or 'view'
 
   // Fetch meetings
   const { data: meetings = [], isLoading } = useQuery({
@@ -189,7 +189,6 @@ const ManageMeetings = () => {
   };
 
   const columns = useMemo(() => {
-    console.log("Updating columns with meetings:", meetings); // ✅ Debugging log
     return [
       { field: "roomName", headerName: "Room Name" },
       { field: "endTime", headerName: "End Time" },
@@ -212,7 +211,6 @@ const ManageMeetings = () => {
         field: "housekeepingStatus",
         headerName: "Housekeeping Status",
         cellRenderer: (params) => {
-          console.log("Housekeeping Status Params:", params); // ✅ Debugging log
           return (
             <Chip
               label={params.value || ""}
@@ -250,14 +248,15 @@ const ManageMeetings = () => {
               onClick={() =>
                 handleOpenChecklistModal("update", params.data._id)
               }
+              size="small"
             >
               Update Checklist
             </Button>
 
             <Button
               variant="outlined"
-              // onClick={() => handleViewDetails(params.data)}
               onClick={() => handleOpenChecklistModal("view", params.data._id)}
+              size="small"
             >
               View Checklist
             </Button>
@@ -276,33 +275,26 @@ const ManageMeetings = () => {
       )}
 
       {/* Checklist Modal */}
-      <Modal
+      <MuiModal
         open={checklistModalOpen}
         onClose={handleCloseChecklistModal}
-        sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+        title={"Checklist"}
       >
         <Box
           sx={{
-            width: 400,
             maxHeight: "80vh",
-            bgcolor: "white",
-            borderRadius: 2,
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",
+            justifyContent: "start",
+            alignItems: "start",
           }}
         >
-          {/* Modal Header */}
-          <Typography
-            variant="h6"
-            sx={{ p: 3, borderBottom: "1px solid #e0e0e0" }}
-          >
-            Checklist
-          </Typography>
-
           {/* Scrollable Checklist Section */}
-          <Box sx={{ flexGrow: 1, overflowY: "auto", p: 3 }}>
-            <Typography variant="subtitle1">Default Tasks</Typography>
+          <div className="h-[60vh] overflow-y-auto w-full">
+            <span className="text-subtitle text-primary font-pmedium">
+              Default Tasks
+            </span>
             <List>
               {checklists[selectedMeetingId]?.defaultItems.map(
                 (item, index) => (
@@ -322,29 +314,35 @@ const ManageMeetings = () => {
 
             {checklists[selectedMeetingId]?.customItems?.length > 0 && (
               <>
-                <Typography variant="subtitle1" sx={{ mt: 1 }}>
+                <span className="text-subtitle text-primary font-pmedium">
                   Custom Tasks
-                </Typography>
-                <List>
+                </span>
+                <List sx={{width:'100%'}}>
                   {checklists[selectedMeetingId]?.customItems.map(
                     (item, index) => (
-                      <ListItem key={index}>
-                        <Checkbox
-                          disabled={modalMode === "view"}
-                          checked={item.checked}
-                          onChange={() =>
-                            handleToggleChecklistItem(index, "customItems")
-                          }
-                        />
-                        {item.name}
-                        {modalMode === "update" && (
-                          <IconButton
-                            onClick={() => handleRemoveChecklistItem(index)}
-                            color="error"
-                          >
-                            <Delete />
-                          </IconButton>
-                        )}
+                      <ListItem key={index} sx={{width:'100%'}}>
+                        <div className="flex items-center justify-between w-full">
+                          <div>
+                            <Checkbox
+                              disabled={modalMode === "view"}
+                              checked={item.checked}
+                              onChange={() =>
+                                handleToggleChecklistItem(index, "customItems")
+                              }
+                            />
+                            {item.name}
+                          </div>
+                          <div>
+                            {modalMode === "update" && (
+                              <IconButton
+                                onClick={() => handleRemoveChecklistItem(index)}
+                                color="error"
+                              >
+                                <Delete />
+                              </IconButton>
+                            )}
+                          </div>
+                        </div>
                       </ListItem>
                     )
                   )}
@@ -354,51 +352,38 @@ const ManageMeetings = () => {
 
             {/* Add New Checklist Item Section */}
             {modalMode === "update" && (
-              <Box
-                sx={{ mt: 2, display: "flex", alignItems: "center", gap: 2 }}
-              >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                 <TextField
-                  disabled={modalMode === "view"}
                   fullWidth
                   label="Add Checklist Task"
                   value={newItem}
+                  size="small"
                   onChange={(e) => setNewItem(e.target.value)}
                 />
-                <Button
-                  disabled={modalMode === "view"}
-                  onClick={handleAddChecklistItem}
-                  variant="contained"
-                  sx={{ whiteSpace: "nowrap" }} // Prevents text from wrapping
-                >
-                  Add
-                </Button>
+                <PrimaryButton
+                  title={"Add"}
+                  handleSubmit={handleAddChecklistItem}
+                  externalStyles={{ whiteSpace: "nowrap" }} // Prevents text from wrapping
+                />
               </Box>
             )}
-          </Box>
+          </div>
 
           {/* Sticky Footer Section */}
           {modalMode === "update" && (
-            <Box
-              sx={{
-                p: 3,
-                borderTop: "1px solid #e0e0e0",
-                position: "sticky",
-                bottom: 0,
-                bgcolor: "white",
-              }}
-            >
+            <div className="p-4 bg-white flex justify-center items-center w-full">
+              {/* todo - PrimaryButton needs a disabled look */}
               <Button
-                fullWidth
                 variant="contained"
                 disabled={isSubmitDisabled()}
                 onClick={handleSubmitChecklist}
               >
                 Submit
               </Button>
-            </Box>
+            </div>
           )}
         </Box>
-      </Modal>
+      </MuiModal>
     </div>
   );
 };
