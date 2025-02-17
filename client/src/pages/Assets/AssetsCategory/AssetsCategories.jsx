@@ -29,23 +29,28 @@ const AssetsCategories = () => {
     reset,
   } = useForm();
 
-  const departments = ["IT", "HR", "Finance", "Administration"];
 
   const categoriesColumn = [
     { field: "categoryName", headerName: "Category Name", flex: 3 },
-    // { field: "department", headerName: "Department", flex: 2 },
     {
       field: "action",
       headerName: "Action",
       flex: 1,
-      cellRenderer: (params) => (
+      cellRenderer: (params) => {
+        if (!params.data.isActive) {
+          return null; // Hide button if isActive is false
+        }
+  
+        return (
         <PrimaryButton
           title="Disable"
-          handleSubmit={() =>
-            console.log("Disable clicked for category id", params.data.id)
+          handleSubmit={() =>{
+            disableCategory(params.data.mongoId)
+            toast.success("Successfully revoked")
+          }
           }
         />
-      ),
+      )}
     },
   ];
 
@@ -79,9 +84,8 @@ const AssetsCategories = () => {
 
   const { mutate: disableCategory, isPending: isRevoking } = useMutation({
     mutationFn: async (assetCatgoryId) => {
-      const response = await axios.patch("/api/assets/disable-asset-category", {
-        assetCatgoryId,
-      });
+
+      const response = await axios.patch(`/api/assets/disable-asset-category/${assetCatgoryId}`);
 
       return response.data;
     },
@@ -108,10 +112,13 @@ const AssetsCategories = () => {
     reset();
   };
 
-  const handleRevokeCategory = (data) => {
-    disableCategory(data)
-    toast.success("Successfully revoked")
+  const getRowStyle = (params) => {
+    if (!params.data.isActive) {
+      return { backgroundColor: "#d3d3d3", color: "#666" }; // Gray out disabled rows
+    }
+    return null;
   };
+  
 
   return (
     <>
@@ -121,15 +128,18 @@ const AssetsCategories = () => {
         searchColumn="Category Name"
         tableTitle="Assets Categories"
         buttonTitle="Add Category"
-        handleClick={(data)=>handleRevokeCategory(data)}
+        handleClick={handleAddCategory}
         data={[
           ...assetsCategories.map((category, index) => ({
             id: index + 1,
+            mongoId : category._id,
             categoryName: category.categoryName,
+            isActive : category.isActive
           })),
         ]}
         columns={categoriesColumn}
         tableHeight={350}
+        getRowStyle={getRowStyle}
       />
 
       <MuiModal

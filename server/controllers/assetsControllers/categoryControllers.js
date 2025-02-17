@@ -108,7 +108,7 @@ const addSubCategory = async (req, res, next) => {
 };
 
 const disableCategory = async (req, res, next) => {
-  const { assetCategoryId } = req.body;
+  const { assetCategoryId } = req.params;
   const company = req.company;
 
   try {

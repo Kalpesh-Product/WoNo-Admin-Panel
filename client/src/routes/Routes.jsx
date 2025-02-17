@@ -108,6 +108,10 @@ import AdditionalTasks from "../pages/Tasks/My-Tasklist/AdditionalTasks";
 import TeamMember from "../pages/Tasks/TeamMembers/TeamMember";
 import ProjectList from "../pages/Tasks/ProjectList/ProjectList";
 import EditProject from "../pages/Tasks/ProjectList/EditProject";
+import TaskReportLayout from "../pages/Tasks/TaskReports.jsx/TaskReportLayout";
+import MyTaskReports from "../pages/Tasks/TaskReports.jsx/MyTaskReports";
+import AssignedTaskReports from "../pages/Tasks/TaskReports.jsx/AssignedTaskReports";
+import DepartmentTaskReports from "../pages/Tasks/TaskReports.jsx/DepartmentTaskReports";
 
 export const routes = createBrowserRouter([
   {
@@ -564,6 +568,10 @@ export const routes = createBrowserRouter([
                     element: <ProjectList />, // Dashboard is rendered by default
                   },
                   {
+                    path: "project-list/edit-project", // Default route for /app/tasks
+                    element: <ProjectList />, // Dashboard is rendered by default
+                  },
+                  {
                     path: "project-list/edit-project/:id", // Default route for /app/tasks
                     element: <EditProject />, // Dashboard is rendered by default
                   },
@@ -614,7 +622,21 @@ export const routes = createBrowserRouter([
                   },
                   {
                     path: "reports",
-                    element: <AssetReports />,
+                    element: <TaskReportLayout />,
+                    children:[
+                      {
+                        path:'my-task-reports',
+                        element:<MyTaskReports />
+                      },
+                      {
+                        path:'assigned-task-reports',
+                        element:<AssignedTaskReports />
+                      },
+                      {
+                        path:'department-task-reports',
+                        element:<DepartmentTaskReports />
+                      },
+                    ]
                   },
                   {
                     path: "reviews",

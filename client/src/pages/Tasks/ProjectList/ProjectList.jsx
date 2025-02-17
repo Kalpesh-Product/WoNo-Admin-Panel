@@ -19,6 +19,7 @@ import {
   Avatar,
   Menu,
   TableBody,
+  Autocomplete,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useForm, Controller } from "react-hook-form";
@@ -27,7 +28,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import PrimaryButton from "../../../components/PrimaryButton";
 import MuiModal from "../../../components/MuiModal";
-import {useNavigate} from 'react-router-dom'
+import { useNavigate } from "react-router-dom";
 
 const intialProjects = [
   {
@@ -36,7 +37,23 @@ const intialProjects = [
     priority: "HIGH",
     startDate: "17th Nov, 2020",
     deadline: "21st May, 2028",
-    assignees: ["Aiwinraj", "Sankalp", "Aaron"],
+    assignees: {
+      Aiwinraj: {
+        dailyTasks: 3,
+        monthlyTasks: 4,
+        additionalTasks: 5,
+      },
+      Sankalp: {
+        dailyTasks: 2,
+        monthlyTasks: 6,
+        additionalTasks: 3,
+      },
+      Aaron: {
+        dailyTasks: 4,
+        monthlyTasks: 5,
+        additionalTasks: 2,
+      },
+    },
     status: "Upcoming",
   },
   {
@@ -45,7 +62,23 @@ const intialProjects = [
     priority: "HIGH",
     startDate: "8th Nov, 2021",
     deadline: "15th Sept, 2022",
-    assignees: ["D", "E", "F"],
+    assignees: {
+      D: {
+        dailyTasks: 2,
+        monthlyTasks: 5,
+        additionalTasks: 3,
+      },
+      E: {
+        dailyTasks: 4,
+        monthlyTasks: 3,
+        additionalTasks: 6,
+      },
+      F: {
+        dailyTasks: 1,
+        monthlyTasks: 7,
+        additionalTasks: 2,
+      },
+    },
     status: "In progress",
   },
   {
@@ -54,52 +87,48 @@ const intialProjects = [
     priority: "MEDIUM",
     startDate: "12th Mar, 2024",
     deadline: "23rd Sept, 2026",
-    assignees: ["G", "H", "I"],
+    assignees: {
+      G: {
+        dailyTasks: 3,
+        monthlyTasks: 2,
+        additionalTasks: 4,
+      },
+      H: {
+        dailyTasks: 5,
+        monthlyTasks: 4,
+        additionalTasks: 3,
+      },
+      I: {
+        dailyTasks: 2,
+        monthlyTasks: 6,
+        additionalTasks: 1,
+      },
+    },
     status: "Pending",
   },
   {
     id: 4,
-    title: "Livv Platform",
-    priority: "HIGH",
-    startDate: "17th Nov, 2020",
-    deadline: "21st May, 2028",
-    assignees: ["J", "K", "L"],
-    status: "Completed",
-  },
-  {
-    id: 5,
-    title: "MeWo Website",
+    title: "CMS",
     priority: "MEDIUM",
-    startDate: "17th Nov, 2020",
-    deadline: "21st May, 2028",
-    assignees: ["M", "N", "O"],
-    status: "Upcoming",
-  },
-  {
-    id: 6,
-    title: "Dairyfarm Website",
-    priority: "LOW",
-    startDate: "8th Nov, 2021",
-    deadline: "15th Sept, 2022",
-    assignees: ["P", "Q", "R"],
-    status: "In progress",
-  },
-  {
-    id: 7,
-    title: "Livv Website",
-    priority: "MEDIUM",
-    startDate: "17th Nov, 2020",
-    deadline: "21st May, 2028",
-    assignees: ["S", "T", "U"],
-    status: "Completed",
-  },
-  {
-    id: 8,
-    title: "Cafe Website",
-    priority: "MEDIUM",
-    startDate: "17th Nov, 2020",
-    deadline: "21st May, 2028",
-    assignees: ["V", "W", "X"],
+    startDate: "12th Mar, 2024",
+    deadline: "23rd Sept, 2026",
+    assignees: {
+      G: {
+        dailyTasks: 3,
+        monthlyTasks: 2,
+        additionalTasks: 4,
+      },
+      H: {
+        dailyTasks: 5,
+        monthlyTasks: 4,
+        additionalTasks: 3,
+      },
+      I: {
+        dailyTasks: 2,
+        monthlyTasks: 6,
+        additionalTasks: 1,
+      },
+    },
     status: "Completed",
   },
 ];
@@ -122,7 +151,7 @@ const ProjectList = () => {
     defaultValues: {
       title: "",
       description: "",
-      assignees: "",
+      assignees: [],
       startDate: null,
       deadline: null,
       priority: "",
@@ -135,21 +164,30 @@ const ProjectList = () => {
       alert("Please fill in required fields!");
       return;
     }
-
+  
+    // Convert assignees from an array to an object with default values
+    const assigneesObject = data.assignees.reduce((acc, name) => {
+      acc[name] = {
+        dailyTasks: 0,
+        monthlyTasks: 0,
+        additionalTasks: 0,
+      };
+      return acc;
+    }, {});
+  
     const formattedProject = {
       ...data,
       id: projects.length + 1, // Assign new ID
       startDate: data.startDate ? data.startDate.format("YYYY-MM-DD") : "",
       deadline: data.deadline ? data.deadline.format("YYYY-MM-DD") : "",
-      assignees: data.assignees
-        ? data.assignees.split(",").map((a) => a.trim())
-        : [],
+      assignees: assigneesObject, // Assign transformed assignees object
     };
-
+  
     setProjects([...projects, formattedProject]); // Update projects list
     setOpenModal(false);
     reset(); // Reset the form fields after submission
   };
+  
 
   return (
     <>
@@ -201,11 +239,12 @@ const ProjectList = () => {
             render={({ field, fieldState }) => (
               <TextField
                 size="small"
-                slotProps={{inputLabel:{size:'small'}}}
+                slotProps={{ inputLabel: { size: "small" } }}
                 {...field}
                 label="Project Name"
+                value={field.value || []} 
                 fullWidth
-                sx={{fontSize:'10px'}}
+                sx={{ fontSize: "10px" }}
                 margin="dense"
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message}
@@ -235,12 +274,19 @@ const ProjectList = () => {
             name="assignees"
             control={control}
             render={({ field }) => (
-              <TextField
-                size="small"
+              <Autocomplete
                 {...field}
-                label="Assignees (comma-separated)"
-                fullWidth
-                margin="dense"
+                multiple
+                options={["Aiwinraj", "Sankalp", "Aaron", "Kalpesh", "Muskan"]} // Example list
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Assignees"
+                    fullWidth
+                    size="small"
+                  />
+                )}
+                onChange={(_, value) => field.onChange(value)}
               />
             )}
           />
@@ -392,7 +438,7 @@ const ProjectCard = ({ project }) => {
     <div className="bg-white shadow-md rounded-lg p-3 mb-4 border border-gray-200 h-64 flex flex-col justify-between">
       <div className="flex justify-between items-center">
         <span className="font-pmedium text-subtitle">{project.title}</span>
-        <ProjectMenu project={project} /> 
+        <ProjectMenu project={project} />
       </div>
       <div>
         <span
@@ -416,7 +462,7 @@ const ProjectCard = ({ project }) => {
         </Typography>
         <div className="flex justify-start">
           <AvatarGroup max={4}>
-            {project.assignees.map((name, index) => (
+            {Object.keys(project.assignees).map((name, index) => (
               <Avatar
                 key={index}
                 sx={{
@@ -437,13 +483,15 @@ const ProjectCard = ({ project }) => {
 };
 
 // Dropdown Menu for Actions
-const ProjectMenu = ({project}) => {
+const ProjectMenu = ({ project }) => {
   const [anchorEl, setAnchorEl] = useState(null);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleEditClick = () => {
     setAnchorEl(null);
-    navigate(`/app/tasks/project-list/edit-project/${project.id}`, { state: { project } }); // Pass project data
+    navigate(`/app/tasks/project-list/edit-project/${project.id}`, {
+      state: { project },
+    }); // Pass project data
   };
   return (
     <>

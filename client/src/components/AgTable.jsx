@@ -24,6 +24,7 @@ const AgTable = React.memo(
     buttonTitle,
     tableHeight,
     enableCheckbox, // ✅ New prop to enable checkboxes
+    getRowStyle
   }) => {
     const [filteredData, setFilteredData] = useState(data);
     const [searchQuery, setSearchQuery] = useState("");
@@ -141,6 +142,8 @@ const AgTable = React.memo(
       ];
     }, [columns, enableCheckbox]);
 
+    
+
     return (
       <div   className="border-b-[1px] border-borderGray">
         <div className="flex justify-between items-center py-2">
@@ -257,6 +260,7 @@ const AgTable = React.memo(
             rowHeight={50}
             rowSelection={enableCheckbox ? "multiple" : rowSelection} // ✅ Enable multiple selection only when checkboxes are on
             onSelectionChanged={handleSelectionChanged}
+            getRowStyle={getRowStyle}
           />
         </div>
 

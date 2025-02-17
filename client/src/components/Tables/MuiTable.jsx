@@ -21,7 +21,7 @@ const MuiTable = ({
 
   return (
     <div className="border-default border-borderGray rounded-md">
-      <div className="font-pbold text-title text-primary p-4 border-b">
+      <div className="font-pmedium text-title text-primary p-4 border-b">
         {Title}
       </div>
       <Paper>
