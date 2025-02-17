@@ -1,4 +1,10 @@
-import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
+import React, {
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+  useEffect,
+} from "react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
@@ -51,6 +57,12 @@ const AgTable = React.memo(
         if (tableRef.current) observer.unobserve(tableRef.current);
       };
     }, []);
+
+    useEffect(() => {
+      if (data && data.length > 0) {
+        setFilteredData(data);
+      }
+    }, [data]);
 
     const defaultColDef = {
       resizable: true,
@@ -142,7 +154,7 @@ const AgTable = React.memo(
     }, [columns, enableCheckbox]);
 
     return (
-      <div   className="border-b-[1px] border-borderGray">
+      <div className="border-b-[1px] border-borderGray">
         <div className="flex justify-between items-center py-2">
           {search && (
             <TextField
@@ -266,7 +278,7 @@ const AgTable = React.memo(
             className="fixed bottom-8 right-[38rem] bg-blue-600 text-white px-6 py-3 rounded-full shadow-lg cursor-pointer hover:bg-blue-700 transition motion-preset-slide-up-sm"
             onClick={handleActionClick}
           >
-           Mark as Done ({selectedRows.length})
+            Mark as Done ({selectedRows.length})
           </div>
         )}
       </div>
