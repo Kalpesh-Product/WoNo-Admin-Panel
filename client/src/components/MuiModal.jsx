@@ -22,7 +22,7 @@ const MuiModal = ({ open, onClose, title, children, headerBackground }) => {
         }}
       >
         <div
-          className="flex justify-between items-center px-4 py-2  z-[-1] rounded-t-md"
+          className="flex justify-between items-center px-4 py-2  z-[-1] rounded-t-md border-default border-borderGray"
           style={{
             backgroundColor: headerBackground ? headerBackground : "white",
             color: headerBackground ? "white" : "black",

@@ -9,6 +9,8 @@ const {
   formatDuration,
 } = require("../../utils/formatDateTime");
 const Department = require("../../models/Departments");
+const MeetingLog = require("../../models/meetings/MeetingLogs");
+const { createLog } = require("../../utils/moduleLogs");
  
 const addMeetings = async (req, res, next) => {
   try {
@@ -27,8 +29,9 @@ const addMeetings = async (req, res, next) => {
       externalCompanyData,
     } = req.body;
 
-    const user = req.userData.userId;
-    const company = req.userData.company;
+    const company = req.company;
+    const user = req.user;
+    const ip = req.ip;
 
     if (
       !meetingType ||
@@ -39,10 +42,14 @@ const addMeetings = async (req, res, next) => {
       !subject ||
       !agenda
     ) {
+      await createLog("meetings/MeetingLogs","Book Meeting", "Missing required fields","Failed",user,ip, company);
+
       return res.status(400).json({ message: "Missing required fields" });
     }
 
     if (!mongoose.Types.ObjectId.isValid(bookedRoom)) {
+      await createLog("meetings/MeetingLogs","Book Meeting", "Invalid Room Id provided","Failed",user,ip, company);
+
       return res.status(400).json({ message: "Invalid Room Id provided" });
     }
     // if (!mongoose.Types.ObjectId.isValid(bookedBy)) {
@@ -64,6 +71,8 @@ const addMeetings = async (req, res, next) => {
     const endTimeObj = new Date(endTime)
 
     if(isNaN(startDateObj.getTime()) || isNaN(endDateObj.getTime()) || isNaN(startTimeObj.getTime()) || isNaN(endTimeObj.getTime())){
+
+      await createLog("meetings/MeetingLogs","Book Meeting", "Invalid date format","Failed",user,ip, company);
       return res.status(400).json({ message: "Invalid date format" });
     }
 
@@ -73,6 +82,7 @@ const addMeetings = async (req, res, next) => {
     });
 
     if (!roomAvailable) {
+      await createLog("meetings/MeetingLogs","Book Meeting", "Room is unavailable","Failed",user,ip, company);
       return res.status(404).json({ message: "Room is unavailable" });
     }
 
@@ -84,6 +94,8 @@ const addMeetings = async (req, res, next) => {
       );
 
       if (invalidIds.length > 0) {
+        await createLog("meetings/MeetingLogs","Book Meeting", "Invalid internal participant IDs","Failed",user,ip, company);
+
         return res.status(400).json({
           message: "Invalid internal participant IDs",
           invalidIds,
@@ -97,6 +109,9 @@ const addMeetings = async (req, res, next) => {
       );
 
       if (unmatchedIds.length > 0) {
+
+        await createLog("meetings/MeetingLogs","Book Meeting", "Some internal participant IDs did not match any user","Failed",user,ip, company);
+
         return res.status(400).json({
           message: "Some internal participant IDs did not match any user",
           unmatchedIds,
@@ -118,6 +133,8 @@ const addMeetings = async (req, res, next) => {
       } = externalCompanyData;
 
       if (!companyName || !email || !mobileNumber || !personName) {
+        await createLog("meetings/MeetingLogs","Book Meeting", "Missing required fields for external participants","Failed",user,ip, company);
+
         return res.status(400).json({
           message: "Missing required fields for external participants",
         });
@@ -148,6 +165,8 @@ const addMeetings = async (req, res, next) => {
     });
 
     if (conflictingMeeting) {
+      await createLog("meetings/MeetingLogs","Book Meeting", "Room is already booked for the specified time","Failed",user,ip, company);
+
       return res.status(409).json({
         message: "Room is already booked for the specified time",
       });
@@ -173,6 +192,32 @@ const addMeetings = async (req, res, next) => {
     // Update room status to "Booked"
     roomAvailable.location.status = "Occupied";
     await roomAvailable.save();
+
+    const meetingLog = new MeetingLog({
+      meetingId: meeting._id,
+      action: "Book Meeting",
+      performedBy: user,
+      changes: {
+        meetingType,
+        bookedBy: user,
+        bookedRoom: bookedRoom,
+        startDate: startDateObj,
+        endDate: endDateObj,
+        startTime: startTimeObj,
+        endTime: endTimeObj,
+        subject,
+        agenda,
+        company,
+        internalParticipants,
+        externalParticipants,
+      },
+      status:"Success",
+      ipAddress: req.ip || req.connection.remoteAddress,
+      remarks: "Meeting successfully created",
+      company
+    });
+
+   await meetingLog.save();
 
     res.status(201).json({
       message: "Meeting added successfully",
@@ -324,6 +369,17 @@ const addHousekeepingTask = async (req, res, next) => {
       return res.status(400).json({message:"Failed to update the room status"})
     }
 
+    const meetingLog = new MeetingLog({
+      meetingId: meetingId,
+      action: "Housekeeping Tasks Added",
+      performedBy: req.userData.userId,
+      changes: { housekeepingTasks: completedTasks, roomName },
+      remarks: "Housekeeping tasks completed and room status updated",
+      ipAddress: req.ip || req.connection.remoteAddress,
+    });
+
+    await meetingLog.save();
+
     return res.status(200).json({message: "Housekeeping tasks added successfully"})
 
   } catch (error) {
@@ -354,6 +410,17 @@ const deleteHousekeepingTask = async (req, res, next) => {
       return res.status(400).json({ message: "Failed to delete housekeeping task" });
     }
 
+    const meetingLog = new MeetingLog({
+      meetingId: meetingId,
+      action: "Housekeeping Task Deleted",
+      performedBy: req.userData.userId,
+      changes: { deletedTask: housekeepingTask },
+      remarks: "Housekeeping task removed from meeting",
+      ipAddress: ipAddress,
+    });
+
+    await meetingLog.save();
+
     return res.status(200).json({
       message: "Housekeeping task deleted successfully"
     });
@@ -364,45 +431,45 @@ const deleteHousekeepingTask = async (req, res, next) => {
 };
 
 
-const updateHousekeepingTasks = async (req, res, next) => {
+// const updateHousekeepingTasks = async (req, res, next) => {
 
-  try {
+//   try {
 
-    const {meetingId,housekeepingTasks} = req.body
+//     const {meetingId,housekeepingTasks} = req.body
 
-    if(!meetingId || !housekeepingTasks){
-      return res.status(400).json({message:"All feilds are required"})
-    }
+//     if(!meetingId || !housekeepingTasks){
+//       return res.status(400).json({message:"All feilds are required"})
+//     }
 
-    if(!mongoose.Types.ObjectId.isValid(meetingId)){
-      return res.status(400).json({message:"Invalid meeting id provided"})
-    }
+//     if(!mongoose.Types.ObjectId.isValid(meetingId)){
+//       return res.status(400).json({message:"Invalid meeting id provided"})
+//     }
 
-    const updatedHousekeepingCheckLlist = await Meeting.updateOne(
-      { _id: meetingId },
-      {
-        $set: {
-          "housekeepingChecklist.$[task].status": "Completed",
-        },
-      },
-      {
-        arrayFilters: [
-          { "task.name": { $in: housekeepingTasks.map((task) => task.name) } },
-        ],
-        new: true,
-      }
-    );
+//     const updatedHousekeepingCheckLlist = await Meeting.updateOne(
+//       { _id: meetingId },
+//       {
+//         $set: {
+//           "housekeepingChecklist.$[task].status": "Completed",
+//         },
+//       },
+//       {
+//         arrayFilters: [
+//           { "task.name": { $in: housekeepingTasks.map((task) => task.name) } },
+//         ],
+//         new: true,
+//       }
+//     );
 
-    if(!updatedHousekeepingCheckLlist){
-      return res.status(400).json({message:"Failed to add the housekeeping tasks"})
-    }
+//     if(!updatedHousekeepingCheckLlist){
+//       return res.status(400).json({message:"Failed to add the housekeeping tasks"})
+//     }
 
-    return res.status(200).json({message: "Housekeeping tasks added successfully"})
+//     return res.status(200).json({message: "Housekeeping tasks added successfully"})
 
-  } catch (error) {
-    next(error)
-  }
-}
+//   } catch (error) {
+//     next(error)
+//   }
+// }
  
 
 const getMeetingsByTypes = async (req, res, next) => {
@@ -452,4 +519,4 @@ const getMeetingsByTypes = async (req, res, next) => {
 }
 
 
-module.exports = { addMeetings, getMeetings, addHousekeepingTask,updateHousekeepingTasks,deleteHousekeepingTask,getMeetingsByTypes };
+module.exports = { addMeetings, getMeetings, addHousekeepingTask,deleteHousekeepingTask,getMeetingsByTypes };

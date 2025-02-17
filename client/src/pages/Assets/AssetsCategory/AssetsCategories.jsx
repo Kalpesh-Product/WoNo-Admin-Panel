@@ -15,10 +15,10 @@ import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import { useQuery, useMutation, QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import useAuth from "../../../hooks/useAuth";
+import { queryClient } from "../../..";
 
 const AssetsCategories = () => {
   const axios = useAxiosPrivate();
-  const queryClient = new QueryClient();
   const { auth } = useAuth();
   const [isModalOpen, setModalOpen] = useState(false);
 

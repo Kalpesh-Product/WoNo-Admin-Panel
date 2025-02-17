@@ -2,10 +2,9 @@ const mongoose = require("mongoose");
 
 const meetingLogSchema = new mongoose.Schema(
   {
-    meetingId: {
+    id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Meeting",
-      required: true,
     },
     action: {
       type: String,
@@ -25,7 +24,16 @@ const meetingLogSchema = new mongoose.Schema(
     },
     ipAddress:{
         type: String,
-    }
+        required: true,
+    },
+    status: {
+        type: String,
+      },
+      company: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Company",
+        required: true,
+      },
   },
   { timestamps: true }
 );

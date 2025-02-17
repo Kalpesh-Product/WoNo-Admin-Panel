@@ -9,6 +9,8 @@ import {
 import AgTable from "../../../components/AgTable";
 import PrimaryButton from "../../../components/PrimaryButton";
 import DangerButton from "../../../components/DangerButton";
+import SecondaryButton from "../../../components/SecondaryButton";
+import MuiModal from "../../../components/MuiModal";
 
 const Approvals = () => {
   const [openDialog, setOpenDialog] = useState(false);
@@ -161,20 +163,25 @@ const Approvals = () => {
       </div>
 
       {/* Confirmation Dialog */}
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-        <DialogTitle>Confirm {selectedAction}</DialogTitle>
-        <DialogContent>
-          Are you sure you want to <strong>{selectedAction}</strong> this asset?
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDialog(false)} color="secondary">
-            No
-          </Button>
-          <Button onClick={handleConfirmAction} color="primary">
-            Yes
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <MuiModal
+        title={`Confirm ${selectedAction}`}
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+      >
+        <div className="flex flex-col gap-4">
+          <div>
+            Are you sure you want to <strong>{selectedAction}</strong> this
+            asset?
+          </div>
+          <div className="flex justify-center items-center gap-4">
+            <PrimaryButton title={"No"} handleSubmit={handleConfirmAction} />
+            <DangerButton
+              title={"Yes"}
+              handleSubmit={() => setOpenDialog(false)}
+            />
+          </div>
+        </div>
+      </MuiModal>
     </div>
   );
 };
