@@ -12,6 +12,8 @@ import {
 } from "@mui/material";
 import AgTable from "../../../components/AgTable";
 import MuiModal from "../../../components/MuiModal";
+import PrimaryButton from "../../../components/PrimaryButton";
+import SecondaryButton from "../../../components/SecondaryButton";
 
 const AssignedAssets = () => {
   const [assetRows, setAssetRows] = useState([
@@ -243,13 +245,12 @@ const AssignedAssets = () => {
           Are you sure you want to revoke this asset assignment?
         </Typography>
         <Box display="flex" justifyContent="flex-end" mt={3} gap={2}>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={() => setConfirmModalOpen(false)}
-          >
-            No
-          </Button>
+          <SecondaryButton
+            title={"No"}
+            // variant="contained"
+            // color="secondary"
+            handleSubmit={() => setConfirmModalOpen(false)}
+          />
           <Button variant="contained" color="error" onClick={handleRevoke}>
             Yes, Revoke
           </Button>
@@ -308,14 +309,16 @@ const AssignedAssets = () => {
                     {selectedAsset.status}
                   </span>
                 </div>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => setIsEditMode(true)}
-                  disabled={selectedAsset.status === "Revoked"}
-                >
-                  Edit
-                </Button>
+                <div className="flex col-span-2 justify-center">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => setIsEditMode(true)}
+                    disabled={selectedAsset.status === "Revoked"}
+                  >
+                    Edit
+                  </Button>
+                </div>
               </div>
             ) : (
               // 🔹 Edit Mode (Form)
@@ -383,19 +386,20 @@ const AssignedAssets = () => {
                   />
                 </FormControl>
 
-                <Button type="submit" variant="contained" color="success">
-                  Save
-                </Button>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  onClick={() => {
-                    setIsEditMode(false);
-                    reset();
-                  }}
-                >
-                  Cancel
-                </Button>
+                <div className="flex gap-2 col-span-2">
+                  <div className="w-1/2 justify-items-end">
+                    <PrimaryButton title={"Save"} type="submit" />
+                  </div>
+                  <div className="w-1/2">
+                    <SecondaryButton
+                      title={"Cancel"}
+                      handleSubmit={() => {
+                        setIsEditMode(false);
+                        reset();
+                      }}
+                    />
+                  </div>
+                </div>
               </form>
             )}
           </>
