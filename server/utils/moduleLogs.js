@@ -5,7 +5,7 @@ const addLog = async (path, data) => {
   };
   
   const createLog = async (path, action, remarks = '',status = "Failed", user, ip,company, id, changes = null) => {
- 
+  
     await addLog(path, {
       id,
       action,

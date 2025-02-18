@@ -32,6 +32,9 @@ const addMeetings = async (req, res, next) => {
     const company = req.company;
     const user = req.user;
     const ip = req.ip;
+    let errorMessage = ""
+    let path = "meetings/MeetingLogs"
+    let action = "Book Meeting"
 
     if (
       !meetingType ||
@@ -48,9 +51,11 @@ const addMeetings = async (req, res, next) => {
     }
 
     if (!mongoose.Types.ObjectId.isValid(bookedRoom)) {
-      await createLog("meetings/MeetingLogs","Book Meeting", "Invalid Room Id provided","Failed",user,ip, company);
+      errorMessage = "Invalid Room Id provided"
 
-      return res.status(400).json({ message: "Invalid Room Id provided" });
+      await createLog(path, action, errorMessage, user, ip, company);
+
+      return res.status(400).json({ message: errorMessage});
     }
     // if (!mongoose.Types.ObjectId.isValid(bookedBy)) {
     //   return res.status(400).json({ message: "Invalid Room Id provided" });
@@ -72,9 +77,11 @@ const addMeetings = async (req, res, next) => {
 
     if(isNaN(startDateObj.getTime()) || isNaN(endDateObj.getTime()) || isNaN(startTimeObj.getTime()) || isNaN(endTimeObj.getTime())){
 
-      await createLog("meetings/MeetingLogs","Book Meeting", "Invalid date format","Failed",user,ip, company);
-      return res.status(400).json({ message: "Invalid date format" });
-    }
+      errorMessage = "Invalid date format"
+      await createLog(path, action, errorMessage, user, ip, company);
+
+      return res.status(400).json({ message: errorMessage});
+     }
 
     const roomAvailable = await Room.findById({
       _id: bookedRoom,
@@ -82,9 +89,11 @@ const addMeetings = async (req, res, next) => {
     });
 
     if (!roomAvailable) {
-      await createLog("meetings/MeetingLogs","Book Meeting", "Room is unavailable","Failed",user,ip, company);
-      return res.status(404).json({ message: "Room is unavailable" });
-    }
+      errorMessage = "Room is unavailable"
+      await createLog(path, action, errorMessage, user, ip, company);
+
+      return res.status(400).json({ message: errorMessage});
+     }
 
     let participants = [];
 
@@ -94,12 +103,10 @@ const addMeetings = async (req, res, next) => {
       );
 
       if (invalidIds.length > 0) {
-        await createLog("meetings/MeetingLogs","Book Meeting", "Invalid internal participant IDs","Failed",user,ip, company);
+        errorMessage = "Invalid internal participant IDs"
+        await createLog(path, action, errorMessage, user, ip, company);
 
-        return res.status(400).json({
-          message: "Invalid internal participant IDs",
-          invalidIds,
-        });
+        return res.status(400).json({ message: errorMessage});
       }
 
       const users = await User.find({ _id: { $in: internalParticipants } });
@@ -110,12 +117,10 @@ const addMeetings = async (req, res, next) => {
 
       if (unmatchedIds.length > 0) {
 
-        await createLog("meetings/MeetingLogs","Book Meeting", "Some internal participant IDs did not match any user","Failed",user,ip, company);
+        errorMessage = "Some internal participant IDs did not match any user"
+        await createLog(path, action, errorMessage, user, ip, company);
 
-        return res.status(400).json({
-          message: "Some internal participant IDs did not match any user",
-          unmatchedIds,
-        });
+        return res.status(400).json({ message: errorMessage});
       }
 
       participants = users.map((user) => user._id);
@@ -133,11 +138,10 @@ const addMeetings = async (req, res, next) => {
       } = externalCompanyData;
 
       if (!companyName || !email || !mobileNumber || !personName) {
-        await createLog("meetings/MeetingLogs","Book Meeting", "Missing required fields for external participants","Failed",user,ip, company);
+        errorMessage = "Missing required fields for external participants"
+        await createLog(path, action, errorMessage, user, ip, company);
 
-        return res.status(400).json({
-          message: "Missing required fields for external participants",
-        });
+        return res.status(400).json({ message: errorMessage});
       }
 
       const newExternalClient = new ExternalClient({
@@ -165,11 +169,10 @@ const addMeetings = async (req, res, next) => {
     });
 
     if (conflictingMeeting) {
-      await createLog("meetings/MeetingLogs","Book Meeting", "Room is already booked for the specified time","Failed",user,ip, company);
+      errorMessage = "Room is already booked for the specified time"
+      await createLog(path, action, errorMessage, user, ip, company);
 
-      return res.status(409).json({
-        message: "Room is already booked for the specified time",
-      });
+        return res.status(400).json({ message: errorMessage});
     }
 
     const meeting = new Meeting({
@@ -193,31 +196,23 @@ const addMeetings = async (req, res, next) => {
     roomAvailable.location.status = "Occupied";
     await roomAvailable.save();
 
-    const meetingLog = new MeetingLog({
-      meetingId: meeting._id,
-      action: "Book Meeting",
-      performedBy: user,
-      changes: {
-        meetingType,
-        bookedBy: user,
-        bookedRoom: bookedRoom,
-        startDate: startDateObj,
-        endDate: endDateObj,
-        startTime: startTimeObj,
-        endTime: endTimeObj,
-        subject,
-        agenda,
-        company,
-        internalParticipants,
-        externalParticipants,
-      },
-      status:"Success",
-      ipAddress: req.ip || req.connection.remoteAddress,
-      remarks: "Meeting successfully created",
-      company
-    });
+    
+    const data = {
+      meetingType,
+      bookedBy: user,
+      bookedRoom: bookedRoom,
+      startDate: startDateObj,
+      endDate: endDateObj,
+      startTime: startTimeObj,
+      endTime: endTimeObj,
+      subject,
+      agenda,
+      company,
+      internalParticipants,
+      externalParticipants,
+    }
 
-   await meetingLog.save();
+    await createLog(path, action,"Meeting added successfully and updated room status","Success",user, ip, company,meeting._id,data);
 
     res.status(201).json({
       message: "Meeting added successfully",
@@ -332,18 +327,26 @@ const addHousekeepingTask = async (req, res, next) => {
   try {
 
     const {housekeepingTasks,meetingId,roomName} = req.body 
+    const company = req.company;
+    const user = req.user;
+    const ip = req.ip;
+    let path = "meetings/MeetingLogs"
+    let action = "Add housekeeping tasks"
 
     if(!housekeepingTasks || !meetingId || !roomName){
+      await createLog(path, action, "All feilds are required", user, ip, company);
       return res.status(400).json({message:"All feilds are required"})
     }
 
     if(!mongoose.Types.ObjectId.isValid(meetingId)){
+      await createLog(path, action, "Invalid meeting id provided", user, ip, company);
       return res.status(400).json({message:"Invalid meeting id provided"})
     }
 
     const inCompleteTasks = housekeepingTasks.filter((task) => task.status === "Pending")
 
     if(inCompleteTasks.length > 0){
+      await createLog(path, action, "Please check out the tasks before submitting", user, ip, company);
       return res.status(400).json({message:"Please check out the tasks before submitting"})
     }
 
@@ -362,10 +365,12 @@ const addHousekeepingTask = async (req, res, next) => {
 
 
     if(!foundMeeting){
+       await createLog(path, action, "Failed to add the housekeeping tasks", user, ip, company);
       return res.status(400).json({message:"Failed to add the housekeeping tasks"})
     }
 
     if(!room){
+       await createLog(path, action, "Failed to update the room status", user, ip, company);
       return res.status(400).json({message:"Failed to update the room status"})
     }
 
@@ -391,12 +396,19 @@ const addHousekeepingTask = async (req, res, next) => {
 const deleteHousekeepingTask = async (req, res, next) => {
   try {
     const { housekeepingTask, meetingId } = req.body;
+    const company = req.company;
+    const user = req.user;
+    const ip = req.ip;
+    let path = "meetings/MeetingLogs"
+    let action = "Delete housekeeping tasks"
 
     if (!housekeepingTask || !meetingId) {
+       await createLog(path, action, "All fields are required", user, ip, company);
       return res.status(400).json({ message: "All fields are required" });
     }
 
     if (!mongoose.Types.ObjectId.isValid(meetingId)) {
+       await createLog(path, action, "Invalid meeting ID provided", user, ip, company);
       return res.status(400).json({ message: "Invalid meeting ID provided" });
     }
 
@@ -407,6 +419,7 @@ const deleteHousekeepingTask = async (req, res, next) => {
     );
 
     if (!updatedMeeting) {
+       await createLog(path, action, "Failed to delete housekeeping task", user, ip, company);
       return res.status(400).json({ message: "Failed to delete housekeeping task" });
     }
 
