@@ -161,8 +161,9 @@ const AssetsCategories = () => {
               <TextField
                 {...field}
                 label="Category Name"
+                fullWidth
+                size="small"
                 variant="outlined"
-                sx={{ width: "80%" }}
                 error={!!errors.categoryName}
                 helperText={errors.categoryName?.message}
               />

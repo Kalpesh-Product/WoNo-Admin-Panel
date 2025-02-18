@@ -17,17 +17,16 @@ const MainLayout = () => {
       { threshold: 0.1 }
     );
 
-    if (dummyRef.current) {
+    if(dummyRef.current){
       observer.observe(dummyRef.current);
-    } else {
-    }
+    }else{}
 
-    return () => {
-      if (dummyRef.current) {
+    return () =>{
+      if(dummyRef.current){
         observer.unobserve(dummyRef.current);
       }
-    };
-  }, []);
+    }
+  });
 
   return (
     <div className="w-full flex flex-col justify-between h-screen overflow-y-auto">
