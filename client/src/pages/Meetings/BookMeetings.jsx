@@ -11,6 +11,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { useQuery } from "@tanstack/react-query";
+import {toast} from 'sonner'
 
 const BookMeetings = () => {
   const navigate = useNavigate();
@@ -64,7 +65,7 @@ const BookMeetings = () => {
     const { location, meetingRoom } = data;
 
     if (!location || !meetingRoom) {
-      alert("Please select both location and meeting room.");
+      toast.error("Please select both location and meeting room")
       return;
     }
 
@@ -73,7 +74,7 @@ const BookMeetings = () => {
     );
 
     if (!selectedRoom) {
-      alert("Invalid meeting room selected.");
+      toast.error("Invalid meeting room selected")
       return;
     }
 
@@ -99,9 +100,13 @@ const BookMeetings = () => {
             <Controller
               name="location"
               control={control}
-              render={({ field }) => (
+              render={({ field }) => {
+                const uniqueLocations = Array.from(
+                  new Map(workLocations.map((loc) => [loc.name, loc])).values()
+                );
+                return(
                 <Select {...field} label="Select Location">
-                  <MenuItem value="">Select Location</MenuItem>
+                  <MenuItem value="" disabled>Select Location</MenuItem>
                   {locationsLoading ? (
                     <MenuItem disabled>
                       <CircularProgress size={20} />
@@ -109,14 +114,14 @@ const BookMeetings = () => {
                   ) : locationsError ? (
                     <MenuItem disabled>Error fetching locations</MenuItem>
                   ) : (
-                    workLocations.map((location) => (
+                    uniqueLocations.map((location) => (
                       <MenuItem key={location._id} value={location.name}>
                         {location.name}
                       </MenuItem>
                     ))
                   )}
                 </Select>
-              )}
+              )}}
             />
           </FormControl>
 

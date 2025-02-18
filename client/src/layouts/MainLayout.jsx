@@ -23,14 +23,14 @@ const MainLayout = () => {
               </div>
               <div className="bg-white h-[80vh] overflow-y-auto flex flex-col">
                 <Outlet />
-                <Footer />
+        
               </div>
               <div>
-           
               </div>
             </main>
           </div>
         </div>
+        <Footer/>
       </div>
     </>
   );
