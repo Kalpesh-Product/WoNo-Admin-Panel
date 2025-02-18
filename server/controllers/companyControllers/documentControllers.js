@@ -1,6 +1,6 @@
 const Company = require("../../models/Company");
 const User = require("../../models/UserData");
-const { handlePdfUpload } = require("../../config/cloudinaryConfig");
+const { handleDocumentUpload } = require("../../config/cloudinaryConfig");
 const { PDFDocument } = require("pdf-lib");
 
 const uploadCompanyDocument = async (req, res, next) => {
@@ -9,50 +9,52 @@ const uploadCompanyDocument = async (req, res, next) => {
     const file = req.file;
     const user = req.user;
 
-    if (!["template", "sop", "policy", "agreement"].includes(type)) {
-      throw new Error(
-        "Invalid document type. Allowed values: template, sop, policy"
-      );
+    if (!file) {
+      return res.status(400).json({ message: "No file uploaded" });
     }
 
-    const foundUser = await User.findOne({ _id: user })
-      .select("company")
-      .populate([{ path: "company", select: "companyName" }])
-      .lean()
-      .exec();
+    if (!["template", "sop", "policy", "agreement"].includes(type)) {
+      return res.status(400).json({ message: "Invalid document type" });
+    }
 
-    if (!foundUser || !foundUser.company) {
+    const foundUser = await User.findById(user)
+      .select("company")
+      .populate("company", "companyName")
+      .lean();
+
+    if (!foundUser?.company) {
       return res.status(404).json({ message: "Company not found" });
     }
 
-    const pdfDoc = await PDFDocument.load(file.buffer);
-    pdfDoc.setTitle(file.originalname?.split(".")[0]);
-    const processedBuffer = await pdfDoc.save();
+    let processedBuffer = file.buffer;
+    const originalFilename = file.originalname;
 
-    const response = await handlePdfUpload(
+    const response = await handleDocumentUpload(
       processedBuffer,
-      `${foundUser.company.companyName}/${type}s`
+      `${foundUser.company.companyName}/${type}s`,
+      originalFilename
     );
 
-    if (!response.public_id) {
+    if (!response?.public_id) {
       throw new Error("Failed to upload document");
     }
 
-    const updateField =
-      type === "template" ? "templates" : type === "sop" ? "sop" : type === "policy" ? "policies" : "agreements";
+    const updateField = {
+      template: "templates",
+      sop: "sop",
+      policy: "policies",
+      agreement: "agreements",
+    }[type];
 
-    await Company.findOneAndUpdate(
-      { _id: foundUser.company._id },
-      {
-        $push: {
-          [updateField]: {
-            name: documentName,
-            documentLink: response.secure_url,
-            documentId: response.public_id,
-          },
+    await Company.findByIdAndUpdate(foundUser.company._id, {
+      $push: {
+        [updateField]: {
+          name: documentName,
+          documentLink: response.secure_url,
+          documentId: response.public_id,
         },
-      }
-    ).exec();
+      },
+    });
 
     return res
       .status(200)
@@ -120,11 +122,12 @@ const uploadDepartmentDocument = async (req, res, next) => {
     pdfDoc.setTitle(file.originalname?.split(".")[0]);
     const processedBuffer = await pdfDoc.save();
 
-    const response = await handlePdfUpload(
+    const originalFilename = file.originalname;
+
+    const response = await handleDocumentUpload(
       processedBuffer,
-      `${foundUser.company.companyName}/departments/${
-        department.department.name
-      }/documents/${type}`
+      `${foundUser.company.companyName}/departments/${department.department.name}/documents/${type}`,
+      originalFilename
     );
 
     if (!response.public_id) {

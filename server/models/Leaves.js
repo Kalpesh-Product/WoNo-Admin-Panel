@@ -2,15 +2,15 @@ const mongoose = require("mongoose");
 
 const leaveSchema = new mongoose.Schema(
   {
-    company:{
-      type:mongoose.Schema.Types.ObjectId,
-      ref:"CompanyData",
-      required:true
+    company: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "CompanyData",
+      required: true,
     },
     takenBy: {
-     type:mongoose.Schema.Types.ObjectId,
-      ref:"User",
-      required:true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
     fromDate: {
       type: Date,
@@ -41,16 +41,16 @@ const leaveSchema = new mongoose.Schema(
       default: "Pending",
     },
     approvedBy: {
-      type:mongoose.Schema.Types.ObjectId,
-      ref:"User",
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
     rejectedBy: {
-      type:mongoose.Schema.Types.ObjectId,
-      ref:"User",
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
   },
   {
-    timestamps: true,  
+    timestamps: true,
   }
 );
 
