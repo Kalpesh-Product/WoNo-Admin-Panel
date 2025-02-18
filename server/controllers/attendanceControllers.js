@@ -2,38 +2,44 @@ const Attendance = require("../models/Attendance");
 const UserData = require("../models/UserData");
 const mongoose = require("mongoose")
 const { formatDate, formatTime } = require("../utils/formatDateTime");
+const { createLog } = require("../utils/moduleLogs");
 
 const clockIn = async (req, res, next) => {
+  // Destructure user, ip, and company from req
+  const { user, ip, company } = req;
+
   const { inTime, entryType } = req.body;
-  const loggedInUser = req.userData.userId;
-  const company = req.userData.company;
+  const path = "AttendanceLogs";  // Path for the log
+  const action = "Clock In";  // Action for the log
 
   try {
+    // Check for missing fields
     if (!inTime || !entryType) {
+      await createLog(path, action, "All fields are required", "Failed", user, ip, company);
       return res.status(400).json({ message: "All fields are required" });
     }
 
     const clockIn = new Date(inTime);
 
+    // Validate the date format
     if (isNaN(clockIn.getTime())) {
+      await createLog(path, action, "Invalid date format", "Failed", user, ip, company);
       return res.status(400).json({ message: "Invalid date format" });
     }
 
-    const attendances = await Attendance.find({ user: loggedInUser });
-
+    // Check if the user has already clocked in today
+    const attendances = await Attendance.find({ user: user._id });
     const todayClockInExists = attendances.some((attendance) => {
       const inTime = new Date(attendance.inTime);
       return inTime.getDate() === clockIn.getDate();
     });
 
     if (todayClockInExists) {
-      return res
-        .status(400)
-        .json({ message: "Cannot clock in for the day again" });
+      await createLog(path, action, "Cannot clock in for the day again", "Failed", user, ip, company);
+      return res.status(400).json({ message: "Cannot clock in for the day again" });
     }
 
-    const user = await UserData.findById({ _id: loggedInUser });
-
+    // Create new attendance record
     const newAttendance = new Attendance({
       inTime: clockIn,
       entryType,
@@ -42,11 +48,19 @@ const clockIn = async (req, res, next) => {
     });
 
     await newAttendance.save();
+
+    // Success log for clocking in
+    await createLog(path, action, "Clock in successful", "Success", user, ip, company, newAttendance._id, {
+      inTime: clockIn,
+      entryType,
+    });
+
     return res.status(201).json({ message: "You clocked in" });
   } catch (error) {
     next(error);
   }
 };
+
 
 const clockOut = async (req, res, next) => {
   const { outTime } = req.body;

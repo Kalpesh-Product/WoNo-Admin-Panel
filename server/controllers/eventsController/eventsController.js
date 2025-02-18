@@ -1,20 +1,24 @@
  
 const Event = require("../../models/Events");
+const { createLog } = require("../../utils/moduleLogs");
 
 const createEvent = async (req, res, next) => {
+  const path = "EventLogs";
+  const action = "Create Event";
+  const { user, ip, company } = req;
+  const { title, type, description, start, end, participants } = req.body;
+
   try {
-    const { title, type, description, start, end, participants} = req.body;
-
-    const {company} = req.userData
-
     const startDate = new Date(start);
     const endDate = new Date(end);
- 
+
     if (!title || !type || !description || !start || !end) {
+      await createLog(path, action, "All fields are required", "Failed", user, ip, company);
       return res.status(400).json({ message: "All fields are required" });
     }
 
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      await createLog(path, action, "Invalid date format", "Failed", user, ip, company);
       return res.status(400).json({ message: "Invalid date format" });
     }
 
@@ -27,15 +31,37 @@ const createEvent = async (req, res, next) => {
       start: startDate,
       end: endDate,
       participants: validParticipants,
-      company
+      company,
     });
 
     const event = await newEvent.save();
-    res.status(201).json({message:"Event created successfully"});
+
+    // Success log with event ID and event details
+    await createLog(
+      path,
+      action,
+      "Event created successfully",
+      "Success",
+      user,
+      ip,
+      company,
+      event._id,
+      {
+        title,
+        type,
+        description,
+        start: startDate,
+        end: endDate,
+        participants: validParticipants,
+      }
+    );
+
+    return res.status(201).json({ message: "Event created successfully" });
   } catch (error) {
     next(error);
   }
 };
+
 
 const getAllEvents = async (req, res, next) => {
   try {
@@ -120,66 +146,109 @@ const getBirthdays = async (req, res, next) => {
   }
 };
 
-const  extendEvent = async (req,res,next) => {
+const extendEvent = async (req, res, next) => {
+  const path = "CompanyLogs";
+  const action = "Extend Event";
+  const { user, ip, company } = req;
+  const { id, extend } = req.body;
+  const extendTime = new Date(extend);
 
-  const {id,extend} = req.body
-  const extendTime = new Date(extend)
-
-  if(!id){
+  if (!id) {
+    await createLog(path, action, "EventId is required", "Failed", user, ip, company);
     return res.status(400).json({ message: "EventId is required" });
   }
+
   if (isNaN(extendTime.getTime())) {
+    await createLog(path, action, "Invalid date format", "Failed", user, ip, company);
     return res.status(400).json({ message: "Invalid date format" });
   }
 
-  try{
-     
-  const meetings = await Event.find({type:"holiday"});
+  try {
+    const meetings = await Event.find({ type: "holiday" });
 
-  const onGoingMeetings = meetings.some((meeting)=> {
-    const startDate = new Date(meeting.start)
-    const endDate = new Date(meeting.end)
-    ("startDate: ",startDate)
-    
-    return extendTime > startDate && extendTime < endDate
-  })
+    const onGoingMeetings = meetings.some((meeting) => {
+      const startDate = new Date(meeting.start);
+      const endDate = new Date(meeting.end);
+      console.log("startDate: ", startDate);
 
-  if(onGoingMeetings){
-    return res.status(400).json({ message: "Cannot extend the  meeting" });
-  }
-  
-  const extendedMeeting = await Event.findOneAndUpdate({_id:id},{end:extendTime},{new:true})
+      return extendTime > startDate && extendTime < endDate;
+    });
 
-  return res.status(200).json({ message: "Meeting time extended" });
+    if (onGoingMeetings) {
+      await createLog(path, action, "Cannot extend the meeting due to ongoing meetings", "Failed", user, ip, company);
+      return res.status(400).json({ message: "Cannot extend the meeting" });
+    }
 
-  }
-  catch(error){
-    next(error)
+    const extendedMeeting = await Event.findOneAndUpdate(
+      { _id: id },
+      { end: extendTime },
+      { new: true }
+    );
+
+    // Success log with the updated event details
+    await createLog(
+      path,
+      action,
+      "Meeting time extended successfully",
+      "Success",
+      user,
+      ip,
+      company,
+      extendedMeeting._id,
+      { extendedEnd: extendTime }
+    );
+
+    return res.status(200).json({ message: "Meeting time extended" });
+  } catch (error) {
+    next(error);
   }
 };
 
 
-const deleteEvent = async (req,res,next) => {
 
-  const {id} = req.body
+const deleteEvent = async (req, res, next) => {
+  const path = "CompanyLogs";
+  const action = "Delete Event";
+  const { user, ip, company } = req;
+  const { id } = req.body;
 
-  if(!id){
+  if (!id) {
+    await createEventLog(path, action, "EventId is required", "Failed", user, ip, company);
     return res.status(400).json({ message: "EventId is required" });
   }
 
-  try{
-     const inActiveEvent = await Event.findOneAndUpdate({_id:id},{active:false},{new:true});
-  
-    res.status(200).json({message:"Event deleted successfully",data:inActiveEvent});
-    
-  }
-  catch(error){
-    ('error:',error)
-    next(error)
+  try {
+    const inActiveEvent = await Event.findOneAndUpdate(
+      { _id: id },
+      { active: false },
+      { new: true }
+    );
+
+    if (!inActiveEvent) {
+      await createLog(path, action, "Event not found", "Failed", user, ip, company);
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    // Success log with event ID and details
+    await createLog(
+      path,
+      action,
+      "Event deleted successfully",
+      "Success",
+      user,
+      ip,
+      company,
+      inActiveEvent._id,
+      { eventId: inActiveEvent._id, status: "inactive" }
+    );
+
+    return res.status(200).json({
+      message: "Event deleted successfully",
+      data: inActiveEvent,
+    });
+  } catch (error) {
+    next(error);
   }
 };
-
-
-
 
 module.exports = { createEvent, getAllEvents, getNormalEvents, getHolidays, getBirthdays, extendEvent,deleteEvent };

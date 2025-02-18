@@ -531,5 +531,107 @@ const getMeetingsByTypes = async (req, res, next) => {
   }
 }
 
+const cancelMeeting = async (req, res, next) => {
+  try {
+    const { meetingId } = req.params;
+    const company = req.company;
+    const user = req.user;
+    const ip = req.ip;
+    let path = "meetings/MeetingLogs";
+    let action = "Cancel Meeting";
 
-module.exports = { addMeetings, getMeetings, addHousekeepingTask,deleteHousekeepingTask,getMeetingsByTypes };
+    if (!meetingId) {
+      await createLog(path, action, "Meeting ID is required", "Failed", user, ip, company);
+      return res.status(400).json({message: "Meeting ID is required" });
+    }
+
+    const cancelledMeeting = await Meeting.findByIdAndUpdate(
+      { _id: meetingId },
+      { status: "Cancelled" },
+      { new: true }
+    );
+
+    if (!cancelledMeeting) {
+      await createLog(path, action, "Meeting not found, please check the ID", "Failed", user, ip, company);
+      return res.status(404).json({ message: "Meeting not found, please check the ID" });
+    }
+
+    await createLog(path, action, "Meeting cancelled successfully", "Success", user, ip, company, cancelledMeeting._id, {
+      meetingId,
+    });
+
+    res.status(200).json({ message: "Meeting cancelled successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+
+// const extendMeeting = async (req, res, next) => {
+//   try {
+//     const { meetingId } = req.params;
+//     const { newEndTime } = req.body;
+//     const company = req.company;
+//     const user = req.user;
+//     const ip = req.ip;
+//     let path = "meetings/MeetingLogs";
+//     let action = "Extend Meeting";
+
+//     if (!meetingId || !newEndTime) {
+//       await createLog(path, action, "Meeting ID and new end time are required", "Failed", user, ip, company);
+//       return res.status(400).json({ message: "Meeting ID and new end time are required" });
+//     }
+
+//     if (!mongoose.Types.ObjectId.isValid(meetingId)) {
+//       await createLog(path, action, "Invalid meeting ID", "Failed", user, ip, company);
+//       return res.status(400).json({ message: "Invalid meeting ID" });
+//     }
+
+//     const meeting = await Meeting.findById(meetingId);
+//     if (!meeting) {
+//       await createLog(path, action, "Meeting not found", "Failed", user, ip, company);
+//       return res.status(404).json({ message: "Meeting not found" });
+//     }
+
+//     const newEndTimeObj = new Date(newEndTime);
+//     if (isNaN(newEndTimeObj.getTime())) {
+//       await createLog(path, action, "Invalid new end time format", "Failed", user, ip, company);
+//       return res.status(400).json({ message: "Invalid new end time format" });
+//     }
+
+//     if (newEndTimeObj <= meeting.endTime) {
+//       await createLog(path, action, "New end time must be later than the current end time", "Failed", user, ip, company);
+//       return res.status(400).json({ message: "New end time must be later than the current end time" });
+//     }
+
+//     const conflictingMeeting = await Meeting.findOne({
+//       bookedRoom: meeting.bookedRoom,
+//       startDate: meeting.startDate,
+//       startTime: { $lt: newEndTimeObj },
+//       endTime: { $gt: meeting.endTime },
+//       _id: { $ne: meetingId },
+//     });
+
+//     if (conflictingMeeting) {
+//       await createLog(path, action, "Room is already booked during the extended time", "Failed", user, ip, company);
+//       return res.status(400).json({ message: "Room is already booked during the extended time" });
+//     }
+
+//     meeting.endTime = newEndTimeObj;
+//     await meeting.save();
+
+//     await createLog(path, action, "Meeting extended successfully", "Success", user, ip, company, meeting._id, {
+//       meetingId,
+//       oldEndTime: meeting.endTime,
+//       newEndTime: newEndTimeObj,
+//     });
+
+//     res.status(200).json({ message: "Meeting extended successfully", newEndTime });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+
+module.exports = { addMeetings, getMeetings, addHousekeepingTask,deleteHousekeepingTask,getMeetingsByTypes, cancelMeeting };

@@ -8,6 +8,8 @@ const uploadCompanyDocument = async (req, res, next) => {
     const { documentName, type } = req.body;
     const file = req.file;
     const user = req.user;
+    const path = "CompanyLogs";
+    const action = "Upload Company Document";
 
     if (!["template", "sop", "policy", "agreement"].includes(type)) {
       throw new Error(
@@ -22,6 +24,7 @@ const uploadCompanyDocument = async (req, res, next) => {
       .exec();
 
     if (!foundUser || !foundUser.company) {
+      await createLog(path, action, "Company not found", "Failed", user, req.ip, req.company);
       return res.status(404).json({ message: "Company not found" });
     }
 
@@ -54,13 +57,17 @@ const uploadCompanyDocument = async (req, res, next) => {
       }
     ).exec();
 
+    await createLog(path, action, `${type.toUpperCase()} uploaded successfully`, "Success", user, req.ip, req.company, foundUser.company._id);
+
     return res
       .status(200)
       .json({ message: `${type.toUpperCase()} uploaded successfully` });
   } catch (error) {
+    console.error("Error uploading document:", error);
     next(error);
   }
 };
+
 
 const getCompanyDocuments = async (req, res, next) => {
   try {
@@ -93,6 +100,8 @@ const uploadDepartmentDocument = async (req, res, next) => {
     const file = req.file;
     const user = req.user;
     const { departmentId } = req.params;
+    const path = "CompanyLogs";
+    const action = "Upload Department Document";
 
     if (!["sop", "policy"].includes(type)) {
       throw new Error("Invalid document type. Allowed values: sop, policy");
@@ -113,6 +122,7 @@ const uploadDepartmentDocument = async (req, res, next) => {
     );
 
     if (!department) {
+      await createLog(path, action, "Department not found in selectedDepartments", "Failed", user, req.ip, req.company);
       throw new Error("Department not found in selectedDepartments.");
     }
 
@@ -122,12 +132,11 @@ const uploadDepartmentDocument = async (req, res, next) => {
 
     const response = await handlePdfUpload(
       processedBuffer,
-      `${foundUser.company.companyName}/departments/${
-        department.department.name
-      }/documents/${type}`
+      `${foundUser.company.companyName}/departments/${department.department.name}/documents/${type}`
     );
 
     if (!response.public_id) {
+      await createLog(path, action, "Failed to upload document", "Failed", user, req.ip, req.company);
       throw new Error("Failed to upload document");
     }
 
@@ -154,15 +163,17 @@ const uploadDepartmentDocument = async (req, res, next) => {
       { new: true }
     ).exec();
 
+    await createLog(path, action, `${type.toUpperCase()} uploaded successfully for ${department.department.name} department`, "Success", user, req.ip, req.company, foundUser.company._id);
+
     return res.status(200).json({
-      message: `${type.toUpperCase()} uploaded successfully for ${
-        department.department.name
-      } department`,
+      message: `${type.toUpperCase()} uploaded successfully for ${department.department.name} department`,
     });
   } catch (error) {
+    console.error("Error uploading department document:", error);
     next(error);
   }
 };
+
 
 module.exports = {
   uploadCompanyDocument,

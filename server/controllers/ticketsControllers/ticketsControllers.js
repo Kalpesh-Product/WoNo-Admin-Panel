@@ -10,12 +10,21 @@ const {
   filterAssignedTickets,
 } = require("../../utils/filterTickets");
 const Company = require("../../models/Company");
+const { createLog } = require("../../utils/moduleLogs");
 
 const raiseTicket = async (req, res, next) => {
   try {
-    const user = req.user;
+
     const { departmentId, issueId, newIssue, description } = req.body;
+    const company = req.company;
+    const user = req.user;
+    const ip = req.ip;
+    let path = "tickets/TicketLogs";
+    let action = "Raise Ticket";
+
     if (!mongoose.Types.ObjectId.isValid(departmentId)) {
+      await createLog(path, action, "Invalid department ID provided", "Failed", user, ip, company);
+
       return res
         .status(400)
         .json({ message: "Invalid department ID provided" });
@@ -26,33 +35,30 @@ const raiseTicket = async (req, res, next) => {
       !description.length ||
       description?.replace(/\s/g, "")?.length > 100
     ) {
+      await createLog(path, action, "Invalid description provided", "Failed", user, ip, company);
+
       return res.status(400).json({ message: "Invalid description provided" });
     }
 
-    const loggedInUser = await User.findOne({ _id: user })
-      .select("-refreshToken -password")
-      .lean()
-      .exec();
-
-    if (!loggedInUser) {
-      return res.sendStatus(403);
-    }
-
-    const company = await Company.findOne({ _id: loggedInUser.company })
+    const foundcompany = await Company.findOne({ _id: company })
       .select("selectedDepartments")
       .lean()
       .exec();
 
-    if (!company) {
+    if (!foundcompany) {
+      await createLog(path, action, "Company not found", "Failed", user, ip, company);
+
       return res.status(400).json({ message: "Company not found" });
     }
 
     // Find the department in selectedDepartments
-    const department = company.selectedDepartments.find(
+    const department = foundcompany.selectedDepartments.find(
       (dept) => dept.department.toString() === departmentId
     );
 
     if (!department) {
+      await createLog(path, action, "Invalid Department ID", "Failed", user, ip, company);
+
       return res.status(400).json({ message: "Invalid Department ID" });
     }
 
@@ -60,6 +66,8 @@ const raiseTicket = async (req, res, next) => {
     let foundIssue;
     if (issueId) {
       if (!mongoose.Types.ObjectId.isValid(issueId)) {
+        await createLog(path, action, "Invalid issueId provided", "Failed", user, ip, company);
+
         return res.status(400).json({ message: "Invalid issueId provided" });
       }
 
@@ -68,7 +76,9 @@ const raiseTicket = async (req, res, next) => {
       );
 
       if (!foundIssue) {
-        return res.status(400).json({ message: "Invalid Issue ID provided" });
+        await createLog(path, action, "Issue not found", "Failed", user, ip, company);
+
+        return res.status(404).json({ message: "Issue not found" });
       }
     }
 
@@ -77,11 +87,16 @@ const raiseTicket = async (req, res, next) => {
       ticket: foundIssue ? foundIssue.title : newIssue,
       description,
       raisedToDepartment: departmentId,
-      raisedBy: loggedInUser._id,
-      company: loggedInUser.company,
+      raisedBy: user,
+      company: company,
     });
 
-    await newTicket.save();
+    const savedTicket = await newTicket.save();
+
+    const data = { ...savedTicket._doc };
+
+    await createLog(path, action,"Ticket raised successfully","Success",user, ip, company,savedTicket._id,data);
+
     return res.status(201).json({ message: "Ticket raised successfully" });
   } catch (error) {
     next(error);
@@ -178,8 +193,12 @@ const getTickets = async (req, res, next) => {
 
 const acceptTicket = async (req, res, next) => {
   try {
-    const { user } = req;
     const { ticketId } = req.body;
+    const company = req.company;
+    const user = req.user;
+    const ip = req.ip;
+    let path = "tickets/TicketLogs";
+    let action = "Accept Ticket";
 
     const foundUser = await User.findOne({ _id: user })
       .select("-refreshToken -password")
@@ -187,33 +206,42 @@ const acceptTicket = async (req, res, next) => {
       .exec();
 
     if (!foundUser) {
+      await createLog(path, action, "User not found", "Failed", user, ip, company);
       return res.status(404).json({ message: "User not found" });
     }
 
-    let foundTicket;
-    if (mongoose.Types.ObjectId.isValid(ticketId)) {
-      foundTicket = await Tickets.findOne({ _id: ticketId }).lean().exec();
-      if (!foundTicket) {
-        return res.status(400).json({ message: "Invalid ticket ID provided" });
-      }
+    if (!mongoose.Types.ObjectId.isValid(ticketId)) {
+      await createLog(path, action, "Invalid ticket ID provided", "Failed", user, ip, company);
+      return res.status(400).json({ message: "Invalid ticket ID provided" });
     }
 
-    const userDepartments = foundUser.departments.map((dept) =>
-      dept.toString()
-    );
+    const foundTicket = await Tickets.findOne({ _id: ticketId }).lean().exec();
+    if (!foundTicket) {
+      await createLog(path, action, "Ticket not found", "Failed", user, ip, company);
+      return res.status(404).json({ message: "Ticket not found" });
+    }
+
+    const userDepartments = foundUser.departments.map((dept) => dept.toString());
 
     const ticketInDepartment = userDepartments.some((id) =>
       foundTicket.raisedToDepartment.equals(id)
     );
 
     if (!ticketInDepartment) {
+      await createLog(path, action, "User does not have permission to accept this ticket", "Failed", user, ip, company);
       return res.sendStatus(403);
     }
 
-    await Tickets.findByIdAndUpdate(
+    const updatedTicket = await Tickets.findByIdAndUpdate(
       { _id: ticketId },
-      { accepted: user, status: "In Progress" }
+      { accepted: user, status: "In Progress" },
+      { new: true } // Return the updated ticket
     );
+
+    await createLog(path, action, "Ticket accepted successfully", "Success", user, ip, company, updatedTicket._id, {
+      acceptedBy: user,
+      status: "In Progress",
+    });
 
     return res.status(200).json({ message: "Ticket accepted successfully" });
   } catch (error) {
@@ -221,10 +249,13 @@ const acceptTicket = async (req, res, next) => {
   }
 };
 
+
 const assignTicket = async (req, res, next) => {
   try {
-    const { user } = req;
+    const { user, company, ip } = req;
     const { ticketId, assignee } = req.body;
+    let path = "tickets/TicketLogs";
+    let action = "Assign Ticket";
 
     const foundUser = await User.findOne({ _id: user })
       .select("-refreshToken -password")
@@ -232,46 +263,58 @@ const assignTicket = async (req, res, next) => {
       .exec();
 
     if (!foundUser) {
+      await createLog(path, action, "User not found", "Failed", user, ip, company);
       return res.status(400).json({ message: "User not found" });
     }
 
-    if (mongoose.Types.ObjectId.isValid(assignee)) {
-      const foundAssignee = await User.findOne({ _id: assignee })
-        .select("-refreshToken -password")
-        .lean()
-        .exec();
-
-      if (!foundAssignee) {
-        return res
-          .status(400)
-          .json({ message: "Invalid Assignee ID provided" });
-      }
-    }
-    let foundTicket;
-    if (mongoose.Types.ObjectId.isValid(ticketId)) {
-      foundTicket = await Tickets.findOne({ _id: ticketId }).lean().exec();
-
-      if (!foundTicket) {
-        return res.status(400).json({ message: "Invalid ticket ID provided" });
-      }
+    if (!mongoose.Types.ObjectId.isValid(assignee)) {
+      await createLog(path, action, "Invalid assignee ID provided", "Failed", user, ip, company);
+      return res.status(400).json({ message: "Invalid assignee ID provided" });
     }
 
-    const userDepartments = foundUser.departments.map((dept) =>
-      dept.toString()
-    );
+    const foundAssignee = await User.findOne({ _id: assignee })
+      .select("-refreshToken -password")
+      .lean()
+      .exec();
+
+    if (!foundAssignee) {
+      await createLog(path, action, "Assignee not found", "Failed", user, ip, company);
+      return res.status(400).json({ message: "Assignee not found" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(ticketId)) {
+      await createLog(path, action, "Invalid ticket ID provided", "Failed", user, ip, company);
+      return res.status(400).json({ message: "Invalid ticket ID provided" });
+    }
+
+    const foundTicket = await Tickets.findOne({ _id: ticketId }).lean().exec();
+    if (!foundTicket) {
+      await createLog(path, action, "Ticket not found", "Failed", user, ip, company);
+      return res.status(400).json({ message: "Ticket not found" });
+    }
+
+    const userDepartments = foundUser.departments.map((dept) => dept.toString());
 
     const ticketInDepartment = userDepartments.some((id) =>
       foundTicket.raisedToDepartment.equals(id)
     );
 
     if (!ticketInDepartment) {
+      await createLog(path, action, "User does not have permission to assign this ticket", "Failed", user, ip, company);
       return res.sendStatus(403);
     }
 
-    await Tickets.findOneAndUpdate(
+    const updatedTicket = await Tickets.findOneAndUpdate(
       { _id: ticketId },
-      { $addToSet: { assignees: assignee }, status: "In Progress" }
+      { $addToSet: { assignees: assignee }, status: "In Progress" },
+      { new: true } // Return updated document
     );
+
+    await createLog(path, action, "Ticket assigned successfully", "Success", user, ip, company, updatedTicket._id, {
+      assignedTo: assignee,
+      assignedBy: user,
+      status: "In Progress",
+    });
 
     return res.status(200).json({ message: "Ticket assigned successfully" });
   } catch (error) {
@@ -279,10 +322,13 @@ const assignTicket = async (req, res, next) => {
   }
 };
 
+
 const escalateTicket = async (req, res, next) => {
   try {
-    const { user } = req;
+    const { user, company, ip } = req;
     const { ticketId, departmentId } = req.body;
+    let path = "tickets/TicketLogs";
+    let action = "Escalate Ticket";
 
     const foundUser = await User.findOne({ _id: user })
       .select("-refreshToken -password")
@@ -290,36 +336,33 @@ const escalateTicket = async (req, res, next) => {
       .exec();
 
     if (!foundUser) {
+      await createLog(path, action, "User not found", "Failed", user, ip, company);
       return res.status(400).json({ message: "User not found" });
     }
 
     if (!mongoose.Types.ObjectId.isValid(departmentId)) {
-      return res
-        .status(400)
-        .json({ message: "Invalid Department ID provided" });
+      await createLog(path, action, "Invalid Department ID provided", "Failed", user, ip, company);
+      return res.status(400).json({ message: "Invalid Department ID provided" });
     }
 
-    const foundDepartment = await Department.findOne({ _id: departmentId })
-      .lean()
-      .exec();
-
+    const foundDepartment = await Department.findOne({ _id: departmentId }).lean().exec();
     if (!foundDepartment) {
-      return res.status(400).json({ message: "Department doesn't exists" });
+      await createLog(path, action, "Department does not exist", "Failed", user, ip, company);
+      return res.status(400).json({ message: "Department does not exist" });
     }
 
     if (!mongoose.Types.ObjectId.isValid(ticketId)) {
+      await createLog(path, action, "Invalid ticket ID provided", "Failed", user, ip, company);
       return res.status(400).json({ message: "Invalid ticket ID provided" });
     }
 
     const foundTicket = await Tickets.findOne({ _id: ticketId }).lean().exec();
-
     if (!foundTicket) {
-      return res.status(400).json({ message: "Ticket doesn't exists" });
+      await createLog(path, action, "Ticket does not exist", "Failed", user, ip, company);
+      return res.status(400).json({ message: "Ticket does not exist" });
     }
 
-    const userDepartments = foundUser.departments.map((dept) =>
-      dept.toString()
-    );
+    const userDepartments = foundUser.departments.map((dept) => dept.toString());
 
     const foundTickets = await Tickets.find({
       raisedToDepartment: {
@@ -328,13 +371,20 @@ const escalateTicket = async (req, res, next) => {
     });
 
     if (!foundTickets.length) {
+      await createLog(path, action, "User does not have permission to escalate this ticket", "Failed", user, ip, company);
       return res.sendStatus(403);
     }
 
-    await Tickets.findByIdAndUpdate(
+    const updatedTicket = await Tickets.findByIdAndUpdate(
       { _id: ticketId },
-      { $push: { escalatedTo: departmentId } }
+      { $push: { escalatedTo: departmentId } },
+      { new: true } // Return updated document
     );
+
+    await createLog(path, action, "Ticket escalated successfully", "Success", user, ip, company, updatedTicket._id, {
+      escalatedTo: departmentId,
+      escalatedBy: user,
+    });
 
     return res.status(200).json({ message: "Ticket escalated successfully" });
   } catch (error) {
@@ -342,10 +392,13 @@ const escalateTicket = async (req, res, next) => {
   }
 };
 
+
 const closeTicket = async (req, res, next) => {
   try {
-    const { user } = req;
+    const { user, company, ip } = req;
     const { ticketId } = req.body;
+    let path = "tickets/TicketLogs";
+    let action = "Close Ticket";
 
     const foundUser = await User.findOne({ _id: user })
       .select("-refreshToken -password")
@@ -353,37 +406,51 @@ const closeTicket = async (req, res, next) => {
       .exec();
 
     if (!foundUser) {
+      await createLog(path, action, "User not found", "Failed", user, ip, company);
       return res.status(400).json({ message: "User not found" });
     }
 
-    let foundTicket;
-    if (mongoose.Types.ObjectId.isValid(ticketId)) {
-      foundTicket = await Tickets.findOne({ _id: ticketId }).lean().exec();
-
-      if (!foundTicket) {
-        return res.status(400).json({ message: "Invalid ticket ID provided" });
-      }
+    if (!mongoose.Types.ObjectId.isValid(ticketId)) {
+      await createLog(path, action, "Invalid ticket ID provided", "Failed", user, ip, company);
+      return res.status(400).json({ message: "Invalid ticket ID provided" });
     }
 
-    const userDepartments = foundUser.departments.map((dept) =>
-      dept.toString()
-    );
+    const foundTicket = await Tickets.findOne({ _id: ticketId }).lean().exec();
+
+    if (!foundTicket) {
+      await createLog(path, action, "Ticket does not exist", "Failed", user, ip, company);
+      return res.status(400).json({ message: "Ticket does not exist" });
+    }
+
+    const userDepartments = foundUser.departments.map((dept) => dept.toString());
 
     const ticketInDepartment = userDepartments.some((id) =>
       foundTicket.raisedToDepartment.equals(id)
     );
 
     if (!ticketInDepartment && !foundTicket.assignees.includes(foundUser._id)) {
+      await createLog(path, action, "User does not have permission to close this ticket", "Failed", user, ip, company);
+
       return res.sendStatus(403);
     }
 
-    await Tickets.findByIdAndUpdate({ _id: ticketId }, { status: "Closed" });
+    const updatedTicket = await Tickets.findByIdAndUpdate(
+      { _id: ticketId },
+      { status: "Closed" },
+      { new: true } // Return updated document
+    );
+
+    await createLog(path, action, "Ticket closed successfully", "Success", user, ip, company, updatedTicket._id, {
+      closedBy: user,
+      status: "Closed"
+    });
 
     return res.status(200).json({ message: "Ticket closed successfully" });
   } catch (error) {
     next(error);
   }
 };
+
 
 const fetchFilteredTickets = async (req, res, next) => {
   try {

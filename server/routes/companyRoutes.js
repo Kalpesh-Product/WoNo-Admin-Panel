@@ -20,10 +20,14 @@ const { addEmployeeType } = require("../controllers/companyControllers/employeeT
 const { addLeaveType } = require("../controllers/companyControllers/leaveTypeControllers");
 const { addShift } = require("../controllers/companyControllers/shiftControllers");
 const { addWorkLocation } = require("../controllers/companyControllers/workLocationControllers");
+const { createDepartment } = require("../controllers/companyControllers/departmentControllers");
+const getCompanyLogs = require("../controllers/companyControllers/companyLogController");
 
 router.post("/create-company", addCompany);
 router.get("/get-companies", getCompanies);
+router.get("/get-company-logs", getCompanyLogs);
 
+router.post("/add-department", createDepartment);
 router.post("/add-employee-type", addEmployeeType);
 router.post("/add-leave-type", addLeaveType);
 router.post("/add-work-location", addWorkLocation);

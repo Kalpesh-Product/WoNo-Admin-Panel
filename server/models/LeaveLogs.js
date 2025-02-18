@@ -1,10 +1,11 @@
+
 const mongoose = require("mongoose");
 
-const meetingLogSchema = new mongoose.Schema(
+const LeaveLogSchema = new mongoose.Schema(
   {
     sourceId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Meeting",
+      ref: "Leave",
     },
     action: {
       type: String,
@@ -38,5 +39,5 @@ const meetingLogSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const MeetingLog = mongoose.model("MeetingLog", meetingLogSchema);
-module.exports = MeetingLog;
+const LeaveLog = mongoose.model("LeaveLog", LeaveLogSchema);
+module.exports = LeaveLog;

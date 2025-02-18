@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const ticketLogSchema = new mongoose.Schema(
   {
-    id: {
+    sourceId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Ticket",
     },
