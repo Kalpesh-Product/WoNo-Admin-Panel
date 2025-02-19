@@ -1,27 +1,53 @@
 const Company = require("../../models/Company");
 const bcrypt = require("bcryptjs");
-const User = require("../../models/UserData"); 
+const User = require("../../models/UserData");
 const Role = require("../../models/Roles");
 const { default: mongoose } = require("mongoose");
 const Department = require("../../models/Departments");
 
 const createUser = async (req, res, next) => {
   try {
-    const { empId, name, gender, email, phone, role, companyId,departments, employeeType } = req.body;
+    const {
+      empId,
+      name,
+      gender,
+      email,
+      phone,
+      role,
+      companyId,
+      departments,
+      employeeType,
+    } = req.body;
 
     // Validate required fields
-    if (!empId || !name || !email || !phone || !companyId || !employeeType || !departments ) {
+    if (
+      !empId ||
+      !name ||
+      !email ||
+      !phone ||
+      !companyId ||
+      !employeeType ||
+      !departments
+    ) {
       return res.status(400).json({ message: "Missing required fields" });
     }
- 
-    const invalidDepartmentIds = departments.filter((id)=> !mongoose.Types.ObjectId.isValid(id))
- 
-    if(invalidDepartmentIds.length > 0){
-      return res.status(400).json({ message: "Invalid department Id provided" });
+
+    const invalidDepartmentIds = departments.filter(
+      (id) => !mongoose.Types.ObjectId.isValid(id)
+    );
+
+    if (invalidDepartmentIds.length > 0) {
+      return res
+        .status(400)
+        .json({ message: "Invalid department Id provided" });
     }
 
     // Check if department exists
-    const departmentExists = await Department.find({ _id: {$in : departments} }).lean().exec();
+    const departmentExists = await Department.find({
+      _id: { $in: departments },
+    })
+      .lean()
+      .exec();
 
     if (!departmentExists) {
       return res.status(404).json({ message: "Department not found" });
@@ -35,7 +61,7 @@ const createUser = async (req, res, next) => {
 
     // Check if the employee ID or email is already registered
     const existingUser = await User.findOne({
-      $or: [{ company,empId }, { email }],
+      $or: [{ company, empId }, { email }],
     }).exec();
     if (existingUser) {
       return res
@@ -80,7 +106,7 @@ const createUser = async (req, res, next) => {
       company: companyId,
       password: hashedPassword,
       departments,
-      employeeType
+      employeeType,
     });
 
     // Save the user
@@ -139,7 +165,7 @@ const fetchUser = async (req, res) => {
     }
     res.status(200).json(users);
   } catch (error) {
-    ("Error fetching users : ", error);
+    "Error fetching users : ", error;
     res.status(500).json({ error: error.message });
   }
 };
@@ -247,5 +273,13 @@ const updateSingleUser = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+const bulkInsertUsers=async(req,res,next)=>{
+  try {
+    
+  } catch (error) {
+    next(error)
+  }
+}
 
 module.exports = { createUser, fetchUser, fetchSingleUser, updateSingleUser };
