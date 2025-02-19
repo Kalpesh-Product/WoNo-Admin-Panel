@@ -55,5 +55,3 @@ const addLeaveType = async (req, res, next) => {
   }
 };
 
-
-  module.exports = {addLeaveType}

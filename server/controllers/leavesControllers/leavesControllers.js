@@ -1,4 +1,3 @@
-
 const Leave = require("../../models/Leaves");
 const mongoose = require("mongoose");
 const UserData = require("../../models/UserData");
@@ -23,6 +22,9 @@ const requestLeave = async (req, res, next) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
+    const startDate = new Date(fromDate);
+    const endDate = new Date(toDate);
+    const currDate = new Date();
     const startDate = new Date(fromDate);
     const endDate = new Date(toDate);
     const currDate = new Date();
@@ -81,6 +83,7 @@ const requestLeave = async (req, res, next) => {
     });
 
     await newLeave.save();
+    await newLeave.save();
 
     // Success log with details of the leave request
     await createLog(path, action, "Leave request sent successfully", "Success", user, ip, company, newLeave._id, {
@@ -95,6 +98,7 @@ const requestLeave = async (req, res, next) => {
     return res.status(201).json({ message: "Leave request sent" });
   } catch (error) {
     next(error);
+    next(error);
   }
 };
 
@@ -102,43 +106,40 @@ const requestLeave = async (req, res, next) => {
  
 const fetchAllLeaves = async (req, res, next) => {
   try {
+    const user = req.userData.userId;
 
-    const user = req.userData.userId
-   
-    const leaves = await Leave.find({takenBy:user});
-    
-     if(!leaves || leaves.length === 0){
-      return res.status(204).json({message:"No leaves found"}) 
-     }
-     
+    const leaves = await Leave.find({ takenBy: user });
+
+    if (!leaves || leaves.length === 0) {
+      return res.status(204).json({ message: "No leaves found" });
+    }
+
     return res.status(200).json(leaves);
   } catch (error) {
-    next(error)
+    next(error);
   }
 };
 
-
 const fetchLeavesBeforeToday = async (req, res, next) => {
   try {
-     
-    const user = req.userData.userId
+    const user = req.userData.userId;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const leavesBeforeToday = await Leave.find({
-      fromDate: { $lt: today },takenBy:user
+      fromDate: { $lt: today },
+      takenBy: user,
     });
 
-    if(!leavesBeforeToday){
-      return res.status(204).json({message:"No leaves found"}) 
+    if (!leavesBeforeToday) {
+      return res.status(204).json({ message: "No leaves found" });
     }
 
     return res.status(200).json(leavesBeforeToday);
   } catch (error) {
-    next(error)
+    next(error);
   }
 };
-
 
 const approveLeave = async (req, res, next) => {
   const path = "Leavelogs";
@@ -158,7 +159,10 @@ const approveLeave = async (req, res, next) => {
       {
         $set: { status: "Approved", approvedBy: user },
         $unset: { rejectedBy: "" },
+        $set: { status: "Approved", approvedBy: user },
+        $unset: { rejectedBy: "" },
       },
+      { new: true }
       { new: true }
     );
 
@@ -176,8 +180,10 @@ const approveLeave = async (req, res, next) => {
     return res.status(200).json({ message: "Leave Approved" });
   } catch (error) {
     next(error);
+    next(error);
   }
 };
+
 
 const rejectLeave = async (req, res, next) => {
   const path = "LeaveLogs";
@@ -199,6 +205,12 @@ const rejectLeave = async (req, res, next) => {
         $unset: { approvedBy: "" },
       },
       { new: true }
+      { _id: leaveId },
+      {
+        $set: { status: "Rejected", rejectedBy: user },
+        $unset: { approvedBy: "" },
+      },
+      { new: true }
     );
 
     if (!updatedLeave) {
@@ -213,6 +225,7 @@ const rejectLeave = async (req, res, next) => {
 
     return res.status(200).json({ message: "Leave rejected" });
   } catch (error) {
+    next(error);
     next(error);
   }
 };

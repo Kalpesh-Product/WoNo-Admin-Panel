@@ -8,7 +8,7 @@ const {
   addCompanyLogo,
   updateActiveStatus,
   getCompanyData,
-  getCompanyLogo
+  getCompanyLogo,
 } = require("../controllers/companyControllers/companyControllers");
 
 const {
@@ -16,10 +16,19 @@ const {
   getCompanyDocuments,
   uploadDepartmentDocument,
 } = require("../controllers/companyControllers/documentControllers");
-const { addEmployeeType } = require("../controllers/companyControllers/employeeTypeControllers");
-const { addLeaveType } = require("../controllers/companyControllers/leaveTypeControllers");
-const { addShift } = require("../controllers/companyControllers/shiftControllers");
-const { addWorkLocation } = require("../controllers/companyControllers/workLocationControllers");
+const {
+  addEmployeeType,
+} = require("../controllers/companyControllers/employeeTypeControllers");
+const {
+  addLeaveType,
+} = require("../controllers/companyControllers/leaveTypeControllers");
+const {
+  addShift,
+} = require("../controllers/companyControllers/shiftControllers");
+const {
+  addWorkLocation,
+  bulkInsertWorkLocations,
+} = require("../controllers/companyControllers/workLocationControllers");
 const { createDepartment } = require("../controllers/companyControllers/departmentControllers");
 const getCompanyLogs = require("../controllers/companyControllers/companyLogController");
 
@@ -31,6 +40,11 @@ router.post("/add-department", createDepartment);
 router.post("/add-employee-type", addEmployeeType);
 router.post("/add-leave-type", addLeaveType);
 router.post("/add-work-location", addWorkLocation);
+router.post(
+  "/bulk-add-locations",
+  upload.single("locations"),
+  bulkInsertWorkLocations
+);
 router.get("/get-company-data", getCompanyData);
 router.post("/update-active-status/:field", updateActiveStatus);
 router.post("/add-company-logo", upload.single("logo"), addCompanyLogo);

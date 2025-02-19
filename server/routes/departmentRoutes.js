@@ -5,7 +5,7 @@ const {
   getDepartments,
 } = require("../controllers/departmentControllers/departmentControllers");
 
-// router.post("/add-department", createDepartment);
+router.post("/add-department", createDepartment);
 // router.patch("/assign-admin", assignAdmin);
 // router.get("/get-departments", getDepartments);
 module.exports = router;

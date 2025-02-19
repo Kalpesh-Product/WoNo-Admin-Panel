@@ -14,6 +14,10 @@ const budgetSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Company",
     },
+    expanseType: {
+      type: String,
+      enum: ["Internal", "External"],
+    },
     amount: {
       type: Number,
       required: true,
