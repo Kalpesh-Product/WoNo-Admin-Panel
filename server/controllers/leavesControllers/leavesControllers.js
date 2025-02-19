@@ -25,9 +25,6 @@ const requestLeave = async (req, res, next) => {
     const startDate = new Date(fromDate);
     const endDate = new Date(toDate);
     const currDate = new Date();
-    const startDate = new Date(fromDate);
-    const endDate = new Date(toDate);
-    const currDate = new Date();
 
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
       await createLog(path, action, "Invalid date format", "Failed", user, ip, company);
@@ -163,7 +160,6 @@ const approveLeave = async (req, res, next) => {
         $unset: { rejectedBy: "" },
       },
       { new: true }
-      { new: true }
     );
 
     if (!updatedLeave) {
@@ -199,12 +195,6 @@ const rejectLeave = async (req, res, next) => {
     }
 
     const updatedLeave = await Leave.findOneAndUpdate(
-      { _id: leaveId },
-      {
-        $set: { status: "Rejected", rejectedBy: user },
-        $unset: { approvedBy: "" },
-      },
-      { new: true }
       { _id: leaveId },
       {
         $set: { status: "Rejected", rejectedBy: user },
