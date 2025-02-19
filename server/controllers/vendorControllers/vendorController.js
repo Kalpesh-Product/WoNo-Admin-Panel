@@ -1,6 +1,8 @@
 const Vendor = require("../../models/Vendor");
 const User = require("../../models/UserData");
 const Company = require("../../models/Company");
+const csvParser = require("csv-parser");
+const { Readable } = require("stream");
 const mongoose = require("mongoose");
 
 const onboardVendor = async (req, res, next) => {
@@ -31,14 +33,16 @@ const onboardVendor = async (req, res, next) => {
       .lean()
       .exec();
 
-      
-
     if (!currentUser) {
       return res.status(404).json({ message: "User not found" });
     }
 
     // Check if the user is part of the given department
-    if (!currentUser.department.find(dept => dept._id.toString() === departmentId)) {
+    if (
+      !currentUser.department.find(
+        (dept) => dept._id.toString() === departmentId
+      )
+    ) {
       return res.status(403).json({
         message: "You are not a member of this department.",
       });
@@ -156,7 +160,7 @@ const fetchVendors = async (req, res, next) => {
     }
 
     // Get department IDs
-   
+
     const adminDepartmentIds = adminDepartments.map(
       (dept) => dept.department._id
     );
@@ -169,6 +173,21 @@ const fetchVendors = async (req, res, next) => {
       .exec();
 
     return res.status(200).json(vendors);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const bulkInsertVendor = async (req, res, next) => {
+  try {
+    const vendorCsv = req.file;
+    if (!req.file) {
+      return res
+        .status(400)
+        .json({ message: "please provide a valid csv file" });
+    }
+
+    
   } catch (error) {
     next(error);
   }

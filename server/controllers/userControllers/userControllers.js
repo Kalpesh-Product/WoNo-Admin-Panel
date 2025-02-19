@@ -1,6 +1,6 @@
 const Company = require("../../models/Company");
 const bcrypt = require("bcryptjs");
-const User = require("../../models/UserData"); 
+const User = require("../../models/UserData");
 const Role = require("../../models/Roles");
 const { default: mongoose } = require("mongoose");
 const Department = require("../../models/Departments");
@@ -10,35 +10,20 @@ const createUser = async (req, res, next) => {
   try {
     const {
       empId,
-      firstName,
-      middleName,
-      lastName,
+      name,
       gender,
-      dateOfBirth,
-      phone,
       email,
+      phone,
       role,
       companyId,
       departments,
       employeeType,
-      designation,
-      startDate,
-      workLocation,
-      reportsTo,
-      assetDescription,
-      policies,
-      homeAddress,
-      bankInformation,
-      panAadhaarDetails,
-      payrollInformation,
-      familyInformation,
     } = req.body;
 
     // Validate required fields
     if (
       !empId ||
-      !firstName ||
-      !lastName ||
+      !name ||
       !email ||
       !phone ||
       !companyId ||
@@ -53,7 +38,9 @@ const createUser = async (req, res, next) => {
     );
 
     if (invalidDepartmentIds.length > 0) {
-      return res.status(400).json({ message: "Invalid department Id provided" });
+      return res
+        .status(400)
+        .json({ message: "Invalid department Id provided" });
     }
 
     // Check if department exists
@@ -75,7 +62,7 @@ const createUser = async (req, res, next) => {
 
     // Check if the employee ID or email is already registered
     const existingUser = await User.findOne({
-      $or: [{ company: companyId, empId }, { email }],
+      $or: [{ company, empId }, { email }],
     }).exec();
     if (existingUser) {
       return res
@@ -125,17 +112,6 @@ const createUser = async (req, res, next) => {
       password: hashedPassword,
       departments,
       employeeType,
-      designation,
-      startDate,
-      workLocation,
-      reportsTo,
-      assetDescription,
-      policies,
-      homeAddress,
-      bankInformation,
-      panAadhaarDetails,
-      payrollInformation,
-      familyInformation,
     });
 
     // Save the user
@@ -201,7 +177,8 @@ const fetchUser = async (req, res, next) => {
     }
     res.status(200).json(users);
   } catch (error) {
-     next(error)
+    "Error fetching users : ", error;
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -397,6 +374,12 @@ const updateSingleUser = async (req, res, next) => {
   }
 };
 
-
+const bulkInsertUsers=async(req,res,next)=>{
+  try {
+    
+  } catch (error) {
+    next(error)
+  }
+}
 
 module.exports = { createUser, fetchUser, fetchSingleUser, updateSingleUser };

@@ -1,6 +1,6 @@
 const Attendance = require("../models/Attendance");
 const UserData = require("../models/UserData");
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
 const { formatDate, formatTime } = require("../utils/formatDateTime");
 
 const clockIn = async (req, res, next) => {
@@ -172,7 +172,7 @@ const endBreak = async (req, res, next) => {
 
     if (!updatedAttendance) {
       return res.status(400).json({ message: "No clock in record exists" });
-    } 
+    }
 
     return res.status(200).json({ message: "Break ended" });
   } catch (error) {
@@ -183,7 +183,7 @@ const endBreak = async (req, res, next) => {
 const getAllAttendance = async (req, res, next) => {
   const loggedInUser = req.userData.userId;
   const company = req.userData.company;
- 
+
   try {
     // const user = await UserData.findById({ _id: loggedInUser }).populate({
     //   path: "role",
@@ -200,37 +200,36 @@ const getAllAttendance = async (req, res, next) => {
     //   return res.sendStatus(403);
     // }
 
-    if(!mongoose.Types.ObjectId.isValid(company)){
+    if (!mongoose.Types.ObjectId.isValid(company)) {
       return res.status(400).json("Invalid company Id provided");
     }
 
     let attendances = [];
-    attendances = await Attendance.find({company});
+    attendances = await Attendance.find({ company });
 
     if (!attendances) {
       return res.status(400).json({ message: "No attendance exists" });
     }
 
     const transformedAttendances = attendances.map((attendance) => {
-      
-      const totalMins = attendance.outTime && attendance.inTime 
-        ? (attendance.outTime - attendance.inTime) / (1000 * 60)
-        : 0;
-    
+      const totalMins =
+        attendance.outTime && attendance.inTime
+          ? (attendance.outTime - attendance.inTime) / (1000 * 60)
+          : 0;
+
       const breakMins = attendance.breakDuration || 0;
       const workMins = totalMins > breakMins ? totalMins - breakMins : 0;
-    
+
       return {
-        date: formatDate(attendance.inTime)|| "N/A",
+        date: formatDate(attendance.inTime) || "N/A",
         inTime: formatTime(attendance.inTime) || "N/A",
         outTime: formatTime(attendance.outTime) || "N/A",
-        workHours: (workMins / 60).toFixed(2),  
+        workHours: (workMins / 60).toFixed(2),
         breakHours: (breakMins / 60).toFixed(2),
         totalHours: (totalMins / 60).toFixed(2),
         entryType: attendance.entryType || "N/A",
       };
     });
-    
 
     return res.status(200).json(transformedAttendances);
   } catch (error) {
@@ -243,7 +242,6 @@ const getAttendance = async (req, res, next) => {
   const company = req.userData.company;
 
   try {
-
     const attendances = await Attendance.find({
       user: loggedInUser,
       company,
