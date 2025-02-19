@@ -112,6 +112,7 @@ import TaskReportLayout from "../pages/Tasks/TaskReports.jsx/TaskReportLayout";
 import MyTaskReports from "../pages/Tasks/TaskReports.jsx/MyTaskReports";
 import AssignedTaskReports from "../pages/Tasks/TaskReports.jsx/AssignedTaskReports";
 import DepartmentTaskReports from "../pages/Tasks/TaskReports.jsx/DepartmentTaskReports";
+import TemplatePreview from "../pages/Dashboard/HrDashboard/Data/TemplatePreview";
 
 export const routes = createBrowserRouter([
   {
@@ -257,6 +258,10 @@ export const routes = createBrowserRouter([
                           {
                             path: "templates",
                             element: <Templates />,
+                          },
+                          {
+                            path: "templates/preview-template",
+                            element: <TemplatePreview />,
                           },
                         ],
                       },

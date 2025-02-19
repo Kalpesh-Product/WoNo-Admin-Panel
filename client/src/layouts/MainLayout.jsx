@@ -42,9 +42,9 @@ const MainLayout = () => {
             <div className="p-4 rounded-t-md bg-white">
               <BreadCrumbComponent />
             </div>
-            <div className="bg-white h-[80vh] overflow-y-auto flex flex-col">
+            <div className="bg-white h-[78vh] overflow-y-auto flex flex-col">
               <Outlet />
-              <div ref={dummyRef} className="h-1 bg-transparent"></div>
+              <div ref={dummyRef} className="h-1 w-1 bg-transparent text-transparent"></div>
             </div>
           </main>
         </div>

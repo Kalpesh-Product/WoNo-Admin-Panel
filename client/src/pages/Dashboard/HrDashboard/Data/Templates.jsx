@@ -1,44 +1,28 @@
 import React from "react";
-import Template from "../../../../utils/Template.png";
-import Template2 from "../../../../utils/Template1.png";
-import Template1 from "../../../../utils/Template2.png";
-import Template3 from "../../../../utils/Template3.png";
-import Template4 from "../../../../utils/Template4.png";
+import DocxPreview from "../../../../components/HrTemplate/DocxPreview";
 import PrimaryButton from "../../../../components/PrimaryButton";
+import { useNavigate } from "react-router-dom";
+import letterTemplate from '../../../../assets/docTemplates/Experience Letter Format.docx'
 
 const Templates = () => {
+  const navigate = useNavigate();
+
+  const handleTemplateClick = (template) => {
+    navigate("/app/dashboard/HR-dashboard/company/templates/preview-template", { state: { fileUrl: template.fileUrl, title: template.title } });
+  };
   const templateData = [
     {
-      imgSrc: Template,
+      fileUrl:
+        letterTemplate, // Change this to the actual file URL
       title: "Leave Agreement",
       date: "Jan 10, 2025",
-    },
-    {
-      imgSrc: Template2,
-      title: "Allowance Agreement",
-      date: "Opened Jan 7, 2025",
-    },
-    {
-      imgSrc: Template1,
-      title: "Timings Agreement",
-      date: "Opened Jan 7, 2025",
-    },
-    {
-      imgSrc: Template3,
-      title: "SOP Agreement",
-      date: "Opened Jan 6, 2025",
-    },
-    {
-      imgSrc: Template4,
-      title: "Internship Report",
-      date: "Dec 24, 2024",
     },
   ];
 
   return (
-    <div className="">
+    <div>
       <div className="flex justify-between items-center mb-6">
-        <span className=" text-primary text-title font-pmedium">Templates</span>
+        <span className="text-primary text-title font-pmedium">Templates</span>
         <PrimaryButton title={"Add Template"} />
       </div>
 
@@ -47,14 +31,9 @@ const Templates = () => {
           <div
             key={index}
             className="bg-white shadow-md rounded-lg overflow-hidden border"
+            onClick={() => handleTemplateClick(template)}
           >
-            <div className="h-48">
-              <img
-                src={template.imgSrc}
-                alt="Template Image"
-                className="w-full h-full object-contain"
-              />
-            </div>
+            <DocxPreview fileUrl={template.fileUrl} />
             <div className="p-4">
               <h2 className="widgetTitle font-semibold font-pregular">
                 {template.title}
