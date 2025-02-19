@@ -43,10 +43,10 @@ router.post("/add-work-location", addWorkLocation);
 router.post(
   "/bulk-add-locations",
   upload.single("locations"),
-  bulkInsertWorkLocations
+  bulkInsertWorkLocations 
 );
 router.get("/get-company-data", getCompanyData);
-router.post("/update-active-status/:field", updateActiveStatus);
+router.post("/update-active-status/:field", updateActiveStatus); 
 router.post("/add-company-logo", upload.single("logo"), addCompanyLogo);
 router.get("/get-company-logo", getCompanyLogo);
 router.post("/add-shift", addShift);

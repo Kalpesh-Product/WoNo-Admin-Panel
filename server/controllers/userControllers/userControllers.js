@@ -1,12 +1,17 @@
 const Company = require("../../models/Company");
 const bcrypt = require("bcryptjs");
 const User = require("../../models/UserData"); 
-const Role = require("../../models/Roles");
+const Role = require("../../models/roles/Roles");
 const { default: mongoose } = require("mongoose");
 const Department = require("../../models/Departments");
+const { createLog } = require("../../utils/moduleLogs");
  
 
 const createUser = async (req, res, next) => {
+  const { user, ip, company } = req;
+  const path = "UserLogs";
+  const action = "Create User";
+
   try {
     const {
       empId,
@@ -45,6 +50,7 @@ const createUser = async (req, res, next) => {
       !employeeType ||
       !departments
     ) {
+      await createLog(path, action, "Missing required fields", "Failed", user, ip, company);
       return res.status(400).json({ message: "Missing required fields" });
     }
 
@@ -53,6 +59,7 @@ const createUser = async (req, res, next) => {
     );
 
     if (invalidDepartmentIds.length > 0) {
+      await createLog(path, action, "Invalid department ID provided", "Failed", user, ip, company);
       return res.status(400).json({ message: "Invalid department Id provided" });
     }
 
@@ -64,12 +71,14 @@ const createUser = async (req, res, next) => {
       .exec();
 
     if (!departmentExists || departmentExists.length === 0) {
+      await createLog(path, action, "Department not found", "Failed", user, ip, company);
       return res.status(404).json({ message: "Department not found" });
     }
 
     // Check if company exists
-    const company = await Company.findOne({ _id: companyId }).lean().exec();
-    if (!company) {
+    const companyExists = await Company.findOne({ _id: companyId }).lean().exec();
+    if (!companyExists) {
+      await createLog(path, action, "Company not found", "Failed", user, ip, company);
       return res.status(404).json({ message: "Company not found" });
     }
 
@@ -78,31 +87,30 @@ const createUser = async (req, res, next) => {
       $or: [{ company: companyId, empId }, { email }],
     }).exec();
     if (existingUser) {
-      return res
-        .status(409)
-        .json({ message: "Employee ID or email already exists" });
+      await createLog(path, action, "Employee ID or email already exists", "Failed", user, ip, company);
+      return res.status(409).json({ message: "Employee ID or email already exists" });
     }
 
     // Check role validity
     const roleValue = await Role.findOne({ _id: role }).lean().exec();
     if (!roleValue) {
+      await createLog(path, action, "Invalid role provided", "Failed", user, ip, company);
       return res.status(400).json({ message: "Invalid role provided" });
     }
 
     // Master Admin check
     if (roleValue.roleTitle === "Master Admin") {
-      const doesMasterAdminExists = await User.findOne({
+      const doesMasterAdminExist = await User.findOne({
         role: { $in: [roleValue._id] },
       })
         .lean()
         .exec();
       if (
-        doesMasterAdminExists &&
-        doesMasterAdminExists.company.toString() === companyId
+        doesMasterAdminExist &&
+        doesMasterAdminExist.company.toString() === companyId
       ) {
-        return res
-          .status(400)
-          .json({ message: "A master admin already exists" });
+        await createLog(path, action, "A master admin already exists", "Failed", user, ip, company);
+        return res.status(400).json({ message: "A master admin already exists" });
       }
     }
 
@@ -141,6 +149,17 @@ const createUser = async (req, res, next) => {
     // Save the user
     const savedUser = await newUser.save();
 
+    // Success log for user creation
+    await createLog(path, action, "User created successfully", "Success", user, ip, company, savedUser._id, {
+      empId: savedUser.empId,
+      firstName: savedUser.firstName,
+      lastName: savedUser.lastName,
+      email: savedUser.email,
+      phone: savedUser.phone,
+      role: savedUser.role,
+      companyId: savedUser.company,
+    });
+
     // Send response
     res.status(201).json({
       message: "User created successfully",
@@ -161,6 +180,7 @@ const createUser = async (req, res, next) => {
     next(error);
   }
 };
+
 
 
 const fetchUser = async (req, res, next) => {
@@ -310,6 +330,10 @@ const fetchSingleUser = async (req, res) => {
 // };
 
 const updateSingleUser = async (req, res, next) => {
+  const { user, ip, company } = req;
+  const path = "UserLogs";
+  const action = "Update User";
+
   try {
     const { id } = req.params;
     const updateData = req.body;
@@ -369,14 +393,14 @@ const updateSingleUser = async (req, res, next) => {
 
     // If there's nothing to update, return an error response
     if (Object.keys(filteredUpdateData).length === 0) {
+      await createLog(path, action, "No valid fields to update", "Failed", user, ip, company);
       return res.status(400).json({ message: "No valid fields to update" });
     }
 
     // Perform the update operation using the id directly
-  
     const updatedUser = await User.findByIdAndUpdate(
-     { _id:id},
-      { $set: updateData },
+      { _id: id },
+      { $set: filteredUpdateData },
       { new: true, runValidators: true }
     )
       .select("-password")
@@ -384,19 +408,21 @@ const updateSingleUser = async (req, res, next) => {
       .populate("departments", "name")
       .populate("company", "name")
       .populate("role", "roleTitle modulePermissions");
- 
+
     if (!updatedUser) {
+      await createLog(path, action, "User not found", "Failed", user, ip, company);
       return res.status(404).json({ message: "User not found" });
     }
 
+    await createLog(path, action, "User data updated successfully", "Success", user, ip, company,updatedUser._id, filteredUpdateData);
+
     res.status(200).json({
-      message: "User data updated successfully"
+      message: "User data updated successfully",
     });
   } catch (error) {
-    next(error)
+    await createLog(path, action, "Error updating user", "Failed", user, ip, company, { error: error.message });
+    next(error);
   }
 };
-
-
 
 module.exports = { createUser, fetchUser, fetchSingleUser, updateSingleUser };

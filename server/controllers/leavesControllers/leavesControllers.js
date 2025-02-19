@@ -36,7 +36,7 @@ const requestLeave = async (req, res, next) => {
       return res.status(400).json({ message: "Please select future date" });
     }
 
-    const user = await UserData.findById({ _id: user }).populate({ path: "company", select: "employeeTypes" });
+    const foundUser = await UserData.findById({ _id: user }).populate({ path: "company", select: "employeeTypes" });
 
     const leaves = await Leave.find({ takenBy: user });
 
@@ -48,7 +48,7 @@ const requestLeave = async (req, res, next) => {
         .filter((leave) => leave.leavePeriod === "Partial")
         .reduce((acc, leave) => acc + leave.hours, 0);
 
-      const grantedLeaves = user.employeeType.leavesCount.find((leave) => {
+       const grantedLeaves = foundUser.employeeType.leavesCount.find((leave) => {
         return leave.leaveType.toLowerCase() === leaveType.toLowerCase();
       });
 
@@ -79,7 +79,6 @@ const requestLeave = async (req, res, next) => {
       description,
     });
 
-    await newLeave.save();
     await newLeave.save();
 
     // Success log with details of the leave request

@@ -7,7 +7,7 @@ const {createLeaveType,fetchAllLeaveTypes,deleteLeaveType,softDeleteLeaveType} =
 const router = require("express").Router();
 
 router.post("/request-leave", requestLeave);
-router.post("/get-leave-logs", getLeaveLogs);
+router.get("/get-leave-logs", getLeaveLogs);
 router.get("/view-all-leaves", fetchAllLeaves);
 router.get("/view-all-leaves-before-today",fetchLeavesBeforeToday);
 router.put("/approve-leave/:id", approveLeave);

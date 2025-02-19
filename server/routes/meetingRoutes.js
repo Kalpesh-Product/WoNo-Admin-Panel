@@ -2,6 +2,7 @@ const upload = require("../config/multerConfig");
 const getMeetingLogs = require("../controllers/meetingsControllers/meetingLogController");
 const { addMeetings, getMeetings, addHousekeepingTask, updateHousekeepingTasks, getHousekeepingTasks, deleteHousekeepingTask, getMeetingsByTypes, cancelMeeting } = require("../controllers/meetingsControllers/meetingsControllers");
 const { getReviews, addReview, replyReview } = require("../controllers/meetingsControllers/reviewsController");
+const getRoomLogs = require("../controllers/meetingsControllers/RoomLogController");
 const { addRoom, getRooms } = require("../controllers/meetingsControllers/roomsController");
 
 const router = require("express").Router();
@@ -13,6 +14,7 @@ router.post("/create-review",addReview);
 router.get("/get-rooms", getRooms);
 router.get("/get-meetings", getMeetings);
 router.get("/get-meeting-logs", getMeetingLogs);
+router.get("/get-room-logs", getRoomLogs);
 router.get("/get-reviews", getReviews);
 router.post("/add-reply", replyReview);
 router.get("/get-meetings-type", getMeetingsByTypes);

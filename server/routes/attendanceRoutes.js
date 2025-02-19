@@ -8,6 +8,8 @@ const {
   endBreak,
   getAllAttendance,
 } = require("../controllers/attendanceControllers");
+const getAttendanceLogs = require("../controllers/attendanceLogsController");
+
 
 const router = require("express").Router();
 router.post("/clock-in", clockIn);
@@ -17,5 +19,6 @@ router.post("/end-break", endBreak);
 router.post("/correct-attendance", correctAttendance);
 router.get("/get-all-attendance", getAllAttendance);
 router.get("/get-attendance", getAttendance);
+router.get("/get-attendance-logs", getAttendanceLogs);
 
 module.exports = router;

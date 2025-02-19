@@ -64,7 +64,7 @@ app.use("/api/tickets", verifyJwt, ticketsRoutes);
 app.use("/api/leaves", verifyJwt, leaveRoutes);
 app.use("/api/employee-agreements", employeeAgreementRoutes);
 app.use("/api/users",verifyJwt, userRoutes);
-app.use("/api/roles", roleRoutes);
+app.use("/api/roles",verifyJwt, roleRoutes);
 app.use("/api/vendors", verifyJwt, vendorRoutes);
 app.use("/api/events", verifyJwt, eventRoutes);
 app.use("/api/payroll", payrollRoutes);

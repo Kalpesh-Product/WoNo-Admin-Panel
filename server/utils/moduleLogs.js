@@ -4,7 +4,7 @@ const addLog = async (path, data) => {
     await Model.create(data);
   };
   
-  const createLog = async (path, action, remarks = '',status = "Failed", user, ip,company, id, changes = null) => {
+  const createLog = async (path, action, remarks = '',status = "Failed", user, ip,company, id=null, changes = null) => {
   
     await addLog(path, {
       sourceId:id,
