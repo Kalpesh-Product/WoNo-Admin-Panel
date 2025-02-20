@@ -7,6 +7,7 @@ const ViewEmployees = () => {
   const navigate = useNavigate();
 
   const viewEmployeeColumns = [
+    { field: "srno", headerName: "SR No" },
     {
       field: "employeeName",
       headerName: "Employee Name",
@@ -17,7 +18,7 @@ const ViewEmployees = () => {
             textDecoration: "underline",
             cursor: "pointer",
           }}
-          onClick={() => navigate(`/app/dashboard/hr-dashboard/compliances/view-employees/${params.data.employmentID}`)}
+          onClick={() => navigate(`/app/dashboard/HR-dashboard/employee/view-employees/${params.data.employmentID}`)}
 
         >
           {params.value}
@@ -55,6 +56,7 @@ const ViewEmployees = () => {
 
   const rows = [
     {
+      srno:"1",
       employeeName: "Aiwinraj",
       employmentID: "WO001",
       email: "aiwinraj.wono@gmail.com",
@@ -62,6 +64,7 @@ const ViewEmployees = () => {
       status: "Active",
     },
     {
+      srno:"2",
       employeeName: "Allan",
       employmentID: "WO002",
       email: "allan.wono@gmail.com",
@@ -69,6 +72,7 @@ const ViewEmployees = () => {
       status: "Active",
     },
     {
+      srno:"3",
       employeeName: "Sankalp",
       employmentID: "WO003",
       email: "sankalp.wono@gmail.com",
@@ -76,6 +80,7 @@ const ViewEmployees = () => {
       status: "Active",
     },
     {
+      srno:"4",
       employeeName: "Anushri",
       employmentID: "WO004",
       email: "anushri.wono@gmail.com",
@@ -83,6 +88,7 @@ const ViewEmployees = () => {
       status: "Active",
     },
     {
+      srno:"5",
       employeeName: "Muskan",
       employmentID: "WO005",
       email: "muskan.wono@gmail.com",
@@ -90,6 +96,7 @@ const ViewEmployees = () => {
       status: "Active",
     },
     {
+      srno:"6",
       employeeName: "Kalpesh",
       employmentID: "WO006",
       email: "kalpesh.wono@gmail.com",
@@ -97,6 +104,7 @@ const ViewEmployees = () => {
       status: "Active",
     },
     {
+      srno:"7",
       employeeName: "Allan2",
       employmentID: "WO007",
       email: "allan2.wono@gmail.com",

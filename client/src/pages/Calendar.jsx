@@ -4,20 +4,13 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { api } from "../utils/axios";
 import "../pages/LoginPage/CalenderModal.css";
-import {
-  Drawer,
-  Box,
-  Typography,
-  IconButton,
-  TextField,
-  Button,
-} from "@mui/material";
+
 import { Checkbox, FormControlLabel, FormGroup } from "@mui/material";
 import dayjs from "dayjs";
-import { IoMdClose } from "react-icons/io";
+
 import MuiModal from "../components/MuiModal";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
 const Calender = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -32,11 +25,12 @@ const Calender = () => {
     description: "",
   });
   const [eventFilter, setEventFilter] = useState(["holiday", "event"]);
+  const axios = useAxiosPrivate();
 
   useEffect(() => {
     const getEvents = async () => {
       try {
-        const response = await api.get("/api/events/all-events");
+        const response = await axios.get("/api/events/all-events");
         setEvents(response.data);
       } catch (error) {
         toast.error(error.message);
@@ -88,15 +82,6 @@ const Calender = () => {
     setHeaderBackground(headerBackground); // Set the background color
   };
 
-  const handleDateClick = (info) => {
-    setNewEvent({
-      title: "",
-      start: dayjs(info.date).format("YYYY-MM-DD"),
-      description: "",
-    });
-    setDrawerMode("add");
-    setIsDrawerOpen(true);
-  };
 
   const closeDrawer = () => {
     setIsDrawerOpen(false);
@@ -108,11 +93,7 @@ const Calender = () => {
     });
   };
 
-  const handleSaveEvent = () => {
-    console.log("New Event:", newEvent);
-    closeDrawer();
-  };
-
+ 
   return (
     <div className="flex w-[70%] md:w-full">
       <div className="flex-1 p-4 bg-white">
@@ -215,7 +196,7 @@ const Calender = () => {
               dayMaxEvents={2}
               eventDisplay="block"
               eventClick={handleEventClick}
-              dateClick={handleDateClick}
+              contentHeight={520}
               plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
               initialView="dayGridMonth"
               events={filteredEvents}
@@ -260,51 +241,6 @@ const Calender = () => {
                 )}
               </div>
             </div>
-          )}
-
-          {drawerMode === "add" && (
-            <Box>
-              <TextField
-                label="Title"
-                variant="outlined"
-                fullWidth
-                value={newEvent.title}
-                onChange={(e) =>
-                  setNewEvent((prev) => ({ ...prev, title: e.target.value }))
-                }
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                label="Start Date"
-                variant="outlined"
-                fullWidth
-                value={newEvent.start}
-                disabled
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                label="Description"
-                variant="outlined"
-                multiline
-                rows={3}
-                fullWidth
-                value={newEvent.description}
-                onChange={(e) =>
-                  setNewEvent((prev) => ({
-                    ...prev,
-                    description: e.target.value,
-                  }))
-                }
-                sx={{ mb: 2 }}
-              />
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSaveEvent}
-              >
-                Save Event
-              </Button>
-            </Box>
           )}
         </MuiModal>
       </div>

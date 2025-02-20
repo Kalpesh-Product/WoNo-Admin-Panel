@@ -1,42 +1,237 @@
-const CompanyData = require("../../models/CompanyData");
+const sharp = require("sharp");
+const mongoose = require("mongoose");
+const { handleFileUpload } = require("../../config/cloudinaryConfig");
+const Company = require("../../models/Company");
+const {
+  updateWorkLocationStatus,
+  updateShiftStatus,
+  updateLeaveTypeStatus,
+  UpdateEmployeeTypeStatus,
+} = require("../../utils/companyData");
 
 const addCompany = async (req, res, next) => {
   try {
-    // Extract the data from the wono registration form
-    const formData = req.body;
+    const {
+      companyId,
+      selectedDepartments,
+      companyName,
+      industry,
+      companySize,
+      companyCity,
+      companyState,
+      websiteURL,
+      linkedinURL,
+      employeeType,
+    } = req.body;
 
-    // Step 1: Save the companyInfo to the CompanyData table
-    const companyInfoData = formData.companyInfo;
-    const savedCompanyData = await new CompanyData(companyInfoData).save();
+    // Validate required fields
+    if (
+      !companyId ||
+      !companyName ||
+      !industry ||
+      !companySize ||
+      !companyCity ||
+      !companyState
+    ) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
 
-    // Step 2: Save the Company with a reference to CompanyData
-    const companyData = {
-      companyId: formData._id, // Use the provided _id as the companyId
-      companyInfo: savedCompanyData._id, // Reference the CompanyData document
-    };
-    const savedCompany = await new Company(companyData).save();
+    // Create a new company instance
+    const newCompany = new Company({
+      companyId,
+      selectedDepartments,
+      companyName,
+      industry,
+      companySize,
+      companyCity,
+      companyState,
+      websiteURL,
+      linkedinURL,
+      employeeType,
+    });
 
-    res.status(201).json({
-      message: "Company and CompanyInfo added successfully",
-      company: savedCompany,
+    // Save the company to the database
+    await newCompany.save();
+
+    // Respond with success message
+    return res.status(201).json({
+      message: "Company added successfully",
+      company: newCompany,
     });
   } catch (error) {
-    console.error("Error processing company data:", error);
+    // Pass the error to the next middleware
+    // Pass the error to the next middleware
     next(error);
   }
 };
 
-const getCompanies = async (req, res, nex) => {
+const getCompanies = async (req, res, next) => {
   try {
-    const companies = await CompanyData.find();
-    res.status(200).json({
-      message: "Company data fetched",
-      companies
-    });
-  } catch(error) { 
-    console.error("Error fetching companies : ", error.message);
-    res.status(500).json({error: error.message});
+    const companies = await Company.find();
+    return res.status(200).json(companies);
+  } catch (error) {
+    next(error);
   }
-}
+};
 
-module.exports = { addCompany, getCompanies };
+const addCompanyLogo = async (req, res, next) => {
+  try {
+    const { company } = req.userData;
+
+    let imageId;
+    let imageUrl;
+
+    if (req.file) {
+      const file = req.file;
+
+      const buffer = await sharp(file.buffer)
+        .resize(800, 800, { fit: "contain" })
+        .webp({ quality: 80 })
+        .toBuffer();
+
+      const base64Image = `data:image/webp;base64,${buffer.toString("base64")}`;
+      const uploadResult = await handleFileUpload(base64Image, "Company-logos");
+
+      imageId = uploadResult.public_id;
+      imageUrl = uploadResult.secure_url;
+    }
+
+    const companyLogo = {
+      logoId: imageId,
+      logoUrl: imageUrl,
+    };
+
+    const newCompanyLogo = await Company.findByIdAndUpdate(
+      { _id: company },
+      { companyLogo },
+      { new: true }
+    );
+
+    if (!newCompanyLogo) {
+      return res.status(400).json({
+        message: "Couldn't add company logo",
+      });
+    }
+
+    return res.status(201).json({
+      message: "Logo added successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getCompanyLogo = async (req, res, next) => {
+  try {
+    const companyId = req.userData.company;
+
+    const company = await Company.findById({ _id: companyId }).select(
+      "companyLogo"
+    );
+
+    if (!company) {
+      return res.status(400).json({ message: "Couldn't fetch company logo" });
+    }
+
+    return res.status(200).json(company.companyLogo);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getCompanyData = async (req, res, next) => {
+  const { field } = req.query; // employeeTypes | workLocations | leaveTypes | shifts
+  const companyId = req.userData.company;
+
+  try {
+    if (!field) {
+      return res.status(400).json({ message: "Field is required" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(companyId)) {
+      return res.status(400).json({ message: "Invalid company ID provided" });
+    }
+
+    // Define fields that require population
+    const fieldsToPopulate = {
+      selectedDepartments: "selectedDepartments.department",
+      employeeTypes: "",
+      workLocations: "",
+      leaveTypes: "",
+      shifts: "",
+    };
+
+    let query = Company.findOne({ _id: companyId }).select(field);
+
+    // Populate if the field is in the fieldsToPopulate map
+    if (fieldsToPopulate[field]) {
+      query = query.populate(fieldsToPopulate[field]);
+    }
+
+    const fetchedData = await query.exec();
+
+    if (!fetchedData || !fetchedData[field]) {
+      return res.status(400).json({ message: "Couldn't fetch the data" });
+    }
+
+    return res.status(200).json({ [field]: fetchedData[field] });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateActiveStatus = async (req, res, next) => {
+  const { status, name } = req.body;
+  const { field } = req.params;
+  const companyId = req.userData.company;
+
+  try {
+    if (!field) {
+      return res.status(400).json({
+        message: "All feilds are required",
+      });
+    }
+
+    if (typeof status != "boolean") {
+      return res.status(400).json({
+        message: "Status should be a boolean",
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(companyId)) {
+      return res.status(400).json({ message: "Invalid company ID provided" });
+    }
+
+    const updateHandlers = {
+      workLocations: updateWorkLocationStatus,
+      employeeTypes: UpdateEmployeeTypeStatus,
+      shifts: updateShiftStatus,
+      leaveTypes: updateLeaveTypeStatus,
+    };
+
+    const updatedFunction = updateHandlers[field];
+
+    const updatedStatus = await updatedFunction(companyId, name, status);
+
+    if (!updatedStatus) {
+      return res.status(400).json({
+        message: "Couldn't update status",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Status updated successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  addCompany,
+  addCompanyLogo,
+  getCompanies,
+  updateActiveStatus,
+  getCompanyData,
+  getCompanyLogo,
+};

@@ -2,51 +2,55 @@ const mongoose = require("mongoose");
 
 const leaveSchema = new mongoose.Schema(
   {
-    leaveId: {
-      type: String,
-      default: "L-001",
+    company:{
+      type:mongoose.Schema.Types.ObjectId,
+      ref:"CompanyData",
+      required:true
     },
     takenBy: {
-      type: String,
-      required: true,
-      default: "Allan",
+     type:mongoose.Schema.Types.ObjectId,
+      ref:"User",
+      required:true
     },
-
     fromDate: {
-      type: String,
-      default: "2024-12-27",
+      type: Date,
+      required: true,
     },
     toDate: {
-      type: String,
-      default: "2024-12-27",
+      type: Date,
+      required: true,
     },
     leaveType: {
       type: String,
-      default: "Privileged Leave",
+      required: true,
     },
     leavePeriod: {
       type: String,
-      default: "Single",
+      required: true,
     },
     hours: {
-      type: String,
-      default: "9.00",
+      type: Number,
+      required: true,
     },
     description: {
       type: String,
-      default: "Privileged Leave",
+      required: true,
     },
     status: {
       type: String,
       default: "Pending",
     },
     approvedBy: {
-      type: String,
-      default: "N/A",
+      type:mongoose.Schema.Types.ObjectId,
+      ref:"User",
+    },
+    rejectedBy: {
+      type:mongoose.Schema.Types.ObjectId,
+      ref:"User",
     },
   },
   {
-    timestamps: true, // Enable timestamps
+    timestamps: true,  
   }
 );
 

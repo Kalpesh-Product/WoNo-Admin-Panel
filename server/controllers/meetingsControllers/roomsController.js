@@ -1,20 +1,49 @@
-const Room = require("../../models/Rooms");
+const Room = require("../../models/meetings/Rooms");
 const idGenerator = require("../../utils/idGenerator");
+const User = require("../../models/UserData");
 const sharp = require("sharp");
-const {
-  handleFileUpload,
-  handleFileDelete,
-} = require("../../config/cloudinaryConfig");
-const { default: mongoose } = require("mongoose");
+const mongoose = require("mongoose");
+const { handleFileUpload } = require("../../config/cloudinaryConfig");
 
 const addRoom = async (req, res, next) => {
   try {
-    const { name, seats, description } = req.body;
+    const { name, seats, description, location } = req.body;
+    const user = req.user;
 
-    if (!name || !seats || !description) {
+    if (!name || !seats || !description || !location) {
       return res
         .status(400)
         .json({ message: "All required fields must be provided" });
+    }
+
+    // Find the user and populate the company
+    const foundUser = await User.findById(user)
+      .select("company")
+      .populate({
+        path: "company",
+        select: "companyName workLocations",
+      })
+      .lean()
+      .exec();
+
+
+    if (!foundUser || !foundUser.company) {
+      return res
+        .status(400)
+        .json({ message: "Unauthorized or company not found" });
+    }
+
+    const company = foundUser.company;
+
+    // Check if the provided location exists in the company's workLocations
+    const isValidLocation = company.workLocations.some((loc) => {
+      return loc.name === location
+    });
+   
+    if (!isValidLocation) {
+      return res.status(400).json({
+        message: "Invalid location. Must be a valid company work location.",
+      });
     }
 
     const roomId = idGenerator("R");
@@ -24,14 +53,16 @@ const addRoom = async (req, res, next) => {
 
     if (req.file) {
       const file = req.file;
-
       const buffer = await sharp(file.buffer)
         .resize(800, 800, { fit: "cover" })
         .webp({ quality: 80 })
         .toBuffer();
 
       const base64Image = `data:image/webp;base64,${buffer.toString("base64")}`;
-      const uploadResult = await handleFileUpload(base64Image, "rooms");
+      const uploadResult = await handleFileUpload(
+        base64Image,
+        `${foundUser.company.companyName}/rooms`
+      );
 
       imageId = uploadResult.public_id;
       imageUrl = uploadResult.secure_url;
@@ -42,7 +73,9 @@ const addRoom = async (req, res, next) => {
       name,
       seats,
       description,
+      location, // Store validated location
       assignedAssets: [],
+      company: company._id, // Store company reference
       image: {
         id: imageId,
         url: imageUrl,
@@ -67,11 +100,7 @@ const getRooms = async (req, res, next) => {
     const rooms = await Room.find().populate("assignedAssets");
 
     // Send the response with the fetched rooms
-    res.status(200).json({
-      success: true,
-      message: "Rooms fetched successfully",
-      data: rooms,
-    });
+    res.status(200).json(rooms);
   } catch (error) {
     next(error);
   }
@@ -139,5 +168,34 @@ const updateRoom = async (req, res, next) => {
     next(error);
   }
 };
+
+
+// const updateHousekeepingStatus = async (req,res,next) => {
+
+//   try {
+  
+//     const {housekeepingStatus,bookedRoom} = req.body
+
+//     if(!mongoose.Types.ObjectId.isValid){
+//       return res.status(400).json({message:"Invalid room Id provided"})
+//     }
+
+//     const roomStatus = housekeepingStatus === "Pending" ? "Occupied" : housekeepingStatus === "In Progress" ? "Cleaning" : housekeepingStatus === "Completed" ? "Available" : ""
+
+//     const foundRoom = await Room.findByIdAndUpdate({_id:bookedRoom},{
+//       housekeepingStatus,
+//       "location.status": roomStatus
+//     },
+//   {new: true})
+
+//     if(!foundRoom){
+//       return res.status(400).json({message: "Failed to update status"})
+//     }
+
+//     return res.status(200).json({message: "Status updated successfully"})
+//   } catch (error) {
+//     next(error)
+//   }
+// }
 
 module.exports = { addRoom, getRooms, updateRoom };

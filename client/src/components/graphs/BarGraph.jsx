@@ -1,77 +1,44 @@
-import React from "react";
+import React, { useState } from "react";
 import Chart from "react-apexcharts";
+import { Select, MenuItem, FormControl } from "@mui/material";
 
-const BarGraph = ({ data, title }) => {
-  // Array of random data for the bar graph
-  const financialYears = [
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-    "January",
-    "February",
-    "March",
-  ];
+const BarGraph = ({ data, title, options, height }) => {
+  const [selectedYear, setSelectedYear] = useState("2024-2025");
 
-  const options = {
-    chart: {
-      type: "bar",
-      offsetY : 8,
-      toolbar: {
-        show: true, // Hide the toolbar for simplicity
-      },
-    },
+  // Function to update year selection
+  const handleYearChange = (event) => {
+    setSelectedYear(event.target.value);
+  };
 
-    plotOptions: {
-      bar: {
-        horizontal: false,
-        columnWidth: "80%",
-        borderRadius: 8,
-        dataLabels: {
-          enabled: true, // Enable data labels
-          position: "top", // Place data labels at the top of bars
-          offsetY: -20,
-          style: {
-            colors: ["#000"], // Set the color of the labels (black in this case)
-            fontSize: "5px",
-            fontWeight: "bold",
-          },
-        },
-      },
-    },
+  // Dynamically update only the x-axis title
+  const updatedOptions = {
+    ...options,
     xaxis: {
-      categories: financialYears,
-    },
-    yaxis: {
-      min: 0,
-      max: 1500,
-    },
-    colors: ["#1E90FF"], // Set bar color
-    tooltip: {
-      y: {
-        formatter: (value) => `${value}`, // Format tooltip
-      },
+      ...options?.xaxis,
+      title: { text: selectedYear },
     },
   };
 
-  const series = [
-    {
-      name: "Unique Companies",
-      data: data, // Use the random data array here
-    },
-  ];
-
   return (
-    <div className="bg-white border-default border-borderGray rounded-md">
-      <div className="border-b-2 p-4 border-gray-200">
-        <span className="text-lg">{title}</span>
+    <div className="bg-white rounded-md">
+      {/* Header section with title and financial year dropdown */}
+      <div className="border-b-2 p-4 pt-0 border-gray-200 flex justify-end">
+        {title && <span className="text-lg">{title}</span>}
+        <FormControl size="small">
+          <Select value={selectedYear} onChange={handleYearChange}>
+            <MenuItem value="2023-2024">2023-2024</MenuItem>
+            <MenuItem value="2024-2025">2024-2025</MenuItem>
+          </Select>
+        </FormControl>
       </div>
-      <Chart options={options} series={series} type="bar" height={350} />
+
+      {/* Chart Component */}
+      <Chart
+        options={updatedOptions}
+        series={data}
+        type="bar"
+        height={height || 350}
+      />
     </div>
   );
 };

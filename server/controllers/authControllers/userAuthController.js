@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken");
-const User = require("../../models/User");
-const registerLogs = require("../../utils/loginLogs");
+const User = require("../../models/UserData");
 const bcrypt = require("bcryptjs");
 const generatePassword = require("../../utils/passwordGenerator");
 const mailer = require("../../config/nodemailerConfig");
@@ -8,18 +7,10 @@ const emailTemplates = require("../../utils/emailTemplates");
 
 const login = async (req, res, next) => {
   try {
-    const ipAddress = req.ip;
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const { email, password } = req.body;
-    console.log(email,password)
 
     if (!emailRegex.test(email)) {
-      await registerLogs({
-        email,
-        status: "failed",
-        ip: ipAddress,
-        message: "Invalid credentials format",
-      });
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
@@ -27,49 +18,31 @@ const login = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid credentials" });
 
     const userExists = await User.findOne({ email })
-      .select("name role email phone empId department password")
-      .populate({
-        path: "department",
-        select: "name departmentId",
-      })
-      .populate({
-        path: "role",
-        select: "roleTitle modulePermissions",
-        populate: [
-          {
-            path: "modulePermissions.module",
-            select: "moduleTitle",
-          },
-          {
-            path: "modulePermissions.subModulePermissions.subModule",
-            select: "subModuleTitle",
-          },
-        ],
-      })
-      .populate({ path: "designation", select: "title" })
-      .populate({ path: "company", select: "companyName" })
-      .lean();
+      .select("firstName lastName role email empId password designation company")
+      .populate([
+        { path: "company", select: "companyName workLocations employeeTypes shifts policies agreements sops" },
+        { path: "role", select: "roleTitle" },
+      ])
+      .lean()
+      .exec();
 
     if (!userExists) {
-      await registerLogs({
-        email,
-        status: "failed",
-        ip: ipAddress,
-        message: "Invalid credentials format",
-      });
       return res.status(404).json({ message: "Invalid credentials" });
     }
-
-    if (userExists.password !== password) {
+    const isPasswordValid = await bcrypt.compare(password, userExists.password);
+    if (!isPasswordValid) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
-
+ 
     const accessToken = jwt.sign(
       {
         userInfo: {
-          userId: userExists._id,
+          userId: userExists._id, 
+          name: userExists.name,
           role: userExists.role,
           email: userExists.email,
+          company: userExists.company._id,
+          departments: userExists.departments
         },
       },
       process.env.ACCESS_TOKEN_SECRET,
@@ -83,13 +56,6 @@ const login = async (req, res, next) => {
       process.env.REFRESH_TOKEN_SECRET,
       { expiresIn: "30d" }
     );
-
-    await registerLogs({
-      email,
-      status: "success",
-      ip: ipAddress,
-      message: "Login successful",
-    });
 
     await User.findOneAndUpdate({ _id: userExists._id }, { refreshToken });
 

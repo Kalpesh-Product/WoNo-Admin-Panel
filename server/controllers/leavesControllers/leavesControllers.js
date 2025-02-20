@@ -1,135 +1,194 @@
-// const Leave = require("../../models/LeaveTest");
 const Leave = require("../../models/Leaves");
+const mongoose = require("mongoose");
+const UserData = require("../../models/UserData");
 
-const bcrypt = require("bcryptjs");
-// POST - Raise a leave
-
-const createLeave = async (req, res) => {
+const requestLeave = async (req, res, next) => {
   try {
-    // Get the sent in data off request body
-    // const leaveIdFromRequestBody = req.body.leaveId;
-    const takenByFromRequestBody = req.body.takenBy;
-    const leaveTypeFromRequestBody = req.body.leaveType;
+    const { fromDate, toDate, leaveType, leavePeriod, hours, description } =
+      req.body;
+    const loggedInUser = req.userData.userId;
 
-    // Create a leave with it (take the values from the request body / frontend and insert in the database)
-    const ourCreatedLeave = await Leave.create({
-      //   leaveId: leaveIdFromRequestBody,
-      takenBy: takenByFromRequestBody,
-      leaveType: leaveTypeFromRequestBody,
+    const company = req.userData.company;
 
-      // resolvedStatus: req.body.resolvedStatus ?? false,
+    if (
+      !fromDate ||
+      !toDate ||
+      !leaveType ||
+      !leavePeriod ||
+      !hours ||
+      !description
+    ) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const startDate = new Date(fromDate);
+    const endDate = new Date(toDate);
+    const currDate = new Date();
+
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      return res.status(400).json({ message: "Invalid date format" });
+    }
+
+    if (startDate < currDate) {
+      return res.status(400).json({ message: "Please select future date" });
+    }
+
+    const user = await UserData.findById({ _id: loggedInUser }).populate({
+      path: "company",
+      select: "employeeTypes",
     });
 
-    // respond with the new leave (this will be our response in postman / developer tools)
-    res.json({ leave: ourCreatedLeave });
+    const leaves = await Leave.find({ takenBy: loggedInUser });
+
+    if (leaves) {
+      const singleLeaves = leaves.filter(
+        (leave) =>
+          (leave.leavePeriod === "Single" && leave.leaveType === leaveType) ||
+          leave.leaveType === "Abrupt"
+      );
+      const singleLeaveHours = singleLeaves.length * 9;
+
+      const partialLeaveHours = leaves
+        .filter((leave) => leave.leavePeriod === "Partial")
+        .reduce((acc, leave) => acc + leave.hours, 0);
+
+      const grantedLeaves = user.employeeType.leavesCount.find((leave) => {
+        return leave.leaveType.toLowerCase() === leaveType.toLowerCase();
+      });
+
+      const grantedLeaveHours = grantedLeaves.count * 9;
+      const takenLeaveHours = singleLeaveHours + partialLeaveHours;
+
+      if (takenLeaveHours > grantedLeaveHours) {
+        return res.status(400).json({ message: "Can't request more leaves" });
+      }
+    }
+
+    const noOfDays = Math.abs(
+      (currDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    let updatedLeaveType = "";
+    if (leaveType === "Privileged" && noOfDays < 7) {
+      updatedLeaveType = "Abrupt";
+    }
+
+    const newLeave = new Leave({
+      company,
+      takenBy: loggedInUser,
+      leaveType: updatedLeaveType ? updatedLeaveType : leaveType,
+      fromDate,
+      toDate,
+      leavePeriod,
+      hours,
+      description,
+    });
+
+    await newLeave.save();
+
+    return res.status(201).json({ message: "Leave request sent" });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 
-// GET - Fetch all leaves
-const fetchAllLeaves = async (req, res) => {
+const fetchAllLeaves = async (req, res, next) => {
   try {
-    // Find the leaves
-    const listOfAllLeaves = await Leave.find();
-    // Respond with them
-    res.json({ leaves: listOfAllLeaves });
+    const user = req.userData.userId;
+
+    const leaves = await Leave.find({ takenBy: user });
+
+    if (!leaves || leaves.length === 0) {
+      return res.status(204).json({ message: "No leaves found" });
+    }
+
+    return res.status(200).json(leaves);
   } catch (error) {
-    console.log(error);
-    res.sendStatus(400);
+    next(error);
   }
 };
 
-// GET - Fetch leaves before today
-const fetchLeavesBeforeToday = async (req, res) => {
+const fetchLeavesBeforeToday = async (req, res, next) => {
   try {
-    // Get today's date and set time to the start of the day
+    const user = req.userData.userId;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Find the leaves before today
     const leavesBeforeToday = await Leave.find({
-      createdAt: { $lt: today },
+      fromDate: { $lt: today },
+      takenBy: user,
     });
 
-    // Respond with the filtered leaves
-    res.json({ leaves: leavesBeforeToday });
+    if (!leavesBeforeToday) {
+      return res.status(204).json({ message: "No leaves found" });
+    }
+
+    return res.status(200).json(leavesBeforeToday);
   } catch (error) {
-    console.error(error);
-    res.sendStatus(400);
+    next(error);
   }
 };
 
-// PUT - Approve leave
-const approveLeave = async (req, res) => {
+const approveLeave = async (req, res, next) => {
   try {
-    // Get the id off the url
-    const leaveIdFromTheUrl = req.params.id;
+    const leaveId = req.params.id;
+    const user = req.user;
 
-    // Get the data off the req body
-    // const assignedMemberFromRequestBody = req.body.assignedMember;
-    // const descriptionFromRequestBody = req.body.description;
+    if (!mongoose.Types.ObjectId.isValid(leaveId)) {
+      return res.status(400).json({ message: "Invalid Leave Id provided" });
+    }
 
-    // Find and update the record
-    await Leave.findOneAndUpdate(
-      { _id: leaveIdFromTheUrl },
+    const updatedLeave = await Leave.findOneAndUpdate(
+      { _id: leaveId },
       {
-        // assignedMember: assignedMemberFromRequestBody,
-        // description: descriptionFromRequestBody,
-        // "accepted.acceptedStatus": true,
-        status: "Approved",
+        $set: { status: "Approved", approvedBy: user },
+        $unset: { rejectedBy: "" },
       },
-      { new: true } // Returns the updated document
+      { new: true }
     );
 
-    //   Find updated leave (using it's id)
-    const updatedLeave = await Leave.findById(leaveIdFromTheUrl);
+    if (!updatedLeave) {
+      return res
+        .status(400)
+        .json({ message: "Couldn't approve the leave request" });
+    }
 
-    // Respond with the updated leave (after finding it)
-    res.json({ leave: updatedLeave });
+    return res.status(200).json({ message: "Leave Approved" });
   } catch (error) {
-    console.log(error);
-    res.sendStatus(400);
+    next(error);
   }
 };
 
-// PUT - Reject leave
-const rejectLeave = async (req, res) => {
+const rejectLeave = async (req, res, next) => {
   try {
-    // Get the id off the url
-    const leaveIdFromTheUrl = req.params.id;
+    const leaveId = req.params.id;
+    const user = req.user;
 
-    // Get the data off the req body
-    // const assignedMemberFromRequestBody = req.body.assignedMember;
-    // const descriptionFromRequestBody = req.body.description;
+    if (!mongoose.Types.ObjectId.isValid(leaveId)) {
+      return res.status(400).json({ message: "Invalid Leave Id provided" });
+    }
 
-    // Find and update the record
-    await Leave.findOneAndUpdate(
-      { _id: leaveIdFromTheUrl },
+    const updatedLeave = await Leave.findOneAndUpdate(
+      { _id: leaveId },
       {
-        // assignedMember: assignedMemberFromRequestBody,
-        // description: descriptionFromRequestBody,
-        // "accepted.acceptedStatus": true,
-        status: "Rejected",
+        $set: { status: "Rejected", rejectedBy: user },
+        $unset: { approvedBy: "" },
       },
-      { new: true } // Returns the updated document
+      { new: true }
     );
 
-    //   Find updated leave (using it's id)
-    const updatedLeave = await Leave.findById(leaveIdFromTheUrl);
+    if (!updatedLeave) {
+      return res.status(400).json({ message: "No such leave exists" });
+    }
 
-    // Respond with the updated leave (after finding it)
-    res.json({ leave: updatedLeave });
+    return res.status(200).json({ message: "Leave rejected" });
   } catch (error) {
-    console.log(error);
-    res.sendStatus(400);
+    next(error);
   }
 };
-
-// TEST USER ROUTES END
 
 module.exports = {
-  createLeave,
+  requestLeave,
   fetchAllLeaves,
   fetchLeavesBeforeToday,
   approveLeave,

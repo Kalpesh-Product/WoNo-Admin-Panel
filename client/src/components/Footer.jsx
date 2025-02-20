@@ -1,104 +1,71 @@
 import React from "react";
+import wonoLogo from "../assets/WONO_images/img/WONO.png";
 
 const Footer = ({ changeActiveTab }) => {
+  const footerLinks = [
+    {
+      title: "About",
+    },
+    {
+      title: "Career",
+    },
+    {
+      title: "Contact",
+    },
+    {
+      title: "Privacy",
+    },
+    {
+      title: "FAQS",
+    },
+    {
+      title: "T&C",
+    },
+  ];
   return (
-    <footer className="bg-black text-gray-200 py-8 px-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-start gap-6">
-          {/* Logo and Company Info */}
-          <div className="flex flex-col items-start space-y-4">
+    <div className="bg-black text-white py-6">
+      <div className=" flex flex-col items-center border-b-[1px] border-gray-600 pb-4">
+        <p className="text-content text-gray-400 text-center">
+          Powered by WONOCO PRIVATE LIMITED - SINGAPORE. All Rights Reserved. ©
+          Copyright 2024-25
+        </p>
+      </div>
+      <div className="py-4 px-16 flex items-center">
+        <div className=" w-full flex flex-col gap-2">
+          <div className="h-20 w-40">
             <img
-              src={''}
-              alt="Wono Logo"
-              className="w-32 cursor-pointer"
-              onClick={() => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                // changeActiveTab("Home");
-              }}
+              className="w-[88%] h-full object-contain"
+              src={wonoLogo}
+              alt="wono-logo"
             />
-            <address className="not-italic text-sm leading-6">
-              WONOCO PRIVATE LIMITED<br />
-              10 ANSON ROAD #33-10<br />
+          </div>
+          <div className="flex flex-col gap-2 justify-start">
+            <span className="text-content">
+              WONOCO PRIVATE LIMITED 10 ANSON ROAD #33-10
+            </span>
+            <span className="text-content">
               INTERNATIONAL PLAZA SINGAPORE - 079903
-            </address>
-            <p className="text-blue-400">
+            </span>
+          </div>
+          <div className="flex gap-2 justify-start">
+            <span className="text-content pr-10 border-r-default border-white">
               response@wono.co
-            </p>
+            </span>
+            <span className="text-content">www.wono.co</span>
           </div>
-
-          {/* Links */}
-          <div className="flex justify-center items-center h-[100%]">
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 w-full md:w-auto place-items-center">
-            <div className="space-y-4">
-            
-              <ul className="space-y-5">
-                <li className="cursor-pointer hover:text-blue-400">Sign In</li>
-                <li className="cursor-pointer hover:text-blue-400">Sign Up</li>
-                <li className="cursor-pointer hover:text-blue-400">Contact</li>
-              </ul>
-            </div>
-            <div className="space-y-4">
-              
-              <ul className="space-y-5">
-                <li className="cursor-pointer hover:text-blue-400">SaaS</li>
-                <li className="cursor-pointer hover:text-blue-400">Themes</li>
-                <li className="cursor-pointer hover:text-blue-400">Leads</li>
-              </ul>
-            </div>
-            <div className="space-y-4">
-              
-              <ul className="space-y-5">
-                <li className="cursor-pointer hover:text-blue-400">Capital</li>
-                <li className="cursor-pointer hover:text-blue-400">Career</li>
-                <li className="cursor-pointer hover:text-blue-400">About</li>
-              </ul>
-            </div>
-            <div className="space-y-4">
-             
-              <ul className="space-y-5">
-                <li className="cursor-pointer hover:text-blue-400">FAQs</li>
-                <li className="cursor-pointer hover:text-blue-400">Privacy</li>
-                <li className="cursor-pointer hover:text-blue-400">T&C</li>
-              </ul>
-            </div>
-          </div>
-          </div>
-
-          {/* Social Icons */}
-          {/* <div className="flex space-x-4 mt-4 md:mt-0">
-            <FontAwesomeIcon
-              icon={faTwitter}
-              className="text-blue-400 hover:text-blue-500 cursor-pointer"
-              size="lg"
-            />
-            <FontAwesomeIcon
-              icon={faFacebook}
-              className="text-blue-400 hover:text-blue-500 cursor-pointer"
-              size="lg"
-            />
-            <FontAwesomeIcon
-              icon={faInstagram}
-              className="text-pink-500 hover:text-pink-600 cursor-pointer"
-              size="lg"
-            />
-            <FontAwesomeIcon
-              icon={faLinkedin}
-              className="text-blue-700 hover:text-blue-800 cursor-pointer"
-              size="lg"
-            />
-          </div> */}
         </div>
 
-        {/* Footer Bottom */}
-        <div className="mt-8 text-center text-sm text-gray-400 border-t border-gray-700 pt-4">
-          <p>
-            &copy; Copyright 2024-25 by WONOCO PRIVATE LIMITED - SINGAPORE.
-            All Rights Reserved.
-          </p>
+        <div className="w-full grid grid-cols-3 sm:grid-cols-1 md:grid-cols-3 gap-8 uppercase">
+          {footerLinks.map((links,index)=>(
+            <>
+            <div className="text-center">
+              <span className="text-content text-white">{links.title}</span>
+            </div>
+            </>
+          ))}
         </div>
       </div>
-    </footer>
+    </div>
   );
 };
 

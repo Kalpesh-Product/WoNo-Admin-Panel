@@ -6,17 +6,25 @@ const BreadCrumbComponent = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Extract query parameters
+  const searchParams = new URLSearchParams(location.search);
+  
+  // Convert query parameters into an array of key-value pairs
+  const queryParamEntries = Array.from(searchParams.entries());
+
   // Extract and process the path, excluding 'app' for display purposes
   const pathSegments = location.pathname
-    .split("/") // Split the path into segments
-    .filter((segment) => segment && segment !== "app" && segment !== "dashboard"); // Remove empty segments and exclude '/app'
+    .split("/")
+    .filter((segment) => segment && segment !== "app" && segment !== "dashboard");
 
   // Generate breadcrumb links
   const breadcrumbs = pathSegments.map((segment, index) => {
     const isLast = index === pathSegments.length - 1;
 
-    // Add `/app` back to the navigation path
-    const path = `/app/dashboard/${pathSegments.slice(0, index + 1).join("/")}`;
+    // Build the navigation path
+    const path = pathSegments.slice(0, index + 1).join("/");
+    const isDirectAppPath = location.pathname.startsWith(`/app/${path}`) && !location.pathname.includes("/dashboard");
+    const fullPath = isDirectAppPath ? `/app/${path}` : `/app/dashboard/${path}`;
 
     // Capitalize for display
     const displayText = segment
@@ -32,11 +40,20 @@ const BreadCrumbComponent = () => {
         key={index}
         underline="hover"
         color="inherit"
-        onClick={() => navigate(path)} // Navigate using the path with `/app`
+        onClick={() => navigate(fullPath)}
         style={{ cursor: "pointer" }}
       >
         {displayText}
       </Link>
+    );
+  });
+
+  // Append query parameters dynamically to the breadcrumb
+  queryParamEntries.forEach(([key, value], index) => {
+    breadcrumbs.push(
+      <Typography key={`param-${index}`} color="text.primary">
+        {`${value}`}
+      </Typography>
     );
   });
 
@@ -47,18 +64,18 @@ const BreadCrumbComponent = () => {
         aria-label="breadcrumb"
         sx={{
           "& .MuiBreadcrumbs-ol": {
-            fontSize: "1rem !important", // For the entire ordered list
+            fontSize: "1rem !important",
             color: "#1E3D73",
           },
           "& .MuiBreadcrumbs-li": {
-            fontSize: "0.9rem !important", // For all list items
+            fontSize: "0.9rem !important",
           },
           "& .MuiBreadcrumbs-li .MuiTypography-root": {
-            fontSize: "0.9rem !important", // For active Typography-based breadcrumb
+            fontSize: "0.9rem !important",
             color: "#1E3D73 !important",
           },
           "& .MuiBreadcrumbs-separator": {
-            margin: "0 1rem", // Add margin around the separator
+            margin: "0 1rem",
           },
         }}
       >

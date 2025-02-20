@@ -30,9 +30,7 @@ import DashboardLayout from "../pages/Dashboard/DashboardLayout";
 import FrontendDashboard from "../pages/Dashboard/FrontendDashboard/FrontendDashboard";
 import HrDashboard from "../pages/Dashboard/HrDashboard/HrDashboard";
 import HrLayout from "../pages/Dashboard/HrDashboard/HrLayout";
-import ViewEmployees from '../pages/Dashboard/HrDashboard/Complaince/ViewEmployees'
-import CompanyHandbook from '../pages/Dashboard/HrDashboard/Complaince/CompanyHandbook'
-import HoildaysEvents from '../pages/Dashboard/HrDashboard/Complaince/HoildaysEvents'
+import ViewEmployees from "../pages/Dashboard/HrDashboard/Complaince/ViewEmployees";
 import OnBoarding from "../pages/Dashboard/HrDashboard/OnBoarding/OnBoarding";
 import EmployeeOnboard from "../pages/Dashboard/HrDashboard/OnBoarding/EmployeeOnboard";
 import MemberOnboard from "../pages/Dashboard/HrDashboard/OnBoarding/MemberOnboard";
@@ -44,12 +42,84 @@ import Leaves from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/Lea
 import Agreements from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/Agreements";
 import KPI from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/KPI";
 import KRA from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/KRA";
+import Data from "../pages/Dashboard/HrDashboard/Data/HRData";
+import JobApplicationList from "../pages/Dashboard/HrDashboard/Data/JobApplicationList";
+import Templates from "../pages/Dashboard/HrDashboard/Data/Templates";
+import HrFinance from "../pages/Dashboard/HrDashboard/Finance/HrFinance";
+import HrBudget from "../pages/Dashboard/HrDashboard/Finance/HrBudget";
+import HrPayment from "../pages/Dashboard/HrDashboard/Finance/HrPayment";
+import HrSettings from "../pages/Dashboard/HrDashboard/HrSettings/HrSettings";
+import CompanyLogo from "../pages/Dashboard/HrDashboard/HrSettings/CompanyLogo";
+import HrSettingsDepartments from "../pages/Dashboard/HrDashboard/HrSettings/HrSettingsDepartments";
+import WorkLocations from "../pages/Dashboard/HrDashboard/HrSettings/WorkLocations";
+import LeaveType from "../pages/Dashboard/HrDashboard/HrSettings/LeaveType";
+import HrSettingsPolicies from "../pages/Dashboard/HrDashboard/HrSettings/HrSettingsPolicies";
+import HrSOP from "../pages/Dashboard/HrDashboard/HrSettings/HrSOP";
+import EmployeeType from "../pages/Dashboard/HrDashboard/HrSettings/EmployeeType";
+import Shifts from "../pages/Dashboard/HrDashboard/HrSettings/Shifts";
+import Payslip from "../pages/Dashboard/HrDashboard/Complaince/EmployeeDetail/Payslip";
+import HolidaysEvents from "../pages/Dashboard/HrDashboard/Complaince/HoildaysEvents";
+import ViewVendors from "../pages/Dashboard/HrDashboard/Complaince/ViewVendors";
+import HrPayroll from "../pages/Dashboard/HrDashboard/Finance/HrPayroll";
+import ViewPayroll from "../pages/Dashboard/HrDashboard/Finance/ViewPayroll";
+import HrReports from "../pages/Dashboard/HrDashboard/Data/Reports";
+import BulkUpload from "../pages/Dashboard/HrDashboard/HrSettings/BulkUpload";
+import ComapanyHandbook from "../pages/Dashboard/HrDashboard/Complaince/CompanyHandbook";
+import MeetingLayout from "../pages/Meetings/MeetingLayout";
+import MeetingDashboard from "../pages/Meetings/MeetingDashboard";
+import BookMeetings from "../pages/Meetings/BookMeetings";
+import ManageMeetings from "../pages/Meetings/ManageMeetings";
+import MeetingSettings from "../pages/Meetings/MeetingSettings";
+import Reviews from "../pages/Meetings/Reviews";
+import MeetingCalendar from "../pages/Meetings/Calendar";
+import MeetingReports from "../pages/Meetings/MeetingReports";
+import MeetingFormLayout from "../pages/Meetings/MeetingFormLayout";
+import FrontendLayout from "../pages/Dashboard/FrontendDashboard/FrontendLayout";
+import FrontendData from "../pages/Dashboard/FrontendDashboard/Data/FrontendData";
+import FrontendLeads from "../pages/Dashboard/FrontendDashboard/Data/FrontendLeads";
+import FrontendWebsiteIssueReports from "../pages/Dashboard/FrontendDashboard/Data/FrontendWebsiteIssueReports";
+import FrontendFinLayout from "../pages/Dashboard/FrontendDashboard/FrontendFinance/FrontendFinLayout";
+import FrontendBudget from "../pages/Dashboard/FrontendDashboard/FrontendFinance/FrontendBudget";
+import FrontendPayment from "../pages/Dashboard/FrontendDashboard/FrontendFinance/FrontendPayment";
+import ThemeGrid from "../pages/Dashboard/FrontendDashboard/WebsiteBuilder/ThemeGrid";
+import ViewTheme from "../pages/Dashboard/FrontendDashboard/WebsiteBuilder/ViewTheme";
+import PageDemo from "../pages/Dashboard/FrontendDashboard/WebsiteBuilder/PageDemo";
+import FrontendSettings from "../pages/Dashboard/FrontendDashboard/FrontendSettings/FrontendSettings";
+import FrontendBulkUpload from "../pages/Dashboard/FrontendDashboard/FrontendSettings/BulkUpload";
+import AssetsLayout from "../pages/Assets/AssetsLayout";
+import AssetsDashboard from "../pages/Assets/AssetsDashboard";
+import AssignAssets from "../pages/Assets/ManageAssets/AssignAssets";
+import ManageAssets from "../pages/Assets/ManageAssets/ManageAssets";
+import AssignedAssets from "../pages/Assets/ManageAssets/AssignedAssets";
+import Approvals from "../pages/Assets/ManageAssets/Approvals";
+import AssetReports from "../pages/Assets/Reports/AssetReports";
+import AssetsCategoriesLayout from "../pages/Assets/AssetsCategory/AssetsCategoriesLayout";
+import AssetsCategories from "../pages/Assets/AssetsCategory/AssetsCategories";
+import AssetsSubCategories from "../pages/Assets/AssetsCategory/AssetsSubCategories";
+import ListOfAssets from "../pages/Assets/AssetsCategory/ListOfAssets";
+import AssetsSettings from "../pages/Assets/AssetsSettings/AssetsSettings";
+import AssetsBulkUpload from "../pages/Assets/AssetsSettings/BulkUpload";
+import TasksLayout from "../pages/Tasks/TasksLayout";
+import TasksDashboard from "../pages/Tasks/TasksDashboard";
+import MyTaskListLayout from "../pages/Tasks/My-Tasklist/MyTaskListLayout";
+import DailyTasks from "../pages/Tasks/My-Tasklist/DailyTasks";
+import MonthlyTasks from "../pages/Tasks/My-Tasklist/MonthlyTasks";
+import AdditionalTasks from "../pages/Tasks/My-Tasklist/AdditionalTasks";
+import TeamMember from "../pages/Tasks/TeamMembers/TeamMember";
+import ProjectList from "../pages/Tasks/ProjectList/ProjectList";
+import EditProject from "../pages/Tasks/ProjectList/EditProject";
+import TaskReportLayout from "../pages/Tasks/TaskReports.jsx/TaskReportLayout";
+import MyTaskReports from "../pages/Tasks/TaskReports.jsx/MyTaskReports";
+import AssignedTaskReports from "../pages/Tasks/TaskReports.jsx/AssignedTaskReports";
+import DepartmentTaskReports from "../pages/Tasks/TaskReports.jsx/DepartmentTaskReports";
+import TemplatePreview from "../pages/Dashboard/HrDashboard/Data/TemplatePreview";
 
 export const routes = createBrowserRouter([
   {
     path: "/",
     element: <LoginPage />,
   },
+
   {
     element: <PersistLogin />,
     children: [
@@ -66,15 +136,71 @@ export const routes = createBrowserRouter([
                 children: [
                   {
                     path: "frontend-dashboard",
-                    element: <FrontendDashboard />,
-                    index: true,
+                    element: <FrontendLayout />,
+                    children: [
+                      {
+                        path: "",
+                        element: <FrontendDashboard />,
+                      },
+                      {
+                        path: "select-theme",
+                        element: <ThemeGrid />,
+                      },
+                      {
+                        path: "view-theme",
+                        element: <ViewTheme />,
+                      },
+                      {
+                        path: "live-demo",
+                        element: <PageDemo />,
+                      },
+                      {
+                        path: "data",
+                        element: <FrontendData />,
+                        children: [
+                          {
+                            path: "leads",
+                            index: true,
+                            element: <FrontendLeads />,
+                          },
+                          {
+                            path: "website-issue-reports",
+                            element: <FrontendWebsiteIssueReports />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "settings",
+                        element: <FrontendSettings />,
+                        children: [
+                          {
+                            path: "bulk-upload",
+                            element: <FrontendBulkUpload />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "finance",
+                        element: <FrontendFinLayout />,
+                        children: [
+                          {
+                            path: "budget",
+                            element: <FrontendBudget />,
+                          },
+                          {
+                            path: "payment-schedule",
+                            element: <FrontendPayment />,
+                          },
+                        ],
+                      },
+                    ],
                   },
                   {
                     path: "finance-dashboard",
                     element: <Dashboard />,
                   },
                   {
-                    path: "hr-dashboard",
+                    path: "HR-dashboard",
                     element: <HrLayout />,
                     children: [
                       {
@@ -82,77 +208,168 @@ export const routes = createBrowserRouter([
                         element: <HrDashboard />,
                       },
                       {
-                        path: "compliances",
+                        path: "company",
                         element: <Compliances />,
                         children: [
                           {
-                            path: "view-employees",
-                            index:true,
-                            element: <ViewEmployees />,
+                            path: "company-logo",
+                            element: <CompanyLogo />,
                           },
                           {
-                            path: "view-employees/:id", // Move dynamic route to the same level as view-employees
-                            element: <EmployeeDetail />,
-                            children:[
-                              {
-                                path: "edit-details",
-                                element: <EditDetails />
-                              },
-                              {
-                                path: "attendance",
-                                element: <Attendance />
-                              },
-                              {
-                                path: "leaves",
-                                element: <Leaves />
-                              },
-                              {
-                                path: "agreements",
-                                element: <Agreements />
-                              },
-                              {
-                                path: "kpi",
-                                element: <KPI />
-                              },
-                              {
-                                path: "kra",
-                                element: <KRA />
-                              }
-                            ]
+                            path: "departments",
+                            element: <HrSettingsDepartments />,
+                          },
+                          {
+                            path: "work-locations",
+                            element: <WorkLocations />,
+                          },
+                          {
+                            path: "holidays",
+                            element: <HolidaysEvents />,
                           },
                           {
                             path: "company-handbook",
-                            element: <CompanyHandbook />,
+                            element: <ComapanyHandbook />,
                           },
                           {
-                            path: "holidays-events",
-                            element: (
-                              <HoildaysEvents
-                                title={"Holiday & Event Listing"}
-                              />
-                            ),
+                            path: "policies",
+                            element: <HrSettingsPolicies />,
                           },
-                        ],
-                      },
-                      {
-                        path: "onboarding",
-                        element: <OnBoarding />,
-                        children: [
                           {
-                            path: "employee-onboarding",
-                            index:true,
-                            element: <EmployeeOnboard />,
+                            path: "sops",
+                            element: <HrSOP />,
+                          },
+                          {
+                            path: "employee-type",
+                            element: <EmployeeType />,
+                          },
+                          {
+                            path: "shifts",
+                            element: <Shifts />,
                           },
                           {
                             path: "vendor-onboarding",
                             element: <VendorOnboard />,
                           },
                           {
+                            path: "vendor-onboarding/vendor-details/:id",
+                            element: <ViewVendors />,
+                          },
+                          {
+                            path: "templates",
+                            element: <Templates />,
+                          },
+                          {
+                            path: "templates/preview-template",
+                            element: <TemplatePreview />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "employee",
+                        element: <OnBoarding />,
+                        children: [
+                          {
+                            path: "employee-onboarding",
+                            index: true,
+                            element: <EmployeeOnboard />,
+                          },
+                          {
+                            path: "view-employees",
+                            element: <ViewEmployees />,
+                          },
+                          {
+                            path: "view-employees/:id", // Move dynamic route to the same level as view-employees
+                            element: <EmployeeDetail />,
+                            children: [
+                              {
+                                path: "edit-details",
+                                element: <EditDetails />,
+                              },
+                              {
+                                path: "attendance",
+                                element: <Attendance />,
+                              },
+                              {
+                                path: "leaves",
+                                element: <Leaves />,
+                              },
+                              {
+                                path: "agreements",
+                                element: <Agreements />,
+                              },
+                              {
+                                path: "kpi",
+                                element: <KPI />,
+                              },
+                              {
+                                path: "kra",
+                                element: <KRA />,
+                              },
+                              {
+                                path: "payslip",
+                                element: <Payslip />,
+                              },
+                            ],
+                          },
+
+                          {
                             path: "member-onboarding",
-                            element: (
-                              <MemberOnboard
-                              />
-                            ),
+                            element: <MemberOnboard />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "data",
+                        element: <Data />,
+                        children: [
+                          {
+                            path: "job-application-list",
+                            index: true,
+                            element: <JobApplicationList />,
+                          },
+
+                          {
+                            path: "reports",
+
+                            element: <HrReports />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "finance",
+                        element: <HrFinance />,
+                        children: [
+                          {
+                            path: "budget",
+                            index: true,
+                            element: <HrBudget />,
+                          },
+                          {
+                            path: "payment-schedule",
+                            element: <HrPayment />,
+                          },
+                          {
+                            path: "payroll",
+                            element: <HrPayroll />,
+                          },
+                          {
+                            path: "payroll/view-payroll",
+                            element: <HrPayroll />,
+                          },
+                          {
+                            path: "payroll/view-payroll/:id",
+                            element: <ViewPayroll />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "settings",
+                        element: <HrSettings />,
+                        children: [
+                          {
+                            path: "bulk-upload",
+                            element: <BulkUpload />,
                           },
                         ],
                       },
@@ -222,6 +439,223 @@ export const routes = createBrowserRouter([
                   {
                     path: "reports",
                     element: <TicketReports />,
+                  },
+                ],
+              },
+              {
+                path: "meetings", // Parent path
+                element: <MeetingLayout />, // Parent component for tickets
+                children: [
+                  {
+                    path: "", // Default route for /app/tickets
+                    element: <MeetingDashboard />, // Dashboard is rendered by default
+                    index: true,
+                  },
+                  {
+                    path: "book-meeting",
+                    element: <BookMeetings />, // This is your first page
+                  },
+                  {
+                    path: "schedule-meeting",
+                    element: <MeetingFormLayout />, // This is your second page
+                  },
+                  {
+                    path: "manage-meetings",
+                    element: <ManageMeetings />,
+                  },
+                  {
+                    path: "settings",
+                    element: <MeetingSettings />,
+                  },
+                  {
+                    path: "calendar",
+                    element: <MeetingCalendar />,
+                  },
+                  {
+                    path: "reports",
+                    element: <MeetingReports />,
+                  },
+                  {
+                    path: "reviews",
+                    element: <Reviews />,
+                  },
+                  {
+                    path: "settings",
+                    element: <TicketReports />,
+                  },
+                ],
+              },
+              {
+                path: "assets", // Parent path
+                element: <AssetsLayout />, // Parent component for tickets
+                children: [
+                  {
+                    path: "", // Default route for /app/assets
+                    element: <AssetsDashboard />, // Dashboard is rendered by default
+                    index: true,
+                  },
+                  {
+                    path: "categories",
+                    element: <AssetsCategoriesLayout />, // This is your first page
+                    children: [
+                      {
+                        path: "assets-categories",
+                        index: true,
+                        element: <AssetsCategories />,
+                      },
+                      {
+                        path: "assets-sub-categories",
+                        element: <AssetsSubCategories />,
+                      },
+                      {
+                        path: "list-of-assets",
+                        element: <ListOfAssets />,
+                      },
+                    ],
+                  },
+                  {
+                    path: "schedule-meeting",
+                    element: <MeetingFormLayout />, // This is your second page
+                  },
+                  {
+                    path: "manage-assets",
+                    element: <ManageAssets />,
+                    children:[
+                      {
+                        path:'assign-assets',
+                        element:<AssignAssets />
+                      },
+                      {
+                        path:'assigned-assets',
+                        element:<AssignedAssets />
+                      },
+                      {
+                        path:'approvals',
+                        element:<Approvals />
+                      },
+                    ]
+                  },
+                  {
+                    path: "calendar",
+                    element: <MeetingCalendar />,
+                  },
+                  {
+                    path: "reports",
+                    element: <AssetReports />,
+                  },
+                  {
+                    path: "reviews",
+                    element: <Reviews />,
+                  },
+                  {
+                    path: "settings",
+                    element: <AssetsSettings />,
+                    children: [
+                      {
+                        path: "bulk-upload",
+                        element: <AssetsBulkUpload />,
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                path: "tasks", // Parent path
+                element: <TasksLayout />, // Parent component for tasks
+                children: [
+                  {
+                    path: "", // Default route for /app/tasks
+                    element: <TasksDashboard />, // Dashboard is rendered by default
+                    index: true,
+                  },
+                  {
+                    path: "project-list", // Default route for /app/tasks
+                    element: <ProjectList />, // Dashboard is rendered by default
+                  },
+                  {
+                    path: "project-list/edit-project", // Default route for /app/tasks
+                    element: <ProjectList />, // Dashboard is rendered by default
+                  },
+                  {
+                    path: "project-list/edit-project/:id", // Default route for /app/tasks
+                    element: <EditProject />, // Dashboard is rendered by default
+                  },
+                  {
+                    path: "my-tasklist",
+                    element: <MyTaskListLayout />, // This is your first page
+                    children: [
+                      {
+                        path: "daily-tasks",
+                        index: true,
+                        element: <DailyTasks />,
+                      },
+                      {
+                        path: "monthly-tasks",
+                        element: <MonthlyTasks />,
+                      },
+                      {
+                        path: "additional-Tasks",
+                        element: <AdditionalTasks />,
+                      },
+                    ],
+                  },
+                  {
+                    path: "team-members",
+                    element: <TeamMember />, 
+                  },
+                  {
+                    path: "manage-assets",
+                    element: <ManageAssets />,
+                    children:[
+                      {
+                        path:'assign-assets',
+                        element:<AssignAssets />
+                      },
+                      {
+                        path:'assigned-assets',
+                        element:<AssignedAssets />
+                      },
+                      {
+                        path:'approvals',
+                        element:<Approvals />
+                      },
+                    ]
+                  },
+                  {
+                    path: "calendar",
+                    element: <MeetingCalendar />,
+                  },
+                  {
+                    path: "reports",
+                    element: <TaskReportLayout />,
+                    children:[
+                      {
+                        path:'my-task-reports',
+                        element:<MyTaskReports />
+                      },
+                      {
+                        path:'assigned-task-reports',
+                        element:<AssignedTaskReports />
+                      },
+                      {
+                        path:'department-task-reports',
+                        element:<DepartmentTaskReports />
+                      },
+                    ]
+                  },
+                  {
+                    path: "reviews",
+                    element: <Reviews />,
+                  },
+                  {
+                    path: "settings",
+                    element: <AssetsSettings />,
+                    children: [
+                      {
+                        path: "bulk-upload",
+                        element: <AssetsBulkUpload />,
+                      },
+                    ],
                   },
                 ],
               },

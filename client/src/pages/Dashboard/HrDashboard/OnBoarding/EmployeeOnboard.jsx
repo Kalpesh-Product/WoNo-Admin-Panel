@@ -8,7 +8,6 @@ const EmployeeOnboard = () => {
   const { control, handleSubmit, reset } = useForm();
 
   const onSubmit = (data) => {
-    console.log("Form Data:", data);
   };
 
   const handleReset = () => {
@@ -489,6 +488,135 @@ const EmployeeOnboard = () => {
                     {...field}
                     size="small"
                     label="Employee PF"
+                    fullWidth
+                  />
+                )}
+              />
+            </div>
+          </div>
+          <div>
+            {/* Section: Payroll Information */}
+            <div className="py-4 border-b-default border-borderGray">
+              <span className="text-subtitle font-pmedium">
+               Bank Information
+              </span>
+            </div>
+            <div className="grid grid-cols sm:grid-cols-1 md:grid-cols-1 gap-4 p-4">
+              <Controller
+                name="bankIfsc"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    size="small"
+                    label="Bank IFSC"
+                    fullWidth
+                  />
+                )}
+              />
+
+              <Controller
+                name="bankName"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    size="small"
+                    label="Bank Name"
+                    fullWidth
+                  />
+                )}
+              />
+
+              <Controller
+                name="branchName"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    size="small"
+                    label="Branch Name"
+                    fullWidth
+                  />
+                )}
+              />
+
+              <Controller
+                name="nameOnAccount"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    size="small"
+                    label="Name On Account"
+                    fullWidth
+                  />
+                )}
+              />
+              <Controller
+                name="accountNumber"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    size="small"
+                    label="AccountNumber"
+                    fullWidth
+                  />
+                )}
+              />
+            </div>
+          </div>
+          <div>
+            {/* Section: Payroll Information */}
+            <div className="py-4 border-b-default border-borderGray">
+              <span className="text-subtitle font-pmedium">
+               Family Information
+              </span>
+            </div>
+            <div className="grid grid-cols sm:grid-cols-1 md:grid-cols-1 gap-4 p-4">
+              <Controller
+                name="fatherName"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    size="small"
+                    label="Father Name"
+                    fullWidth
+                  />
+                )}
+              />
+
+              <Controller
+                name="motherName"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    size="small"
+                    label="Mother Name"
+                    fullWidth
+                  />
+                )}
+              />
+
+              <Controller
+                name="martialStatus"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    size="small"
+                    label="Marital Status"
                     fullWidth
                   />
                 )}

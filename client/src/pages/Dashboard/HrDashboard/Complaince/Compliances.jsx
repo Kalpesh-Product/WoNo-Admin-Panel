@@ -1,6 +1,6 @@
 import { Tab, Tabs } from "@mui/material";
 import React, { useEffect } from "react";
-import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const Compliances = () => {
   const location = useLocation();
@@ -8,22 +8,27 @@ const Compliances = () => {
 
   // Map routes to tabs
   const tabs = [
-    { label: "View Employees", path: "view-employees" },
+    { label: "Company Logo", path: "company-logo" },
     { label: "Company Handbook", path: "company-handbook" },
-    { label: "Holidays / Events", path: "holidays-events" },
+    { label: "Departments", path: "departments" },
+    { label: "Work Locations", path: "work-locations" },
+    { label: "Holidays / Events", path: "holidays" },
+    { label: "Policies", path: "policies" },
+    { label: "SOP's", path: "sops" },
+    { label: "Employee Types", path: "employee-type" },
+    { label: "Shifts", path: "shifts" },
+    { label: "Templates", path: "templates" },
+    { label: "Vendor", path: "vendor-onboarding" },
   ];
 
-  // Redirect to "view-employees" if the current path is "/hr-dashboard/compliances"
+  // Redirect to "company-logo" if the current path is "/app/dashboard/HR-dashboard/company"
   useEffect(() => {
-    if (location.pathname === "/app/dashboard/hr-dashboard/compliances") {
-      navigate("/app/dashboard/hr-dashboard/compliances/view-employees", {
+    if (location.pathname === "/app/dashboard/HR-dashboard/company") {
+      navigate("/app/dashboard/HR-dashboard/company/company-logo", {
         replace: true,
       });
     }
   }, [location, navigate]);
-
-  // Determine whether to show the tabs
-  const showTabs = !location.pathname.includes("view-employees/");
 
   // Determine active tab based on location
   const activeTab = tabs.findIndex((tab) =>
@@ -32,48 +37,50 @@ const Compliances = () => {
 
   return (
     <div className="p-4">
-      {/* Render tabs only if the current route is not EmployeeDetails */}
-      {showTabs && (
-        <Tabs
-          value={activeTab}
-          variant="fullWidth"
-          TabIndicatorProps={{ style: { display: "none" } }}
-          sx={{
-            backgroundColor: "white",
-            borderRadius: 2,
-            border: "1px solid #d1d5db",
-            "& .MuiTab-root": {
-              textTransform: "none",
-              fontWeight: "medium",
-              padding: "12px 16px",
-              borderRight: "0.1px solid #d1d5db",
-            },
-            "& .Mui-selected": {
-              backgroundColor: "#1E3D73",
-              color: "white",
-            },
-          }}
-        >
-          {tabs.map((tab, index) => (
-            <NavLink
-              key={index}
-              className={"border-r-[1px] border-borderGray"}
-              to={tab.path}
-              style={({ isActive }) => ({
-                textDecoration: "none",
-                color: isActive ? "white" : "#1E3D73",
-                flex: 1,
-                textAlign: "center",
-                padding: "12px 16px",
-                display: "block",
-                backgroundColor: isActive ? "#1E3D73" : "white",
-              })}
-            >
-              {tab.label}
-            </NavLink>
-          ))}
-        </Tabs>
-      )}
+      {/* Render Tabs */}
+      <Tabs
+        value={activeTab}
+        onChange={(event, newValue) => {
+          navigate(`/app/dashboard/HR-dashboard/company/${tabs[newValue].path}`);
+        }}
+        variant="scrollable" // Makes tabs scrollable
+        scrollButtons="auto" // Show scroll buttons when needed
+        TabIndicatorProps={{ style: { display: "none" } }}
+        sx={{
+          overflow: "hidden", // Prevent overflow
+          width: "100%", // Ensure tabs fit within screen width
+          whiteSpace: "nowrap", // Prevent text from wrapping
+          backgroundColor: "white",
+          borderRadius: 2,
+          border: "1px solid #d1d5db",
+          "& .MuiTab-root": {
+            textTransform: "none",
+            fontWeight: "medium",
+            padding: "12px 16px",
+            minWidth: "20%", // Ensure tabs have a minimum width for responsiveness
+            borderRight: "0.1px solid #d1d5db",
+          },
+          "& .Mui-selected": {
+            backgroundColor: "#1E3D73",
+            color: "#ffff",
+          },
+          "& .MuiTabs-scrollButtons": {
+            "&.Mui-disabled": { opacity: 0.3 }, // Style disabled scroll buttons
+          },
+        }}
+      >
+        {tabs.map((tab, index) => (
+          <Tab
+            key={index}
+            label={tab.label}
+            sx={{
+              "&:hover": {
+                backgroundColor: "#e0e7ff",
+              },
+            }}
+          />
+        ))}
+      </Tabs>
 
       <div className="py-4">
         <Outlet />

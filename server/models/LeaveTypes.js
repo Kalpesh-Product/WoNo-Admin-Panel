@@ -6,6 +6,10 @@ const leaveTypeSchema = new mongoose.Schema(
       type: String,
       default: "LT-001",
     },
+    company:{
+          type:mongoose.Schema.Types.ObjectId,
+          ref:"CompanyData"
+        },
     leaveType: {
       type: String,
       default: "",
@@ -15,13 +19,17 @@ const leaveTypeSchema = new mongoose.Schema(
       type: Number,
       default: 3,
     },
-    deletedStatus: {
+    status: {
+      type: Boolean,
+      default: true,  
+    },    
+    deleted: {
       type: Boolean,
       default: false,
     },
   },
   {
-    timestamps: true, // Enable timestamps
+    timestamps: true,  
   }
 );
 

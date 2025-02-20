@@ -1,13 +1,6 @@
 import React, { useState } from "react";
 import WidgetSection from "../../components/WidgetSection";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import Checkbox from "@mui/material/Checkbox";
+
 import PrimaryButton from "../../components/PrimaryButton";
 import AccessGrantTable from "../../components/Tables/AccessGrantTable";
 
@@ -61,7 +54,6 @@ const AccessGrant = ({ pageTitle }) => {
     const modules = moduleMapping[department];
     const modulesArray = Object.values(modules);
     setDepModules(modulesArray);
-    console.log(depModules);
 
     // Initialize selectAll state for each module array
     const initialSelectAllState = modulesArray.map(() => false);

@@ -13,33 +13,33 @@ const credentials = require("./middlewares/credentials");
 const ticketsRoutes = require("./routes/ticketRoutes");
 const leaveRoutes = require("./routes/leaveRoutes");
 const employeeAgreementRoutes = require("./routes/employeeAgreementRoutes");
-const sopRoutes = require("./routes/SopRoutes");
-const policyRoutes = require("./routes/PolicyRoutes");
 const meetingsRoutes = require("./routes/meetingRoutes");
 const assetsRoutes = require("./routes/assetsRoutes");
 const departmentsRoutes = require("./routes/departmentRoutes");
 const companyRoutes = require("./routes/companyRoutes");
 const userRoutes = require("./routes/userRoutes");
 const designationRoutes = require("./routes/designationRoutes");
-const moduleRoutes = require("./routes/moduleRoutes");
-const subModuleRoutes = require("./routes/subModuleRoutes");
 const roleRoutes = require("./routes/roleRoutes");
 const eventRoutes = require("./routes/eventsRoutes");
 const taskRoutes = require("./routes/tasksRoutes");
 const accessRoutes = require("./routes/accessRoutes");
+const attendanceRoutes = require("./routes/attendanceRoutes");
 const checkScope = require("./middlewares/checkScope");
+const vendorRoutes = require("./routes/vendorRoutes");
+const budgetRoutes = require("./routes/budgetRoutes");
+const payrollRoutes = require("./routes/payrollRoutes");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 connectDb(process.env.DB_URL);
 
-app.use("/files", express.static("files"));
 app.use(credentials);
 app.use(cors(corsConfig));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
+app.set('trust proxy', true);
 
 app.get("/", (req, res) => {
   if (req.accepts("html")) {
@@ -54,22 +54,22 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 
 //protected routes that should be protected later 👽
-app.use("/api/company", companyRoutes);
+app.use("/api/company", verifyJwt, companyRoutes);
+app.use("/api/budget", verifyJwt, budgetRoutes);
 app.use("/api/departments", departmentsRoutes);
 app.use("/api/designations", designationRoutes);
-app.use("/api/assets", assetsRoutes);
-app.use("/api/meetings", meetingsRoutes);
-app.use("/api/tickets",verifyJwt, ticketsRoutes);
-app.use("/api/leaves", leaveRoutes);
+app.use("/api/assets", verifyJwt, assetsRoutes);
+app.use("/api/meetings", verifyJwt, meetingsRoutes);
+app.use("/api/tickets", verifyJwt, ticketsRoutes);
+app.use("/api/leaves", verifyJwt, leaveRoutes);
 app.use("/api/employee-agreements", employeeAgreementRoutes);
-app.use("/api/sops", sopRoutes);
-app.use("/api/policies", policyRoutes);
-app.use("/api/users", userRoutes);
+app.use("/api/users",verifyJwt, userRoutes);
 app.use("/api/roles", roleRoutes);
-app.use("/api/modules", moduleRoutes);
-app.use("/api/sub-modules", subModuleRoutes);
-app.use("/api/events", eventRoutes);
+app.use("/api/vendors", verifyJwt, vendorRoutes);
+app.use("/api/events", verifyJwt, eventRoutes);
+app.use("/api/payroll", payrollRoutes);
 app.use("/api/tasks", taskRoutes);
+app.use("/api/attendance", verifyJwt, attendanceRoutes);
 app.get(
   "/api/protected",
   verifyJwt,
@@ -77,7 +77,7 @@ app.get(
     module: "Asset Management",
     subModule: "Manage Asset",
     permissions: ["write"],
-  }), 
+  }),
   (req, res) => {
     res.json({ message: "This is protected route" });
   }
@@ -96,7 +96,5 @@ app.all("*", (req, res) => {
 app.use(errorHandler);
 
 mongoose.connection.once("open", () => {
-  app.listen(PORT, () => {
-    console.log(`server started on port ${PORT}`);
-  });
+  app.listen(PORT);
 });

@@ -7,51 +7,259 @@ const companySchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  companyInfo: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "CompanyData", // Reference to the CompanyData schema
+  companyLogo: {
+    logoId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    logoUrl: {
+      type: String,
+      required: true,
+      unique: true,
+    },
   },
-  departments: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Department",
+  selectedDepartments: [
+    {
+      department: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Department",
+      },
+      assetCategories: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Category",
+        },
+      ],
+      admin: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "UserData",
+        },
+      ],
+      ticketIssues: [
+        {
+          title: {
+            type: String,
+            required: true,
+          },
+
+          priority: {
+            type: String,
+            enum: ["High", "Medium", "Low"],
+            default: "Low",
+          },
+        },
+      ],
+      policies: [
+        {
+          name: {
+            type: String,
+            required: true,
+          },
+          documentLink: {
+            type: String,
+            required: true,
+          },
+          documentId: {
+            type: String,
+            required: true,
+          },
+          isActive: {
+            type: Boolean,
+            default: true,
+          },
+        },
+      ],
+      sop: [
+        {
+          name: {
+            type: String,
+            required: true,
+          },
+          documentLink: {
+            type: String,
+            required: true,
+          },
+          documentId: {
+            type: String,
+            required: true,
+          },
+          isActive: {
+            type: Boolean,
+            default: true,
+          },
+        },
+      ],
+      assetCategories: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "AssetCategory",
+        },
+      ],
+    },
+  ],
+  companyName: {
+    type: String,
+    required: true,
   },
-});
-
-// Define a pre-save hook to fetch company info from registrationDetails
-companySchema.pre("save", async function (next) {
-  try {
-    const companyInfo = this.companyInfo;
-
-    // Connect to the same MongoDB instance if not already connected (if you're not using a global connection)
-    if (!mongoose.connection.readyState) {
-      await mongoose.connect("mongodb://localhost:5000/WonoUserData", {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      });
-    }
-
-    // Access the registrationDetails collection from the other project
-    const registrationDetails = mongoose.connection.useDb("WonoUserData").collection("registrationDetails");
-
-    // Query the registrationDetails collection to fetch the companyInfo
-    const registrationDetail = await registrationDetails.findOne({
-      "companyInfo.companyName": companyInfo.companyName,
-    });
-
-    if (registrationDetail) {
-      // If companyInfo exists in registrationDetails, populate it into the Company schema
-      this.companyInfo = registrationDetail.companyInfo; // Update the companyInfo in Company schema
-      console.log(`CompanyInfo fetched and inserted: ${registrationDetail.companyInfo.companyName}`);
-    } else {
-      console.log("Company not found in registrationDetails.");
-    }
-
-    // Proceed with saving the company info
-    next();
-  } catch (error) {
-    console.error("Error fetching company info:", error);
-    next(error); // Continue to next middleware or handle error
-  }
+  industry: {
+    type: String,
+    required: true,
+  },
+  companySize: {
+    type: String,
+    required: true,
+  },
+  companyCity: {
+    type: String,
+    required: true,
+  },
+  companyState: {
+    type: String,
+    required: true,
+  },
+  websiteURL: {
+    type: String,
+  },
+  linkedinURL: {
+    type: String,
+  },
+  employeeTypes: [
+    {
+      name: {
+        type: String,
+      },
+      isActive: {
+        type: Boolean,
+        default: true,
+      },
+      leavesCount: [
+        {
+          leaveType: {
+            name: {
+              type: String,
+            },
+            count: {
+              type: Number,
+              default: 0,
+            },
+          },
+        },
+      ],
+    },
+  ],
+  workLocations: [
+    {
+      name: {
+        type: String,
+      },
+      fullAddress: String,
+      unitNo: String,
+      isActive: {
+        type: Boolean,
+        default: true,
+      },
+    },
+  ],
+  leaveTypes: [
+    {
+      name: {
+        type: String,
+      },
+      isActive: {
+        type: Boolean,
+        default: true,
+      },
+    },
+  ],
+  shifts: [
+    {
+      name: {
+        type: String,
+      },
+      isActive: {
+        type: Boolean,
+        default: true,
+      },
+    },
+  ],
+  templates: [
+    {
+      name: {
+        type: String,
+        required: true,
+      },
+      documentLink: {
+        type: String,
+        required: true,
+      },
+      documentId: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
+  policies: [
+    {
+      name: {
+        type: String,
+        required: true,
+      },
+      documentLink: {
+        type: String,
+        required: true,
+      },
+      documentId: {
+        type: String,
+        required: true,
+      },
+      isActive: {
+        type: Boolean,
+        default: true,
+      },
+    },
+  ],
+  sop: [
+    {
+      name: {
+        type: String,
+        required: true,
+      },
+      documentLink: {
+        type: String,
+        required: true,
+      },
+      documentId: {
+        type: String,
+        required: true,
+      },
+      isActive: {
+        type: Boolean,
+        default: true,
+      },
+    },
+  ],
+  agreements: [
+    {
+      name: {
+        type: String,
+        required: true,
+      },
+      documentLink: {
+        type: String,
+        required: true,
+      },
+      documentId: {
+        type: String,
+        required: true,
+      },
+      isActive: {
+        type: Boolean,
+        default: true,
+      },
+    },
+  ],
 });
 
 // Define the Company model

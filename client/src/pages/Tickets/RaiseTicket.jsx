@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import AgTable from "../../components/AgTable";
 import PrimaryButton from "../../components/PrimaryButton";
-import { Chip } from "@mui/material";
+import { Chip, CircularProgress } from "@mui/material";
+import { toast } from "sonner";
 
 import {
   TextField,
@@ -10,6 +11,7 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 
 const RaiseTicket = () => {
   const [details, setDetails] = useState({
@@ -18,49 +20,79 @@ const RaiseTicket = () => {
     otherReason: "",
     message: "",
   });
+  const [departments, setDepartments] = useState([]); // State for departments
+  const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [ticketIssues, setTicketIssues] = useState([]); // State for ticket issues
+  const [deptLoading, setDeptLoading] = useState(false);
+  const [ticketsLoading, setTicketsLoading] = useState(false);
+  const [tickets, setTickets] = useState([]);
+  const axios = useAxiosPrivate();
+
+  // Fetch departments and ticket issues in the same useEffect
+  useEffect(() => {
+    const fetchData = async () => {
+      setDeptLoading(true);
+      try {
+        const [departmentsResponse] = await Promise.all([
+          axios.get("api/company/get-company-data?field=selectedDepartments"),
+        ]);
+        // Set departments and ticket issues
+        setDepartments(departmentsResponse?.data?.selectedDepartments || []); // Ensure fallback to an empty array
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setDeptLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [axios]);
+
+  // Reusable function to fetch tickets
+  const getTickets = async () => {
+    try {
+      setTicketsLoading(true);
+      const response = await axios.get("/api/tickets/get-tickets");
+      const filteredTickets = response.data.filter(
+        (ticket) => !ticket.accepted
+      );
+      setTickets(filteredTickets);
+    } catch (error) {
+      return null;
+    } finally {
+      setTicketsLoading(false);
+    }
+  };
+
+  // Initial data fetch when the component mounts
+  useEffect(() => {
+    getTickets();
+  }, []);
+
+  const transformTicketsData = (tickets) => {
+    return tickets.map((ticket) => ({
+      id: ticket._id,
+      raisedBy: ticket.raisedBy?.name || "Unknown",
+      fromDepartment: ticket.raisedToDepartment.name || "N/A",
+      ticketTitle: ticket.ticket?.title || "No Title",
+      status: ticket.status || "Pending",
+    }));
+  };
+
+  // Example usage
+  const rows = transformTicketsData(tickets);
 
   const handleChange = (field, value) => {
     setDetails((prev) => ({ ...prev, [field]: value }));
   };
 
-  const laptopColumns = [
-    { field: "RaisedBy", headerName: "Raised By" },
-    { field: "SelectedDepartment", headerName: "Selected Department" },
-    { field: "TicketTitle", headerName: "Ticket Title", flex: 1 },
-    {
-      field: "Priority",
-      headerName: "Priority",
-      cellRenderer: (params) => {
-        const statusColorMap = {
-          High: { backgroundColor: "#ffbac2", color: "#ed0520" }, // Light orange bg, dark orange font
-          Medium: { backgroundColor: "#ADD8E6", color: "#00008B" }, // Light blue bg, dark blue font
-          Low: { backgroundColor: "#90EE90", color: "#006400" }, // Light green bg, dark green font
-          open: { backgroundColor: "#E6E6FA", color: "#4B0082" }, // Light purple bg, dark purple font
-          Closed: { backgroundColor: "#D3D3D3", color: "#696969" }, // Light gray bg, dark gray font
-        };
-
-        const { backgroundColor, color } = statusColorMap[params.value] || {
-          backgroundColor: "gray",
-          color: "white",
-        };
-
-        return (
-          <>
-            <Chip
-              label={params.value}
-              style={{
-                backgroundColor,
-                color,
-              }}
-            />
-          </>
-        );
-      },
-      flex: 1,
-    },
+  const recievedTicketsColumns = [
+    { field: "raisedBy", headerName: "Raised By" },
+    { field: "fromDepartment", headerName: "From Department" },
+    { field: "ticketTitle", headerName: "Ticket Title", flex: 1 },
 
     {
-      field: "Status",
+      field: "status",
       headerName: "Status",
       cellRenderer: (params) => {
         const statusColorMap = {
@@ -68,7 +100,7 @@ const RaiseTicket = () => {
           "in-progress": { backgroundColor: "#ADD8E6", color: "#00008B" }, // Light blue bg, dark blue font
           resolved: { backgroundColor: "#90EE90", color: "#006400" }, // Light green bg, dark green font
           open: { backgroundColor: "#E6E6FA", color: "#4B0082" }, // Light purple bg, dark purple font
-          Closed: { backgroundColor: "#D3D3D3", color: "#696969" }, // Light gray bg, dark gray font
+          completed: { backgroundColor: "#D3D3D3", color: "#696969" }, // Light gray bg, dark gray font
         };
 
         const { backgroundColor, color } = statusColorMap[params.value] || {
@@ -90,57 +122,18 @@ const RaiseTicket = () => {
     },
   ];
 
-  const [rows, setRows] = useState([
-    {
-      RaisedBy: "Abrar Shaikh",
-      SelectedDepartment: "IT",
-      TicketTitle: "Laptop Screen Malfunctioning",
-      Priority: "High",
-      Status: "In Process",
-    },
-    {
-      RaisedBy: "Abrar Shaikh",
-      SelectedDepartment: "IT",
-      TicketTitle: "Request for new stationary Supplies",
-      Priority: "High",
-      Status: "Pending",
-    },
-    {
-      RaisedBy: "Abrar Shaikh",
-      SelectedDepartment: "IT",
-      TicketTitle: "Domain Expired",
-      Priority: "High",
-      Status: "Pending",
-    },
-    {
-      RaisedBy: "Abrar Shaikh",
-      SelectedDepartment: "IT",
-      TicketTitle: "Salary Not Revceived",
-      Priority: "High",
-      Status: "Closed",
-    },
-    {
-      RaisedBy: "Abrar Shaikh",
-      SelectedDepartment: "IT",
-      TicketTitle: "Wifi is Not Working",
-      Priority: "High",
-      Status: "Pending",
-    },
-  ]);
-
-  const submitData = (e) => {
-    console.log("hello");
+  const submitData = async (e) => {
     e.preventDefault();
-    setRows((prevRows) => [
-      ...prevRows,
-      {
-        RaisedBy: "Abrar Shaikh",
-        SelectedDepartment: details.department,
-        TicketTitle: details.ticketTitle || details.otherReason,
-        Priority: "High",
-        Status: "Pending",
-      },
-    ]);
+    try {
+      const response = await axios.post("/api/tickets/raise-ticket", {
+        departmentId: selectedDepartment,
+        issueId: details.ticketTitle,
+        description: details.message,
+      });
+      toast.success(response.data.message);
+    } catch (error) {
+      toast.error(error?.message);
+    }
 
     // Reset the form values after adding the new row
     setDetails({
@@ -153,6 +146,16 @@ const RaiseTicket = () => {
     });
   };
 
+  const handleDepartmentSelect = (deptId) => {
+    setSelectedDepartment(deptId);
+
+    // Find the selected department and get its ticketIssues
+    const selectedDept = departments.find(
+      (dept) => dept.department._id === deptId
+    );
+    setTicketIssues(selectedDept?.ticketIssues || []);
+  };
+
   return (
     <div className="p-4 flex flex-col gap-4">
       <div className="p-4 bg-white border-2 rounded-md">
@@ -160,45 +163,44 @@ const RaiseTicket = () => {
           Raise A Ticket
         </h3>
         <div className="grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 gap-4">
-          <FormControl
-            size="small"
-            fullWidth
-            //
-          >
+          <FormControl size="small" fullWidth>
             <InputLabel>Department</InputLabel>
             <Select
               label="Department"
-              value={details.department || ""}
-              onChange={(e) => handleChange("department", e.target.value)}
+              onChange={(e) => handleDepartmentSelect(e.target.value)}
             >
               <MenuItem value="">Select Department</MenuItem>
-              <MenuItem value="Male">IT</MenuItem>
-              <MenuItem value="Female">Tech</MenuItem>
-              <MenuItem value="Other">Admin</MenuItem>
+              {deptLoading ? (
+                <CircularProgress color="black" />
+              ) : (
+                departments?.map((dept) => (
+                  <MenuItem
+                    key={dept.department._id}
+                    value={dept.department._id}
+                  >
+                    {dept.department.name}
+                  </MenuItem>
+                ))
+              )}
             </Select>
           </FormControl>
 
-          <FormControl
-            size="small"
-            fullWidth
-            //
-          >
+          <FormControl size="small" fullWidth>
             <InputLabel>Ticket Title</InputLabel>
             <Select
               label="Ticket Title"
-              value={details.ticketTitle || ""}
               onChange={(e) => handleChange("ticketTitle", e.target.value)}
             >
               <MenuItem value="">Select Ticket Title</MenuItem>
-              <MenuItem value="Wifi is not working">
-                Wifi is not working
-              </MenuItem>
-              <MenuItem value="payroll is not working">
-                Payroll is not working
-              </MenuItem>
-              <MenuItem value="website is taking time to load">
-                Website is taking time to load
-              </MenuItem>
+              {ticketIssues.length > 0 ? (
+                ticketIssues.map((issue) => (
+                  <MenuItem key={issue._id} value={issue._id}>
+                    {issue.title}
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem disabled>No Issues Available</MenuItem>
+              )}
               <MenuItem value="Others">Others</MenuItem>
             </Select>
           </FormControl>
@@ -215,9 +217,8 @@ const RaiseTicket = () => {
               fullWidth
             />
           )}
-          </div>
-          <div className="grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 gap-4 mt-4">
-
+        </div>
+        <div className="grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 gap-4 mt-4">
           <TextField
             size="small"
             //   disabled={!isEditable}
@@ -245,11 +246,18 @@ const RaiseTicket = () => {
           <div className="text-[20px]">Tickets Raised Today</div>
         </div>
         <div className=" w-full">
-          <AgTable
-            data={rows}
-            columns={laptopColumns}
-            paginationPageSize={10}
-          />
+          {ticketsLoading ? (
+            <div className="w-full h-full flex justify-center items-center">
+              <CircularProgress color="black" />
+            </div>
+          ) : (
+            <AgTable
+              key={rows.length}
+              data={rows}
+              columns={recievedTicketsColumns}
+              paginationPageSize={10}
+            />
+          )}
         </div>
       </div>
     </div>
