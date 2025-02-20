@@ -8,14 +8,14 @@ const { createLog } = require("../../utils/moduleLogs");
 
 const addRoom = async (req, res, next) => {
   const { user, ip,company } = req;
-  const path = "RoomLogs";
+  const path = "meetings/MeetingLogs";
   const action = "Add Room";
 
   try {
     const { name, seats, description, location } = req.body;
 
     if (!name || !seats || !description || !location) {
-      await createLog(path, action, "All required fields must be provided", "Failed", user, ip);
+      await createLog(path, action, "All required fields must be provided", "Failed", user, ip, roomId=null);
       return res.status(400).json({ message: "All required fields must be provided" });
     }
 
@@ -30,7 +30,7 @@ const addRoom = async (req, res, next) => {
       .exec();
 
     if (!foundUser || !foundUser.company) {
-      await createLog(path, action, "Unauthorized or company not found", "Failed", user, ip);
+      await createLog(path, action, "Unauthorized or company not found", "Failed", user, ip, roomId=null);
       return res.status(400).json({ message: "Unauthorized or company not found" });
     }
 
@@ -38,7 +38,7 @@ const addRoom = async (req, res, next) => {
     const isValidLocation = company.workLocations.some((loc) => loc.name === location);
 
     if (!isValidLocation) {
-      await createLog(path, action, "Invalid location", "Failed", user, ip, company);
+      await createLog(path, action, "Invalid location", "Failed", user, ip, company,roomId=null);
       return res.status(400).json({
         message: "Invalid location. Must be a valid company work location.",
       });
@@ -82,7 +82,7 @@ const addRoom = async (req, res, next) => {
 
     const savedRoom = await room.save();
 
-    await createLog(path, action, "Room added successfully", "Success", user, ip, company, savedRoom._id,{
+    await createLog(path, action, "Room added successfully", "Success", user, ip, company,roomId=savedRoom._id,{
       roomId,
       name,
       seats,

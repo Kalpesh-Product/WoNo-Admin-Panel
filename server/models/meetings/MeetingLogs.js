@@ -2,9 +2,13 @@ const mongoose = require("mongoose");
 
 const meetingLogSchema = new mongoose.Schema(
   {
-    sourceId: {
+    meetingId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Meeting",
+    },
+    roomId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Room",
     },
     action: {
       type: String,
