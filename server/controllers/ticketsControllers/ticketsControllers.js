@@ -82,7 +82,7 @@ const getTickets = async (req, res, next) => {
       .exec();
 
     if (matchingTickets.length > 0) {
-      console.log(matchingTickets.length)
+      console.log(matchingTickets.length);
       return res.status(200).json(matchingTickets);
     }
 

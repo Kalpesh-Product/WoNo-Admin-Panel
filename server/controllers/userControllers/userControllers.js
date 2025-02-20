@@ -188,7 +188,6 @@ const updateSingleUser = async (req, res) => {
     const { id } = req.params; // Extract user ID from request parameters
     const updateData = req.body; // Data to update comes from the request body
 
-
     // Define a whitelist of updatable fields, including nested objects
     const allowedFields = [
       "name",
@@ -202,10 +201,8 @@ const updateSingleUser = async (req, res) => {
       "bankDetails.ifsc",
     ];
 
-
     // Filter the updateData to include only allowed fields
     const filteredUpdateData = {};
-
 
     Object.keys(updateData).forEach((key) => {
       if (allowedFields.includes(key)) {
@@ -232,11 +229,9 @@ const updateSingleUser = async (req, res) => {
       }
     });
 
-
     if (Object.keys(filteredUpdateData).length === 0) {
       return res.status(400).json({ message: "No valid fields to update" });
     }
-
 
     // Perform the update operation
     const updatedUser = await User.findByIdAndUpdate(
@@ -250,11 +245,9 @@ const updateSingleUser = async (req, res) => {
       .populate("company", "name")
       .populate("role", "roleTitle modulePermissions");
 
-
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
     }
-
 
     res.status(200).json({
       message: "User data updated successfully",
@@ -265,7 +258,5 @@ const updateSingleUser = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
-
 
 module.exports = { createUser, fetchUser, fetchSingleUser, updateSingleUser };
