@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import Chart from "react-apexcharts";
 import { Select, MenuItem, FormControl } from "@mui/material";
+import PrimaryButton from "../PrimaryButton";
 
-const BarGraph = ({ data, title, options, height }) => {
+const BarGraph = ({ data, title, options, height, customLegend, firstParam, secondParam,year }) => {
   const [selectedYear, setSelectedYear] = useState("2024-2025");
 
   // Function to update year selection
@@ -22,23 +23,42 @@ const BarGraph = ({ data, title, options, height }) => {
   return (
     <div className="bg-white rounded-md">
       {/* Header section with title and financial year dropdown */}
-      <div className="border-b-2 p-4 pt-0 border-gray-200 flex justify-end">
+      <div className=" p-4 pt-0  flex justify-end">
         {title && <span className="text-lg">{title}</span>}
-        <FormControl size="small">
-          <Select value={selectedYear} onChange={handleYearChange}>
-            <MenuItem value="2023-2024">2023-2024</MenuItem>
-            <MenuItem value="2024-2025">2024-2025</MenuItem>
-          </Select>
-        </FormControl>
+        {year && (
+           <FormControl size="small">
+           <Select value={selectedYear} onChange={handleYearChange}>
+             <MenuItem value="2023-2024">2023-2024</MenuItem>
+             <MenuItem value="2024-2025">2024-2025</MenuItem>
+           </Select>
+         </FormControl>
+        )}  
       </div>
 
-      {/* Chart Component */}
-      <Chart
-        options={updatedOptions}
-        series={data}
-        type="bar"
-        height={height || 350}
-      />
+      <div>
+        <div>
+        {customLegend ? (
+          <div className="flex items-center gap-4">
+            <div className="flex items-center justify-center w-full bg-wonoGreen p-2 text-center text-white rounded-md gap-4">
+              <span className="text-subtitle">{firstParam.title}</span>
+              <span>:</span>
+              <span className="text-subtitle">{firstParam.data}</span>
+            </div>
+            <div className="flex items-center justify-center w-full bg-primary p-2 text-center text-white rounded-md gap-4">
+              <span className="text-subtitle">{secondParam.title}</span>
+              <span>:</span>
+              <span className="text-subtitle">{secondParam.data}</span>
+            </div>
+          </div>
+        ) : ""}
+        </div>
+        <Chart
+          options={updatedOptions}
+          series={data}
+          type="bar"
+          height={height || 350}
+        />
+      </div>
     </div>
   );
 };

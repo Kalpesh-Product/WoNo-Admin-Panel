@@ -5,12 +5,15 @@ import Template1 from "../../../../utils/Template2.png";
 import Template3 from "../../../../utils/Template3.png";
 import Template4 from "../../../../utils/Template4.png";
 import PrimaryButton from "../../../../components/PrimaryButton";
+import { useNavigate } from "react-router-dom";
 
 const Templates = () => {
+  const navigate = useNavigate()
   const templateData = [
     {
+      id:1,
       imgSrc: Template,
-      title: "Leave Agreement",
+      title: "Experience Letter",
       date: "Jan 10, 2025",
     },
     {
@@ -46,6 +49,7 @@ const Templates = () => {
         {templateData.map((template, index) => (
           <div
             key={index}
+            onClick={() => navigate(`view-template/${template.id}`)}
             className="bg-white shadow-md rounded-lg overflow-hidden border"
           >
             <div className="h-48">

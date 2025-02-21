@@ -88,6 +88,7 @@ const Sidebar = () => {
           id: 5,
           title: "Sales Dashboard",
           icon: <TbCashRegister />,
+          route: "/app/dashboard/sales-dashboard"
         },
         {
           id: 6,
