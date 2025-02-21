@@ -389,7 +389,7 @@ const bulkInsertUsers = async (req, res, next) => {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
-    const companyId = "6799f0cd6a01edbe1bc3fcea";
+    const companyId = req.company;
     const foundCompany = await Company.findById(companyId)
       .select("selectedDepartments")
       .populate({
