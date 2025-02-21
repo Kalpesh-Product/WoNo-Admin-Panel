@@ -2,6 +2,8 @@ const Attendance = require("../models/Attendance");
 const UserData = require("../models/UserData");
 const mongoose = require("mongoose");
 const { formatDate, formatTime } = require("../utils/formatDateTime");
+const csvParser = require("csv-parser");
+const { Readable } = require("stream");
 
 const clockIn = async (req, res, next) => {
   const { inTime, entryType } = req.body;
@@ -318,6 +320,71 @@ const correctAttendance = async (req, res, next) => {
   }
 };
 
+const bulkInsertAttendance = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    const companyId = req.company;
+
+    // Fetch employees by their Emp ID to map them to their MongoDB ObjectIds
+    const employees = await UserData.find({ company: companyId })
+      .select("_id empId")
+      .lean();
+
+    const employeeMap = new Map(employees.map((emp) => [emp.empId, emp._id]));
+
+    const newAttendanceRecords = [];
+    const stream = Readable.from(req.file.buffer.toString("utf-8").trim());
+
+    stream
+      .pipe(csvParser())
+      .on("data", async (row) => {
+        try {
+          const empId = row["user (Emp ID)"].trim();
+          if (!employeeMap.has(empId)) {
+            throw new Error(`Employee not found: ${empId}`);
+          }
+
+          const attendanceRecord = {
+            company: new mongoose.Types.ObjectId(companyId),
+            user: employeeMap.get(empId), // Associate the attendance with the employee ObjectId
+            date: new Date(row["date"]),
+            inTime: new Date(`${row["date"].trim()} ${row["inTime"].trim()}`),
+            outTime: new Date(`${row["date"].trim()} ${row["outTime"].trim()}`),
+            entryType: row["entryType"] || "web", // Default to "web"
+          };
+
+          newAttendanceRecords.push(attendanceRecord);
+        } catch (error) {
+          console.error("Error processing row:", row, error);
+        }
+      })
+      .on("end", async () => {
+        try {
+          if (newAttendanceRecords.length === 0) {
+            return res
+              .status(400)
+              .json({ message: "No valid attendance records found in CSV" });
+          }
+
+          await Attendance.insertMany(newAttendanceRecords);
+
+          res.status(201).json({
+            message: "Bulk attendance data inserted successfully",
+            insertedCount: newAttendanceRecords.length,
+          });
+        } catch (error) {
+          res
+            .status(500)
+            .json({ message: "Error inserting attendance records", error });
+        }
+      });
+  } catch (error) {
+    next(error);
+  }
+};
 module.exports = {
   clockIn,
   clockOut,
@@ -326,4 +393,5 @@ module.exports = {
   getAllAttendance,
   getAttendance,
   correctAttendance,
+  bulkInsertAttendance,
 };
