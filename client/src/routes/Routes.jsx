@@ -263,10 +263,6 @@ export const routes = createBrowserRouter([
                             path: "templates",
                             element: <Templates />,
                           },
-                          {
-                            path: "templates/preview-template",
-                            element: <TemplatePreview />,
-                          },
                         ],
                       },
                       {

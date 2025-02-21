@@ -70,8 +70,7 @@ const Header = () => {
               />
               <button
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="p-2 text-gray-500 text-xl"
-              >
+                className="p-2 text-gray-500 text-xl">
                 {isSidebarOpen ? <GiHamburgerMenu /> : <IoIosArrowForward />}
               </button>
             </div>
@@ -132,16 +131,14 @@ const Header = () => {
         transformOrigin={{
           vertical: "top",
           horizontal: "center",
-        }}
-      >
+        }}>
         <div className="p-4 w-48">
           <List>
             {/* Profile Option */}
             <ListItem
               button
               onClick={handleProfileClick}
-              className="hover:text-primary transition-all duration-100 text-gray-500"
-            >
+              className="hover:text-primary transition-all duration-100 text-gray-500">
               <ListItemIcon>
                 <FaUserTie className="text-gray-500" />
               </ListItemIcon>
@@ -154,8 +151,7 @@ const Header = () => {
             <ListItem
               button
               onClick={handleSignOut}
-              className="hover:text-red-600 transition-all duration-100 text-gray-500"
-            >
+              className="hover:text-red-600 transition-all duration-100 text-gray-500">
               <ListItemIcon>
                 <FiLogOut className="text-gray-500" />
               </ListItemIcon>

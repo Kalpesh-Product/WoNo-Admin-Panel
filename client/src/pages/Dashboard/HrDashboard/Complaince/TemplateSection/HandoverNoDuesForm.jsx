@@ -1,6 +1,6 @@
 import biznestLogo from "../../../../../assets/biznest/biznest_logo.jpg";
 
-const ExperienceLetter = () => {
+const HandOverNoDuesForm = () => {
   return (
     <div>
       {/* <div>Make here</div> */}
@@ -82,4 +82,4 @@ const ExperienceLetter = () => {
   );
 };
 
-export default ExperienceLetter;
+export default HandOverNoDuesForm;
