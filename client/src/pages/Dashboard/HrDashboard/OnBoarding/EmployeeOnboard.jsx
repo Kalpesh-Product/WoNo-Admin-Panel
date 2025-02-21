@@ -7,8 +7,7 @@ import SecondaryButton from "../../../../components/SecondaryButton";
 const EmployeeOnboard = () => {
   const { control, handleSubmit, reset } = useForm();
 
-  const onSubmit = (data) => {
-  };
+  const onSubmit = (data) => {};
 
   const handleReset = () => {
     reset();
@@ -219,9 +218,7 @@ const EmployeeOnboard = () => {
           <div>
             {/* Section: Policies */}
             <div className="py-4 border-b-default border-borderGray">
-              <span className="text-subtitle font-pmedium">
-               Policies
-              </span>
+              <span className="text-subtitle font-pmedium">Policies</span>
             </div>
             <div className="grid grid-cols sm:grid-cols-1 md:grid-cols-1 gap-4 p-4">
               <Controller
@@ -292,9 +289,7 @@ const EmployeeOnboard = () => {
           <div>
             {/* Section: KYC Information */}
             <div className="py-4 border-b-default border-borderGray">
-              <span className="text-subtitle font-pmedium">
-               KYC
-              </span>
+              <span className="text-subtitle font-pmedium">KYC</span>
             </div>
             <div className="grid grid-cols sm:grid-cols-1 md:grid-cols-1 gap-4 p-4">
               <Controller
@@ -407,7 +402,7 @@ const EmployeeOnboard = () => {
             {/* Section: Payroll Information */}
             <div className="py-4 border-b-default border-borderGray">
               <span className="text-subtitle font-pmedium">
-               Payroll Information
+                Payroll Information
               </span>
             </div>
             <div className="grid grid-cols sm:grid-cols-1 md:grid-cols-1 gap-4 p-4">
@@ -498,7 +493,7 @@ const EmployeeOnboard = () => {
             {/* Section: Payroll Information */}
             <div className="py-4 border-b-default border-borderGray">
               <span className="text-subtitle font-pmedium">
-               Bank Information
+                Bank Information
               </span>
             </div>
             <div className="grid grid-cols sm:grid-cols-1 md:grid-cols-1 gap-4 p-4">
@@ -576,7 +571,7 @@ const EmployeeOnboard = () => {
             {/* Section: Payroll Information */}
             <div className="py-4 border-b-default border-borderGray">
               <span className="text-subtitle font-pmedium">
-               Family Information
+                Family Information
               </span>
             </div>
             <div className="grid grid-cols sm:grid-cols-1 md:grid-cols-1 gap-4 p-4">
