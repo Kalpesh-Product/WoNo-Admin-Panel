@@ -40,42 +40,10 @@ const meetingSchema = new mongoose.Schema(
     externalParticipants: [
       {
         email: {
-          type: String
-        }
+          type: String,
+        },
       },
     ],
-    externalCompanyData: {
-      companyName: {
-        type: String,
-      },
-      registeredCompanyName: {
-        type: String,
-      },
-      companyURL: {
-        type: String,
-      },
-      email: {
-        type: String,
-        unique: true,
-      },
-      mobileNumber: {
-        type: String,
-      },
-      gstNumber: {
-        type: String,
-        unique: true,
-      },
-      panNumber: {
-        type: String,
-        unique: true,
-      },
-      address: {
-        type: String,
-      },
-      personName: {
-        type: String,
-      },
-    },
     agenda: {
       type: String,
       required: true,
@@ -87,26 +55,26 @@ const meetingSchema = new mongoose.Schema(
     status: {
       type: String,
       default: "Upcoming",
-      enum: ["Upcoming","Ongoing","Completed","Extended","Cancelled"]
+      enum: ["Upcoming", "Ongoing", "Completed", "Extended", "Cancelled"],
     },
     company: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Company",
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
     },
     location: {
-        type: String,
+      type: String,
     },
     housekeepingChecklist: [
       {
-        name:{
-          type:String
+        name: {
+          type: String,
         },
-      }
+      },
     ],
     houeskeepingStatus: {
-      type:String,
-      default: "Pending"
-    }
+      type: String,
+      default: "Pending",
+    },
   },
   { timestamps: true }
 );

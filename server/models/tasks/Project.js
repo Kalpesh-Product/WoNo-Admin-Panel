@@ -1,25 +1,22 @@
 const mongoose = require("mongoose");
 
-const taskSchema = new mongoose.Schema({
-  taskName :{
+const projectSchema = new mongoose.Schema({
+  projectName: {
     type: String,
     required: true,
-    
   },
- 
-  
-  department: {
+  company: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Department",
+    ref: "Company",
   },
   assignedBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: "UserData",
   },
   assignedTo: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "UserData",
     },
   ],
   description: {
@@ -28,25 +25,25 @@ const taskSchema = new mongoose.Schema({
   },
   assignedDate: {
     type: Date,
-    
+    required: true,
   },
-  assignedTime: {
-    type: String,
-   
-    match: /^([0-1]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/,
+  dueDate: {
+    type: Date,
+    required: true,
   },
   status: {
     type: String,
+    enum: ["Upcoming", "In progress", "Pending", "Completed"],
     required: true,
   },
-  deadLineDate: {
-    type: Date,
-   
-  },
-  deadLineTime: {
+  priority: {
     type: String,
-    
-    match: /^([0-1]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/,
+    enum: ["High", "Medium", "Low"],
+    required: true,
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false,
   },
   extension: {
     isExtended: {
@@ -65,5 +62,5 @@ const taskSchema = new mongoose.Schema({
   },
 });
 
-const Task = mongoose.model("Task", taskSchema);
-module.exports = Task;
+const Project = mongoose.model("Project", projectSchema);
+module.exports = Project;
