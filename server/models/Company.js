@@ -34,7 +34,7 @@ const companySchema = new mongoose.Schema({
       admin: [
         {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "UserData",
+          ref: "Role",
         },
       ],
       ticketIssues: [
@@ -178,11 +178,11 @@ const companySchema = new mongoose.Schema({
       name: {
         type: String,
       },
-      startTime:{
-        type:Date
+      startTime: {
+        type: Date,
       },
-      endTime:{
-        type:Date
+      endTime: {
+        type: Date,
       },
       isActive: {
         type: Boolean,
