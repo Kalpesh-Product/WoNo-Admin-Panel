@@ -117,6 +117,16 @@ import SalesDashboard from "../pages/Dashboard/SalesDashboard/SalesDashboard";
 import TotalRevenueLayout from "../pages/Dashboard/SalesDashboard/TotalRevenueLayout";
 import TotalRevenue from "../pages/Dashboard/SalesDashboard/TotalRevenue";
 import ViewTemplate from "../pages/Dashboard/HrDashboard/Data/ViewTemplate";
+import CoWorking from "../pages/Dashboard/SalesDashboard/CoWorking";
+import MeetingRevenue from "../pages/Dashboard/SalesDashboard/MeetingRevenue";
+import VirtualOffice from "../pages/Dashboard/SalesDashboard/VirtualOffice";
+import Workations from "../pages/Dashboard/SalesDashboard/Workations";
+import AltRevenues from "../pages/Dashboard/SalesDashboard/AltRevenues";
+import ParentRevenue from "../pages/Dashboard/SalesDashboard/ParentRevenue";
+import ClientsLayout from "../pages/Dashboard/SalesDashboard/ClientsLayout";
+import ViewClients from "../pages/Dashboard/SalesDashboard/ViewClients";
+import ClientOnboarding from "../pages/Dashboard/SalesDashboard/ClientOnboarding";
+
 
 export const routes = createBrowserRouter([
   {
@@ -220,102 +230,39 @@ export const routes = createBrowserRouter([
                             element: <TotalRevenue />,
                           },
                           {
-                            path: "departments",
-                            element: <HrSettingsDepartments />,
+                            path: "co-working",
+                            element: <ParentRevenue />,
                           },
                           {
-                            path: "work-locations",
-                            element: <WorkLocations />,
+                            path: "meetings",
+                            element: <ParentRevenue />,
                           },
                           {
-                            path: "holidays",
-                            element: <HolidaysEvents />,
+                            path: "virtual-office",
+                            element: <ParentRevenue />,
                           },
                           {
-                            path: "company-handbook",
-                            element: <ComapanyHandbook />,
+                            path: "workation",
+                            element: <ParentRevenue />,
                           },
                           {
-                            path: "policies",
-                            element: <HrSettingsPolicies />,
-                          },
-                          {
-                            path: "sops",
-                            element: <HrSOP />,
-                          },
-                          {
-                            path: "employee-type",
-                            element: <EmployeeType />,
-                          },
-                          {
-                            path: "shifts",
-                            element: <Shifts />,
-                          },
-                          {
-                            path: "vendor-onboarding",
-                            element: <VendorOnboard />,
-                          },
-                          {
-                            path: "vendor-onboarding/vendor-details/:id",
-                            element: <ViewVendors />,
-                          },
-                          {
-                            path: "templates",
-                            element: <Templates />,
+                            path: "alt-revenue",
+                            element: <AltRevenues />,
                           },
                         ],
                       },
                       {
-                        path: "employee",
-                        element: <OnBoarding />,
+                        path: "clients",
+                        element: <ClientsLayout />,
                         children: [
                           {
-                            path: "employee-onboarding",
+                            path: "view-clients",
                             index: true,
-                            element: <EmployeeOnboard />,
+                            element: <ViewClients />,
                           },
                           {
-                            path: "view-employees",
-                            element: <ViewEmployees />,
-                          },
-                          {
-                            path: "view-employees/:id", // Move dynamic route to the same level as view-employees
-                            element: <EmployeeDetail />,
-                            children: [
-                              {
-                                path: "edit-details",
-                                element: <EditDetails />,
-                              },
-                              {
-                                path: "attendance",
-                                element: <Attendance />,
-                              },
-                              {
-                                path: "leaves",
-                                element: <Leaves />,
-                              },
-                              {
-                                path: "agreements",
-                                element: <Agreements />,
-                              },
-                              {
-                                path: "kpi",
-                                element: <KPI />,
-                              },
-                              {
-                                path: "kra",
-                                element: <KRA />,
-                              },
-                              {
-                                path: "payslip",
-                                element: <Payslip />,
-                              },
-                            ],
-                          },
-
-                          {
-                            path: "member-onboarding",
-                            element: <MemberOnboard />,
+                            path: "client-onboarding",
+                            element: <ClientOnboarding />,
                           },
                         ],
                       },

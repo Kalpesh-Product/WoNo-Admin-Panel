@@ -10,11 +10,7 @@ import MuiTable from "../../../components/Tables/MuiTable";
 import BarGraph from "../../../components/graphs/BarGraph";
 import PieChartMui from "../../../components/graphs/PieChartMui";
 import {
-  assetCategoriesData,
-  annualMonthlyData,
-  annualMonthlyOptions,
-  recentAssetsColumns,
-  recentAssetsData,
+  annualMonthlyRawData,
   totalActualRevenue,
   totalProjectedRevenue,
   monthlyLeadsData,
@@ -34,6 +30,7 @@ import {
   upcomingBirthdaysColumns,
   upcomingBirthdays,
 } from "./SalesData/SalesData";
+import RevenueGraph from "../../../components/graphs/RevenueGraph";
 
 const SalesDashboard = () => {
   const meetingsWidgets = [
@@ -41,17 +38,7 @@ const SalesDashboard = () => {
       layout: 1,
       widgets: [
         <WidgetSection layout={1} border title={"Annual Monthly Revenue"}>
-          <BarGraph
-            customLegend={true}
-            firstParam={{ title: "Actual Revenue", data: totalActualRevenue }}
-            secondParam={{
-              title: "Projected Revenue",
-              data: totalProjectedRevenue,
-            }}
-            height={400}
-            data={annualMonthlyData}
-            options={annualMonthlyOptions}
-          />
+          <RevenueGraph annualMonthlyRawData={annualMonthlyRawData} />
         </WidgetSection>,
       ],
     },
@@ -62,7 +49,7 @@ const SalesDashboard = () => {
         <Card route={""} title={"Targets"} icon={<RiPagesLine />} />,
         <Card
           route={""}
-          title={"Finance   "}
+          title={"Finance"}
           icon={<MdFormatListBulleted />}
         />,
         <Card route={""} title={"Mix Bag"} icon={<MdFormatListBulleted />} />,
@@ -90,7 +77,7 @@ const SalesDashboard = () => {
           description={"Revenues"}
         />,
         <DataCard
-          route={"revenue"}
+          route={"clients"}
           title={"Unique"}
           data={"400"}
           description={"Clients"}

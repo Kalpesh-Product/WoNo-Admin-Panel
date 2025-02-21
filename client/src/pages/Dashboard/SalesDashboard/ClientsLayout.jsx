@@ -2,24 +2,20 @@ import { Tab, Tabs } from "@mui/material";
 import React, { useEffect } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
-const TotalRevenueLayout = () => {
+const ClientsLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
   // Map routes to tabs
   const tabs = [
-    { label: "Total Revenue", path: "total-revenue" },
-    { label: "Co-Working", path: "co-working" },
-    { label: "Meetings", path: "meetings" },
-    { label: "Virtual Office", path: "virtual-office" },
-    { label: "Workations", path: "workation" },
-    { label: "Alt. Revenues", path: "alt-revenue" },
+    { label: "View-Clients", path: "view-clients" },
+    { label: "Client Onboarding", path: "client-onboarding" },
   ];
 
   // Redirect to "view-employees" if the current path is "/hr-dashboard/compliances"
   useEffect(() => {
-    if (location.pathname === "/app/dashboard/sales-dashboard/revenue") {
-      navigate("/app/dashboard/sales-dashboard/revenue/total-revenue", {
+    if (location.pathname === "/app/dashboard/sales-dashboard/clients") {
+      navigate("/app/dashboard/sales-dashboard/clients/view-clients", {
         replace: true,
       });
     }
@@ -86,4 +82,4 @@ const TotalRevenueLayout = () => {
   );
 };
 
-export default TotalRevenueLayout;
+export default ClientsLayout;

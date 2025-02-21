@@ -27,166 +27,20 @@ const financialYearMonths = [
 const annualMonthlyRawData = [
   {
     domain: "Co-working",
-    actualData: [
-      240000,
-      54000,
-      70000,
-      88000,
-      70000,
-      81000,
-      53000,
-      63000,
-      null,
-      null,
-      null,
-      null,
-    ],
-    projectedData: [
-      240000, 55000, 75000, 90000, 75000, 85000, 60000, 70000, 75000, 80000,
-      85000, 90000,
-    ],
+    actualData: [240000, 54000, 70000, 88000, 70000, 81000, 53000, 63000, null, null, null, null],
+    projectedData: [240000, 55000, 75000, 90000, 75000, 85000, 60000, 70000, 75000, 80000, 85000, 90000],
   },
   {
     domain: "Meetings",
-    actualData: [
-      240000,
-      54000,
-      70000,
-      88000,
-      70000,
-      81000,
-      53000,
-      63000,
-      null,
-      null,
-      null,
-      null,
-    ],
-    projectedData: [
-      240000, 55000, 75000, 90000, 75000, 85000, 60000, 70000, 75000, 80000,
-      85000, 90000,
-    ],
+    actualData: [240000, 54000, 70000, 88000, 70000, 81000, 53000, 63000, null, null, null, null],
+    projectedData: [240000, 55000, 75000, 90000, 75000, 85000, 60000, 70000, 75000, 80000, 85000, 90000],
   },
   {
     domain: "Workation",
-    actualData: [
-      240000,
-      54000,
-      70000,
-      88000,
-      70000,
-      81000,
-      53000,
-      63000,
-      null,
-      null,
-      null,
-      null,
-    ],
-    projectedData: [
-      240000, 55000, 75000, 90000, 75000, 85000, 60000, 70000, 75000, 80000,
-      85000, 90000,
-    ],
+    actualData: [240000, 54000, 70000, 88000, 70000, 81000, 53000, 63000, null, null, null, null],
+    projectedData: [240000, 55000, 75000, 90000, 75000, 85000, 60000, 70000, 75000, 80000, 85000, 90000],
   },
 ];
-
-// ✅ Get the current month index relative to financial year (April = 0, March = 11)
-const currentMonthIndex = new Date().getMonth() - 3;
-const normalizedCurrentMonth =
-  currentMonthIndex < 0 ? currentMonthIndex + 12 : currentMonthIndex;
-
-// ✅ Carry-Forward Logic for Future Months
-const adjustProjectedData = (actualData, projectedData) => {
-  let adjustedProjectedData = [...projectedData]; // Copy original projected values
-  let carryForward = 0;
-
-  for (let i = 0; i < projectedData.length; i++) {
-    if (i <= normalizedCurrentMonth && actualData[i] !== null) {
-      // For past/current months with actual data, use that
-      adjustedProjectedData[i] = actualData[i];
-    } else {
-      // For future months, use projected + carry-forward
-      adjustedProjectedData[i] += carryForward;
-      carryForward = adjustedProjectedData[i];
-    }
-  }
-  return adjustedProjectedData;
-};
-
-// ✅ Process Data: Aggregate Actual and Adjusted Projected Revenue Across Domains
-const actualRevenue = new Array(financialYearMonths.length).fill(0);
-const projectedRevenue = new Array(financialYearMonths.length).fill(0);
-
-annualMonthlyRawData.forEach((domain) => {
-  const adjustedProjectedData = adjustProjectedData(
-    domain.actualData,
-    domain.projectedData
-  );
-
-  for (let i = 0; i < financialYearMonths.length; i++) {
-    if (i <= normalizedCurrentMonth && domain.actualData[i] !== null) {
-      actualRevenue[i] += domain.actualData[i];
-    } else {
-      projectedRevenue[i] += adjustedProjectedData[i];
-    }
-  }
-});
-
-// Calculate total sums
-const totalActualRevenue = actualRevenue.reduce((sum, value) => sum + value, 0);
-const totalProjectedRevenue = projectedRevenue.reduce(
-  (sum, value) => sum + value,
-  0
-);
-
-// ✅ Format Data for ApexCharts (Separate Bars for Actual and Projected)
-const annualMonthlyData = [
-  {
-    name: "Actual Revenue",
-    data: actualRevenue,
-    color: "#80bf01",
-  },
-  {
-    name: "Projected Revenue",
-    data: projectedRevenue,
-    color: "#1E3D73",
-  },
-];
-
-const annualMonthlyOptions = {
-  chart: {
-    type: "bar",
-    stacked: false,
-  },
-  plotOptions: {
-    bar: {
-      dataLabels: {
-        position: "top",
-      },
-    },
-  },
-  xaxis: {
-    categories: financialYearMonths,
-    title: { text: "Months" },
-  },
-  yaxis: {
-    labels: {
-      formatter: (val) => {
-        if (val >= 10000000) return (val / 10000000).toFixed(1) + "Cr";
-        if (val >= 100000) return (val / 100000).toFixed(1) + "L";
-        return val;
-      },
-    },
-    title: { text: "Revenue" },
-  },
-  legend: { position: "top" },
-  dataLabels: { enabled: false },
-  tooltip: {
-    y: {
-      formatter: (val) => new Intl.NumberFormat("en-IN").format(val),
-    },
-  },
-};
 
 // Annual revenue graph end
 
@@ -590,10 +444,7 @@ const upcomingBirthdaysColumns = [
 // -----------------------Client Members birthday End--------------------
 
 export {
-  annualMonthlyData,
-  annualMonthlyOptions,
-  totalActualRevenue,
-  totalProjectedRevenue,
+  annualMonthlyRawData,
   monthlyLeadsData,
   monthlyLeadsOptions,
   sourcingChannelsData,
