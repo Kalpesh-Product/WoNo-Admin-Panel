@@ -4,6 +4,8 @@ const User = require("../../models/UserData");
 const Role = require("../../models/Roles");
 const { default: mongoose } = require("mongoose");
 const Department = require("../../models/Departments");
+const csvParser = require("csv-parser");
+const { Readable } = require("stream");
 
 const createUser = async (req, res, next) => {
   try {
@@ -42,14 +44,13 @@ const createUser = async (req, res, next) => {
         .json({ message: "Invalid department Id provided" });
     }
 
-    // Check if department exists
     const departmentExists = await Department.find({
       _id: { $in: departments },
     })
       .lean()
       .exec();
 
-    if (!departmentExists) {
+    if (!departmentExists || departmentExists.length === 0) {
       return res.status(404).json({ message: "Department not found" });
     }
 
@@ -69,12 +70,13 @@ const createUser = async (req, res, next) => {
         .json({ message: "Employee ID or email already exists" });
     }
 
+    // Check role validity
     const roleValue = await Role.findOne({ _id: role }).lean().exec();
     if (!roleValue) {
       return res.status(400).json({ message: "Invalid role provided" });
     }
 
-    let newUser;
+    // Master Admin check
     if (roleValue.roleTitle === "Master Admin") {
       const doesMasterAdminExists = await User.findOne({
         role: { $in: [roleValue._id] },
@@ -87,21 +89,24 @@ const createUser = async (req, res, next) => {
       ) {
         return res
           .status(400)
-          .json({ message: "a master admin already exists" });
+          .json({ message: "A master admin already exists" });
       }
     }
 
     // Hash password
-    const defaultPassword = "123456"; // Use a better default or generate one securely
+    const defaultPassword = "123456"; // Use a more secure default in production
     const hashedPassword = await bcrypt.hash(defaultPassword, 10);
 
-    // Create user object
-    newUser = new User({
+    // Create user object with all provided fields
+    const newUser = new User({
       empId,
-      name,
+      firstName,
+      middleName,
+      lastName,
       gender,
-      email,
+      dateOfBirth,
       phone,
+      email,
       role,
       company: companyId,
       password: hashedPassword,
@@ -118,7 +123,9 @@ const createUser = async (req, res, next) => {
       user: {
         id: savedUser._id,
         empId: savedUser.empId,
-        name: savedUser.name,
+        firstName: savedUser.firstName,
+        middleName: savedUser.middleName,
+        lastName: savedUser.lastName,
         email: savedUser.email,
         phone: savedUser.phone,
         companyId: savedUser.company,
@@ -131,12 +138,15 @@ const createUser = async (req, res, next) => {
   }
 };
 
-const fetchUser = async (req, res) => {
+const fetchUser = async (req, res, next) => {
   const { deptId } = req.params;
+  const company = req.company;
+
   try {
     if (deptId) {
       const users = await User.find({
         department: { $elemMatch: { $eq: deptId } },
+        company,
       })
         .select("-password")
         .populate([
@@ -145,12 +155,11 @@ const fetchUser = async (req, res) => {
           { path: "company", select: "name" },
           { path: "role", select: "roleTitle modulePermissions" },
         ]);
-      res.status(200).json({
-        message: "Users data fetched",
-        users,
-      });
+
+      res.status(200).json(users);
     }
-    const users = await User.find()
+
+    const users = await User.find({ company })
       .select("-password")
       .populate([
         // { path: "reportsTo", select: "name email" },
@@ -198,65 +207,167 @@ const fetchSingleUser = async (req, res) => {
   }
 };
 
-const updateSingleUser = async (req, res) => {
+// const updateSingleUser = async (req, res) => {
+//   try {
+//     const { id } = req.params; // Extract user ID from request parameters
+//     const updateData = req.body; // Data to update comes from the request body
+
+//     // Define a whitelist of updatable fields, including nested objects
+//     const allowedFields = [
+//       "name",
+//       "gender",
+//       "fatherName",
+//       "motherName",
+//       "kycDetails.aadhaar",
+//       "kycDetails.pan",
+//       "bankDetails.bankName",
+//       "bankDetails.accountNumber",
+//       "bankDetails.ifsc",
+//     ];
+
+//     // Filter the updateData to include only allowed fields
+//     const filteredUpdateData = {};
+
+//     Object.keys(updateData).forEach((key) => {
+//       if (allowedFields.includes(key)) {
+//         // Direct field
+//         filteredUpdateData[key] = updateData[key];
+//       } else {
+//         // Check for nested fields
+//         const nestedFieldMatch = allowedFields.find((field) =>
+//           field.startsWith(`${key}.`)
+//         );
+//         if (nestedFieldMatch && typeof updateData[key] === "object") {
+//           // If a nested field matches, process its properties
+//           const nestedFieldPrefix = `${key}.`;
+//           filteredUpdateData[key] = Object.keys(updateData[key]).reduce(
+//             (nestedObj, nestedKey) => {
+//               if (allowedFields.includes(`${nestedFieldPrefix}${nestedKey}`)) {
+//                 nestedObj[nestedKey] = updateData[key][nestedKey];
+//               }
+//               return nestedObj;
+//             },
+//             {}
+//           );
+//         }
+//       }
+//     });
+
+//     if (Object.keys(filteredUpdateData).length === 0) {
+//       return res.status(400).json({ message: "No valid fields to update" });
+//     }
+
+//     // Perform the update operation
+//     const updatedUser = await User.findByIdAndUpdate(
+//       id,
+//       { $set: filteredUpdateData }, // Use `$set` to update specific fields
+//       { new: true, runValidators: true } // Return the updated document and enforce validation
+//     )
+//       .select("-password") // Exclude the password field
+//       .populate("reportsTo", "name email")
+//       .populate("departments", "name")
+//       .populate("company", "name")
+//       .populate("role", "roleTitle modulePermissions");
+
+//     if (!updatedUser) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+
+//     res.status(200).json({
+//       message: "User data updated successfully",
+//       user: updatedUser,
+//     });
+//   } catch (error) {
+//     console.error("Error updating user: ", error);
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
+const updateSingleUser = async (req, res, next) => {
   try {
-    const { id } = req.params; // Extract user ID from request parameters
-    const updateData = req.body; // Data to update comes from the request body
+    const { id } = req.params;
+    const updateData = req.body;
 
-    // Define a whitelist of updatable fields, including nested objects
-    const allowedFields = [
-      "name",
-      "gender",
-      "fatherName",
-      "motherName",
-      "kycDetails.aadhaar",
-      "kycDetails.pan",
-      "bankDetails.bankName",
-      "bankDetails.accountNumber",
-      "bankDetails.ifsc",
-    ];
-
-    // Filter the updateData to include only allowed fields
+    // Allowed top-level fields according to new schema
+    const allowedFields = ["firstName", "middleName", "lastName", "gender"];
     const filteredUpdateData = {};
 
-    Object.keys(updateData).forEach((key) => {
-      if (allowedFields.includes(key)) {
-        // Direct field
-        filteredUpdateData[key] = updateData[key];
-      } else {
-        // Check for nested fields
-        const nestedFieldMatch = allowedFields.find((field) =>
-          field.startsWith(`${key}.`)
-        );
-        if (nestedFieldMatch && typeof updateData[key] === "object") {
-          // If a nested field matches, process its properties
-          const nestedFieldPrefix = `${key}.`;
-          filteredUpdateData[key] = Object.keys(updateData[key]).reduce(
-            (nestedObj, nestedKey) => {
-              if (allowedFields.includes(`${nestedFieldPrefix}${nestedKey}`)) {
-                nestedObj[nestedKey] = updateData[key][nestedKey];
-              }
-              return nestedObj;
-            },
-            {}
-          );
-        }
+    // Process top-level allowed fields
+    allowedFields.forEach((field) => {
+      if (updateData[field] !== undefined) {
+        filteredUpdateData[field] = updateData[field];
       }
     });
 
+    // Process nested fields for familyInformation (fatherName, motherName)
+    if (
+      updateData.familyInformation &&
+      typeof updateData.familyInformation === "object"
+    ) {
+      const allowedFamilyFields = ["fatherName", "motherName"];
+      filteredUpdateData.familyInformation = {};
+      allowedFamilyFields.forEach((field) => {
+        if (updateData.familyInformation[field] !== undefined) {
+          filteredUpdateData.familyInformation[field] =
+            updateData.familyInformation[field];
+        }
+      });
+      if (Object.keys(filteredUpdateData.familyInformation).length === 0) {
+        delete filteredUpdateData.familyInformation;
+      }
+    }
+
+    // Process nested fields for panAadhaarDetails (aadhaarId, pan)
+    if (
+      updateData.panAadhaarDetails &&
+      typeof updateData.panAadhaarDetails === "object"
+    ) {
+      const allowedPanFields = ["aadhaarId", "pan"];
+      filteredUpdateData.panAadhaarDetails = {};
+      allowedPanFields.forEach((field) => {
+        if (updateData.panAadhaarDetails[field] !== undefined) {
+          filteredUpdateData.panAadhaarDetails[field] =
+            updateData.panAadhaarDetails[field];
+        }
+      });
+      if (Object.keys(filteredUpdateData.panAadhaarDetails).length === 0) {
+        delete filteredUpdateData.panAadhaarDetails;
+      }
+    }
+
+    // Process nested fields for bankInformation (bankName, accountNumber, bankIFSC)
+    if (
+      updateData.bankInformation &&
+      typeof updateData.bankInformation === "object"
+    ) {
+      const allowedBankFields = ["bankName", "accountNumber", "bankIFSC"];
+      filteredUpdateData.bankInformation = {};
+      allowedBankFields.forEach((field) => {
+        if (updateData.bankInformation[field] !== undefined) {
+          filteredUpdateData.bankInformation[field] =
+            updateData.bankInformation[field];
+        }
+      });
+      if (Object.keys(filteredUpdateData.bankInformation).length === 0) {
+        delete filteredUpdateData.bankInformation;
+      }
+    }
+
+    // If there's nothing to update, return an error response
     if (Object.keys(filteredUpdateData).length === 0) {
       return res.status(400).json({ message: "No valid fields to update" });
     }
 
-    // Perform the update operation
+    // Perform the update operation using the id directly
+
     const updatedUser = await User.findByIdAndUpdate(
-      id,
-      { $set: filteredUpdateData }, // Use `$set` to update specific fields
-      { new: true, runValidators: true } // Return the updated document and enforce validation
+      { _id: id },
+      { $set: updateData },
+      { new: true, runValidators: true }
     )
-      .select("-password") // Exclude the password field
-      .populate("reportsTo", "name email")
-      .populate("department", "name")
+      .select("-password")
+      .populate("reportsTo", "firstName lastName email")
+      .populate("departments", "name")
       .populate("company", "name")
       .populate("role", "roleTitle modulePermissions");
 
@@ -266,20 +377,177 @@ const updateSingleUser = async (req, res) => {
 
     res.status(200).json({
       message: "User data updated successfully",
-      user: updatedUser,
     });
   } catch (error) {
-    console.error("Error updating user: ", error);
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 };
 
-const bulkInsertUsers=async(req,res,next)=>{
+const bulkInsertUsers = async (req, res, next) => {
   try {
-    
-  } catch (error) {
-    next(error)
-  }
-}
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
 
-module.exports = { createUser, fetchUser, fetchSingleUser, updateSingleUser };
+    const companyId = "6799f0cd6a01edbe1bc3fcea";
+    const foundCompany = await Company.findById(companyId)
+      .select("selectedDepartments")
+      .populate({
+        path: "selectedDepartments.department",
+        select: "_id departmentId",
+      })
+      .lean()
+      .exec();
+
+    if (!foundCompany) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+
+    const departmentMap = new Map(
+      foundCompany.selectedDepartments.map((dep) => [
+        dep.department.departmentId,
+        dep.department._id,
+      ])
+    );
+
+    const roles = await Role.find();
+    const roleMap = new Map(roles.map((role) => [role.roleID, role._id]));
+
+    const newUsers = [];
+    const hashedPassword = await bcrypt.hash("123456", 10);
+    const stream = Readable.from(req.file.buffer.toString("utf-8").trim());
+
+    stream
+      .pipe(csvParser())
+      .on("data", async (row) => {
+        try {
+          const departmentIds = row["Departments"]
+            ? row["Departments"].split("/").map((d) => d.trim())
+            : [];
+
+
+          const departmentObjectIds = departmentIds.map((id) => {
+            if (!departmentMap.has(id)) {
+              throw new Error(`Invalid department: ${id}`);
+            }
+            return departmentMap.get(id); 
+          });
+
+          const roleIds = row["Roles"]
+            ? row["Roles"].split("/").map((r) => r.trim())
+            : [];
+          const roleObjectIds = roleIds
+            .map((id) => roleMap.get(id))
+            .filter(Boolean);
+
+          let reportsToId = row["Reports To"]
+            ? roleMap.get(row["Reports To"].trim())
+            : null;
+
+          const user = {
+            empId: row["Emp ID"],
+            firstName: row["First Name"],
+            middleName: row["Middle Name (optional)"] || "",
+            lastName: row["Last Name"],
+            gender: row["Gender"],
+            dateOfBirth: new Date(row["Date Of Birth"]),
+            phone: row["Phone Number"],
+            email: row["Company Email"],
+            company: new mongoose.Types.ObjectId(companyId),
+            password: hashedPassword,
+
+            departments: departmentObjectIds,
+            role: roleObjectIds,
+            reportsTo: reportsToId,
+
+            employeeType: {
+              name: row["Employement Type"] || "Full-Time",
+              leavesCount: [
+                { leaveType: "Privileged", count: row["Privileged"] || "0" },
+                { leaveType: "Sick", count: row["Sick"] || "0" },
+              ],
+            },
+
+            designation: row["Designation"],
+            startDate: new Date(row["Date Of Joining"]),
+            workLocation: row["Work Building"],
+
+            policies: {
+              shift: row["Shift Policy"] || "General",
+              workSchedulePolicy: row["Work Schedule Policy"] || "",
+              leavePolicy: row["Leave Policy"] || "",
+              holidayPolicy: row["Holiday Policy"] || "",
+            },
+
+            homeAddress: {
+              addressLine1: row["Address"] || "",
+              addressLine2: row["Present Address"] || "",
+              city: row["City"] || "",
+              state: row["State"] || "",
+              pinCode: row["PIN Code"] || "",
+            },
+
+            bankInformation: {
+              bankIFSC: row["Bank IFSC"] || "",
+              bankName: row["Bank Name"] || "",
+              branchName: row["Branch Name"] || "",
+              nameOnAccount: row["Account Name"] || "",
+              accountNumber: row["Account Number"] || "",
+            },
+
+            panAadhaarDetails: {
+              aadhaarId: row["Aadhaar Number"] || "",
+              pan: row["PAN Card Number"] || "",
+              pfAccountNumber: row["PF Account Number"] || "",
+              pfUAN: row["PF UAN"] || "",
+              esiAccountNumber: row["ESI Account Number"] || "",
+            },
+
+            payrollInformation: {
+              includeInPayroll: row["Include In Payroll (Yes/No)"] === "Yes",
+              professionTaxExemption: row["Profession Tax Exemption"] === "Yes",
+              includePF: row["Include PF"] === "Yes",
+              pfContributionRate: parseFloat(row["Employer PF Contri"] || "0"),
+              employeePF: parseFloat(row["Employee PF"] || "0"),
+            },
+
+            familyInformation: {
+              fatherName: row["Father's Name"] || "",
+              motherName: row["Mother's Name"] || "",
+              maritalStatus: row["Martial Status"] || "Single",
+            },
+          };
+
+          newUsers.push(user);
+        } catch (error) {
+          console.error("Error processing row:", row, error);
+        }
+      })
+      .on("end", async () => {
+        try {
+          if (newUsers.length === 0) {
+            return res
+              .status(400)
+              .json({ message: "No valid data found in CSV" });
+          }
+          await User.insertMany(newUsers);
+          res.status(201).json({
+            message: "Bulk data inserted successfully",
+            insertedCount: newUsers.length,
+          });
+        } catch (error) {
+          res.status(500).json({ message: "Error inserting data", error });
+        }
+      });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  createUser,
+  fetchUser,
+  fetchSingleUser,
+  updateSingleUser,
+  bulkInsertUsers,
+};

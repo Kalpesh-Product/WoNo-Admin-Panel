@@ -11,9 +11,11 @@ const VendorOnboard = () => {
   const { control, handleSubmit, reset } = useForm();
 
   const vendorColumns = [
+    { field: "vendorID", headerName: "Vendor ID", width:100 },
     {
       field: "vendorName",
       headerName: "Vendor Name",
+      flex:2,
       cellRenderer: (params) => (
         <span
           style={{
@@ -28,7 +30,6 @@ const VendorOnboard = () => {
         </span>
       ),
     },
-    { field: "vendorID", headerName: "Vendor ID", flex: 1 },
     {
       field: "actions",
       headerName: "Action",

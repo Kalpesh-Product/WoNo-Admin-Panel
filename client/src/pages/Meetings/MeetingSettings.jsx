@@ -90,7 +90,8 @@ const MeetingSettings = () => {
 
   const handleCloseModal = () => {
     setOpenModal(false);
-    inputRef.current.value = "";
+    // inputRef.current.value = "";
+    setSelectedFile("")
     reset();
   };
 
@@ -243,7 +244,6 @@ const MeetingSettings = () => {
                         accept="image/*"
                         style={{ display: "none" }}
                         id="upload-file"
-                        ref={inputRef}
                         onChange={(event) => handleFileChange(event, field)}
                       />
                       <label htmlFor="upload-file">

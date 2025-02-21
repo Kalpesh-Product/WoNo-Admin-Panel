@@ -109,24 +109,27 @@ const tasksMonthlyOptions = {
       const totalPendingTasks = totalPending[dataPointIndex];
 
       return `
-        <div style="padding: 8px; background: white; border-radius: 5px; box-shadow: 0px 0px 5px rgba(0,0,0,0.2); font-size: 12px;">
-        <div style="display: flex; gap:1rem; align-items: center;">
+        <div style="padding: 2px 8px; background: white; border-radius: 5px; box-shadow: 0px 0px 5px rgba(0,0,0,0.2); font-size: 12px;">
+      <div style="display: flex; flex-direction:column; gap:0.5rem">
+          <div style="display: flex; gap:1rem; align-items: center;">
           <strong>Total Assigned</strong>
           <strong>:</strong>
           <span>${totalAssigned}</span> 
         </div>
-           <br>
+     
             <div style="display: flex; justify-content: space-between; align-items: center;">
           <strong>Total Completed</strong>
           <strong>:</strong>
           <span>${totalCompletedTasks}</span> 
         </div>
-         <br>
+    
+         <hr/>
           <div style="display: flex; justify-content: space-between; align-items: center;">
           <strong>Total Pending</strong>
           <strong>:</strong>
           <span>${totalPendingTasks}</span> 
         </div>
+      </div>
         </div>
       `;
     },
@@ -250,7 +253,10 @@ const departmentPieChartOptions = {
 const myTasksColumns = [
   { id: "id", label: "ID" },
   { id: "task", label: "Task" },
-  { id: "type", label: "Type" },
+  { id: "type", label: "Type", renderCell: (row) => (
+    <Chip label={row.type}  sx={{backgroundColor:'#d1d5db', color:'#1E3D73'}}/>    
+  ), },
+  
   { id: "due", label: "Due" },
 ];
 

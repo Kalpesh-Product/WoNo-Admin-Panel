@@ -164,8 +164,8 @@ const Leaves = () => {
           buttonTitle={"Add Requested Leave"}
           data={[...leaves.map((leave,index)=>({
             id : index+1,
-            fromDate : new Date(leave.fromDate).toLocaleDateString(),
-            toDate : new Date(leave.toDate).toLocaleDateString(),
+            fromDate : new Intl.DateTimeFormat("en-GB",{day:"numeric",month:"long",year:"numeric"}).format(new Date(leave.fromDate)),
+            toDate : new Intl.DateTimeFormat("en-GB",{day:"numeric",month:"long",year:"numeric"}).format(new Date(leave.toDate)),
             leaveType : leave.leaveType,
             leavePeriod : leave.leavePeriod,
             hours : leave.hours,

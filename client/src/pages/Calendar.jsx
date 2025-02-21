@@ -82,15 +82,6 @@ const Calender = () => {
     setHeaderBackground(headerBackground); // Set the background color
   };
 
-  const handleDateClick = (info) => {
-    setNewEvent({
-      title: "",
-      start: dayjs(info.date).format("YYYY-MM-DD"),
-      description: "",
-    });
-    setDrawerMode("add");
-    setIsDrawerOpen(true);
-  };
 
   const closeDrawer = () => {
     setIsDrawerOpen(false);

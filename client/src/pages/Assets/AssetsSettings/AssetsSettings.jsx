@@ -15,7 +15,7 @@ const AssetsSettings = () => {
   }, [location, navigate]);
 
   return (
-    <div className="p-2">
+    <div className="p-2 mb-32">
       <Outlet />
     </div>
   );

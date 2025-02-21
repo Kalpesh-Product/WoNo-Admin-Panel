@@ -1,4 +1,18 @@
 import { useState } from "react";
+import {
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Typography,
+  List,
+  ListItem,
+  ListItemText,
+  Box,
+  Button,
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import PrimaryButton from "../../../components/PrimaryButton";
+import MuiModal from "../../../components/MuiModal";
 import { useForm, Controller } from "react-hook-form";
 import {
   TextField,
@@ -8,11 +22,13 @@ import {
   InputLabel,
   FormHelperText,
 } from "@mui/material";
-import AgTable from "../../../components/AgTable";
-import PrimaryButton from "../../../components/PrimaryButton";
-import MuiModal from "../../../components/MuiModal";
+import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import { toast } from "sonner";
 
 const AssetsSubCategories = () => {
+  const axios = useAxiosPrivate();
+  const queryClient = new QueryClient();
   const [isModalOpen, setModalOpen] = useState(false);
 
   const {
@@ -22,56 +38,147 @@ const AssetsSubCategories = () => {
     reset,
   } = useForm();
 
-  const categories = [
-    { id: 1, name: "Chairs" },
-    { id: 2, name: "Laptops" },
-    { id: 3, name: "Cables" },
-    { id: 4, name: "Monitors" },
-  ];
-
-  const subCategoriesColumn = [
-    { field: "categoryName", headerName: "Category Name", flex: 3 },
-    { field: "subCategoryName", headerName: "Sub Category Name", flex: 5 },
-    {
-      field: "action",
-      headerName: "Action",
-      flex: 2,
-      cellRenderer: (params) => (
-        <PrimaryButton
-          title="Disable"
-          handleSubmit={() => (
-            "Disable clicked for sub-category id", params.data.id
-          )}
-        />
-      ),
+  const { data: assetsSubCategories = [] } = useQuery({
+    queryKey: "assetsSubCategories",
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/assets/get-subcategory");
+        return response.data;
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
     },
-  ];
+  });
 
-  const rows = [
+
+  const { data: assetsCategories = [] } = useQuery({
+    queryKey: "assetsCategories",
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/assets/get-category");
+        return response.data;
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: async (data) => {
+      const response = await axios.post("/api/assets/create-asset-subcategory", {
+        assetCategoryId : data.assetCategoryId,
+        assetSubCategoryName: data.assetSubCategoryName,
+      });
+      return response.data;
+    },
+    onSuccess: function (data) {
+      toast.success(data.message);
+    },
+    onError: function (data) {
+      toast.error(data.response.data.message || "Failed to add category");
+    },
+  });
+
+  const { mutate: disableSubCategory, isPending: isRevoking } = useMutation({
+    mutationFn: async (assetSubCategoryId) => {
+
+      const response = await axios.patch(`/api/assets/disable-asset-subcategory/${assetSubCategoryId}`);
+
+      return response.data;
+    },
+    onSuccess: (data) => {
+      toast.success(data.message);
+      queryClient.invalidateQueries(["assetCategories"]);
+    },
+    onError: (error) => {
+      toast.error(error.response.data.message || "Failed to disable category");
+    },
+  });
+
+  const subCategories = [
     { id: 1, categoryName: "Chairs", subCategoryName: "Plastic Chair" },
     { id: 2, categoryName: "Chairs", subCategoryName: "Ergonomic Chair" },
     { id: 3, categoryName: "Chairs", subCategoryName: "Leather Chair" },
     { id: 4, categoryName: "Chairs", subCategoryName: "Office Chair" },
+    { id: 5, categoryName: "Laptops", subCategoryName: "Gaming Laptop" },
+    { id: 6, categoryName: "Laptops", subCategoryName: "Ultrabook" },
+    { id: 7, categoryName: "Cables", subCategoryName: "HDMI Cable" },
+    { id: 8, categoryName: "Cables", subCategoryName: "USB-C Cable" },
+    { id: 9, categoryName: "Monitors", subCategoryName: "Curved Monitor" },
   ];
 
+  // Grouping subcategories by category
+  const categorizedData = assetsCategories.map((category) => {
+    const filteredSubCategories = subCategories.filter(
+      (sub) => sub.categoryName === category.name
+    );
+    return {
+      ...category,
+      subCategories: filteredSubCategories,
+    };
+  });
+
+  console.log(categorizedData);
   const handleAddSubCategory = (data) => {
-    // Add API call here
+    console.log(data)
+    mutate(data)
     setModalOpen(false);
     reset();
   };
 
   return (
-    <>
-      <AgTable
-        search={true}
-        searchColumn="Sub Category Name"
-        tableTitle="Assets Sub Categories"
-        buttonTitle="Add Sub Category"
-        data={rows}
-        columns={subCategoriesColumn}
-        handleClick={() => setModalOpen(true)}
-        tableHeight={350}
-      />
+    <Box>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={2}
+      >
+        <span className="text-title text-primary font-pmedium">Assets Sub Categories</span>
+        <PrimaryButton
+          title="Add Sub Category"
+          handleSubmit={() => setModalOpen(true)}
+        />
+      </Box>
+
+      {assetsSubCategories.map((category) => (
+        <Accordion key={category._id} >
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Box display="flex" justifyContent="space-between" width="100%" alignItems={"center"}>
+              <span className="text-subtitle">{category.categoryName}</span>
+              <span className="text-content">
+                {category.subCategories.length}{" "}
+                {category.subCategories.length === 1
+                  ? "Subcategory"
+                  : "Subcategories"}
+              </span>
+            </Box>
+          </AccordionSummary>
+          <AccordionDetails
+            sx={{
+              maxHeight: 200,
+              overflowY: "auto",
+              borderTop: "1px solid #e0e0e0",
+            }}
+          >
+            <List>
+              {category.subCategories.map((subCategory) => (
+                <ListItem
+                  key={subCategory._id}
+                  sx={{ display: "flex", justifyContent: "space-between", padding:0 }}
+                >
+                  <ListItemText primary={subCategory.name} />
+                  
+                  <PrimaryButton disabled={!subCategory.isActive} title={"Disable"} handleSubmit={() => {
+                     disableSubCategory(subCategory._id)
+                  }
+                 } />    
+                </ListItem>
+              ))}
+            </List>
+          </AccordionDetails>
+        </Accordion>
+      ))}
 
       <MuiModal
         open={isModalOpen}
@@ -85,17 +192,19 @@ const AssetsSubCategories = () => {
           <FormControl sx={{ width: "80%" }} error={!!errors.categoryName}>
             <InputLabel>Select Category</InputLabel>
             <Controller
-              name="categoryName"
+              name="assetCategoryId"
               control={control}
               defaultValue=""
               rules={{ required: "Category Name is required" }}
               render={({ field }) => (
                 <Select {...field} label="Select Category">
-                  {categories.map((category) => (
-                    <MenuItem key={category.id} value={category.name}>
-                      {category.name}
-                    </MenuItem>
-                  ))}
+                  {assetsCategories
+                    .filter((category) => category.isActive) // Only include active categories
+                    .map((category) => (
+                      <MenuItem key={category._id} value={category._id}>
+                        {category.categoryName}
+                      </MenuItem>
+                    ))}
                 </Select>
               )}
             />
@@ -105,7 +214,7 @@ const AssetsSubCategories = () => {
           </FormControl>
 
           <Controller
-            name="subCategoryName"
+            name="assetSubCategoryName"
             control={control}
             defaultValue=""
             rules={{ required: "Sub Category Name is required" }}
@@ -127,7 +236,7 @@ const AssetsSubCategories = () => {
           />
         </form>
       </MuiModal>
-    </>
+    </Box>
   );
 };
 

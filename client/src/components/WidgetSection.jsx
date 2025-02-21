@@ -33,7 +33,7 @@ const WidgetSection = ({
             className={`${
               titleFont
                 ? "text-subtitle text-primary"
-                : "text-title text-primary font-pbold"
+                : "text-title text-primary font-pmedium"
             }`}
           >
             {title}{" "}

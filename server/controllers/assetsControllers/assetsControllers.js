@@ -1,13 +1,14 @@
 const Asset = require("../../models/assets/Assets");
 const User = require("../../models/UserData");
 const Company = require("../../models/Company");
-const Category = require("../../models/assets/Category");
+const Category = require("../../models/assets/AssetCategory");
 const Vendor = require("../../models/Vendor");
 const sharp = require("sharp");
 const {
   handleFileUpload,
   handleFileDelete,
 } = require("../../config/cloudinaryConfig");
+const AssetCategory = require("../../models/assets/AssetCategory");
 
 const getAssets = async (req, res, next) => {
   try {
@@ -49,14 +50,10 @@ const getAssets = async (req, res, next) => {
 
     // Fetch assets (without pagination)
     const assets = await Asset.find(filter)
-      .populate("vendor company department assignedTo") // Populate references
+      .populate("department assignedTo").select("-company") // Populate references
       .sort({ [sortField]: sortOrder });
 
-    res.status(200).json({
-      success: true,
-      totalAssets: assets.length,
-      assets,
-    });
+    res.status(200).json(assets);
   } catch (error) {
     next(error);
   }
@@ -76,10 +73,8 @@ const addAsset = async (req, res, next) => {
       quantity,
       price,
       brand,
-      status,
       assetType,
       warranty,
-      assignedTo,
     } = req.body;
 
     const user = req.user;
@@ -102,9 +97,14 @@ const addAsset = async (req, res, next) => {
       return res.status(400).json({ message: "Company not found" });
     }
 
+ 
     const doesDepartmentExist = foundCompany.selectedDepartments.find(
-      (dept) => dept._id.toString() === departmentId
+      (dept) =>{
+         
+        return dept.department.toString() === departmentId
+      } 
     );
+
 
     if (!doesDepartmentExist) {
       return res
@@ -133,15 +133,6 @@ const addAsset = async (req, res, next) => {
       const foundVendor = await Vendor.findOne({ _id: vendorId }).lean().exec();
       if (!foundVendor) {
         return res.status(400).json({ message: "Vendor not found" });
-      }
-    }
-
-    if (assignedTo) {
-      const foundAssignedUser = await User.findOne({ _id: assignedTo })
-        .lean()
-        .exec();
-      if (!foundAssignedUser) {
-        return res.status(400).json({ message: "Assigned user not found" });
       }
     }
 
@@ -194,15 +185,25 @@ const addAsset = async (req, res, next) => {
       warranty,
       brand,
       department: departmentId,
-      status: status || "Active",
-      assignedTo: assignedTo || null,
       image: {
         id: imageId,
         url: imageUrl,
       },
     });
 
-    await newAsset.save();
+    const savedAsset = await newAsset.save();
+
+    const updateSubcategory = await AssetCategory.findOneAndUpdate(
+      { "subCategories._id": subCategoryId },
+      { $push: { "subCategories.$.assets": savedAsset._id } },
+      { new: true }
+    );
+    
+
+    if(!updateSubcategory){
+      return res.status(400)
+      .json({ message: "Something went wrong while adding asset"});
+    }
 
     res
       .status(201)
@@ -258,7 +259,7 @@ const editAsset = async (req, res, next) => {
     }
 
     const doesDepartmentExist = foundCompany.selectedDepartments.find(
-      (dept) => dept._id.toString() === departmentId
+      (dept) => dept.department.toString() === departmentId
     );
 
     if (!doesDepartmentExist) {

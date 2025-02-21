@@ -2,8 +2,11 @@ import { useState } from "react";
 import AgTable from "../../../components/AgTable";
 import PrimaryButton from "../../../components/PrimaryButton";
 import AssetModal from "./AssetModal";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
 const ListOfAssets = () => {
+  const axios = useAxiosPrivate()
   const [modalMode, setModalMode] = useState("add");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState(null);
@@ -11,7 +14,7 @@ const ListOfAssets = () => {
   const assetColumns = [
     { field: "id", headerName: "ID" },
     { field: "department", headerName: "Department" },
-    { field: "assetNumber", headerName: "Asset Number" },
+    // { field: "assetNumber", headerName: "Asset Number" },
     { field: "category", headerName: "Category" },
     { field: "brand", headerName: "Brand" },
     { field: "price", headerName: "Price" },
@@ -29,6 +32,18 @@ const ListOfAssets = () => {
       ),
     },
   ];
+
+  const { data: assetsList = [] } = useQuery({
+    queryKey: "assetsList",
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/assets/get-assets");
+        return response.data;
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
 
   const assets = [
     {
@@ -198,11 +213,22 @@ const ListOfAssets = () => {
   return (
     <>
       <AgTable
+        key={assetsList.length}
         search={true}
         searchColumn={"Asset Number"}
         tableTitle={"List of Assets"}
         buttonTitle={"Add Asset"}
-        data={assets}
+        data={[...assetsList.map((asset,index) => ({
+          id : index +1,
+          department : asset.department.name,
+          category : asset.name,
+          brand : asset.brand,
+          price : asset.price,
+          quantity : asset.quantity,
+          purchaseDate : new Intl.DateTimeFormat("en-GB",{day:"numeric",month:"short",year:"numeric"}).format(new Date(asset.purchaseDate)),
+          warranty : asset.warranty,
+          vendorName : asset.vendor.name
+        }))]}
         columns={assetColumns}
         handleClick={handleAddAsset}
       />
@@ -212,7 +238,7 @@ const ListOfAssets = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleSubmit}
-        initialData={selectedAsset}
+        assetData={selectedAsset}
         onModeChange={setModalMode}
       />
     </>

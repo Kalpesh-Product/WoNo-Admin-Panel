@@ -103,6 +103,15 @@ import TasksLayout from "../pages/Tasks/TasksLayout";
 import TasksDashboard from "../pages/Tasks/TasksDashboard";
 import MyTaskListLayout from "../pages/Tasks/My-Tasklist/MyTaskListLayout";
 import DailyTasks from "../pages/Tasks/My-Tasklist/DailyTasks";
+import MonthlyTasks from "../pages/Tasks/My-Tasklist/MonthlyTasks";
+import AdditionalTasks from "../pages/Tasks/My-Tasklist/AdditionalTasks";
+import TeamMember from "../pages/Tasks/TeamMembers/TeamMember";
+import ProjectList from "../pages/Tasks/ProjectList/ProjectList";
+import EditProject from "../pages/Tasks/ProjectList/EditProject";
+import TaskReportLayout from "../pages/Tasks/TaskReports.jsx/TaskReportLayout";
+import MyTaskReports from "../pages/Tasks/TaskReports.jsx/MyTaskReports";
+import AssignedTaskReports from "../pages/Tasks/TaskReports.jsx/AssignedTaskReports";
+import DepartmentTaskReports from "../pages/Tasks/TaskReports.jsx/DepartmentTaskReports";
 
 export const routes = createBrowserRouter([
   {
@@ -547,12 +556,24 @@ export const routes = createBrowserRouter([
               },
               {
                 path: "tasks", // Parent path
-                element: <TasksLayout />, // Parent component for tickets
+                element: <TasksLayout />, // Parent component for tasks
                 children: [
                   {
-                    path: "", // Default route for /app/assets
+                    path: "", // Default route for /app/tasks
                     element: <TasksDashboard />, // Dashboard is rendered by default
                     index: true,
+                  },
+                  {
+                    path: "project-list", // Default route for /app/tasks
+                    element: <ProjectList />, // Dashboard is rendered by default
+                  },
+                  {
+                    path: "project-list/edit-project", // Default route for /app/tasks
+                    element: <ProjectList />, // Dashboard is rendered by default
+                  },
+                  {
+                    path: "project-list/edit-project/:id", // Default route for /app/tasks
+                    element: <EditProject />, // Dashboard is rendered by default
                   },
                   {
                     path: "my-tasklist",
@@ -564,18 +585,18 @@ export const routes = createBrowserRouter([
                         element: <DailyTasks />,
                       },
                       {
-                        path: "assets-sub-categories",
-                        element: <AssetsSubCategories />,
+                        path: "monthly-tasks",
+                        element: <MonthlyTasks />,
                       },
                       {
-                        path: "list-of-assets",
-                        element: <ListOfAssets />,
+                        path: "additional-Tasks",
+                        element: <AdditionalTasks />,
                       },
                     ],
                   },
                   {
-                    path: "schedule-meeting",
-                    element: <MeetingFormLayout />, // This is your second page
+                    path: "team-members",
+                    element: <TeamMember />, 
                   },
                   {
                     path: "manage-assets",
@@ -601,7 +622,21 @@ export const routes = createBrowserRouter([
                   },
                   {
                     path: "reports",
-                    element: <AssetReports />,
+                    element: <TaskReportLayout />,
+                    children:[
+                      {
+                        path:'my-task-reports',
+                        element:<MyTaskReports />
+                      },
+                      {
+                        path:'assigned-task-reports',
+                        element:<AssignedTaskReports />
+                      },
+                      {
+                        path:'department-task-reports',
+                        element:<DepartmentTaskReports />
+                      },
+                    ]
                   },
                   {
                     path: "reviews",

@@ -68,10 +68,7 @@ const addCompany = async (req, res, next) => {
 const getCompanies = async (req, res, next) => {
   try {
     const companies = await Company.find();
-    return res.status(200).json({
-      message: "Company data fetched",
-      companies,
-    });
+    return res.status(200).json(companies);
   } catch (error) {
     next(error);
   }
@@ -158,7 +155,7 @@ const getCompanyData = async (req, res, next) => {
     // Define fields that require population
     const fieldsToPopulate = {
       selectedDepartments: "selectedDepartments.department",
-      employeeTypes: "employeeTypes.leavesCount.leaveType",
+      employeeTypes: "",
       workLocations: "",
       leaveTypes: "",
       shifts: "",

@@ -5,7 +5,6 @@ import { Delete } from "@mui/icons-material";
 import {
   Button,
   Chip,
-  Modal,
   Box,
   TextField,
   Checkbox,
@@ -17,9 +16,17 @@ import {
 import AgTable from "../../components/AgTable";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { queryClient } from "../../index";
+import MuiModal from "../../components/MuiModal";
+import PrimaryButton from "../../components/PrimaryButton";
 
 const ManageMeetings = () => {
-  const axios = useAxiosPrivate()
+  const axios = useAxiosPrivate();
+  const [checklistModalOpen, setChecklistModalOpen] = useState(false);
+  const [selectedMeetingId, setSelectedMeetingId] = useState(null);
+  const [checklists, setChecklists] = useState({});
+  const [newItem, setNewItem] = useState("");
+  const [modalMode, setModalMode] = useState("update"); // 'update', or 'view'
+
   const statusColors = {
     Scheduled: { bg: "#E3F2FD", text: "#1565C0" }, // Light Blue
     Ongoing: { bg: "#FFF3E0", text: "#E65100" }, // Light Orange
@@ -32,22 +39,18 @@ const ManageMeetings = () => {
     "In Progress": { bg: "#FBE9E7", text: "#BF360C" },
   };
 
-const defaultChecklist = [
-  { name: "Clean and arrange chairs and tables", checked: false },
-  { name: "Check projector functionality", checked: false },
-  { name: "Ensure AC is working", checked: false },
-  { name: "Clean whiteboard and provide markers", checked: false },
-  { name: "Vacuum and clean the floor", checked: false },
-  { name: "Check lighting and replace bulbs if necessary", checked: false },
-  { name: "Ensure Wi-Fi connectivity", checked: false },
-  { name: "Stock water bottles and glasses", checked: false },
-  { name: "Inspect electrical sockets and outlets", checked: false },
-  { name: "Remove any trash or debris", checked: false },
-];
-  const [checklistModalOpen, setChecklistModalOpen] = useState(false);
-  const [selectedMeetingId, setSelectedMeetingId] = useState(null);
-  const [checklists, setChecklists] = useState({});
-  const [newItem, setNewItem] = useState("");
+  const defaultChecklist = [
+    { name: "Clean and arrange chairs and tables", checked: false },
+    { name: "Check projector functionality", checked: false },
+    { name: "Ensure AC is working", checked: false },
+    { name: "Clean whiteboard and provide markers", checked: false },
+    { name: "Vacuum and clean the floor", checked: false },
+    { name: "Check lighting and replace bulbs if necessary", checked: false },
+    { name: "Ensure Wi-Fi connectivity", checked: false },
+    { name: "Stock water bottles and glasses", checked: false },
+    { name: "Inspect electrical sockets and outlets", checked: false },
+    { name: "Remove any trash or debris", checked: false },
+  ];
 
   // Fetch meetings
   const { data: meetings = [], isLoading } = useQuery({
@@ -91,7 +94,8 @@ const defaultChecklist = [
     }
   }, [meetings]);
 
-  const handleOpenChecklistModal = (meetingId) => {
+  const handleOpenChecklistModal = (mode, meetingId) => {
+    setModalMode(mode);
     setSelectedMeetingId(meetingId);
     setChecklistModalOpen(true);
   };
@@ -168,9 +172,9 @@ const defaultChecklist = [
     );
     if (!selectedMeeting) return;
 
-    const { defaultItems, customItems } = checklists[selectedMeetingId];
+    const { customItems } = checklists[selectedMeetingId];
 
-    const housekeepingTasks = [...defaultItems, ...customItems].map((item) => ({
+    const housekeepingTasks = customItems.map((item) => ({
       name: item.name,
       status: "Completed",
     }));
@@ -184,13 +188,7 @@ const defaultChecklist = [
     housekeepingMutation.mutate(payload);
   };
 
-  const handleViewDetails = (meetingData) => {
-    console.log("Viewing details for:", meetingData);
-    // Add logic here to navigate, open a modal, or display details.
-  };
-
   const columns = useMemo(() => {
-    console.log("Updating columns with meetings:", meetings); // ✅ Debugging log
     return [
       { field: "roomName", headerName: "Room Name" },
       { field: "endTime", headerName: "End Time" },
@@ -213,7 +211,6 @@ const defaultChecklist = [
         field: "housekeepingStatus",
         headerName: "Housekeeping Status",
         cellRenderer: (params) => {
-          console.log("Housekeeping Status Params:", params); // ✅ Debugging log
           return (
             <Chip
               label={params.value || ""}
@@ -246,19 +243,22 @@ const defaultChecklist = [
         cellRenderer: (params) => (
           <Box sx={{ display: "flex", gap: 1, minWidth: "250px" }}>
             <Button
-              variant="outlined"
+              variant="contained"
               disabled={params.data.housekeepingStatus === "Completed"}
-              onClick={() => handleOpenChecklistModal(params.data._id)}
+              onClick={() =>
+                handleOpenChecklistModal("update", params.data._id)
+              }
+              size="small"
             >
-              View Checklist
+              Update Checklist
             </Button>
 
             <Button
-              variant="contained"
-              color="primary"
-              onClick={() => handleViewDetails(params.data)}
+              variant="outlined"
+              onClick={() => handleOpenChecklistModal("view", params.data._id)}
+              size="small"
             >
-              View Details
+              View Checklist
             </Button>
           </Box>
         ),
@@ -275,38 +275,32 @@ const defaultChecklist = [
       )}
 
       {/* Checklist Modal */}
-      <Modal
+      <MuiModal
         open={checklistModalOpen}
         onClose={handleCloseChecklistModal}
-        sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+        title={"Checklist"}
       >
         <Box
           sx={{
-            width: 400,
             maxHeight: "80vh",
-            bgcolor: "white",
-            borderRadius: 2,
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",
+            justifyContent: "start",
+            alignItems: "start",
           }}
         >
-          {/* Modal Header */}
-          <Typography
-            variant="h6"
-            sx={{ p: 3, borderBottom: "1px solid #e0e0e0" }}
-          >
-            Checklist
-          </Typography>
-
           {/* Scrollable Checklist Section */}
-          <Box sx={{ flexGrow: 1, overflowY: "auto", p: 3 }}>
-            <Typography variant="subtitle1">Default Tasks</Typography>
+          <div className="h-[60vh] overflow-y-auto w-full">
+            <span className="text-subtitle text-primary font-pmedium">
+              Default Tasks
+            </span>
             <List>
               {checklists[selectedMeetingId]?.defaultItems.map(
                 (item, index) => (
                   <ListItem key={index}>
                     <Checkbox
+                      disabled={modalMode === "view"}
                       checked={item.checked}
                       onChange={() =>
                         handleToggleChecklistItem(index, "defaultItems")
@@ -318,68 +312,78 @@ const defaultChecklist = [
               )}
             </List>
 
-            {/* Add New Checklist Item Section */}
-            <Box sx={{ mt: 2, display: "flex", alignItems: "center", gap: 2 }}>
-              <TextField
-                fullWidth
-                label="Add Checklist Task"
-                value={newItem}
-                onChange={(e) => setNewItem(e.target.value)}
-              />
-              <Button
-                onClick={handleAddChecklistItem}
-                variant="contained"
-                sx={{ whiteSpace: "nowrap" }} // Prevents text from wrapping
-              >
-                Add
-              </Button>
-            </Box>
+            {checklists[selectedMeetingId]?.customItems?.length > 0 && (
+              <>
+                <span className="text-subtitle text-primary font-pmedium">
+                  Custom Tasks
+                </span>
+                <List sx={{width:'100%'}}>
+                  {checklists[selectedMeetingId]?.customItems.map(
+                    (item, index) => (
+                      <ListItem key={index} sx={{width:'100%'}}>
+                        <div className="flex items-center justify-between w-full">
+                          <div>
+                            <Checkbox
+                              disabled={modalMode === "view"}
+                              checked={item.checked}
+                              onChange={() =>
+                                handleToggleChecklistItem(index, "customItems")
+                              }
+                            />
+                            {item.name}
+                          </div>
+                          <div>
+                            {modalMode === "update" && (
+                              <IconButton
+                                onClick={() => handleRemoveChecklistItem(index)}
+                                color="error"
+                              >
+                                <Delete />
+                              </IconButton>
+                            )}
+                          </div>
+                        </div>
+                      </ListItem>
+                    )
+                  )}
+                </List>
+              </>
+            )}
 
-            <Typography variant="subtitle1" sx={{ mt: 3 }}>
-              Custom Tasks
-            </Typography>
-            <List>
-              {checklists[selectedMeetingId]?.customItems.map((item, index) => (
-                <ListItem key={index}>
-                  <Checkbox
-                    checked={item.checked}
-                    onChange={() =>
-                      handleToggleChecklistItem(index, "customItems")
-                    }
-                  />
-                  {item.name}
-                  <IconButton
-                    onClick={() => handleRemoveChecklistItem(index)}
-                    color="error"
-                  >
-                    <Delete />
-                  </IconButton>
-                </ListItem>
-              ))}
-            </List>
-          </Box>
+            {/* Add New Checklist Item Section */}
+            {modalMode === "update" && (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                <TextField
+                  fullWidth
+                  label="Add Checklist Task"
+                  value={newItem}
+                  size="small"
+                  onChange={(e) => setNewItem(e.target.value)}
+                />
+                <PrimaryButton
+                  title={"Add"}
+                  handleSubmit={handleAddChecklistItem}
+                  externalStyles={{ whiteSpace: "nowrap" }} // Prevents text from wrapping
+                />
+              </Box>
+            )}
+          </div>
 
           {/* Sticky Footer Section */}
-          <Box
-            sx={{
-              p: 3,
-              borderTop: "1px solid #e0e0e0",
-              position: "sticky",
-              bottom: 0,
-              bgcolor: "white",
-            }}
-          >
-            <Button
-              fullWidth
-              variant="contained"
-              disabled={isSubmitDisabled()}
-              onClick={handleSubmitChecklist}
-            >
-              Submit
-            </Button>
-          </Box>
+          {modalMode === "update" && (
+            <div className="p-4 bg-white flex justify-center items-center w-full">
+              {/* todo - PrimaryButton needs a disabled look */}
+              <Button
+                variant="contained"
+                disabled={isSubmitDisabled()}
+                onClick={handleSubmitChecklist}
+              >
+                Submit
+              </Button>
+            </div>
+          )}
         </Box>
-      </Modal>
+      </MuiModal>
     </div>
   );
 };

@@ -10,6 +10,7 @@ const {
 
 const {
   supportTicket,
+  getSupportedTickets,
 } = require("../controllers/ticketsControllers/supportTicketsController");
 const {
   addTicketIssue,
@@ -27,6 +28,7 @@ router.post("/assign-ticket", assignTicket);
 router.post("/escalate-ticket", escalateTicket);
 router.post("/close-ticket", closeTicket);
 router.post("/support-ticket", supportTicket);
+router.get("/support-tickets", getSupportedTickets);
 router.get("/filtered-tickets/:flag", fetchFilteredTickets);
 
 module.exports = router;

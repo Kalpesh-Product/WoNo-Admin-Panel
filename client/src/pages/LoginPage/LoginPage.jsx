@@ -22,12 +22,12 @@ const LoginPage = () => {
   const refresh = useRefresh();
 
   useEffect(() => {
-    if (auth.accessToken.length) {
-      navigate('/app/frontend-dashboard')
+    if (auth.accessToken) {
+      navigate('/app/dashboard/frontend-dashboard')
     } else {
       refresh();
     }
-  }, []);
+  }, [auth]);
 
   // Validation function
   const handleLogin = async (e) => {

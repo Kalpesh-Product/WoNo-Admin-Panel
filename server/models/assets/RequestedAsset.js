@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const assignAsset = new mongoose.Schema({
+const requestedAsset = new mongoose.Schema({
   asset: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Asset",
@@ -19,7 +19,7 @@ const assignAsset = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["Approved", "Rejected"],
+    enum: ["Approved", "Rejected", "Pending"],
   },
   assignType: {
     type: String,
@@ -32,5 +32,5 @@ const assignAsset = new mongoose.Schema({
 
 });
 
-const AssignAsset = mongoose.model("AssignAsset", assignAsset);
-module.exports = AssignAsset;
+const RequestedAsset = mongoose.model("RequestedAsset", requestedAsset);
+module.exports = RequestedAsset;

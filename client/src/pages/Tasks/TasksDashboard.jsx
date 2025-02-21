@@ -52,12 +52,12 @@ const TasksDashboard = () => {
         />,
         <Card route={"my-tasklist"} title={"My Task List"} icon={<RiPagesLine />} />,
         <Card
-          route={""}
+          route={"team-members"}
           title={"Team Members"}
           icon={<MdFormatListBulleted />}
         />,
         <Card route={""} title={"Mix Bag"} icon={<MdFormatListBulleted />} />,
-        <Card route={""} title={"Reports"} icon={<CgProfile />} />,
+        <Card route={"/app/tasks/reports"} title={"Reports"} icon={<CgProfile />} />,
         <Card
           route={""}
           title={"Settings"}
@@ -106,7 +106,7 @@ const TasksDashboard = () => {
             options={tasksPieChartOptions}
           />
         </WidgetSection>,
-        <WidgetSection layout={1} title={"Physical v/s Digital Assets"} border>
+        <WidgetSection layout={1} title={"Department-wise Pending Tasks"} border>
           <PieChartMui
             data={departmentPendingData}
             options={departmentPieChartOptions}
@@ -119,7 +119,7 @@ const TasksDashboard = () => {
       widgets: [
         <WidgetSection layout={2} padding>
           <MuiTable
-            Title="My Today's Task"
+            Title="My Tasks Today"
             columns={myTasksColumns}
             rows={myTasksData}
             rowKey="id"
@@ -128,7 +128,7 @@ const TasksDashboard = () => {
             className="h-full"
           />
           <MuiTable
-            Title="My Today's Meeting"
+            Title="My Meetings Today"
             columns={myTodayMeetingsColumns}
             rows={myTodayMeetingsData}
             rowKey="id"
@@ -140,7 +140,7 @@ const TasksDashboard = () => {
       ],
     },
     {
-      layout: 2,
+      layout: 1,
       widgets: [
         <WidgetSection layout={1} padding>
           <MuiTable
@@ -153,11 +153,6 @@ const TasksDashboard = () => {
             className="h-full"
           />
         </WidgetSection>,
-        <WidgetSection
-          layout={1}
-          title={"Asset Categories"}
-          border
-        ></WidgetSection>,
       ],
     },
   ];
