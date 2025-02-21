@@ -112,7 +112,11 @@ import TaskReportLayout from "../pages/Tasks/TaskReports.jsx/TaskReportLayout";
 import MyTaskReports from "../pages/Tasks/TaskReports.jsx/MyTaskReports";
 import AssignedTaskReports from "../pages/Tasks/TaskReports.jsx/AssignedTaskReports";
 import DepartmentTaskReports from "../pages/Tasks/TaskReports.jsx/DepartmentTaskReports";
-import TemplatePreview from "../pages/Dashboard/HrDashboard/Data/TemplatePreview";
+import SalesDashboardLayout from "../pages/Dashboard/SalesDashboard/SalesDashboardLayout";
+import SalesDashboard from "../pages/Dashboard/SalesDashboard/SalesDashboard";
+import TotalRevenueLayout from "../pages/Dashboard/SalesDashboard/TotalRevenueLayout";
+import TotalRevenue from "../pages/Dashboard/SalesDashboard/TotalRevenue";
+import ViewTemplate from "../pages/Dashboard/HrDashboard/Data/ViewTemplate";
 
 export const routes = createBrowserRouter([
   {
@@ -200,6 +204,354 @@ export const routes = createBrowserRouter([
                     element: <Dashboard />,
                   },
                   {
+                    path: "sales-dashboard",
+                    element: <SalesDashboardLayout />,
+                    children: [
+                      {
+                        path: "",
+                        element: <SalesDashboard />,
+                      },
+                      {
+                        path: "revenue",
+                        element: <TotalRevenueLayout />,
+                        children: [
+                          {
+                            path: "total-revenue",
+                            element: <TotalRevenue />,
+                          },
+                          {
+                            path: "departments",
+                            element: <HrSettingsDepartments />,
+                          },
+                          {
+                            path: "work-locations",
+                            element: <WorkLocations />,
+                          },
+                          {
+                            path: "holidays",
+                            element: <HolidaysEvents />,
+                          },
+                          {
+                            path: "company-handbook",
+                            element: <ComapanyHandbook />,
+                          },
+                          {
+                            path: "policies",
+                            element: <HrSettingsPolicies />,
+                          },
+                          {
+                            path: "sops",
+                            element: <HrSOP />,
+                          },
+                          {
+                            path: "employee-type",
+                            element: <EmployeeType />,
+                          },
+                          {
+                            path: "shifts",
+                            element: <Shifts />,
+                          },
+                          {
+                            path: "vendor-onboarding",
+                            element: <VendorOnboard />,
+                          },
+                          {
+                            path: "vendor-onboarding/vendor-details/:id",
+                            element: <ViewVendors />,
+                          },
+                          {
+                            path: "templates",
+                            element: <Templates />,
+                          },
+                          {
+                            path: "templates/preview-template",
+                            element: <TemplatePreview />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "employee",
+                        element: <OnBoarding />,
+                        children: [
+                          {
+                            path: "employee-onboarding",
+                            index: true,
+                            element: <EmployeeOnboard />,
+                          },
+                          {
+                            path: "view-employees",
+                            element: <ViewEmployees />,
+                          },
+                          {
+                            path: "view-employees/:id", // Move dynamic route to the same level as view-employees
+                            element: <EmployeeDetail />,
+                            children: [
+                              {
+                                path: "edit-details",
+                                element: <EditDetails />,
+                              },
+                              {
+                                path: "attendance",
+                                element: <Attendance />,
+                              },
+                              {
+                                path: "leaves",
+                                element: <Leaves />,
+                              },
+                              {
+                                path: "agreements",
+                                element: <Agreements />,
+                              },
+                              {
+                                path: "kpi",
+                                element: <KPI />,
+                              },
+                              {
+                                path: "kra",
+                                element: <KRA />,
+                              },
+                              {
+                                path: "payslip",
+                                element: <Payslip />,
+                              },
+                            ],
+                          },
+
+                          {
+                            path: "member-onboarding",
+                            element: <MemberOnboard />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "data",
+                        element: <Data />,
+                        children: [
+                          {
+                            path: "job-application-list",
+                            index: true,
+                            element: <JobApplicationList />,
+                          },
+
+                          {
+                            path: "reports",
+
+                            element: <HrReports />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "finance",
+                        element: <HrFinance />,
+                        children: [
+                          {
+                            path: "budget",
+                            index: true,
+                            element: <HrBudget />,
+                          },
+                          {
+                            path: "payment-schedule",
+                            element: <HrPayment />,
+                          },
+                          {
+                            path: "payroll",
+                            element: <HrPayroll />,
+                          },
+                          {
+                            path: "payroll/view-payroll",
+                            element: <HrPayroll />,
+                          },
+                          {
+                            path: "payroll/view-payroll/:id",
+                            element: <ViewPayroll />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "settings",
+                        element: <HrSettings />,
+                        children: [
+                          {
+                            path: "bulk-upload",
+                            element: <BulkUpload />,
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    path: "sales-dashboard",
+                    element: <SalesDashboardLayout />,
+                    children: [
+                      {
+                        path: "",
+                        element: <SalesDashboard />,
+                      },
+                      {
+                        path: "revenue",
+                        element: <TotalRevenueLayout />,
+                        children: [
+                          {
+                            path: "total-revenue",
+                            element: <TotalRevenue />,
+                          },
+                          {
+                            path: "departments",
+                            element: <HrSettingsDepartments />,
+                          },
+                          {
+                            path: "work-locations",
+                            element: <WorkLocations />,
+                          },
+                          {
+                            path: "holidays",
+                            element: <HolidaysEvents />,
+                          },
+                          {
+                            path: "company-handbook",
+                            element: <ComapanyHandbook />,
+                          },
+                          {
+                            path: "policies",
+                            element: <HrSettingsPolicies />,
+                          },
+                          {
+                            path: "sops",
+                            element: <HrSOP />,
+                          },
+                          {
+                            path: "employee-type",
+                            element: <EmployeeType />,
+                          },
+                          {
+                            path: "shifts",
+                            element: <Shifts />,
+                          },
+                          {
+                            path: "vendor-onboarding",
+                            element: <VendorOnboard />,
+                          },
+                          {
+                            path: "vendor-onboarding/vendor-details/:id",
+                            element: <ViewVendors />,
+                          },
+                          {
+                            path: "templates",
+                            element: <Templates />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "employee",
+                        element: <OnBoarding />,
+                        children: [
+                          {
+                            path: "employee-onboarding",
+                            index: true,
+                            element: <EmployeeOnboard />,
+                          },
+                          {
+                            path: "view-employees",
+                            element: <ViewEmployees />,
+                          },
+                          {
+                            path: "view-employees/:id", // Move dynamic route to the same level as view-employees
+                            element: <EmployeeDetail />,
+                            children: [
+                              {
+                                path: "edit-details",
+                                element: <EditDetails />,
+                              },
+                              {
+                                path: "attendance",
+                                element: <Attendance />,
+                              },
+                              {
+                                path: "leaves",
+                                element: <Leaves />,
+                              },
+                              {
+                                path: "agreements",
+                                element: <Agreements />,
+                              },
+                              {
+                                path: "kpi",
+                                element: <KPI />,
+                              },
+                              {
+                                path: "kra",
+                                element: <KRA />,
+                              },
+                              {
+                                path: "payslip",
+                                element: <Payslip />,
+                              },
+                            ],
+                          },
+
+                          {
+                            path: "member-onboarding",
+                            element: <MemberOnboard />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "data",
+                        element: <Data />,
+                        children: [
+                          {
+                            path: "job-application-list",
+                            index: true,
+                            element: <JobApplicationList />,
+                          },
+
+                          {
+                            path: "reports",
+
+                            element: <HrReports />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "finance",
+                        element: <HrFinance />,
+                        children: [
+                          {
+                            path: "budget",
+                            index: true,
+                            element: <HrBudget />,
+                          },
+                          {
+                            path: "payment-schedule",
+                            element: <HrPayment />,
+                          },
+                          {
+                            path: "payroll",
+                            element: <HrPayroll />,
+                          },
+                          {
+                            path: "payroll/view-payroll",
+                            element: <HrPayroll />,
+                          },
+                          {
+                            path: "payroll/view-payroll/:id",
+                            element: <ViewPayroll />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "settings",
+                        element: <HrSettings />,
+                        children: [
+                          {
+                            path: "bulk-upload",
+                            element: <BulkUpload />,
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
                     path: "HR-dashboard",
                     element: <HrLayout />,
                     children: [
@@ -260,8 +612,8 @@ export const routes = createBrowserRouter([
                             element: <Templates />,
                           },
                           {
-                            path: "templates/preview-template",
-                            element: <TemplatePreview />,
+                            path: "templates/view-template/:id",
+                            element: <ViewTemplate />,
                           },
                         ],
                       },
@@ -520,20 +872,20 @@ export const routes = createBrowserRouter([
                   {
                     path: "manage-assets",
                     element: <ManageAssets />,
-                    children:[
+                    children: [
                       {
-                        path:'assign-assets',
-                        element:<AssignAssets />
+                        path: "assign-assets",
+                        element: <AssignAssets />,
                       },
                       {
-                        path:'assigned-assets',
-                        element:<AssignedAssets />
+                        path: "assigned-assets",
+                        element: <AssignedAssets />,
                       },
                       {
-                        path:'approvals',
-                        element:<Approvals />
+                        path: "approvals",
+                        element: <Approvals />,
                       },
-                    ]
+                    ],
                   },
                   {
                     path: "calendar",
@@ -601,25 +953,25 @@ export const routes = createBrowserRouter([
                   },
                   {
                     path: "team-members",
-                    element: <TeamMember />, 
+                    element: <TeamMember />,
                   },
                   {
                     path: "manage-assets",
                     element: <ManageAssets />,
-                    children:[
+                    children: [
                       {
-                        path:'assign-assets',
-                        element:<AssignAssets />
+                        path: "assign-assets",
+                        element: <AssignAssets />,
                       },
                       {
-                        path:'assigned-assets',
-                        element:<AssignedAssets />
+                        path: "assigned-assets",
+                        element: <AssignedAssets />,
                       },
                       {
-                        path:'approvals',
-                        element:<Approvals />
+                        path: "approvals",
+                        element: <Approvals />,
                       },
-                    ]
+                    ],
                   },
                   {
                     path: "calendar",
@@ -628,20 +980,20 @@ export const routes = createBrowserRouter([
                   {
                     path: "reports",
                     element: <TaskReportLayout />,
-                    children:[
+                    children: [
                       {
-                        path:'my-task-reports',
-                        element:<MyTaskReports />
+                        path: "my-task-reports",
+                        element: <MyTaskReports />,
                       },
                       {
-                        path:'assigned-task-reports',
-                        element:<AssignedTaskReports />
+                        path: "assigned-task-reports",
+                        element: <AssignedTaskReports />,
                       },
                       {
-                        path:'department-task-reports',
-                        element:<DepartmentTaskReports />
+                        path: "department-task-reports",
+                        element: <DepartmentTaskReports />,
                       },
-                    ]
+                    ],
                   },
                   {
                     path: "reviews",

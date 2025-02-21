@@ -2,19 +2,14 @@ import React from "react";
 import DocxPreview from "../../../../components/HrTemplate/DocxPreview";
 import PrimaryButton from "../../../../components/PrimaryButton";
 import { useNavigate } from "react-router-dom";
-import letterTemplate from '../../../../assets/docTemplates/Experience Letter Format.docx'
 
 const Templates = () => {
   const navigate = useNavigate();
-
-  const handleTemplateClick = (template) => {
-    navigate("/app/dashboard/HR-dashboard/company/templates/preview-template", { state: { fileUrl: template.fileUrl, title: template.title } });
-  };
   const templateData = [
     {
-      fileUrl:
-        letterTemplate, // Change this to the actual file URL
-      title: "Leave Agreement",
+      id: 1,
+      imgSrc: Template,
+      title: "Experience Letter",
       date: "Jan 10, 2025",
     },
   ];
@@ -30,9 +25,9 @@ const Templates = () => {
         {templateData.map((template, index) => (
           <div
             key={index}
+            onClick={() => navigate(`view-template/${template.id}`)}
             className="bg-white shadow-md rounded-lg overflow-hidden border"
-            onClick={() => handleTemplateClick(template)}
-          >
+            onClick={() => handleTemplateClick(template)}>
             <DocxPreview fileUrl={template.fileUrl} />
             <div className="p-4">
               <h2 className="widgetTitle font-semibold font-pregular">
