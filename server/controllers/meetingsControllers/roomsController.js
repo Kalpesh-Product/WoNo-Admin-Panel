@@ -5,18 +5,24 @@ const sharp = require("sharp");
 const mongoose = require("mongoose");
 const { handleFileUpload } = require("../../config/cloudinaryConfig");
 const { createLog } = require("../../utils/moduleLogs");
+const CustomError = require("../../utils/customErrorlogs");
 
 const addRoom = async (req, res, next) => {
-  const { user, ip,company } = req;
-  const path = "meetings/MeetingLogs";
-  const action = "Add Room";
+  const { user, ip, company } = req;
+  const logPath = "meetings/MeetingLogs";
+  const logAction = "Add Room";
+  const logSourceKey = "room";
 
   try {
     const { name, seats, description, location } = req.body;
 
     if (!name || !seats || !description || !location) {
-      await createLog(path, action, "All required fields must be provided", "Failed", user, ip, roomId=null);
-      return res.status(400).json({ message: "All required fields must be provided" });
+      throw new CustomError(
+        "All required fields must be provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     // Find the user and populate the company
@@ -30,18 +36,25 @@ const addRoom = async (req, res, next) => {
       .exec();
 
     if (!foundUser || !foundUser.company) {
-      await createLog(path, action, "Unauthorized or company not found", "Failed", user, ip, roomId=null);
-      return res.status(400).json({ message: "Unauthorized or company not found" });
+      throw new CustomError(
+        "Unauthorized or company not found",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    // Check if the provided location exists in the company's workLocations
-    const isValidLocation = company.workLocations.some((loc) => loc.name === location);
+    const isValidLocation = foundUser.company.workLocations.some(
+      (loc) => loc.name === location
+    );
 
     if (!isValidLocation) {
-      await createLog(path, action, "Invalid location", "Failed", user, ip, company,roomId=null);
-      return res.status(400).json({
-        message: "Invalid location. Must be a valid company work location.",
-      });
+      throw new CustomError(
+        "Invalid location. Must be a valid company work location.",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const roomId = idGenerator("R");
@@ -71,9 +84,9 @@ const addRoom = async (req, res, next) => {
       name,
       seats,
       description,
-      location, // Store validated location
+      location,
       assignedAssets: [],
-      company: company._id, // Store company reference
+      company: company._id,
       image: {
         id: imageId,
         url: imageUrl,
@@ -82,12 +95,17 @@ const addRoom = async (req, res, next) => {
 
     const savedRoom = await room.save();
 
-    await createLog(path, action, "Room added successfully", "Success", user, ip, company,roomId=savedRoom._id,{
-      roomId,
-      name,
-      seats,
-      description,
-      location,
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Room added successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: savedRoom._id,
+      changes: { roomId, name, seats, description, location },
     });
 
     res.status(201).json({
@@ -95,11 +113,9 @@ const addRoom = async (req, res, next) => {
       room: savedRoom,
     });
   } catch (error) {
-     await createLog(path, action, "Error adding room", "Failed", user, ip, { error: error.message });
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
-
 
 const getRooms = async (req, res, next) => {
   try {
@@ -123,20 +139,44 @@ const updateRoom = async (req, res, next) => {
     const { name, description, seats } = req.body;
 
     if (!roomId) {
-      await createLog(path, action, "Room ID must be provided", "Failed", user, ip,company);
+      await createLog(
+        path,
+        action,
+        "Room ID must be provided",
+        "Failed",
+        user,
+        ip,
+        company
+      );
       return res.status(400).json({ message: "Room ID must be provided." });
     }
 
     // Validate the Room ID
     if (!mongoose.Types.ObjectId.isValid(roomId)) {
-      await createLog(path, action, "Invalid Room ID", "Failed", user, ip,company);
+      await createLog(
+        path,
+        action,
+        "Invalid Room ID",
+        "Failed",
+        user,
+        ip,
+        company
+      );
       return res.status(400).json({ message: "Invalid Room ID." });
     }
 
     // Find the room to updatecompany,
     const room = await Room.findOne({ _id: roomId });
     if (!room) {
-      await createLog(path, action, "Room not found", "Failed", user, ip,company);
+      await createLog(
+        path,
+        action,
+        "Room not found",
+        "Failed",
+        user,
+        ip,
+        company
+      );
       return res.status(404).json({ message: "Room not found." });
     }
 
@@ -168,7 +208,8 @@ const updateRoom = async (req, res, next) => {
 
     const updatedFields = {};
     if (name && name !== room.name) updatedFields.name = name;
-    if (description && description !== room.description) updatedFields.description = description;
+    if (description && description !== room.description)
+      updatedFields.description = description;
     if (seats && seats !== room.seats) updatedFields.seats = seats;
     if (req.file) updatedFields.image = { id: imageId, url: imageUrl };
 
@@ -177,15 +218,35 @@ const updateRoom = async (req, res, next) => {
 
     const updatedRoom = await room.save();
 
-    await createLog(path, action, "Room updated successfully", "Success","Success", user, ip,company,updatedRoom._id,
-      updatedFields);
+    await createLog(
+      path,
+      action,
+      "Room updated successfully",
+      "Success",
+      "Success",
+      user,
+      ip,
+      company,
+      updatedRoom._id,
+      updatedFields
+    );
 
     res.status(200).json({
       message: "Room updated successfully.",
       room: updatedRoom,
     });
   } catch (error) {
-    await createLog(path, action, "Error updating room", "Failed", user, ip,company,id=null, { error: error.message });
+    await createLog(
+      path,
+      action,
+      "Error updating room",
+      "Failed",
+      user,
+      ip,
+      company,
+      (id = null),
+      { error: error.message }
+    );
     next(error);
   }
 };

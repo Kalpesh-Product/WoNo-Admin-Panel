@@ -33,8 +33,11 @@ const addMeetings = async (req, res, next) => {
     const company = req.company;
     const user = req.user;
     const ip = req.ip;
-    let path = "meetings/MeetingLogs";
-    let action = "Book Meeting";
+
+    // Define log-related variables
+    const logPath = "meetings/MeetingLogs";
+    const logAction = "Book Meeting";
+    const logSourceKey = "meeting";
 
     if (
       !meetingType ||
@@ -47,20 +50,18 @@ const addMeetings = async (req, res, next) => {
     ) {
       throw new CustomError(
         "Missing required fields",
-        400,
-        "meetings/MeetingLogs",
-        "Book Meeting",
-        "meeting"
+        logPath,
+        logAction,
+        logSourceKey
       );
     }
 
     if (!mongoose.Types.ObjectId.isValid(bookedRoom)) {
       throw new CustomError(
         "Invalid Room Id provided",
-        400,
-        "meetings/MeetingLogs",
-        "Book Meeting",
-        "meeting"
+        logPath,
+        logAction,
+        logSourceKey
       );
     }
 
@@ -77,10 +78,9 @@ const addMeetings = async (req, res, next) => {
     ) {
       throw new CustomError(
         "Invalid date format",
-        400,
-        "meetings/MeetingLogs",
-        "Book Meeting",
-        "meeting"
+        logPath,
+        logAction,
+        logSourceKey
       );
     }
 
@@ -92,10 +92,9 @@ const addMeetings = async (req, res, next) => {
     if (!roomAvailable) {
       throw new CustomError(
         "Room is unavailable",
-        400,
-        "meetings/MeetingLogs",
-        "Book Meeting",
-        "meeting"
+        logPath,
+        logAction,
+        logSourceKey
       );
     }
 
@@ -109,10 +108,9 @@ const addMeetings = async (req, res, next) => {
       if (invalidIds.length > 0) {
         throw new CustomError(
           "Invalid internal participant IDs",
-          400,
-          "meetings/MeetingLogs",
-          "Book Meeting",
-          "meeting"
+          logPath,
+          logAction,
+          logSourceKey
         );
       }
 
@@ -125,10 +123,9 @@ const addMeetings = async (req, res, next) => {
       if (unmatchedIds.length > 0) {
         throw new CustomError(
           "Some internal participant IDs did not match any user",
-          400,
-          "meetings/MeetingLogs",
-          "Book Meeting",
-          "meeting"
+          logPath,
+          logAction,
+          logSourceKey
         );
       }
 
@@ -149,10 +146,9 @@ const addMeetings = async (req, res, next) => {
       if (!companyName || !email || !mobileNumber || !personName) {
         throw new CustomError(
           "Missing required fields for external participants",
-          400,
-          "meetings/MeetingLogs",
-          "Book Meeting",
-          "meeting"
+          logPath,
+          logAction,
+          logSourceKey
         );
       }
 
@@ -185,10 +181,9 @@ const addMeetings = async (req, res, next) => {
     if (conflictingMeeting) {
       throw new CustomError(
         "Room is already booked for the specified time",
-        400,
-        "meetings/MeetingLogs",
-        "Book Meeting",
-        "meeting"
+        logPath,
+        logAction,
+        logSourceKey
       );
     }
 
@@ -228,31 +223,24 @@ const addMeetings = async (req, res, next) => {
       externalParticipants,
     };
 
-    await createLog(
-      path,
-      action,
-      "Meeting added successfully and updated room status",
-      "Success",
-      user,
-      ip,
-      company,
-      meeting._id,
-      data
-    );
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Meeting added successfully and updated room status",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: meeting._id,
+      changes: data,
+    });
 
     res.status(201).json({
       message: "Meeting added successfully",
     });
   } catch (error) {
-    next(
-      new CustomError(
-        error.message,
-        500,
-        "meetings/MeetingLogs",
-        "Book Meeting",
-        "meeting"
-      )
-    );
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
@@ -365,26 +353,25 @@ const addHousekeepingTask = async (req, res, next) => {
     const company = req.company;
     const user = req.user;
     const ip = req.ip;
-    let path = "meetings/MeetingLogs";
-    let action = "Add housekeeping tasks";
+    const logPath = "meetings/MeetingLogs";
+    const logAction = "Housekeeping Tasks Added";
+    const logSourceKey = "meeting";
 
     if (!housekeepingTasks || !meetingId || !roomName) {
       throw new CustomError(
-        "All feilds are required",
-        400,
-        "meetings/MeetingLogs",
-        "Book Meeting",
-        "meeting"
+        "All fields are required",
+        logPath,
+        logAction,
+        logSourceKey
       );
     }
 
     if (!mongoose.Types.ObjectId.isValid(meetingId)) {
       throw new CustomError(
         "Invalid meeting id provided",
-        400,
-        "meetings/MeetingLogs",
-        "Book Meeting",
-        "meeting"
+        logPath,
+        logAction,
+        logSourceKey
       );
     }
 
@@ -395,10 +382,9 @@ const addHousekeepingTask = async (req, res, next) => {
     if (inCompleteTasks.length > 0) {
       throw new CustomError(
         "Please check out the tasks before submitting",
-        400,
-        "meetings/MeetingLogs",
-        "Book Meeting",
-        "meeting"
+        logPath,
+        logAction,
+        logSourceKey
       );
     }
 
@@ -421,68 +407,68 @@ const addHousekeepingTask = async (req, res, next) => {
     if (!foundMeeting) {
       throw new CustomError(
         "Failed to add the housekeeping tasks",
-        400,
-        "meetings/MeetingLogs",
-        "Book Meeting",
-        "meeting"
+        logPath,
+        logAction,
+        logSourceKey
       );
     }
 
     if (!room) {
       throw new CustomError(
         "Failed to update the room status",
-        400,
-        "meetings/MeetingLogs",
-        "Book Meeting",
-        "meeting"
+        logPath,
+        logAction,
+        logSourceKey
       );
     }
 
-    const meetingLog = new MeetingLog({
-      meetingId: meetingId,
-      action: "Housekeeping Tasks Added",
-      performedBy: req.userData.userId,
-      changes: { housekeepingTasks: completedTasks, roomName },
+    await createLog({
+      path: logPath,
+      action: logAction,
       remarks: "Housekeeping tasks completed and room status updated",
-      ipAddress: req.ip || req.connection.remoteAddress,
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: foundMeeting._id,
+      changes: { housekeepingTasks: completedTasks, roomName },
     });
-
-    await meetingLog.save();
 
     return res
       .status(200)
       .json({ message: "Housekeeping tasks added successfully" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
 const deleteHousekeepingTask = async (req, res, next) => {
+  const company = req.company;
+  const user = req.user;
+  const ip = req.ip;
+  const logPath = "meetings/MeetingLogs";
+  const logAction = "Delete housekeeping tasks";
+  const logSourceKey = "meeting";
+
   try {
     const { housekeepingTask, meetingId } = req.body;
-    const company = req.company;
-    const user = req.user;
-    const ip = req.ip;
-    let path = "meetings/MeetingLogs";
-    let action = "Delete housekeeping tasks";
 
     if (!housekeepingTask || !meetingId) {
       throw new CustomError(
         "All fields are required",
-        400,
-        "meetings/MeetingLogs",
-        "Delete Meeting",
-        "meeting"
+        logPath,
+        logAction,
+        logSourceKey
       );
     }
 
     if (!mongoose.Types.ObjectId.isValid(meetingId)) {
       throw new CustomError(
         "Invalid meeting ID provided",
-        400,
-        "meetings/MeetingLogs",
-        "Delete Housekeeping Task",
-        "meeting"
+        logPath,
+        logAction,
+        logSourceKey
       );
     }
 
@@ -495,29 +481,30 @@ const deleteHousekeepingTask = async (req, res, next) => {
     if (!updatedMeeting) {
       throw new CustomError(
         "Failed to delete housekeeping task",
-        400,
-        "meetings/MeetingLogs",
-        "Delete Housekeeping Task",
-        "meeting"
+        logPath,
+        logAction,
+        logSourceKey
       );
     }
 
-    const meetingLog = new MeetingLog({
-      meetingId: meetingId,
-      action: "Housekeeping Task Deleted",
-      performedBy: req.userData.userId,
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Housekeeping task deleted successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: meetingId,
       changes: { deletedTask: housekeepingTask },
-      remarks: "Housekeeping task removed from meeting",
-      ipAddress: ipAddress,
     });
-
-    await meetingLog.save();
 
     return res.status(200).json({
       message: "Housekeeping task deleted successfully",
     });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 

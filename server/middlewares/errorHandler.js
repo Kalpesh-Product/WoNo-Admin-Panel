@@ -11,7 +11,7 @@ const errorHandler = async (err, req, res, next) => {
 
   const { user, ip, company } = req;
 
-  const statusCode = err.statusCode || 500;
+  const statusCode = err.statusCode || 400;
   const message = err.message || "Internal Server Error";
 
   const path = err.path || "system/ErrorLogs";

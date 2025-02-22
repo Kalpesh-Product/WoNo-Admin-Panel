@@ -1,7 +1,5 @@
 const addLog = async (path, data) => {
-  console.log("path--", path);
   const Model = require(`../models/${path}`);
-
   await Model.create(data);
 };
 
@@ -17,9 +15,9 @@ const createLog = async ({
   sourceId,
   changes = null,
 }) => {
-  console.log("sourceKey--", sourceKey);
-  console.log("sourceId--", sourceId);
-
+  console.log("sourceKey", sourceKey);
+  console.log("sourceId", sourceId);
+  console.log("status", status);
   await addLog(path, {
     [sourceKey]: sourceId,
     action,
