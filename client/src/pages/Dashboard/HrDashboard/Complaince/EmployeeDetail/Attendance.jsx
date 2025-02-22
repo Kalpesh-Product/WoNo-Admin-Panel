@@ -14,11 +14,11 @@ const Attendance = () => {
   const axios = useAxiosPrivate();
   const  {id} = useParams();
  
-  const { data: attendance, isLoading } = useQuery({
+   const { data: attendance, isLoading } = useQuery({
     queryKey: ["attendance"],
     queryFn: async () => {
       try {
-        const response = await axios.get(`/api/attendance/get-attendance/${id}}`);
+        const response = await axios.get(`/api/attendance/get-attendance/${id}`);
         return response.data
       } catch (error) {
         throw new Error(error.response.data.message);
