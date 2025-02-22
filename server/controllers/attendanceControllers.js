@@ -2,6 +2,7 @@ const Attendance = require("../models/Attendance");
 const mongoose = require("mongoose");
 const { formatDate, formatTime } = require("../utils/formatDateTime");
 const { createLog } = require("../utils/moduleLogs");
+const UserData = require("../models/UserData");
 
 const clockIn = async (req, res, next) => {
   const { user, ip, company } = req;
@@ -338,21 +339,6 @@ const getAllAttendance = async (req, res, next) => {
   const company = req.userData.company;
 
   try {
-    // const user = await UserData.findById({ _id: loggedInUser }).populate({
-    //   path: "role",
-    //   select: "roleTitle",
-    // });
-
-    // const validRoles = ["Master Admin", "Super Admin", "HR Admin"];
-
-    // const hasPermission = user.role.some((role) =>
-    //   validRoles.includes(role.roleTitle)
-    // );
-
-    // if (!hasPermission) {
-    //   return res.sendStatus(403);
-    // }
-
     if (!mongoose.Types.ObjectId.isValid(company)) {
       return res.status(400).json("Invalid company Id provided");
     }
@@ -391,17 +377,25 @@ const getAllAttendance = async (req, res, next) => {
 };
 
 const getAttendance = async (req, res, next) => {
-  const { user, company } = req;
+  const { id } = req.params;
 
   try {
-    const attendances = await Attendance.find({
-      user,
-      company,
-    });
-
-    if (!attendances) {
-      return res.status(400).json({ message: "No attendance exists" });
-    }
+    const attendances = await Attendance.aggregate([
+      {
+        $lookup: {
+          from: "userdatas",
+          localField: "user",
+          foreignField: "_id",
+          as: "userDetails",
+        },
+      },
+      {
+        $unwind: "$userDetails",
+      },
+      {
+        $match: { "userDetails.empId": id },
+      },
+    ]);
 
     if (!attendances) {
       return res.status(400).json({ message: "No attendance exists" });

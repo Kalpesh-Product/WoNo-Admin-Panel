@@ -135,7 +135,7 @@ const ViewEmployees = () => {
           search={true}
           searchColumn="Email"
           data={isLoading? []:[...employees.map((employee, index)=>({
-            id : index + 1,
+            id : employee._id,
             srno: index + 1,
             employeeName : employee.firstName,
             employmentID : employee.empId,

@@ -8,15 +8,18 @@ import BarGraph from "../../../../../components/graphs/BarGraph";
 import DataCard from "../../../../../components/DataCard";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../../../../hooks/useAxiosPrivate";
+import { useParams } from "react-router-dom";
 
 const Attendance = () => {
   const axios = useAxiosPrivate();
+  const  {id} = useParams();
+ 
   const { data: attendance, isLoading } = useQuery({
     queryKey: ["attendance"],
     queryFn: async () => {
       try {
-        const response = await axios.get("/api/attendance/get-attendance");
-        return response.data;
+        const response = await axios.get(`/api/attendance/get-attendance/${id}}`);
+        return response.data
       } catch (error) {
         throw new Error(error.response.data.message);
       }
