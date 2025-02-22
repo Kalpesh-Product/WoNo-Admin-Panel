@@ -8,6 +8,7 @@ const {
   updateLeaveTypeStatus,
   UpdateEmployeeTypeStatus,
 } = require("../../utils/companyData");
+const { createLog } = require("../../utils/moduleLogs");
 
 const addCompany = async (req, res, next) => {
   try {
@@ -24,6 +25,12 @@ const addCompany = async (req, res, next) => {
       employeeType,
     } = req.body;
 
+    const { user } = req;
+    const company = req.company;
+    const ip = req.ip;
+    let path = "CompanyLogs";
+    let action = "Add Company";
+
     // Validate required fields
     if (
       !companyId ||
@@ -33,6 +40,7 @@ const addCompany = async (req, res, next) => {
       !companyCity ||
       !companyState
     ) {
+      await createLog(path, action, "Missing required fields", "Failed", user, ip, company);
       return res.status(400).json({ message: "Missing required fields" });
     }
 
@@ -53,6 +61,18 @@ const addCompany = async (req, res, next) => {
     // Save the company to the database
     await newCompany.save();
 
+    // Log the successful creation of a company
+    await createLog(path, action, "Company added successfully", "Success", user, ip, company, newCompany._id, {
+      companyName,
+      industry,
+      companySize,
+      companyCity,
+      companyState,
+      websiteURL,
+      linkedinURL,
+      employeeType,
+    });
+
     // Respond with success message
     return res.status(201).json({
       message: "Company added successfully",
@@ -60,10 +80,10 @@ const addCompany = async (req, res, next) => {
     });
   } catch (error) {
     // Pass the error to the next middleware
-    // Pass the error to the next middleware
     next(error);
   }
 };
+
 
 const getCompanies = async (req, res, next) => {
   try {
@@ -77,6 +97,10 @@ const getCompanies = async (req, res, next) => {
 const addCompanyLogo = async (req, res, next) => {
   try {
     const { company } = req.userData;
+    const { user } = req;
+    const ip = req.ip;
+    let path = "CompanyLogs";
+    let action = "Add Company Logo";
 
     let imageId;
     let imageUrl;
@@ -108,10 +132,14 @@ const addCompanyLogo = async (req, res, next) => {
     );
 
     if (!newCompanyLogo) {
+      await createLog(path, action, "Couldn't add company logo", "Failed", user, ip, company);
       return res.status(400).json({
         message: "Couldn't add company logo",
       });
     }
+
+    // Log the successful addition of the company logo
+    await createLog(path, action, "Logo added successfully", "Success", user, ip, company, newCompanyLogo._id, { companyLogo });
 
     return res.status(201).json({
       message: "Logo added successfully",
@@ -120,6 +148,7 @@ const addCompanyLogo = async (req, res, next) => {
     next(error);
   }
 };
+
 
 const getCompanyLogo = async (req, res, next) => {
   try {
@@ -184,21 +213,28 @@ const updateActiveStatus = async (req, res, next) => {
   const { status, name } = req.body;
   const { field } = req.params;
   const companyId = req.userData.company;
+  const user = req.user;
+  const ip = req.ip;
+  let path = "CompanyLogs";
+  let action = "Update Active Status";
 
   try {
     if (!field) {
+      await createLog(path, action, "Field is missing", "Failed", user, ip, companyId);
       return res.status(400).json({
-        message: "All feilds are required",
+        message: "All fields are required",
       });
     }
 
     if (typeof status != "boolean") {
+      await createLog(path, action, "Status should be a boolean", "Failed", user, ip, companyId);
       return res.status(400).json({
         message: "Status should be a boolean",
       });
     }
 
     if (!mongoose.Types.ObjectId.isValid(companyId)) {
+      await createLog(path, action, "Invalid company ID provided", "Failed", user, ip, companyId);
       return res.status(400).json({ message: "Invalid company ID provided" });
     }
 
@@ -214,10 +250,14 @@ const updateActiveStatus = async (req, res, next) => {
     const updatedStatus = await updatedFunction(companyId, name, status);
 
     if (!updatedStatus) {
+      await createLog(path, action, "Couldn't update status", "Failed", user, ip, companyId);
       return res.status(400).json({
         message: "Couldn't update status",
       });
     }
+
+    // Log the successful status update
+    await createLog(path, action, "Status updated successfully", "Success", user, ip, companyId, updatedStatus._id, { field, status });
 
     return res.status(200).json({
       message: "Status updated successfully",
@@ -226,6 +266,7 @@ const updateActiveStatus = async (req, res, next) => {
     next(error);
   }
 };
+
 
 module.exports = {
   addCompany,

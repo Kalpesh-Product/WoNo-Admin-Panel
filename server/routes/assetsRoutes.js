@@ -13,6 +13,7 @@ const {
   revokeAsset,
   getAssetRequests,
 } = require("../controllers/assetsControllers/assignAssetController");
+const getAssetLogs = require("../controllers/assetsControllers/assetLogController");
 
 // Asset Management Routes
 router.post("/create-asset", upload.single("asset-image"), addAsset);
@@ -23,6 +24,7 @@ router.post("/create-asset-subcategory", addSubCategory);
 router.patch("/disable-asset-category/:assetCategoryId", disableCategory);
 router.patch("/disable-asset-subcategory/:assetSubCategoryId", disableSubCategory);
 router.get("/get-category", getCategory);
+router.get("/get-asset-logs", getAssetLogs);
 router.get("/get-subcategory/", getSubCategory);
   
   

@@ -1,24 +1,30 @@
 const Company = require("../../models/Company");
 const mongoose = require("mongoose");
+const { createLog } = require("../../utils/moduleLogs");
 
 const addLeaveType = async (req, res, next) => {
   const { leaveType } = req.body;
-  const companyId = req.userData.company;
+   const path = "CompanyLogs";
+  const action = "Add Leave Type";
+  const { user, ip, company } = req;
+
   try {
-    if (!companyId || !leaveType) {
+    if (!company || !leaveType) {
+      await createLog(path, action, "All fields are required", "Failed", user, ip, company);
       return res.status(400).json({
-        message: "All feilds are required",
+        message: "All fields are required",
       });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(companyId)) {
+    if (!mongoose.Types.ObjectId.isValid(company)) {
+      await createLog(path, action, "Invalid company provided", "Failed", user, ip, company);
       return res.status(400).json({
-        message: "Invalid companyId provided",
+        message: "Invalid company provided",
       });
     }
 
     const updateLeaveType = await Company.findByIdAndUpdate(
-      { _id: companyId },
+      { _id: company },
       {
         $push: {
           leaveTypes: {
@@ -29,10 +35,17 @@ const addLeaveType = async (req, res, next) => {
     );
 
     if (!updateLeaveType) {
+      await createLog(path, action, "Couldn't add leave type", "Failed", user, ip, company);
       return res.status(400).json({
         message: "Couldn't add leave type",
       });
     }
+
+    // Success log
+    await createLog(path, action, "Leave type added successfully", "Success", user, ip, company, 
+      updateLeaveType._id,
+      { leaveType },
+    );
 
     return res.status(200).json({
       message: "Leave type added successfully",
@@ -42,4 +55,4 @@ const addLeaveType = async (req, res, next) => {
   }
 };
 
-module.exports = { addLeaveType };
+module.exports = {addLeaveType} 

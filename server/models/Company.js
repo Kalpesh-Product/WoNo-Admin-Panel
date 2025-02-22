@@ -178,6 +178,12 @@ const companySchema = new mongoose.Schema({
       name: {
         type: String,
       },
+      startTime: {
+        type: Date,
+      },
+      endTime: {
+        type: Date,
+      },
       isActive: {
         type: Boolean,
         default: true,

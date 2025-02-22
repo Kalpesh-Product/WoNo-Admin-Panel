@@ -1,4 +1,4 @@
-const Role = require("../models/Roles");
+const Role = require("../models/roles/Roles");
 
 const checkScope = (requiredPermissions) => {
   return async (req, res, next) => {

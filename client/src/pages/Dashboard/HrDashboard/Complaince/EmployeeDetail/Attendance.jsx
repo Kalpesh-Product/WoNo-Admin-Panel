@@ -8,15 +8,18 @@ import BarGraph from "../../../../../components/graphs/BarGraph";
 import DataCard from "../../../../../components/DataCard";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../../../../hooks/useAxiosPrivate";
+import { useParams } from "react-router-dom";
 
 const Attendance = () => {
   const axios = useAxiosPrivate();
-  const { data: attendance, isLoading } = useQuery({
+  const  {id} = useParams();
+ 
+   const { data: attendance, isLoading } = useQuery({
     queryKey: ["attendance"],
     queryFn: async () => {
       try {
-        const response = await axios.get("/api/attendance/get-all-attendance");
-        return response.data;
+        const response = await axios.get(`/api/attendance/get-attendance/${id}`);
+        return response.data
       } catch (error) {
         throw new Error(error.response.data.message);
       }
@@ -386,7 +389,7 @@ const Attendance = () => {
           searchColumn={"Date"}
           data={isLoading? []:[...attendance.map((record, index)=>({
             id : index + 1,
-            date:new Intl.DateTimeFormat("en-GB",{day:"numeric",month:"long",year:"numeric"}).format(new Date(record.date)),
+            date:record.date,
             inTime : record.inTime,
             outTime : record.outTime,
             workHours : record.workHours,

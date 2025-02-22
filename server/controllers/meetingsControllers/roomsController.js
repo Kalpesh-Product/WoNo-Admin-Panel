@@ -4,16 +4,25 @@ const User = require("../../models/UserData");
 const sharp = require("sharp");
 const mongoose = require("mongoose");
 const { handleFileUpload } = require("../../config/cloudinaryConfig");
+const { createLog } = require("../../utils/moduleLogs");
+const CustomError = require("../../utils/customErrorlogs");
 
 const addRoom = async (req, res, next) => {
+  const { user, ip, company } = req;
+  const logPath = "meetings/MeetingLogs";
+  const logAction = "Add Room";
+  const logSourceKey = "room";
+
   try {
     const { name, seats, description, location } = req.body;
-    const user = req.user;
 
     if (!name || !seats || !description || !location) {
-      return res
-        .status(400)
-        .json({ message: "All required fields must be provided" });
+      throw new CustomError(
+        "All required fields must be provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     // Find the user and populate the company
@@ -26,24 +35,26 @@ const addRoom = async (req, res, next) => {
       .lean()
       .exec();
 
-
     if (!foundUser || !foundUser.company) {
-      return res
-        .status(400)
-        .json({ message: "Unauthorized or company not found" });
+      throw new CustomError(
+        "Unauthorized or company not found",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    const company = foundUser.company;
+    const isValidLocation = foundUser.company.workLocations.some(
+      (loc) => loc.name === location
+    );
 
-    // Check if the provided location exists in the company's workLocations
-    const isValidLocation = company.workLocations.some((loc) => {
-      return loc.name === location
-    });
-   
     if (!isValidLocation) {
-      return res.status(400).json({
-        message: "Invalid location. Must be a valid company work location.",
-      });
+      throw new CustomError(
+        "Invalid location. Must be a valid company work location.",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const roomId = idGenerator("R");
@@ -73,9 +84,9 @@ const addRoom = async (req, res, next) => {
       name,
       seats,
       description,
-      location, // Store validated location
+      location,
       assignedAssets: [],
-      company: company._id, // Store company reference
+      company: company._id,
       image: {
         id: imageId,
         url: imageUrl,
@@ -84,13 +95,25 @@ const addRoom = async (req, res, next) => {
 
     const savedRoom = await room.save();
 
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Room added successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: savedRoom._id,
+      changes: { roomId, name, seats, description, location },
+    });
+
     res.status(201).json({
       message: "Room added successfully",
       room: savedRoom,
     });
   } catch (error) {
-    console.error("Error adding room:", error);
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
@@ -107,22 +130,53 @@ const getRooms = async (req, res, next) => {
 };
 
 const updateRoom = async (req, res, next) => {
+  const { user, ip, company } = req;
+  const path = "RoomLogs";
+  const action = "Update Room";
+
   try {
     const { id: roomId } = req.params;
     const { name, description, seats } = req.body;
 
     if (!roomId) {
+      await createLog(
+        path,
+        action,
+        "Room ID must be provided",
+        "Failed",
+        user,
+        ip,
+        company
+      );
       return res.status(400).json({ message: "Room ID must be provided." });
     }
 
     // Validate the Room ID
     if (!mongoose.Types.ObjectId.isValid(roomId)) {
+      await createLog(
+        path,
+        action,
+        "Invalid Room ID",
+        "Failed",
+        user,
+        ip,
+        company
+      );
       return res.status(400).json({ message: "Invalid Room ID." });
     }
 
-    // Find the room to update
+    // Find the room to updatecompany,
     const room = await Room.findOne({ _id: roomId });
     if (!room) {
+      await createLog(
+        path,
+        action,
+        "Room not found",
+        "Failed",
+        user,
+        ip,
+        company
+      );
       return res.status(404).json({ message: "Room not found." });
     }
 
@@ -152,50 +206,49 @@ const updateRoom = async (req, res, next) => {
       imageUrl = uploadResult.secure_url;
     }
 
+    const updatedFields = {};
+    if (name && name !== room.name) updatedFields.name = name;
+    if (description && description !== room.description)
+      updatedFields.description = description;
+    if (seats && seats !== room.seats) updatedFields.seats = seats;
+    if (req.file) updatedFields.image = { id: imageId, url: imageUrl };
+
     // Update the room details only if they are provided
-    if (name) room.name = name;
-    if (description) room.description = description;
-    if (seats) room.seats = seats;
-    if (req.file) room.image = { id: imageId, url: imageUrl };
+    Object.assign(room, updatedFields);
 
     const updatedRoom = await room.save();
+
+    await createLog(
+      path,
+      action,
+      "Room updated successfully",
+      "Success",
+      "Success",
+      user,
+      ip,
+      company,
+      updatedRoom._id,
+      updatedFields
+    );
 
     res.status(200).json({
       message: "Room updated successfully.",
       room: updatedRoom,
     });
   } catch (error) {
+    await createLog(
+      path,
+      action,
+      "Error updating room",
+      "Failed",
+      user,
+      ip,
+      company,
+      (id = null),
+      { error: error.message }
+    );
     next(error);
   }
 };
-
-
-// const updateHousekeepingStatus = async (req,res,next) => {
-
-//   try {
-  
-//     const {housekeepingStatus,bookedRoom} = req.body
-
-//     if(!mongoose.Types.ObjectId.isValid){
-//       return res.status(400).json({message:"Invalid room Id provided"})
-//     }
-
-//     const roomStatus = housekeepingStatus === "Pending" ? "Occupied" : housekeepingStatus === "In Progress" ? "Cleaning" : housekeepingStatus === "Completed" ? "Available" : ""
-
-//     const foundRoom = await Room.findByIdAndUpdate({_id:bookedRoom},{
-//       housekeepingStatus,
-//       "location.status": roomStatus
-//     },
-//   {new: true})
-
-//     if(!foundRoom){
-//       return res.status(400).json({message: "Failed to update status"})
-//     }
-
-//     return res.status(200).json({message: "Status updated successfully"})
-//   } catch (error) {
-//     next(error)
-//   }
-// }
 
 module.exports = { addRoom, getRooms, updateRoom };

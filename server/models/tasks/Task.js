@@ -1,25 +1,26 @@
 const mongoose = require("mongoose");
 
 const taskSchema = new mongoose.Schema({
-  taskName :{
+  taskName: {
     type: String,
     required: true,
-    
   },
- 
-  
-  department: {
+  project: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Department",
+    ref: "Project",
+  },
+  company: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Company",
   },
   assignedBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: "UserData",
   },
   assignedTo: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "UserData",
     },
   ],
   description: {
@@ -28,40 +29,33 @@ const taskSchema = new mongoose.Schema({
   },
   assignedDate: {
     type: Date,
-    
+    required: true,
   },
-  assignedTime: {
+  dueDate: {
+    type: Date,
+    required: true,
+  },
+  dueTime: {
     type: String,
-   
-    match: /^([0-1]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/,
+    default: null,
+    // match: /^([0-1]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/,
   },
   status: {
     type: String,
     required: true,
   },
-  deadLineDate: {
-    type: Date,
-   
-  },
-  deadLineTime: {
+  priority: {
     type: String,
-    
-    match: /^([0-1]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/,
+    required: true,
   },
-  extension: {
-    isExtended: {
-      type: Boolean,
-    },
-    extendedDate: {
-      type: Date,
-    },
-    extendedTime: {
-      type: String,
-      match: /^([0-1]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/,
-    },
-    reason: {
-      type: String,
-    },
+  taskType: {
+    type: String,
+    enum: ["Daily", "Monthly", "Additional"],
+    required: true,
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false,
   },
 });
 

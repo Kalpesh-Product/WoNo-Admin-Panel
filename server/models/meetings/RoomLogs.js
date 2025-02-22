@@ -1,12 +1,8 @@
 const mongoose = require("mongoose");
 
-const meetingLogSchema = new mongoose.Schema(
+const roomLogSchema = new mongoose.Schema(
   {
-    meeting: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Meeting",
-    },
-    room: {
+    sourceId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Room",
     },
@@ -26,21 +22,21 @@ const meetingLogSchema = new mongoose.Schema(
     remarks: {
       type: String,
     },
-    ipAddress: {
-      type: String,
-      required: true,
+    ipAddress:{
+        type: String,
+        required: true,
     },
     status: {
-      type: String,
-    },
-    company: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Company",
-      required: true,
-    },
+        type: String,
+      },
+      company: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Company",
+        required: true,
+      },
   },
   { timestamps: true }
 );
 
-const MeetingLog = mongoose.model("MeetingLog", meetingLogSchema);
-module.exports = MeetingLog;
+const RoomLog = mongoose.model("RoomLog", roomLogSchema);
+module.exports = RoomLog;

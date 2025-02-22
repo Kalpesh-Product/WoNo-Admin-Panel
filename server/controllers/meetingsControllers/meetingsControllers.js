@@ -11,7 +11,8 @@ const {
 const Department = require("../../models/Departments");
 const MeetingLog = require("../../models/meetings/MeetingLogs");
 const { createLog } = require("../../utils/moduleLogs");
- 
+const CustomError = require("../../utils/customErrorlogs");
+
 const addMeetings = async (req, res, next) => {
   try {
     const {
@@ -33,6 +34,11 @@ const addMeetings = async (req, res, next) => {
     const user = req.user;
     const ip = req.ip;
 
+    // Define log-related variables
+    const logPath = "meetings/MeetingLogs";
+    const logAction = "Book Meeting";
+    const logSourceKey = "meeting";
+
     if (
       !meetingType ||
       !startDate ||
@@ -42,38 +48,40 @@ const addMeetings = async (req, res, next) => {
       !subject ||
       !agenda
     ) {
-      await createLog("meetings/MeetingLogs","Book Meeting", "Missing required fields","Failed",user,ip, company);
-
-      return res.status(400).json({ message: "Missing required fields" });
+      throw new CustomError(
+        "Missing required fields",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     if (!mongoose.Types.ObjectId.isValid(bookedRoom)) {
-      await createLog("meetings/MeetingLogs","Book Meeting", "Invalid Room Id provided","Failed",user,ip, company);
-
-      return res.status(400).json({ message: "Invalid Room Id provided" });
+      throw new CustomError(
+        "Invalid Room Id provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
-    // if (!mongoose.Types.ObjectId.isValid(bookedBy)) {
-    //   return res.status(400).json({ message: "Invalid Room Id provided" });
-    // }
 
-    // let userExists 
-    // if(meetingType === 'Internal'){
-    //    userExists = await User.findOne({name:bookedBy})
-    // }
+    const startDateObj = new Date(startDate);
+    const endDateObj = new Date(endDate);
+    const startTimeObj = new Date(startTime);
+    const endTimeObj = new Date(endTime);
 
-    // if(!userExists){
-    //   return res.status(400).json({ message: "User not found" });
-    // }
-
-    const startDateObj = new Date(startDate)
-    const endDateObj = new Date(endDate)
-    const startTimeObj = new Date(startTime)
-    const endTimeObj = new Date(endTime)
-
-    if(isNaN(startDateObj.getTime()) || isNaN(endDateObj.getTime()) || isNaN(startTimeObj.getTime()) || isNaN(endTimeObj.getTime())){
-
-      await createLog("meetings/MeetingLogs","Book Meeting", "Invalid date format","Failed",user,ip, company);
-      return res.status(400).json({ message: "Invalid date format" });
+    if (
+      isNaN(startDateObj.getTime()) ||
+      isNaN(endDateObj.getTime()) ||
+      isNaN(startTimeObj.getTime()) ||
+      isNaN(endTimeObj.getTime())
+    ) {
+      throw new CustomError(
+        "Invalid date format",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const roomAvailable = await Room.findById({
@@ -82,8 +90,12 @@ const addMeetings = async (req, res, next) => {
     });
 
     if (!roomAvailable) {
-      await createLog("meetings/MeetingLogs","Book Meeting", "Room is unavailable","Failed",user,ip, company);
-      return res.status(404).json({ message: "Room is unavailable" });
+      throw new CustomError(
+        "Room is unavailable",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     let participants = [];
@@ -94,12 +106,12 @@ const addMeetings = async (req, res, next) => {
       );
 
       if (invalidIds.length > 0) {
-        await createLog("meetings/MeetingLogs","Book Meeting", "Invalid internal participant IDs","Failed",user,ip, company);
-
-        return res.status(400).json({
-          message: "Invalid internal participant IDs",
-          invalidIds,
-        });
+        throw new CustomError(
+          "Invalid internal participant IDs",
+          logPath,
+          logAction,
+          logSourceKey
+        );
       }
 
       const users = await User.find({ _id: { $in: internalParticipants } });
@@ -109,13 +121,12 @@ const addMeetings = async (req, res, next) => {
       );
 
       if (unmatchedIds.length > 0) {
-
-        await createLog("meetings/MeetingLogs","Book Meeting", "Some internal participant IDs did not match any user","Failed",user,ip, company);
-
-        return res.status(400).json({
-          message: "Some internal participant IDs did not match any user",
-          unmatchedIds,
-        });
+        throw new CustomError(
+          "Some internal participant IDs did not match any user",
+          logPath,
+          logAction,
+          logSourceKey
+        );
       }
 
       participants = users.map((user) => user._id);
@@ -133,11 +144,12 @@ const addMeetings = async (req, res, next) => {
       } = externalCompanyData;
 
       if (!companyName || !email || !mobileNumber || !personName) {
-        await createLog("meetings/MeetingLogs","Book Meeting", "Missing required fields for external participants","Failed",user,ip, company);
-
-        return res.status(400).json({
-          message: "Missing required fields for external participants",
-        });
+        throw new CustomError(
+          "Missing required fields for external participants",
+          logPath,
+          logAction,
+          logSourceKey
+        );
       }
 
       const newExternalClient = new ExternalClient({
@@ -157,7 +169,9 @@ const addMeetings = async (req, res, next) => {
 
     const conflictingMeeting = await Meeting.findOne({
       bookedRoom: roomAvailable._id,
-      $or: [{ startDate: { $lte: endDateObj }, endDate: { $gte: startDateObj } }],
+      $or: [
+        { startDate: { $lte: endDateObj }, endDate: { $gte: startDateObj } },
+      ],
       $and: [
         { startTime: { $lte: endTimeObj } },
         { endTime: { $gte: startTimeObj } },
@@ -165,11 +179,12 @@ const addMeetings = async (req, res, next) => {
     });
 
     if (conflictingMeeting) {
-      await createLog("meetings/MeetingLogs","Book Meeting", "Room is already booked for the specified time","Failed",user,ip, company);
-
-      return res.status(409).json({
-        message: "Room is already booked for the specified time",
-      });
+      throw new CustomError(
+        "Room is already booked for the specified time",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const meeting = new Meeting({
@@ -193,37 +208,39 @@ const addMeetings = async (req, res, next) => {
     roomAvailable.location.status = "Occupied";
     await roomAvailable.save();
 
-    const meetingLog = new MeetingLog({
-      meetingId: meeting._id,
-      action: "Book Meeting",
-      performedBy: user,
-      changes: {
-        meetingType,
-        bookedBy: user,
-        bookedRoom: bookedRoom,
-        startDate: startDateObj,
-        endDate: endDateObj,
-        startTime: startTimeObj,
-        endTime: endTimeObj,
-        subject,
-        agenda,
-        company,
-        internalParticipants,
-        externalParticipants,
-      },
-      status:"Success",
-      ipAddress: req.ip || req.connection.remoteAddress,
-      remarks: "Meeting successfully created",
-      company
-    });
+    const data = {
+      meetingType,
+      bookedBy: user,
+      bookedRoom: bookedRoom,
+      startDate: startDateObj,
+      endDate: endDateObj,
+      startTime: startTimeObj,
+      endTime: endTimeObj,
+      subject,
+      agenda,
+      company,
+      internalParticipants,
+      externalParticipants,
+    };
 
-   await meetingLog.save();
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Meeting added successfully and updated room status",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: meeting._id,
+      changes: data,
+    });
 
     res.status(201).json({
       message: "Meeting added successfully",
     });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
@@ -235,32 +252,37 @@ const getMeetings = async (req, res, next) => {
     const meetings = await Meeting.find({ company }).populate([
       {
         path: "bookedBy",
-        select: "name departments", 
+        select: "name departments",
       },
       {
         path: "bookedRoom",
-        select: "name location housekeepingStatus",  
+        select: "name location housekeepingStatus",
       },
       {
         path: "internalParticipants",
-        select: "name",  
+        select: "name",
       },
-      
     ]);
 
-    const departments = await User.findById({_id:user}).select("departments")
+    const departments = await User.findById({ _id: user }).select(
+      "departments"
+    );
 
-    const department = await Department.findById({_id:departments.departments[0]})
- 
+    const department = await Department.findById({
+      _id: departments.departments[0],
+    });
+
     const internalParticipants = meetings.map((meeting) => {
       if (!Array.isArray(meeting.internalParticipants)) {
         return [];
       }
-      
-      return meetings.map((meeting)=> meeting.internalParticipants.map((participant)=>participant?.name))
+
+      return meetings.map((meeting) =>
+        meeting.internalParticipants.map((participant) => participant?.name)
+      );
     });
 
-     const housekeepingChecklist = [
+    const housekeepingChecklist = [
       {
         name: "Clean and arrange chairs and tables",
       },
@@ -293,8 +315,7 @@ const getMeetings = async (req, res, next) => {
       },
     ];
 
-    const transformedMeetings = meetings.map((meeting,index) => {
-      
+    const transformedMeetings = meetings.map((meeting, index) => {
       return {
         _id: meeting._id,
         name: meeting.bookedBy.name,
@@ -313,7 +334,7 @@ const getMeetings = async (req, res, next) => {
         action: meeting.extend,
         agenda: meeting.agenda,
         subject: meeting.subject,
-        housekeepingChecklist:  [...(meeting.housekeepingChecklist ?? [])],
+        housekeepingChecklist: [...(meeting.housekeepingChecklist ?? [])],
         internalParticipants: internalParticipants[index],
         externalParticipants: meeting.externalParticipants,
         company: meeting.company,
@@ -326,78 +347,129 @@ const getMeetings = async (req, res, next) => {
   }
 };
 
-
 const addHousekeepingTask = async (req, res, next) => {
-
   try {
+    const { housekeepingTasks, meetingId, roomName } = req.body;
+    const company = req.company;
+    const user = req.user;
+    const ip = req.ip;
+    const logPath = "meetings/MeetingLogs";
+    const logAction = "Housekeeping Tasks Added";
+    const logSourceKey = "meeting";
 
-    const {housekeepingTasks,meetingId,roomName} = req.body 
-
-    if(!housekeepingTasks || !meetingId || !roomName){
-      return res.status(400).json({message:"All feilds are required"})
+    if (!housekeepingTasks || !meetingId || !roomName) {
+      throw new CustomError(
+        "All fields are required",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    if(!mongoose.Types.ObjectId.isValid(meetingId)){
-      return res.status(400).json({message:"Invalid meeting id provided"})
+    if (!mongoose.Types.ObjectId.isValid(meetingId)) {
+      throw new CustomError(
+        "Invalid meeting id provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    const inCompleteTasks = housekeepingTasks.filter((task) => task.status === "Pending")
+    const inCompleteTasks = housekeepingTasks.filter(
+      (task) => task.status === "Pending"
+    );
 
-    if(inCompleteTasks.length > 0){
-      return res.status(400).json({message:"Please check out the tasks before submitting"})
+    if (inCompleteTasks.length > 0) {
+      throw new CustomError(
+        "Please check out the tasks before submitting",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    const completedTasks = housekeepingTasks.map((task)=> ({name:task.name}))
+    const completedTasks = housekeepingTasks.map((task) => ({
+      name: task.name,
+    }));
 
     const foundMeeting = await Meeting.findByIdAndUpdate(
-      {_id:meetingId},
-      { $push: { housekeepingChecklist: completedTasks  }, 
-     },
-      {new:true}
-    )
+      { _id: meetingId },
+      { $push: { housekeepingChecklist: completedTasks } },
+      { new: true }
+    );
 
-    const room = await Room.findOneAndUpdate({name:roomName},{housekeepingStatus:"Completed","location.status":"Available"},
-      {new:true}
-    )
+    const room = await Room.findOneAndUpdate(
+      { name: roomName },
+      { housekeepingStatus: "Completed", "location.status": "Available" },
+      { new: true }
+    );
 
-
-    if(!foundMeeting){
-      return res.status(400).json({message:"Failed to add the housekeeping tasks"})
+    if (!foundMeeting) {
+      throw new CustomError(
+        "Failed to add the housekeeping tasks",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    if(!room){
-      return res.status(400).json({message:"Failed to update the room status"})
+    if (!room) {
+      throw new CustomError(
+        "Failed to update the room status",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    const meetingLog = new MeetingLog({
-      meetingId: meetingId,
-      action: "Housekeeping Tasks Added",
-      performedBy: req.userData.userId,
-      changes: { housekeepingTasks: completedTasks, roomName },
+    await createLog({
+      path: logPath,
+      action: logAction,
       remarks: "Housekeeping tasks completed and room status updated",
-      ipAddress: req.ip || req.connection.remoteAddress,
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: foundMeeting._id,
+      changes: { housekeepingTasks: completedTasks, roomName },
     });
 
-    await meetingLog.save();
-
-    return res.status(200).json({message: "Housekeeping tasks added successfully"})
-
+    return res
+      .status(200)
+      .json({ message: "Housekeeping tasks added successfully" });
   } catch (error) {
-    next(error)
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
-}
-
+};
 
 const deleteHousekeepingTask = async (req, res, next) => {
+  const company = req.company;
+  const user = req.user;
+  const ip = req.ip;
+  const logPath = "meetings/MeetingLogs";
+  const logAction = "Delete housekeeping tasks";
+  const logSourceKey = "meeting";
+
   try {
     const { housekeepingTask, meetingId } = req.body;
 
     if (!housekeepingTask || !meetingId) {
-      return res.status(400).json({ message: "All fields are required" });
+      throw new CustomError(
+        "All fields are required",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     if (!mongoose.Types.ObjectId.isValid(meetingId)) {
-      return res.status(400).json({ message: "Invalid meeting ID provided" });
+      throw new CustomError(
+        "Invalid meeting ID provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const updatedMeeting = await Meeting.findByIdAndUpdate(
@@ -407,116 +479,275 @@ const deleteHousekeepingTask = async (req, res, next) => {
     );
 
     if (!updatedMeeting) {
-      return res.status(400).json({ message: "Failed to delete housekeeping task" });
+      throw new CustomError(
+        "Failed to delete housekeeping task",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    const meetingLog = new MeetingLog({
-      meetingId: meetingId,
-      action: "Housekeeping Task Deleted",
-      performedBy: req.userData.userId,
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Housekeeping task deleted successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: meetingId,
       changes: { deletedTask: housekeepingTask },
-      remarks: "Housekeeping task removed from meeting",
-      ipAddress: ipAddress,
     });
-
-    await meetingLog.save();
 
     return res.status(200).json({
-      message: "Housekeeping task deleted successfully"
+      message: "Housekeeping task deleted successfully",
     });
-
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
-
-// const updateHousekeepingTasks = async (req, res, next) => {
-
-//   try {
-
-//     const {meetingId,housekeepingTasks} = req.body
-
-//     if(!meetingId || !housekeepingTasks){
-//       return res.status(400).json({message:"All feilds are required"})
-//     }
-
-//     if(!mongoose.Types.ObjectId.isValid(meetingId)){
-//       return res.status(400).json({message:"Invalid meeting id provided"})
-//     }
-
-//     const updatedHousekeepingCheckLlist = await Meeting.updateOne(
-//       { _id: meetingId },
-//       {
-//         $set: {
-//           "housekeepingChecklist.$[task].status": "Completed",
-//         },
-//       },
-//       {
-//         arrayFilters: [
-//           { "task.name": { $in: housekeepingTasks.map((task) => task.name) } },
-//         ],
-//         new: true,
-//       }
-//     );
-
-//     if(!updatedHousekeepingCheckLlist){
-//       return res.status(400).json({message:"Failed to add the housekeeping tasks"})
-//     }
-
-//     return res.status(200).json({message: "Housekeeping tasks added successfully"})
-
-//   } catch (error) {
-//     next(error)
-//   }
-// }
- 
-
 const getMeetingsByTypes = async (req, res, next) => {
-
   try {
+    const { type } = req.query;
+    const company = req.company;
 
-    const {type} = req.query
-    const company = req.company
-
-    if(!type){
-      return res.status(400).json({message:"Please send the meeting type"})
+    if (!type) {
+      throw new CustomError(
+        "Please send the meeting type",
+        400,
+        "meetings/MeetingLogs",
+        "Delete Meeting",
+        "meeting"
+      );
     }
- 
 
-    const meetings = await Meeting.find({meetingType:type}).populate([
+    const meetings = await Meeting.find({ meetingType: type }).populate([
       {
         path: "company",
-        select: "companyName", 
+        select: "companyName",
       },
       {
         path: "bookedRoom",
-        select: "name location",  
+        select: "name location",
       },
     ]);
 
-    if(!meetings){
-      return res.status(400).json({message:`Failed to fetch ${type} meetings`})
+    if (!meetings) {
+      return res
+        .status(400)
+        .json({ message: `Failed to fetch ${type} meetings` });
     }
 
     const transformedMeetings = meetings.map((meeting) => {
-      
       return {
         _id: meeting._id,
         roomName: meeting.bookedRoom.name,
         location: meeting.bookedRoom.location.name,
-        meetingType:meeting.meetingType,
+        meetingType: meeting.meetingType,
         endTime: formatTime(meeting.endTime),
         company: meeting.company.companyName,
       };
     });
 
-    return res.status(200).json(transformedMeetings)
-
+    return res.status(200).json(transformedMeetings);
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
+const cancelMeeting = async (req, res, next) => {
+  try {
+    const { meetingId } = req.params;
+    const company = req.company;
+    const user = req.user;
+    const ip = req.ip;
+    let path = "meetings/MeetingLogs";
+    let action = "Cancel Meeting";
 
-module.exports = { addMeetings, getMeetings, addHousekeepingTask,deleteHousekeepingTask,getMeetingsByTypes };
+    if (!meetingId) {
+      throw new CustomError(
+        "Meeting ID is required",
+        400,
+        "meetings/MeetingLogs",
+        "Cancel Meeting",
+        "meeting"
+      );
+    }
+
+    const cancelledMeeting = await Meeting.findByIdAndUpdate(
+      { _id: meetingId },
+      { status: "Cancelled" },
+      { new: true }
+    );
+
+    if (!cancelledMeeting) {
+      throw new CustomError(
+        "Meeting not found, please check the ID",
+        400,
+        "meetings/MeetingLogs",
+        "Cancel Meeting",
+        "meeting"
+      );
+    }
+
+    await createLog(
+      path,
+      action,
+      "Meeting cancelled successfully",
+      "Success",
+      user,
+      ip,
+      company,
+      cancelledMeeting._id,
+      {
+        meetingId,
+      }
+    );
+
+    res.status(200).json({ message: "Meeting cancelled successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const extendMeeting = async (req, res, next) => {
+  try {
+    const { meetingId } = req.params;
+    const { newEndTime } = req.body;
+    const company = req.company;
+    const user = req.user;
+    const ip = req.ip;
+    let path = "meetings/MeetingLogs";
+    let action = "Extend Meeting";
+
+    if (!meetingId || !newEndTime) {
+      await createLog(
+        path,
+        action,
+        "Meeting ID and new end time are required",
+        "Failed",
+        user,
+        ip,
+        company
+      );
+      return res
+        .status(400)
+        .json({ message: "Meeting ID and new end time are required" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(meetingId)) {
+      await createLog(
+        path,
+        action,
+        "Invalid meeting ID",
+        "Failed",
+        user,
+        ip,
+        company
+      );
+      return res.status(400).json({ message: "Invalid meeting ID" });
+    }
+
+    const meeting = await Meeting.findById(meetingId);
+    if (!meeting) {
+      await createLog(
+        path,
+        action,
+        "Meeting not found",
+        "Failed",
+        user,
+        ip,
+        company
+      );
+      return res.status(404).json({ message: "Meeting not found" });
+    }
+
+    const newEndTimeObj = new Date(newEndTime);
+    if (isNaN(newEndTimeObj.getTime())) {
+      await createLog(
+        path,
+        action,
+        "Invalid new end time format",
+        "Failed",
+        user,
+        ip,
+        company
+      );
+      return res.status(400).json({ message: "Invalid new end time format" });
+    }
+
+    if (newEndTimeObj <= meeting.endTime) {
+      await createLog(
+        path,
+        action,
+        "New end time must be later than the current end time",
+        "Failed",
+        user,
+        ip,
+        company
+      );
+      return res.status(400).json({
+        message: "New end time must be later than the current end time",
+      });
+    }
+
+    const conflictingMeeting = await Meeting.findOne({
+      bookedRoom: meeting.bookedRoom,
+      startDate: meeting.startDate,
+      startTime: { $lt: newEndTimeObj },
+      endTime: { $gt: meeting.endTime },
+      _id: { $ne: meetingId },
+    });
+
+    if (conflictingMeeting) {
+      await createLog(
+        path,
+        action,
+        "Room is already booked during the extended time",
+        "Failed",
+        user,
+        ip,
+        company
+      );
+      return res
+        .status(400)
+        .json({ message: "Room is already booked during the extended time" });
+    }
+
+    meeting.endTime = newEndTimeObj;
+    await meeting.save();
+
+    await createLog(
+      path,
+      action,
+      "Meeting extended successfully",
+      "Success",
+      user,
+      ip,
+      company,
+      meeting._id,
+      {
+        meetingId,
+        oldEndTime: meeting.endTime,
+        newEndTime: newEndTimeObj,
+      }
+    );
+
+    res
+      .status(200)
+      .json({ message: "Meeting extended successfully", newEndTime });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  addMeetings,
+  getMeetings,
+  addHousekeepingTask,
+  deleteHousekeepingTask,
+  getMeetingsByTypes,
+  cancelMeeting,
+};

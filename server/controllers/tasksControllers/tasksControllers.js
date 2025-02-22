@@ -1,116 +1,197 @@
-const Project = require('../../models/Projects');
-const Task = require('../../models/Tasks')
+const Task = require("../../models/tasks/Task");
+const validateUsers = require("../../utils/validateUsers");
 
-const createProject = async (req, res, next) => {
-    try {
-      const { Title,  description, startdate, enddate,status,assignees,Department } = req.body;
-  
-      const start = new Date(startdate);
-      const end = new Date(enddate);
-  
-      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-        return res.status(400).json({ message: "Invalid date format" });
-      }
-      
-  
-      const validParticipants = Array.isArray(assignees) ? assignees : [];
-  
-      
-      const newProject = new Project({
-          projectName:Title,
-          description,
-          startdate: start,
-          enddate: end,
-          status,
-          
-          participants: validParticipants,
-        });
-       
-  
-      if (!Title || !description || !start || !end || !status ||!Department || !assignees) {
-        return res.status(400).json({ message: "All fields are required" });
-      }
-  
-      const event = await newProject.save();
-      res.status(201).json({ event });
-    } catch (error) {
-      next(error);
+const createTasks = async (req, res, next) => {
+  try {
+    const {
+      taskName,
+      description,
+      projectId,
+      status,
+      priority,
+      assignees,
+      dueDate,
+      dueTime,
+      taskType,
+    } = req.body;
+    const { user, company } = req;
+
+    if (
+      !taskName ||
+      !description ||
+      !projectId ||
+      !status ||
+      !priority ||
+      !assignees ||
+      !dueDate
+    ) {
+      return res.status(400).json({ message: "Missing required fields" });
     }
-  };
 
-  const getProjects = async (req, res, next) => {
-    try {
-      // Query the Project collection
-      const projects = await Project.find()
-        .populate("projectName") // Populate Department details
-        .populate("description"); // Populate participants (assignees)
-  
-      // Respond with the fetched projects
-      res.status(200).json({ projects });
-    } catch (error) {
-      console.error("Error fetching projects:", error);
-      res.status(500).json({ message: "Internal server error" });
+    const assignedDate = new Date();
+    const parsedDueDate = new Date(dueDate);
+    const parsedDueTime = new Date(dueTime);
+
+    if (isNaN(parsedDueDate.getTime())) {
+      return res.status(400).json({ message: "Invalid date format" });
     }
-  };
+    if (dueTime && isNaN(parsedDueDate.getTime())) {
+      return res.status(400).json({ message: "Invalid date format" });
+    }
 
-  const updateProject = async (req, res) => {
-    try {
-      const { title, description, department, assignees } = req.body;
-  
-      const updatedProject = await Project.findByIdAndUpdate(
-        req.params.id,
-        { title, description, department, assignees },
-        { new: true } // Return the updated document
-      );
-  
-      if (!updatedProject) {
-        return res.status(404).json({ error: "Project not found" });
+    if (
+      typeof description !== "string" ||
+      !description.length ||
+      description?.replace(/\s/g, "")?.length > 100
+    ) {
+      return res.status(400).json({ message: "Character limit exceeded" });
+    }
+
+    const existingUsers = await validateUsers(assignees);
+
+    if (existingUsers.length !== assignees.length) {
+      return res
+        .status(400)
+        .json({ message: "One or more assignees are invalid or do not exist" });
+    }
+
+    const newTask = new Task({
+      taskName,
+      description,
+      project: projectId,
+      status,
+      priority,
+      assignedTo: assignees,
+      assignedBy: user,
+      assignedDate,
+      dueDate: parsedDueDate,
+      dueTime: dueTime ? parsedDueTime : null,
+      taskType,
+      company,
+    });
+
+    await newTask.save();
+    res.status(201).json({ message: "Task added successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateTask = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { taskName, description, status, priority, assignees, taskType } =
+      req.body;
+
+    const updates = {};
+
+    if (taskName !== undefined) updates.taskName = taskName;
+    if (taskType !== undefined) updates.taskType = taskType;
+    if (description !== undefined) updates.description = description;
+    if (status !== undefined) {
+      const validStatuses = ["Upcoming", "In progress", "Pending", "Completed"];
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({ error: "Invalid status value" });
       }
-  
-      res.status(200).json(updatedProject);
-    } catch (error) {
-      console.error("Error updating project:", error);
-      res.status(500).json({ error: "Internal server error" });
+      updates.status = status;
     }
-  };
-
-
-
-  const createTasks = async (req, res, next) => {
-    try {
-      const { taskName,  description, project,status,priority } = req.body;
-  
-      // const start = new Date(startdate);
-      // const end = new Date(enddate);
-  
-      // if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      //   return res.status(400).json({ message: "Invalid date format" });
-      // }
-      
-  
-      
-      
-      const newTask = new Task({
-         taskName,
-          description,
-          project,
-          status,
-          priority,
-          
-        });
-       
-  
-      if (!taskName || !description || !project || !status ||!priority ) {
-        return res.status(400).json({ message: "All fields are required" });
+    if (priority !== undefined) {
+      const validPriorities = ["High", "Medium", "Low"];
+      if (!validPriorities.includes(priority)) {
+        return res.status(400).json({ error: "Invalid priority value" });
       }
-  
-      const event = await newTask.save();
-      res.status(201).json({ event });
-    } catch (error) {
-      next(error);
+      updates.priority = priority;
     }
-  };
+    if (assignees !== undefined) {
+      if (!Array.isArray(assignees)) {
+        return res
+          .status(400)
+          .json({ error: "Assignees must be an array of user IDs" });
+      }
+      updates.assignedTo = assignees;
+    }
 
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ error: "No valid fields to update" });
+    }
 
+    await Task.findByIdAndUpdate(
+      id,
+      { $set: updates },
+      { new: true, runValidators: true }
+    );
 
-  module.exports = { createProject, createTasks, getProjects,updateProject };
+    return res.status(200).json({ message: "Task updated successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getTasks = async (req, res, next) => {
+  try {
+    const { company } = req;
+
+    const projects = await Task.find({ company }).populate({
+      path: "project",
+      select: "projectName",
+    });
+
+    return res.status(200).json(projects);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getTodayTasks = async (req, res, next) => {
+  try {
+    const { user, company } = req;
+
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const tasks = await Task.find({
+      company,
+      assignedTo: { $in: [user] },
+      assignedDate: { $gte: startOfDay, $lte: endOfDay },
+    });
+
+    if (!tasks) {
+      return res.status(400).json({ message: "Failed to fetch the tasks" });
+    }
+
+    return res.status(200).json(tasks);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteTask = async (req, res, next) => {
+  try {
+    const { company } = req;
+    const { id } = req.params;
+
+    const deletedTask = await Task.findByIdAndUpdate(
+      { _id: id, company },
+      { isDeleted: true }
+    );
+
+    if (!deletedTask) {
+      return res.status(400).json({ message: "Failed to delete the task" });
+    }
+
+    return res.status(200).json({ message: "Task deleted successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  createTasks,
+  updateTask,
+  getTasks,
+  getTodayTasks,
+  deleteTask,
+};
