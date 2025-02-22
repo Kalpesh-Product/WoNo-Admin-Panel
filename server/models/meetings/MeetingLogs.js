@@ -2,11 +2,11 @@ const mongoose = require("mongoose");
 
 const meetingLogSchema = new mongoose.Schema(
   {
-    meetingId: {
+    meeting: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Meeting",
     },
-    roomId: {
+    room: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Room",
     },
@@ -26,18 +26,18 @@ const meetingLogSchema = new mongoose.Schema(
     remarks: {
       type: String,
     },
-    ipAddress:{
-        type: String,
-        required: true,
+    ipAddress: {
+      type: String,
+      required: true,
     },
     status: {
-        type: String,
-      },
-      company: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Company",
-        required: true,
-      },
+      type: String,
+    },
+    company: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+      required: true,
+    },
   },
   { timestamps: true }
 );
