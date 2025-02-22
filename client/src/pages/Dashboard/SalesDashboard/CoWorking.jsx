@@ -32,61 +32,92 @@ const CoWorking = () => {
   // Set the current month for development purposes
   const [currentMonth, setCurrentMonth] = useState("April");
 
-  // Original sales data
-  const actualSales = [10000, 11000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-  const projectedSales = [
-    10000, 11000, 12000, 10500, 11500, 12500, 13500, 14500, 15500, 16500, 17500,
-    18500,
+  // Initial Sales Data (Contains both actual and projected sales)
+  const initialSalesData = [
+    { month: "April", actual: 10000, projected: 10000 },
+    { month: "May", actual: 11000, projected: 11000 },
+    { month: "June", actual: 0, projected: 12000 },
+    { month: "July", actual: 0, projected: 10500 },
+    { month: "August", actual: 0, projected: 11500 },
+    { month: "September", actual: 0, projected: 12500 },
+    { month: "October", actual: 0, projected: 13500 },
+    { month: "November", actual: 0, projected: 14500 },
+    { month: "December", actual: 0, projected: 15500 },
+    { month: "January", actual: 0, projected: 16500 },
+    { month: "February", actual: 0, projected: 17500 },
+    { month: "March", actual: 0, projected: 18500 },
   ];
 
-  // Adjusted projected sales based on carry-forward logic
+  // Carry Forward & Adjusted Projected Sales
   let carryForward = 0;
-  const adjustedProjectedSales = projectedSales.map((projected, index) => {
-    if (months.indexOf(currentMonth) < index) return projected; // Stop adjusting after the current month
+  const salesData = initialSalesData.map((data, index) => {
+    if (months.indexOf(currentMonth) < index)
+      return { ...data, adjustedProjected: data.projected }; // Use original projected for future months
 
     const remainingProjected = Math.max(
-      projected + carryForward - actualSales[index],
+      data.projected + carryForward - data.actual,
       0
-    ); // Remaining target after actual sales
-    carryForward = projected + carryForward - actualSales[index]; // Update carry forward amount
+    );
+    carryForward = data.projected + carryForward - data.actual; // Carry forward deficit
 
-    return remainingProjected; // Adjust projected sales
+    return { ...data, adjustedProjected: remainingProjected ?? 0 }; // Ensure it's never undefined
   });
 
-  // Bar Graph Data (Actual vs. Adjusted Projected Sales)
-  const data = [
-    { name: "Actual Sales", data: actualSales },
-    { name: "Remaining Projected Sales", data: adjustedProjectedSales },
-  ];
-
-  // Mock Revenue Data (Replace with actual API response)
+  // Function to Generate Revenue Breakup for Each Month
   const generateRevenueBreakup = (actualAmount) => {
-    if (actualAmount === 0) return [{ revenue: "₹0" }]; // No sales, return empty row
-
+    if (actualAmount === 0) return [{ client: "No Sales", revenue: "₹0" }]; // No sales case
+  
     let remainingAmount = actualAmount;
-    const numEntries = Math.floor(Math.random() * 3) + 2; // Between 2 to 4 entries
+    const numEntries = Math.floor(Math.random() * 3) + 2; // 2 to 4 entries
     const revenueBreakup = [];
-
+  
+    const clientNames = [
+      "Client A", "Client B", "Client C", "Client D", "Client E",
+      "Client F", "Client G", "Client H", "Client I", "Client J"
+    ];
+  
+    const regions = ["North", "South", "East", "West"]; // Example extra data field
+    const industries = ["Retail", "Finance", "Technology", "Healthcare"]; // Example category
+  
     for (let i = 0; i < numEntries - 1; i++) {
-      let part = Math.floor(Math.random() * (remainingAmount * 0.6)) + 1000; // Each part between 1000 and 60% of remaining
+      let part = Math.floor(Math.random() * (remainingAmount * 0.6)) + 1000;
       remainingAmount -= part;
-      revenueBreakup.push({ revenue: `₹${part.toLocaleString()}` });
+      revenueBreakup.push({
+        client: clientNames[i % clientNames.length], // Assign client names
+        revenue: `₹${part.toLocaleString()}`,
+        region: regions[i % regions.length], // Random region
+        industry: industries[i % industries.length] // Random industry category
+      });
     }
-
-    // Push the last remaining amount to ensure total matches actual sales
-    revenueBreakup.push({ revenue: `₹${remainingAmount.toLocaleString()}` });
-
+  
+    // Last entry to ensure total matches actual sales
+    revenueBreakup.push({
+      client: clientNames[revenueBreakup.length % clientNames.length],
+      revenue: `₹${remainingAmount.toLocaleString()}`,
+      region: regions[revenueBreakup.length % regions.length],
+      industry: industries[revenueBreakup.length % industries.length]
+    });
+  
     return revenueBreakup;
   };
+  
+  // Dynamic Table Columns (Easily Add More Fields)
+  const tableColumns = [
+    { header: "Client Name", field: "client" },
+    { header: "Revenue", field: "revenue" },
+    { header: "Region", field: "region" }, // Additional column
+    { header: "Industry", field: "industry" } // Additional column
+  ];
+    
 
-  // Generate monthly revenue data with breakup
-  const modifiedArrayHere = months.map((month, index) => ({
-    month,
-    actualSales: `₹${actualSales[index].toLocaleString()}`,
-    tableData: {
-      rows: generateRevenueBreakup(actualSales[index]), // Generate revenue breakup for each month
+  // Prepare Bar Graph Data from salesData
+  const graphData = [
+    { name: "Actual Sales", data: salesData.map((data) => data.actual) },
+    {
+      name: "Remaining Projected Sales",
+      data: salesData.map((data) => data.adjustedProjected),
     },
-  }));
+  ];
 
   // ApexCharts options
   const options = {
@@ -119,26 +150,27 @@ const CoWorking = () => {
 
       {/* Bar Graph Component */}
       <BarGraph
-        data={data}
+        data={graphData}
         options={options}
         height={400}
         year={true}
         customLegend={true}
         firstParam={{
           title: "Actual Sales",
-          data: "₹" + data[0].data.reduce((a, b) => a + b, 0),
+          data: "₹" + graphData[0].data.reduce((a, b) => a + b, 0),
         }}
         secondParam={{
           title: "Remaining Projected Sales (Adjusted)",
-          data: "₹" + data[1].data.reduce((a, b) => a + b, 0),
+          data:
+            "₹" + (graphData[1]?.data?.reduce((a, b) => a + (b || 0), 0) || 0),
         }}
       />
 
       {/* Accordion Section for Monthly Revenue */}
       <div>
-        {modifiedArrayHere.map((data, index) => {
-          // Calculate total revenue for the month
-          const totalRevenue = data.tableData.rows.reduce(
+        {salesData.map((data, index) => {
+          const revenueBreakup = generateRevenueBreakup(data.actual);
+          const totalRevenue = revenueBreakup.reduce(
             (sum, rev) => sum + parseInt(rev.revenue.replace(/\u20B9/, ""), 10),
             0
           );
@@ -156,14 +188,14 @@ const CoWorking = () => {
                     {data.month}
                   </span>
                   <span className="text-subtitle font-medium">
-                    {data.actualSales}
+                    ₹{data.actual.toLocaleString()}
                   </span>
                 </div>
               </AccordionSummary>
               <AccordionDetails>
                 <AgTable
-                  data={data.tableData.rows}
-                  columns={[{ header: "Revenue", field: "revenue" }]}
+                  data={revenueBreakup}
+                  columns={tableColumns}
                   tableHeight={300}
                 />
                 <span className="block mt-2 font-medium">
