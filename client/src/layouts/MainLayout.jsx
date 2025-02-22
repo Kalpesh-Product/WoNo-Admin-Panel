@@ -44,7 +44,7 @@ const MainLayout = () => {
             </div>
             <div className="bg-white h-[80vh] overflow-y-auto flex flex-col justify-between">
               <Outlet />
-              <div ref={dummyRef} className="h-1 w-1 bg-transparent text-white"></div>
+              <div ref={dummyRef} className="h-1 w-1 bg-red-500 text-red-500"></div>
             </div>
           </main>
         </div>

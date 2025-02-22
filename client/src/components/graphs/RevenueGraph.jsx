@@ -2,11 +2,25 @@ import BarGraph from "./BarGraph"; // Import the BarGraph component
 
 const RevenueGraph = ({ annualMonthlyRawData }) => {
   // ✅ Define financial year months
-  const financialYearMonths = ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar"];
+  const financialYearMonths = [
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+    "Jan",
+    "Feb",
+    "Mar",
+  ];
 
   // ✅ Get the current month index relative to the financial year (April = 0, March = 11)
   const currentMonthIndex = new Date().getMonth() - 3;
-  const normalizedCurrentMonth = currentMonthIndex < 0 ? currentMonthIndex + 12 : currentMonthIndex;
+  const normalizedCurrentMonth =
+    currentMonthIndex < 0 ? currentMonthIndex + 12 : currentMonthIndex;
 
   // ✅ Function to adjust projected data for future months
   const adjustProjectedData = (actualData, projectedData) => {
@@ -30,7 +44,10 @@ const RevenueGraph = ({ annualMonthlyRawData }) => {
 
   // ✅ Process each domain's revenue
   annualMonthlyRawData.forEach((domain) => {
-    const adjustedProjectedData = adjustProjectedData(domain.actualData, domain.projectedData);
+    const adjustedProjectedData = adjustProjectedData(
+      domain.actualData,
+      domain.projectedData
+    );
 
     for (let i = 0; i < financialYearMonths.length; i++) {
       if (i <= normalizedCurrentMonth && domain.actualData[i] !== null) {
@@ -42,8 +59,14 @@ const RevenueGraph = ({ annualMonthlyRawData }) => {
   });
 
   // ✅ Calculate total revenues
-  const totalActualRevenue = actualRevenue.reduce((sum, value) => sum + value, 0);
-  const totalProjectedRevenue = projectedRevenue.reduce((sum, value) => sum + value, 0);
+  const totalActualRevenue = actualRevenue.reduce(
+    (sum, value) => sum + value,
+    0
+  );
+  const totalProjectedRevenue = projectedRevenue.reduce(
+    (sum, value) => sum + value,
+    0
+  );
 
   // ✅ Prepare data for the graph
   const annualMonthlyData = [
@@ -53,18 +76,25 @@ const RevenueGraph = ({ annualMonthlyRawData }) => {
 
   // ✅ Chart options
   const annualMonthlyOptions = {
-    chart: { type: "bar", stacked: false },
-    plotOptions: { bar: { dataLabels: { position: "top" } } },
+    chart: { type: "bar", stacked: false, fontFamily:'Poppins-Regular' },
+    plotOptions: { bar: { dataLabels: { position: "top" } , columnWidth: "75%",} },
     xaxis: { categories: financialYearMonths, title: { text: "Months" } },
     yaxis: {
       labels: {
-        formatter: (val) => (val >= 10000000 ? (val / 10000000).toFixed(1) + "Cr" : val >= 100000 ? (val / 100000).toFixed(1) + "L" : val),
+        formatter: (val) =>
+          val >= 10000000
+            ? (val / 10000000).toFixed(1) + "Cr"
+            : val >= 100000
+            ? (val / 100000).toFixed(1) + "L"
+            : val,
       },
       title: { text: "Revenue" },
     },
     legend: { position: "top" },
     dataLabels: { enabled: false },
-    tooltip: { y: { formatter: (val) => new Intl.NumberFormat("en-IN").format(val) } },
+    tooltip: {
+      y: { formatter: (val) => new Intl.NumberFormat("en-IN").format(val) },
+    },
   };
 
   return (

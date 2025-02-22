@@ -231,7 +231,7 @@ export const routes = createBrowserRouter([
                           },
                           {
                             path: "co-working",
-                            element: <ParentRevenue />,
+                            element: <CoWorking />,
                           },
                           {
                             path: "meetings",

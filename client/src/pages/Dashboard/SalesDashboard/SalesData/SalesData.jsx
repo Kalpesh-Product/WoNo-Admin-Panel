@@ -439,6 +439,8 @@ const upcomingBirthdaysColumns = [
     { id: "birthday", label: "Date of Birth" },
     { id: "daysLeft", label: "Days Left" },
   ];
+
+
   
 
 // -----------------------Client Members birthday End--------------------

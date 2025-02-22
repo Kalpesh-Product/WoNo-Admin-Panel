@@ -386,7 +386,7 @@ const Attendance = () => {
           searchColumn={"Date"}
           data={isLoading? []:[...attendance.map((record, index)=>({
             id : index + 1,
-            date:new Intl.DateTimeFormat("en-GB",{day:"numeric",month:"long",year:"numeric"}).format(new Date(record.date)),
+            date:record.date,
             inTime : record.inTime,
             outTime : record.outTime,
             workHours : record.workHours,
