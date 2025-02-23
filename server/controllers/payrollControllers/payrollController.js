@@ -1,6 +1,6 @@
 const { default: mongoose } = require("mongoose");
 const Payroll = require("../../models/Payroll");
-const User = require("../../models/UserData");
+const User = require("../../models/hr/UserData");
 
 const generatePayroll = async (req, res, next) => {
   try {

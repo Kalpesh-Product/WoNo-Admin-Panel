@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const User = require("../../models/UserData");
+const User = require("../../models/hr/UserData");
 const bcrypt = require("bcryptjs");
 const generatePassword = require("../../utils/passwordGenerator");
 const mailer = require("../../config/nodemailerConfig");
@@ -18,9 +18,15 @@ const login = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid credentials" });
 
     const userExists = await User.findOne({ email })
-      .select("firstName lastName role email empId password designation company")
+      .select(
+        "firstName lastName role email empId password designation company"
+      )
       .populate([
-        { path: "company", select: "companyName workLocations employeeTypes shifts policies agreements sops" },
+        {
+          path: "company",
+          select:
+            "companyName workLocations employeeTypes shifts policies agreements sops",
+        },
         { path: "role", select: "roleTitle" },
       ])
       .lean()
@@ -33,16 +39,16 @@ const login = async (req, res, next) => {
     if (!isPasswordValid) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
- 
+
     const accessToken = jwt.sign(
       {
         userInfo: {
-          userId: userExists._id, 
+          userId: userExists._id,
           name: userExists.name,
           role: userExists.role,
           email: userExists.email,
           company: userExists.company._id,
-          departments: userExists.departments
+          departments: userExists.departments,
         },
       },
       process.env.ACCESS_TOKEN_SECRET,

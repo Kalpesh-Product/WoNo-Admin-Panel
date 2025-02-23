@@ -1,6 +1,8 @@
 const Asset = require("../../models/assets/Assets");
-const User = require("../../models/UserData");
-const RequestedAsset = require("../../models/assets/RequestedAsset");
+const User = require("../../models/hr/UserData");
+const AssignAsset = require("../../models/assets/AssignAsset");
+const { createLog } = require("../../utils/moduleLogs");
+const CustomError = require("../../utils/customErrorlogs");
 
 const getAssetRequests = async (req, res, next) => {
   try {
@@ -15,7 +17,10 @@ const getAssetRequests = async (req, res, next) => {
     const companyId = user.company; // Get company from logged-in user
 
     // Fetch assigned assets for the user's company
-    const assignedAssets = await RequestedAsset.find({ company: companyId,status:"Pending" })
+    const assignedAssets = await AssignAsset.find({
+      company: companyId,
+      status: "Pending",
+    })
       .populate("asset assignee company") // Populate referenced fields
       .sort({ dateOfAssigning: -1 }); // Sort by latest assignments
 
@@ -26,32 +31,45 @@ const getAssetRequests = async (req, res, next) => {
 };
 
 const assignAsset = async (req, res, next) => {
-  try {
-    const { assetId, userId, departmentId, assignType, location } = req.body;
-    const requester = req.user;
+  const logPath = "assets/AssetLog";
+  const logAction = "Assign Asset";
+  const logSourceKey = "assignAsset";
+  const { assetId, userId, departmentId, assignType, location } = req.body;
+  const requester = req.user;
+  const { ip } = req;
 
+  try {
     if (!assetId || !userId || !departmentId || !assignType || !location) {
-      return res.status(400).json({ message: "All fields are required." });
+      throw new CustomError(
+        "All fields are required.",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const asset = await Asset.findById(assetId);
     if (!asset) {
-      return res.status(404).json({ message: "Asset not found." });
+      throw new CustomError(
+        "Asset not found.",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: "User not found." });
+      throw new CustomError(
+        "User not found.",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    // const isDepartmentAdmin = user.departments.some((dept) =>
-    //   requester.departments.includes(dept)
-    // );
-    // if (!isDepartmentAdmin) {
-    //   return res.status(403).json({ message: "Unauthorized action." });
-    // }
-
-    const assignEntry = new RequestedAsset({
+    // Create a new asset assignment request
+    const assignEntry = new AssignAsset({
       asset: assetId,
       assignee: userId,
       company: user.company,
@@ -64,48 +82,87 @@ const assignAsset = async (req, res, next) => {
 
     await assignEntry.save();
 
-    res.status(200).json({
+    // Log successful asset assignment request creation
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks:
+        "Asset assignment request created successfully. Pending approval.",
+      status: "Success",
+      user: requester,
+      ip,
+      company,
+      sourceKey: logSourceKey,
+      sourceId: assignEntry._id,
+      changes: assignEntry.doc,
+    });
+
+    return res.status(200).json({
       message:
         "Asset assignment request created successfully. Pending approval.",
       assignEntry,
     });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
 const processAssetRequest = async (req, res, next) => {
+  const logPath = "assets/AssetLog";
+  const logAction = "Process Asset Request";
+  const logSourceKey = "assignAsset";
+  const { user, ip, company } = req;
+
   try {
     const { requestId, action } = req.body;
-    const approver = req.user;
 
     if (!requestId || !action) {
-      return res
-        .status(400)
-        .json({ message: "Request ID and action are required." });
+      throw new CustomError(
+        "Request ID and action are required.",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     if (!["Approved", "Rejected"].includes(action)) {
-      return res
-        .status(400)
-        .json({ message: "Invalid action. Use 'Approved' or 'Rejected'." });
+      throw new CustomError(
+        "Invalid action. Use 'Approved' or 'Rejected'.",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const request = await RequestedAsset.findById(requestId);
     if (!request) {
-      return res.status(404).json({ message: "Assignment request not found." });
+      throw new CustomError(
+        "Assignment request not found.",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const asset = await Asset.findById(request.asset);
     if (!asset) {
-      return res.status(404).json({ message: "Asset not found." });
+      throw new CustomError(
+        "Asset not found.",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     if (action === "Approved") {
       if (asset.assignedTo) {
-        return res.status(400).json({ message: "Asset is already assigned." });
+        throw new CustomError(
+          "Asset is already assigned.",
+          logPath,
+          logAction,
+          logSourceKey
+        );
       }
-
       request.status = "Approved";
       asset.assignedTo = request.assignee;
 
@@ -117,46 +174,81 @@ const processAssetRequest = async (req, res, next) => {
 
       await asset.save();
     } else {
-       request.status = "Rejected";
+      request.status = "Rejected";
     }
 
     await request.save();
 
-    res.status(200).json({
+    // Log the successful processing of the asset request.
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: `Asset assignment request ${action.toLowerCase()} successfully.`,
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: request._id,
+      changes: { action },
+    });
+
+    return res.status(200).json({
       message: `Asset assignment request ${action.toLowerCase()} successfully.`,
     });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
 const revokeAsset = async (req, res, next) => {
-  try {
-    const { assetId } = req.body;
+  const logPath = "assets/AssetLog";
+  const logAction = "Revoke Asset";
+  const logSourceKey = "assignAsset";
+  const { assetId } = req.body;
+  const { user, ip, company } = req;
 
+  try {
     if (!assetId) {
-      return res.status(400).json({ message: "Asset ID is required." });
+      throw new CustomError(
+        "Asset ID is required.",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const asset = await Asset.findById(assetId);
     if (!asset) {
-      return res.status(404).json({ message: "Asset not found." });
+      throw new CustomError(
+        "Asset not found.",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     if (!asset.assignedTo) {
-      return res
-        .status(400)
-        .json({ message: "Asset is not assigned to any user." });
+      throw new CustomError(
+        "Asset is not assigned to any user.",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    // Find the user who has the asset assigned
-    const user = await User.findById(asset.assignedTo);
-    if (!user) {
-      return res.status(404).json({ message: "User not found." });
+    const assignedUser = await User.findById(asset.assignedTo);
+    if (!assignedUser) {
+      throw new CustomError(
+        "User not found.",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     // Remove the asset from the user's assignedAsset array
-    await User.findByIdAndUpdate(user._id, {
+    await User.findByIdAndUpdate(assignedUser._id, {
       $pull: { assignedAsset: asset._id },
     });
 
@@ -164,9 +256,25 @@ const revokeAsset = async (req, res, next) => {
     asset.assignedTo = null;
     await asset.save();
 
-    res.status(200).json({ message: "Asset successfully revoked from user." });
+    // Log the successful revocation
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Asset successfully revoked from user.",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: asset._id,
+      changes: { revokedFrom: assignedUser._id, assetId: asset._id },
+    });
+
+    return res
+      .status(200)
+      .json({ message: "Asset successfully revoked from user." });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 

@@ -1,6 +1,6 @@
 const Room = require("../../models/meetings/Rooms");
 const idGenerator = require("../../utils/idGenerator");
-const User = require("../../models/UserData");
+const User = require("../../models/hr/UserData");
 const sharp = require("sharp");
 const mongoose = require("mongoose");
 const { handleFileUpload } = require("../../config/cloudinaryConfig");

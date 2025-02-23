@@ -1,5 +1,5 @@
 const Department = require("../../models/Departments");
-const User = require("../../models/UserData");
+const User = require("../../models/hr/UserData");
 const { createLog } = require("../../utils/moduleLogs");
 
 const createDepartment = async (req, res, next) => {
@@ -12,7 +12,15 @@ const createDepartment = async (req, res, next) => {
 
   try {
     if (!deptId || !deptName) {
-      await createLog(path, action, "Invalid department details", "Failed", user, ip, company);
+      await createLog(
+        path,
+        action,
+        "Invalid department details",
+        "Failed",
+        user,
+        ip,
+        company
+      );
       return res.status(400).json({ message: "Invalid department details" });
     }
 
@@ -21,7 +29,15 @@ const createDepartment = async (req, res, next) => {
       .exec();
 
     if (deptExists) {
-      await createLog(path, action, "Department already exists", "Failed", user, ip, company);
+      await createLog(
+        path,
+        action,
+        "Department already exists",
+        "Failed",
+        user,
+        ip,
+        company
+      );
       return res.status(400).json({ message: "Department already exists" });
     }
 
@@ -33,14 +49,23 @@ const createDepartment = async (req, res, next) => {
     await newDept.save();
 
     // Log the successful department creation
-    await createLog(path, action, "New department created", "Success", user, ip, company, newDept._id, { deptId, deptName });
+    await createLog(
+      path,
+      action,
+      "New department created",
+      "Success",
+      user,
+      ip,
+      company,
+      newDept._id,
+      { deptId, deptName }
+    );
 
     res.status(201).json({ message: "New department created" });
   } catch (error) {
     next(error);
   }
 };
-
 
 const getDepartments = async (req, res, next) => {
   try {
@@ -64,21 +89,37 @@ const getDepartments = async (req, res, next) => {
 const assignAdmin = async (req, res, next) => {
   try {
     const { departmentId, adminId } = req.body;
-    const { user } = req;  // Logged-in user
+    const { user } = req; // Logged-in user
     const path = "CompanyLogs";
     const action = "Assign Admin";
 
     // Validate the user reference
     const admin = await User.findById(adminId);
     if (!admin) {
-      await createLog(path, action, "User not found", "Failed", user, req.ip, req.company);
+      await createLog(
+        path,
+        action,
+        "User not found",
+        "Failed",
+        user,
+        req.ip,
+        req.company
+      );
       return res.status(404).json({ message: "User not found" });
     }
 
     // Validate the department reference
     const department = await Department.findById(departmentId);
     if (!department) {
-      await createLog(path, action, "Department not found", "Failed", user, req.ip, req.company);
+      await createLog(
+        path,
+        action,
+        "Department not found",
+        "Failed",
+        user,
+        req.ip,
+        req.company
+      );
       return res.status(404).json({ message: "Department not found" });
     }
 
@@ -86,7 +127,17 @@ const assignAdmin = async (req, res, next) => {
     department.admin = admin._id;
     const updatedDepartment = await department.save();
 
-    await createLog(path, action, "Admin assigned successfully", "Success", user, req.ip, req.company, updatedDepartment._id, updatedDepartment);
+    await createLog(
+      path,
+      action,
+      "Admin assigned successfully",
+      "Success",
+      user,
+      req.ip,
+      req.company,
+      updatedDepartment._id,
+      updatedDepartment
+    );
 
     res.status(200).json({
       message: "Admin assigned successfully",
@@ -97,6 +148,5 @@ const assignAdmin = async (req, res, next) => {
     next(error);
   }
 };
-
 
 module.exports = { createDepartment, assignAdmin, getDepartments };

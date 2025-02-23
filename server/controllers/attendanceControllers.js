@@ -1,8 +1,8 @@
-const Attendance = require("../models/Attendance");
+const Attendance = require("../models/hr/Attendance");
 const mongoose = require("mongoose");
 const { formatDate, formatTime } = require("../utils/formatDateTime");
 const { createLog } = require("../utils/moduleLogs");
-const UserData = require("../models/UserData");
+const UserData = require("../models/hr/UserData");
 
 const clockIn = async (req, res, next) => {
   const { user, ip, company } = req;

@@ -5,7 +5,7 @@ const createEvent = async (req, res, next) => {
   const { user, ip, company } = req;
   const { title, type, description, start, end, participants } = req.body;
 
-  const logPath = "events/EventLogs";
+  const logPath = "events/EventLog";
   const logAction = "Create Event";
   const logSourceKey = "event";
 
@@ -168,7 +168,7 @@ const extendEvent = async (req, res, next) => {
   const { id, extend } = req.body;
   const extendTime = new Date(extend);
 
-  const logPath = "events/EventLogs";
+  const logPath = "events/EventLog";
   const logAction = "Extend Event";
   const logSourceKey = "event";
 
@@ -247,7 +247,7 @@ const deleteEvent = async (req, res, next) => {
   const { user, ip, company } = req;
   const { id } = req.params;
 
-  const logPath = "events/EventLogs";
+  const logPath = "events/EventLog";
   const logAction = "Delete Event";
   const logSourceKey = "event";
 

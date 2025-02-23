@@ -6,7 +6,7 @@ const getLogs = async (req, res, next) => {
   const capitalizeFirstLetter = (str) =>
     str.charAt(0).toUpperCase() + str.slice(1, path.length - 1);
 
-  const modelName = `${capitalizeFirstLetter(path)}Logs`;
+  const modelName = `${capitalizeFirstLetter(path)}Log`;
 
   //Import the model dynamically
   const ModelPath = `../models/${modelName}`;

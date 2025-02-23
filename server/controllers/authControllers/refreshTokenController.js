@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const User = require("../../models/UserData");
+const User = require("../../models/hr/UserData");
 
 const handleRefreshToken = async (req, res, next) => {
   try {

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const User = require("../models/UserData");
+const User = require("../models/hr/UserData");
 
 const validateUsers = async (users) => {
   const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);

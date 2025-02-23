@@ -1,5 +1,5 @@
-const Company = require("../../models/Company");
-const User = require("../../models/UserData");
+const Company = require("../../models/hr/Company");
+const User = require("../../models/hr/UserData");
 const { handlePdfUpload } = require("../../config/cloudinaryConfig");
 const { PDFDocument } = require("pdf-lib");
 
@@ -24,7 +24,15 @@ const uploadCompanyDocument = async (req, res, next) => {
       .exec();
 
     if (!foundUser || !foundUser.company) {
-      await createLog(path, action, "Company not found", "Failed", user, req.ip, req.company);
+      await createLog(
+        path,
+        action,
+        "Company not found",
+        "Failed",
+        user,
+        req.ip,
+        req.company
+      );
       return res.status(404).json({ message: "Company not found" });
     }
 
@@ -42,7 +50,13 @@ const uploadCompanyDocument = async (req, res, next) => {
     }
 
     const updateField =
-      type === "template" ? "templates" : type === "sop" ? "sop" : type === "policy" ? "policies" : "agreements";
+      type === "template"
+        ? "templates"
+        : type === "sop"
+        ? "sop"
+        : type === "policy"
+        ? "policies"
+        : "agreements";
 
     await Company.findOneAndUpdate(
       { _id: foundUser.company._id },
@@ -57,7 +71,16 @@ const uploadCompanyDocument = async (req, res, next) => {
       }
     ).exec();
 
-    await createLog(path, action, `${type.toUpperCase()} uploaded successfully`, "Success", user, req.ip, req.company, foundUser.company._id);
+    await createLog(
+      path,
+      action,
+      `${type.toUpperCase()} uploaded successfully`,
+      "Success",
+      user,
+      req.ip,
+      req.company,
+      foundUser.company._id
+    );
 
     return res
       .status(200)
@@ -67,7 +90,6 @@ const uploadCompanyDocument = async (req, res, next) => {
     next(error);
   }
 };
-
 
 const getCompanyDocuments = async (req, res, next) => {
   try {
@@ -122,7 +144,15 @@ const uploadDepartmentDocument = async (req, res, next) => {
     );
 
     if (!department) {
-      await createLog(path, action, "Department not found in selectedDepartments", "Failed", user, req.ip, req.company);
+      await createLog(
+        path,
+        action,
+        "Department not found in selectedDepartments",
+        "Failed",
+        user,
+        req.ip,
+        req.company
+      );
       throw new Error("Department not found in selectedDepartments.");
     }
 
@@ -136,7 +166,15 @@ const uploadDepartmentDocument = async (req, res, next) => {
     );
 
     if (!response.public_id) {
-      await createLog(path, action, "Failed to upload document", "Failed", user, req.ip, req.company);
+      await createLog(
+        path,
+        action,
+        "Failed to upload document",
+        "Failed",
+        user,
+        req.ip,
+        req.company
+      );
       throw new Error("Failed to upload document");
     }
 
@@ -163,17 +201,29 @@ const uploadDepartmentDocument = async (req, res, next) => {
       { new: true }
     ).exec();
 
-    await createLog(path, action, `${type.toUpperCase()} uploaded successfully for ${department.department.name} department`, "Success", user, req.ip, req.company, foundUser.company._id);
+    await createLog(
+      path,
+      action,
+      `${type.toUpperCase()} uploaded successfully for ${
+        department.department.name
+      } department`,
+      "Success",
+      user,
+      req.ip,
+      req.company,
+      foundUser.company._id
+    );
 
     return res.status(200).json({
-      message: `${type.toUpperCase()} uploaded successfully for ${department.department.name} department`,
+      message: `${type.toUpperCase()} uploaded successfully for ${
+        department.department.name
+      } department`,
     });
   } catch (error) {
     console.error("Error uploading department document:", error);
     next(error);
   }
 };
-
 
 module.exports = {
   uploadCompanyDocument,

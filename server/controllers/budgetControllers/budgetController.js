@@ -1,6 +1,6 @@
-const Budget = require("../../models/Budget");
-const User = require("../../models/UserData");
-const Company = require("../../models/Company");
+const Budget = require("../../models/hr/Budget");
+const User = require("../../models/hr/UserData");
+const Company = require("../../models/hr/Company");
 
 const requestBudget = async (req, res, next) => {
   try {

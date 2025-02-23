@@ -5,7 +5,7 @@ const validateUsers = require("../../utils/validateUsers");
 
 const createTasks = async (req, res, next) => {
   const { user, ip, company } = req;
-  const logPath = "tasks/TaskLogs";
+  const logPath = "tasks/TaskLog";
   const logAction = "Create Task";
   const logSourceKey = "task";
 
@@ -134,7 +134,7 @@ const createTasks = async (req, res, next) => {
 
 const updateTask = async (req, res, next) => {
   const { user, ip, company } = req;
-  const logPath = "tasks/TaskLogs";
+  const logPath = "tasks/TaskLog";
   const logAction = "Update Task";
   const logSourceKey = "task";
 
@@ -276,7 +276,7 @@ const getTodayTasks = async (req, res, next) => {
 
 const deleteTask = async (req, res, next) => {
   const { company, user, ip } = req;
-  const logPath = "tasks/TaskLogs";
+  const logPath = "tasks/TaskLog";
   const logAction = "Delete Task";
   const logSourceKey = "task";
 

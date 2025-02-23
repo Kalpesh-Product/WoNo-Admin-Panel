@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const SupportTicket = require("../../models/tickets/supportTickets");
-const User = require("../../models/UserData");
+const User = require("../../models/hr/UserData");
 const Ticket = require("../../models/tickets/Tickets");
 const { createLog } = require("../../utils/moduleLogs");
 
@@ -17,12 +17,28 @@ const supportTicket = async (req, res, next) => {
       .exec();
 
     if (!foundUser) {
-      await createLog(path, action, "User not found", "Failed", user, ip, company);
+      await createLog(
+        path,
+        action,
+        "User not found",
+        "Failed",
+        user,
+        ip,
+        company
+      );
       return res.status(404).json({ message: "User not found" });
     }
 
     if (!reason || typeof reason !== "string" || reason.length > 150) {
-      await createLog(path, action, "Invalid reason provided", "Failed", user, ip, company);
+      await createLog(
+        path,
+        action,
+        "Invalid reason provided",
+        "Failed",
+        user,
+        ip,
+        company
+      );
       return res.status(400).json({ message: "Invalid Reason" });
     }
 
@@ -30,19 +46,37 @@ const supportTicket = async (req, res, next) => {
     if (mongoose.Types.ObjectId.isValid(ticketId)) {
       foundTicket = await Ticket.findOne({ _id: ticketId }).lean().exec();
       if (!foundTicket) {
-        await createLog(path, action, "Invalid ticket ID provided", "Failed", user, ip, company);
+        await createLog(
+          path,
+          action,
+          "Invalid ticket ID provided",
+          "Failed",
+          user,
+          ip,
+          company
+        );
         return res.status(400).json({ message: "Invalid ticket ID provided" });
       }
     }
 
-    const userDepartments = foundUser.departments.map((dept) => dept.toString());
+    const userDepartments = foundUser.departments.map((dept) =>
+      dept.toString()
+    );
 
     const foundTickets = await Ticket.find({
       raisedToDepartment: { $in: userDepartments },
     });
 
     if (!foundTickets.length) {
-      await createLog(path, action, "No tickets found for user", "Failed", user, ip, company);
+      await createLog(
+        path,
+        action,
+        "No tickets found for user",
+        "Failed",
+        user,
+        ip,
+        company
+      );
       return res.status(400).json({ message: "Tickets not found" });
     }
 
@@ -56,14 +90,23 @@ const supportTicket = async (req, res, next) => {
 
     await supportTicket.save();
 
-    await createLog(path, action, "Support request sent successfully", "Success", user, ip, company, ticketId, { reason });
+    await createLog(
+      path,
+      action,
+      "Support request sent successfully",
+      "Success",
+      user,
+      ip,
+      company,
+      ticketId,
+      { reason }
+    );
 
     return res.status(201).json({ message: "Support request sent" });
   } catch (error) {
     next(error);
   }
 };
-
 
 const getSupportedTickets = async (req, res, next) => {
   const company = req.company;

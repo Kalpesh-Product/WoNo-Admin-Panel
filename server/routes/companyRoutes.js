@@ -29,12 +29,12 @@ const {
   addWorkLocation,
   bulkInsertWorkLocations,
 } = require("../controllers/companyControllers/workLocationControllers");
-const { createDepartment } = require("../controllers/companyControllers/departmentControllers");
-const getCompanyLogs = require("../controllers/companyControllers/companyLogController");
+const {
+  createDepartment,
+} = require("../controllers/companyControllers/departmentControllers");
 
 router.post("/create-company", addCompany);
 router.get("/get-companies", getCompanies);
-router.get("/get-company-logs", getCompanyLogs);
 
 router.post("/add-department", createDepartment);
 router.post("/add-employee-type", addEmployeeType);
@@ -43,10 +43,10 @@ router.post("/add-work-location", addWorkLocation);
 router.post(
   "/bulk-add-locations",
   upload.single("locations"),
-  bulkInsertWorkLocations 
+  bulkInsertWorkLocations
 );
 router.get("/get-company-data", getCompanyData);
-router.post("/update-active-status/:field", updateActiveStatus); 
+router.post("/update-active-status/:field", updateActiveStatus);
 router.post("/add-company-logo", upload.single("logo"), addCompanyLogo);
 router.get("/get-company-logo", getCompanyLogo);
 router.post("/add-shift", addShift);
