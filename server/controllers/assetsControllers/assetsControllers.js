@@ -1,14 +1,16 @@
 const Asset = require("../../models/assets/Assets");
-const User = require("../../models/UserData");
-const Company = require("../../models/Company");
+const User = require("../../models/hr/UserData");
+const Company = require("../../models/hr/Company");
 const Category = require("../../models/assets/AssetCategory");
-const Vendor = require("../../models/Vendor");
+const Vendor = require("../../models/hr/Vendor");
 const sharp = require("sharp");
 const {
   handleFileUpload,
   handleFileDelete,
 } = require("../../config/cloudinaryConfig");
 const AssetCategory = require("../../models/assets/AssetCategory");
+const CustomError = require("../../utils/customErrorlogs");
+const { createLog } = require("../../utils/moduleLogs");
 
 const getAssets = async (req, res, next) => {
   try {
@@ -50,7 +52,8 @@ const getAssets = async (req, res, next) => {
 
     // Fetch assets (without pagination)
     const assets = await Asset.find(filter)
-      .populate("department assignedTo").select("-company") // Populate references
+      .populate("department assignedTo")
+      .select("-company") // Populate references
       .sort({ [sortField]: sortOrder });
 
     res.status(200).json(assets);
@@ -62,6 +65,11 @@ const getAssets = async (req, res, next) => {
 module.exports = { getAssets };
 
 const addAsset = async (req, res, next) => {
+  const logPath = "assets/AssetLog";
+  const logAction = "Add Asset";
+  const logSourceKey = "asset";
+  const { user, ip } = req;
+
   try {
     const {
       departmentId,
@@ -77,7 +85,7 @@ const addAsset = async (req, res, next) => {
       warranty,
     } = req.body;
 
-    const user = req.user;
+    // Get the user details along with the company, departments, and role
     const foundUser = await User.findOne({ _id: user })
       .select("company departments role")
       .populate([{ path: "role", select: "roleTitle" }])
@@ -85,54 +93,77 @@ const addAsset = async (req, res, next) => {
       .exec();
 
     if (!foundUser) {
-      return res.status(400).json({ message: "No user found" });
+      throw new CustomError("No user found", logPath, logAction, logSourceKey);
     }
 
-    const foundCompany = await Company.findOne({ _id: foundUser.company })
+    const company = foundUser.company;
+
+    // Get the company details for validation
+    const foundCompany = await Company.findOne({ _id: company })
       .select("selectedDepartments companyName")
       .lean()
       .exec();
 
     if (!foundCompany) {
-      return res.status(400).json({ message: "Company not found" });
+      throw new CustomError(
+        "Company not found",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
- 
+    // Validate that the department is selected by the company
     const doesDepartmentExist = foundCompany.selectedDepartments.find(
-      (dept) =>{
-         
-        return dept.department.toString() === departmentId
-      } 
+      (dept) => dept.department.toString() === departmentId
     );
 
-
     if (!doesDepartmentExist) {
-      return res
-        .status(400)
-        .json({ message: "Department not selected by your company" });
+      throw new CustomError(
+        "Department not selected by your company",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
+    // Validate category existence
     const foundCategory = await Category.findOne({ _id: categoryId })
       .lean()
       .exec();
     if (!foundCategory) {
-      return res.status(400).json({ message: "No category found" });
+      throw new CustomError(
+        "No category found",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
+    // Validate that the category exists within the department's asset categories
     const categoryExistsInDepartment = doesDepartmentExist.assetCategories.find(
       (ct) => ct._id.toString() === categoryId
     );
 
     if (!categoryExistsInDepartment) {
-      return res
-        .status(400)
-        .json({ message: "No such category exists in the department" });
+      throw new CustomError(
+        "No such category exists in the department",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
+    // If vendorId is provided, validate vendor existence
     if (vendorId) {
       const foundVendor = await Vendor.findOne({ _id: vendorId }).lean().exec();
       if (!foundVendor) {
-        return res.status(400).json({ message: "Vendor not found" });
+        throw new CustomError(
+          "Vendor not found",
+          logPath,
+          logAction,
+          logSourceKey
+        );
       }
     }
 
@@ -142,26 +173,36 @@ const addAsset = async (req, res, next) => {
     if (req.file) {
       const file = req.file;
 
-      // Fetch category and sub-category details
-      const foundCategory = await Category.findOne({ _id: categoryId })
+      // Re-fetch category details to get sub-category information
+      const foundCategoryAgain = await Category.findOne({ _id: categoryId })
         .lean()
         .exec();
-      if (!foundCategory) {
-        return res.status(400).json({ message: "Category not found" });
+      if (!foundCategoryAgain) {
+        throw new CustomError(
+          "Category not found",
+          logPath,
+          logAction,
+          logSourceKey
+        );
       }
 
-      // Extract sub-category name (assuming subCategories is an array)
-      const subCategory = foundCategory.subCategories.find(
+      // Find the sub-category by ID
+      const subCategory = foundCategoryAgain.subCategories.find(
         (subCat) => subCat._id.toString() === subCategoryId
-      ); // You need to get subCategoryId from req.body
+      );
       if (!subCategory) {
-        return res.status(400).json({ message: "Sub-category not found" });
+        throw new CustomError(
+          "Sub-category not found",
+          logPath,
+          logAction,
+          logSourceKey
+        );
       }
 
-      // Construct the upload path dynamically
-      const uploadPath = `${foundCompany.companyName}/assets/${foundCategory.categoryName}/${subCategory.name}`;
+      // Build the dynamic upload path using the company name, category, and sub-category names
+      const uploadPath = `${foundCompany.companyName}/assets/${foundCategoryAgain.categoryName}/${subCategory.name}`;
 
-      // Process and upload the image
+      // Process the image using Sharp
       const buffer = await sharp(file.buffer)
         .resize(800, 800, { fit: "cover" })
         .webp({ quality: 80 })
@@ -174,10 +215,11 @@ const addAsset = async (req, res, next) => {
       imageUrl = uploadResult.secure_url;
     }
 
+    // Create a new asset document
     const newAsset = new Asset({
       assetType,
       vendor: vendorId || null,
-      company: foundUser.company,
+      company: company,
       name,
       purchaseDate,
       quantity,
@@ -193,27 +235,64 @@ const addAsset = async (req, res, next) => {
 
     const savedAsset = await newAsset.save();
 
+    // Update the asset sub-category by pushing the new asset's ID
     const updateSubcategory = await AssetCategory.findOneAndUpdate(
       { "subCategories._id": subCategoryId },
       { $push: { "subCategories.$.assets": savedAsset._id } },
       { new: true }
     );
-    
 
-    if(!updateSubcategory){
-      return res.status(400)
-      .json({ message: "Something went wrong while adding asset"});
+    if (!updateSubcategory) {
+      throw new CustomError(
+        "Something went wrong while adding asset",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    res
-      .status(201)
-      .json({ message: "Asset added successfully", asset: newAsset });
+    // Log the successful asset addition
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Asset added successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: savedAsset._id,
+      changes: {
+        departmentId,
+        categoryId,
+        subCategoryId,
+        vendorId,
+        name,
+        purchaseDate,
+        quantity,
+        price,
+        brand,
+        assetType,
+        warranty,
+        image: { id: imageId, url: imageUrl },
+      },
+    });
+
+    return res.status(201).json({
+      message: "Asset added successfully",
+      asset: newAsset,
+    });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
 const editAsset = async (req, res, next) => {
+  const logPath = "assets/AssetLog";
+  const logAction = "Edit Asset";
+  const logSourceKey = "asset";
+  const { user, ip } = req;
+
   try {
     const { assetId } = req.params;
     const {
@@ -231,11 +310,23 @@ const editAsset = async (req, res, next) => {
       warranty,
     } = req.body;
 
-    const user = req.user;
+    if (!assetId) {
+      throw new CustomError(
+        "Asset ID must be provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
 
     const foundAsset = await Asset.findOne({ _id: assetId }).lean().exec();
     if (!foundAsset) {
-      return res.status(404).json({ message: "Asset not found" });
+      throw new CustomError(
+        "Asset not found",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const foundUser = await User.findOne({ _id: user })
@@ -243,29 +334,35 @@ const editAsset = async (req, res, next) => {
       .populate([{ path: "role", select: "roleTitle" }])
       .lean()
       .exec();
-
     if (!foundUser) {
-      return res.status(400).json({ message: "No user found" });
+      throw new CustomError("No user found", logPath, logAction, logSourceKey);
     }
 
-    // Fetch the company details
+    // Fetch company details
     const foundCompany = await Company.findOne({ _id: foundUser.company })
       .select("selectedDepartments companyName")
       .lean()
       .exec();
-
     if (!foundCompany) {
-      return res.status(400).json({ message: "Company not found" });
+      throw new CustomError(
+        "Company not found",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
+    // Validate that the department is selected by the company
     const doesDepartmentExist = foundCompany.selectedDepartments.find(
       (dept) => dept.department.toString() === departmentId
     );
-
     if (!doesDepartmentExist) {
-      return res
-        .status(400)
-        .json({ message: "Department not selected by your company" });
+      throw new CustomError(
+        "Department not selected by your company",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     // Validate category
@@ -273,25 +370,37 @@ const editAsset = async (req, res, next) => {
       .lean()
       .exec();
     if (!foundCategory) {
-      return res.status(400).json({ message: "No category found" });
+      throw new CustomError(
+        "No category found",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     // Check if category exists in department
     const categoryExistsInDepartment = doesDepartmentExist.assetCategories.find(
       (ct) => ct._id.toString() === categoryId
     );
-
     if (!categoryExistsInDepartment) {
-      return res
-        .status(400)
-        .json({ message: "No such category exists in the department" });
+      throw new CustomError(
+        "No such category exists in the department",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     // Validate vendor if provided
     if (vendorId) {
       const foundVendor = await Vendor.findOne({ _id: vendorId }).lean().exec();
       if (!foundVendor) {
-        return res.status(400).json({ message: "Vendor not found" });
+        throw new CustomError(
+          "Vendor not found",
+          logPath,
+          logAction,
+          logSourceKey
+        );
       }
     }
 
@@ -306,18 +415,23 @@ const editAsset = async (req, res, next) => {
         await handleFileDelete(imageId);
       }
 
-      // Extract sub-category name
+      // Extract sub-category from the fetched category
       const subCategory = foundCategory.subCategories.find(
         (subCat) => subCat._id.toString() === subCategoryId
       );
       if (!subCategory) {
-        return res.status(400).json({ message: "Sub-category not found" });
+        throw new CustomError(
+          "Sub-category not found",
+          logPath,
+          logAction,
+          logSourceKey
+        );
       }
 
-      // Construct the upload path dynamically
+      // Construct the upload path dynamically using company and category details
       const uploadPath = `${foundCompany.companyName}/assets/${foundCategory.categoryName}/${subCategory.name}`;
 
-      // Process and upload the image
+      // Process and upload the image using Sharp
       const buffer = await sharp(file.buffer)
         .resize(800, 800, { fit: "cover" })
         .webp({ quality: 80 })
@@ -325,13 +439,12 @@ const editAsset = async (req, res, next) => {
 
       const base64Image = `data:image/webp;base64,${buffer.toString("base64")}`;
       const uploadResult = await handleFileUpload(base64Image, uploadPath);
-
       imageId = uploadResult.public_id;
       imageUrl = uploadResult.secure_url;
     }
 
-    // Update asset fields (except assignedTo & company)
-    await Asset.findByIdAndUpdate(
+    // Update asset fields
+    const updatedAsset = await Asset.findByIdAndUpdate(
       assetId,
       {
         assetType,
@@ -352,9 +465,48 @@ const editAsset = async (req, res, next) => {
       { new: true }
     );
 
-    res.status(200).json({ message: "Asset updated successfully" });
+    if (!updatedAsset) {
+      throw new CustomError(
+        "Failed to update asset",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    // Log successful update
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Asset updated successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: foundUser.company,
+      sourceKey: logSourceKey,
+      sourceId: updatedAsset._id,
+      changes: {
+        assetType,
+        vendor: vendorId || foundAsset.vendor,
+        name,
+        purchaseDate,
+        quantity,
+        price,
+        warranty,
+        brand,
+        department: departmentId,
+        status: status || "Active",
+        image: { id: imageId, url: imageUrl },
+      },
+    });
+
+    return res
+      .status(200)
+      .json({ message: "Asset updated successfully", asset: updatedAsset });
   } catch (error) {
-    next(error);
+    next(
+      new CustomError(error.message, 500, "AssetLogs", "Edit Asset", "asset")
+    );
   }
 };
 
