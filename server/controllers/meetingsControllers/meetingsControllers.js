@@ -354,7 +354,7 @@ const addHousekeepingTask = async (req, res, next) => {
     const user = req.user;
     const ip = req.ip;
     const logPath = "meetings/MeetingLogs";
-    const logAction = "Housekeeping Tasks Added";
+    const logAction = "Add Housekeeping Tasks";
     const logSourceKey = "meeting";
 
     if (!housekeepingTasks || !meetingId || !roomName) {
@@ -448,7 +448,7 @@ const deleteHousekeepingTask = async (req, res, next) => {
   const user = req.user;
   const ip = req.ip;
   const logPath = "meetings/MeetingLogs";
-  const logAction = "Delete housekeeping tasks";
+  const logAction = "Delete Housekeeping Tasks";
   const logSourceKey = "meeting";
 
   try {

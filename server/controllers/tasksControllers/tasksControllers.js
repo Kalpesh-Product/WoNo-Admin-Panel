@@ -1,7 +1,14 @@
 const Task = require("../../models/tasks/Task");
+const CustomError = require("../../utils/customErrorlogs");
+const { createLog } = require("../../utils/moduleLogs");
 const validateUsers = require("../../utils/validateUsers");
 
 const createTasks = async (req, res, next) => {
+  const { user, ip, company } = req;
+  const logPath = "tasks/TaskLogs";
+  const logAction = "Create Task";
+  const logSourceKey = "task";
+
   try {
     const {
       taskName,
@@ -14,7 +21,6 @@ const createTasks = async (req, res, next) => {
       dueTime,
       taskType,
     } = req.body;
-    const { user, company } = req;
 
     if (
       !taskName ||
@@ -25,7 +31,12 @@ const createTasks = async (req, res, next) => {
       !assignees ||
       !dueDate
     ) {
-      return res.status(400).json({ message: "Missing required fields" });
+      throw new CustomError(
+        "Missing required fields",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const assignedDate = new Date();
@@ -33,26 +44,45 @@ const createTasks = async (req, res, next) => {
     const parsedDueTime = new Date(dueTime);
 
     if (isNaN(parsedDueDate.getTime())) {
-      return res.status(400).json({ message: "Invalid date format" });
+      throw new CustomError(
+        "Invalid date format",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
-    if (dueTime && isNaN(parsedDueDate.getTime())) {
-      return res.status(400).json({ message: "Invalid date format" });
+
+    if (dueTime && isNaN(parsedDueTime.getTime())) {
+      throw new CustomError(
+        "Invalid date format",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     if (
       typeof description !== "string" ||
       !description.length ||
-      description?.replace(/\s/g, "")?.length > 100
+      description.replace(/\s/g, "").length > 100
     ) {
-      return res.status(400).json({ message: "Character limit exceeded" });
+      throw new CustomError(
+        "Character limit exceeded",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
+    // Validate all assignees
     const existingUsers = await validateUsers(assignees);
-
     if (existingUsers.length !== assignees.length) {
-      return res
-        .status(400)
-        .json({ message: "One or more assignees are invalid or do not exist" });
+      throw new CustomError(
+        "One or more assignees are invalid or do not exist",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const newTask = new Task({
@@ -71,17 +101,56 @@ const createTasks = async (req, res, next) => {
     });
 
     await newTask.save();
-    res.status(201).json({ message: "Task added successfully" });
+
+    // Log success with createLog
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Task added successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: newTask._id,
+      changes: {
+        taskName,
+        description,
+        projectId,
+        status,
+        priority,
+        assignees,
+        dueDate,
+        dueTime,
+        taskType,
+      },
+    });
+
+    return res.status(201).json({ message: "Task added successfully" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
 const updateTask = async (req, res, next) => {
+  const { user, ip, company } = req;
+  const logPath = "tasks/TaskLogs";
+  const logAction = "Update Task";
+  const logSourceKey = "task";
+
   try {
     const { id } = req.params;
     const { taskName, description, status, priority, assignees, taskType } =
       req.body;
+
+    if (!id) {
+      throw new CustomError(
+        "Task ID must be provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
 
     const updates = {};
 
@@ -91,39 +160,76 @@ const updateTask = async (req, res, next) => {
     if (status !== undefined) {
       const validStatuses = ["Upcoming", "In progress", "Pending", "Completed"];
       if (!validStatuses.includes(status)) {
-        return res.status(400).json({ error: "Invalid status value" });
+        throw new CustomError(
+          "Invalid status value",
+          logPath,
+          logAction,
+          logSourceKey
+        );
       }
       updates.status = status;
     }
     if (priority !== undefined) {
       const validPriorities = ["High", "Medium", "Low"];
       if (!validPriorities.includes(priority)) {
-        return res.status(400).json({ error: "Invalid priority value" });
+        throw new CustomError(
+          "Invalid priority value",
+          logPath,
+          logAction,
+          logSourceKey
+        );
       }
       updates.priority = priority;
     }
     if (assignees !== undefined) {
       if (!Array.isArray(assignees)) {
-        return res
-          .status(400)
-          .json({ error: "Assignees must be an array of user IDs" });
+        throw new CustomError(
+          "Assignees must be an array of user IDs",
+          logPath,
+          logAction,
+          logSourceKey
+        );
       }
       updates.assignedTo = assignees;
     }
 
     if (Object.keys(updates).length === 0) {
-      return res.status(400).json({ error: "No valid fields to update" });
+      throw new CustomError(
+        "No valid fields to update",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    await Task.findByIdAndUpdate(
+    const updatedTask = await Task.findByIdAndUpdate(
       id,
       { $set: updates },
       { new: true, runValidators: true }
     );
 
-    return res.status(200).json({ message: "Task updated successfully" });
+    if (!updatedTask) {
+      throw new CustomError("Task not found", logPath, logAction, logSourceKey);
+    }
+
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Task updated successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: updatedTask._id,
+      changes: updates,
+    });
+
+    return res
+      .status(200)
+      .json({ message: "Task updated successfully", task: updatedTask });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
@@ -169,22 +275,54 @@ const getTodayTasks = async (req, res, next) => {
 };
 
 const deleteTask = async (req, res, next) => {
+  const { company, user, ip } = req;
+  const logPath = "tasks/TaskLogs";
+  const logAction = "Delete Task";
+  const logSourceKey = "task";
+
   try {
-    const { company } = req;
     const { id } = req.params;
+    if (!id) {
+      throw new CustomError(
+        "Task ID must be provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
 
     const deletedTask = await Task.findByIdAndUpdate(
       { _id: id, company },
-      { isDeleted: true }
+      { isDeleted: true },
+      { new: true }
     );
 
     if (!deletedTask) {
-      return res.status(400).json({ message: "Failed to delete the task" });
+      throw new CustomError(
+        "Failed to delete the task",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
+
+    // Log the successful deletion
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Task deleted successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: deletedTask._id,
+      changes: { isDeleted: true },
+    });
 
     return res.status(200).json({ message: "Task deleted successfully" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 

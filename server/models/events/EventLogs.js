@@ -1,8 +1,7 @@
-
 const mongoose = require("mongoose");
 
 const eventLogSchema = new mongoose.Schema({
-  sourceId: {
+  event: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Event",
   },
