@@ -1,5 +1,7 @@
+const Department = require("../../models/Departments");
 const Project = require("../../models/tasks/Project");
 const CustomError = require("../../utils/customErrorlogs");
+const { formatDate } = require("../../utils/formatDateTime");
 const { createLog } = require("../../utils/moduleLogs");
 const validateUsers = require("../../utils/validateUsers");
 
@@ -18,6 +20,7 @@ const createProject = async (req, res, next) => {
       assignees,
       assignedDate,
       priority,
+      department,
     } = req.body;
 
     if (
@@ -26,7 +29,8 @@ const createProject = async (req, res, next) => {
       !assignedDate ||
       !dueDate ||
       !status ||
-      !assignees
+      !assignees ||
+      !department
     ) {
       throw new CustomError(
         "Missing required fields",
@@ -39,6 +43,26 @@ const createProject = async (req, res, next) => {
     const startDate = new Date(assignedDate);
     const endDate = new Date(dueDate);
 
+    if (!mongoose.Types.ObjectId.isValid(department)) {
+      throw new CustomError(
+        "Invalid department ID provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    const departmentExists = await Department.findById({ _id: department });
+
+    if (!departmentExists) {
+      throw new CustomError(
+        "Department provided doesn't exists",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
     if (isNaN(startDate.getTime())) {
       throw new CustomError(
         "Invalid start date format",
@@ -47,6 +71,7 @@ const createProject = async (req, res, next) => {
         logSourceKey
       );
     }
+
     if (isNaN(endDate.getTime())) {
       throw new CustomError(
         "Invalid end date format",
@@ -76,6 +101,7 @@ const createProject = async (req, res, next) => {
       status,
       priority,
       company,
+      department,
     });
 
     await newProject.save();
@@ -112,9 +138,21 @@ const getProjects = async (req, res, next) => {
   try {
     const { company } = req;
 
-    const projects = await Project.find({ company });
+    const projects = await Project.find({ company })
+      .populate("department", "name")
+      .populate("assignedBy", "firstName lastName")
+      .populate("assignedTo", "firstName lastName")
+      .lean();
 
-    return res.status(200).json(projects);
+    const transformedProjects = projects.map((project) => {
+      return {
+        ...project,
+        dueDate: formatDate(project.dueDate),
+        assignedDate: formatDate(project.assignedDate),
+      };
+    });
+
+    return res.status(200).json(transformedProjects);
   } catch (error) {
     next(error);
   }
@@ -259,12 +297,10 @@ const updateProject = async (req, res, next) => {
       changes: updates,
     });
 
-    return res
-      .status(200)
-      .json({
-        message: "Project updated successfully",
-        project: updatedProject,
-      });
+    return res.status(200).json({
+      message: "Project updated successfully",
+      project: updatedProject,
+    });
   } catch (error) {
     next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
