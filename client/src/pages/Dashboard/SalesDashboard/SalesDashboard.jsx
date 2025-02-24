@@ -45,8 +45,8 @@ const SalesDashboard = () => {
     {
       layout: 6,
       widgets: [
-        <Card route={""} title={"Actual Business"} icon={<RiPagesLine />} />,
-        <Card route={""} title={"Targets"} icon={<RiPagesLine />} />,
+        <Card route={"actual-business"} title={"Actual Business"} icon={<RiPagesLine />} />,
+        <Card route={"revenue-target"} title={"Targets"} icon={<RiPagesLine />} />,
         <Card
           route={""}
           title={"Finance"}

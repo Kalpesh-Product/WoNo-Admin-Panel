@@ -1,48 +1,151 @@
-import RevenueGraph from "../../../components/graphs/RevenueGraph";
-import { Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import BarGraph from "../../../components/graphs/BarGraph";
+import {
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+} from "@mui/material";
 import { IoIosArrowDown } from "react-icons/io";
 import AgTable from "../../../components/AgTable";
 
-const ParentRevenue = ({ revenueData, tableColumns }) => {
-  if (!revenueData || tableColumns.length === 0) return <p>Loading...</p>;
+const ParentRevenue = ({ salesData: initialSalesData, financialYear }) => {
+  const [salesData, setSalesData] = useState(initialSalesData); // Store received sales data
+  const [currentMonth, setCurrentMonth] = useState("April"); // Selectable current month
+
+  useEffect(() => {
+    // Apply Carry Forward Logic on the received salesData
+    let carryForward = 0;
+    const updatedSalesData = initialSalesData.map((item, index) => {
+      if (index < months.indexOf(currentMonth)) {
+        return { ...item, adjustedProjected: 0 }; // No adjustments for past months
+      }
+
+      const remainingProjected = Math.max(
+        item.projected + carryForward - item.actual,
+        0
+      );
+      carryForward = item.projected + carryForward - item.actual; // Update carry forward deficit
+
+      return { ...item, adjustedProjected: remainingProjected };
+    });
+
+    setSalesData(updatedSalesData);
+  }, [initialSalesData, currentMonth]);
+
+  // Ensure data is available before processing
+  if (!salesData.length) {
+    return <div>Loading sales data...</div>;
+  }
+
+  // Extract Months for X-Axis
+  const months = salesData.map((item) => item.month);
+
+  // Prepare Graph Data
+  const graphData = [
+    { name: "Actual Sales", data: salesData.map((item) => item.actual || 0) },
+    {
+      name: "Remaining Projected Sales",
+      data: salesData.map((item) => item.adjustedProjected || 0),
+    },
+  ];
+
+  // Prepare Table Columns (Can be dynamically modified)
+  const tableColumns = [
+    { header: "Client Name", field: "client" },
+    { header: "Revenue", field: "revenue" },
+    { header: "Region", field: "region" },
+    { header: "Industry", field: "industry" },
+  ];
+
+  // ApexCharts options
+  const options = {
+    chart: { type: "bar", stacked: true },
+    xaxis: { categories: months },
+    yaxis: { title: { text: "Amount (in Rupees)" } },
+    plotOptions: { bar: { horizontal: false, columnWidth: "50%" } },
+    legend: { position: "top" },
+  };
 
   return (
     <div>
-      {/* ✅ Pass received data to RevenueGraph */}
-      <RevenueGraph annualMonthlyRawData={revenueData} />
+      {/* Select Current Month */}
+      <div className="mb-4">
+        <FormControl size="small">
+          <InputLabel>Current Month</InputLabel>
+          <Select
+            value={currentMonth}
+            onChange={(event) => setCurrentMonth(event.target.value)}
+            label="Current Month"
+          >
+            {months.map((month) => (
+              <MenuItem key={month} value={month}>
+                {month}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </div>
 
-      {/* ✅ Render Financial Breakdown */}
+      {/* Bar Graph Component */}
+      <BarGraph
+        data={graphData}
+        options={options}
+        height={400}
+        year={true}
+        customLegend={true}
+        firstParam={{
+          title: "Actual Sales",
+          data: "₹" + graphData[0].data.reduce((a, b) => a + b, 0),
+        }}
+        secondParam={{
+          title: "Remaining Projected Sales (Adjusted)",
+          data: "₹" + graphData[1].data.reduce((a, b) => a + b, 0),
+        }}
+      />
+
+      {/* Accordion Section for Monthly Revenue */}
       <div>
-        {revenueData.map((domain, index) => (
-          <div key={index}>
-            {domain.tableData?.rows.map((row, rowIndex) => {
-              const totalRevenue = row.actualRevenue || row.projectedRevenue || 0;
-              
-              // ✅ Extract clients data from the row itself
-              const clientsData = row.clients || [];
+        {salesData.map((data, index) => {
+          const totalRevenue = data.revenueBreakup.reduce(
+            (sum, rev) => sum + (rev.revenue || 0),
+            0
+          );
 
-              return (
-                <Accordion key={rowIndex} className="py-4">
-                  <AccordionSummary
-                    expandIcon={<IoIosArrowDown />}
-                    aria-controls={`panel-${index}-${rowIndex}-content`}
-                    id={`panel-${index}-${rowIndex}-header`}
-                    className="border-b-[1px] border-borderGray"
-                  >
-                    <div className="flex justify-between items-center w-full px-4">
-                      <span className="text-subtitle font-pmedium">
-                        {row.month} (₹{totalRevenue.toLocaleString()})
-                      </span>
-                    </div>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <AgTable search={clientsData.length > 5} data={clientsData} columns={tableColumns} tableHeight={300} />
-                  </AccordionDetails>
-                </Accordion>
-              );
-            })}
-          </div>
-        ))}
+          return (
+            <Accordion key={index} className="py-4">
+              <AccordionSummary
+                expandIcon={<IoIosArrowDown />}
+                aria-controls={`panel-${index}-content`}
+                id={`panel-${index}-header`}
+                className="border-b-[1px] border-borderGray"
+              >
+                <div className="flex justify-between items-center w-full px-4">
+                  <span className="text-subtitle font-medium">
+                    {data.month}
+                  </span>
+                  <span className="text-subtitle font-medium">
+                    ₹{data.actual.toLocaleString()}
+                  </span>
+                </div>
+              </AccordionSummary>
+              <AccordionDetails>
+                <AgTable
+                  data={data.revenueBreakup}
+                  columns={tableColumns}
+                  tableHeight={300}
+                />
+                <span className="block mt-2 font-medium">
+                  Total Revenue for {data.month}: ₹
+                  {totalRevenue.toLocaleString()}
+                </span>
+              </AccordionDetails>
+            </Accordion>
+          );
+        })}
       </div>
     </div>
   );

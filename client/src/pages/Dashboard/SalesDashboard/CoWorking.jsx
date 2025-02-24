@@ -1,212 +1,144 @@
-import React, { useState } from "react";
-import BarGraph from "../../../components/graphs/BarGraph";
-import {
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-} from "@mui/material";
-import { IoIosArrowDown } from "react-icons/io";
-import AgTable from "../../../components/AgTable"; // Assuming you have this table component
+import React from "react";
+import ParentRevenue from "./ParentRevenue";
+
+const mockSalesData = [
+  {
+    month: "April",
+    actual: 10000,
+    projected: 10000,
+    adjustedProjected: 0,
+    revenueBreakup: [
+      { client: "Client A", revenue: 4500, region: "North", industry: "Retail" },
+      { client: "Client B", revenue: 3500, region: "South", industry: "Finance" },
+      { client: "Client C", revenue: 2000, region: "West", industry: "Technology" }
+    ]
+  },
+  {
+    month: "May",
+    actual: 11000,
+    projected: 11000,
+    adjustedProjected: 0,
+    revenueBreakup: [
+      { client: "Client D", revenue: 5000, region: "East", industry: "Healthcare" },
+      { client: "Client E", revenue: 4000, region: "North", industry: "Retail" },
+      { client: "Client F", revenue: 2100, region: "West", industry: "Technology" }
+    ]
+  },
+  {
+    month: "June",
+    actual: 8000,
+    projected: 12000,
+    adjustedProjected: 4000,
+    revenueBreakup: [
+      { client: "Client G", revenue: 3000, region: "South", industry: "E-commerce" },
+      { client: "Client H", revenue: 2500, region: "West", industry: "Logistics" },
+      { client: "Client I", revenue: 2500, region: "East", industry: "Finance" }
+    ]
+  },
+  {
+    month: "July",
+    actual: 7000,
+    projected: 10500,
+    adjustedProjected: 3500,
+    revenueBreakup: [
+      { client: "Client J", revenue: 4000, region: "North", industry: "Retail" },
+      { client: "Client K", revenue: 3000, region: "South", industry: "Technology" }
+    ]
+  },
+  {
+    month: "August",
+    actual: 9500,
+    projected: 11500,
+    adjustedProjected: 2000,
+    revenueBreakup: [
+      { client: "Client L", revenue: 4500, region: "East", industry: "Healthcare" },
+      { client: "Client M", revenue: 3500, region: "West", industry: "Real Estate" },
+      { client: "Client N", revenue: 1500, region: "North", industry: "Manufacturing" }
+    ]
+  },
+  {
+    month: "September",
+    actual: 10200,
+    projected: 12500,
+    adjustedProjected: 2300,
+    revenueBreakup: [
+      { client: "Client O", revenue: 5200, region: "South", industry: "Automobile" },
+      { client: "Client P", revenue: 3000, region: "North", industry: "Retail" },
+      { client: "Client Q", revenue: 2000, region: "West", industry: "Banking" }
+    ]
+  },
+  {
+    month: "October",
+    actual: 11500,
+    projected: 13500,
+    adjustedProjected: 2000,
+    revenueBreakup: [
+      { client: "Client R", revenue: 6000, region: "East", industry: "Technology" },
+      { client: "Client S", revenue: 4000, region: "North", industry: "Logistics" },
+      { client: "Client T", revenue: 1500, region: "South", industry: "Retail" }
+    ]
+  },
+  {
+    month: "November",
+    actual: 12500,
+    projected: 14500,
+    adjustedProjected: 2000,
+    revenueBreakup: [
+      { client: "Client U", revenue: 5000, region: "West", industry: "E-commerce" },
+      { client: "Client V", revenue: 3500, region: "South", industry: "Banking" },
+      { client: "Client W", revenue: 4000, region: "North", industry: "Healthcare" }
+    ]
+  },
+  {
+    month: "December",
+    actual: 14000,
+    projected: 15500,
+    adjustedProjected: 1500,
+    revenueBreakup: [
+      { client: "Client X", revenue: 7000, region: "East", industry: "Technology" },
+      { client: "Client Y", revenue: 4000, region: "North", industry: "Retail" },
+      { client: "Client Z", revenue: 3000, region: "West", industry: "Logistics" }
+    ]
+  },
+  {
+    month: "January",
+    actual: 13000,
+    projected: 16500,
+    adjustedProjected: 3500,
+    revenueBreakup: [
+      { client: "Client AA", revenue: 6000, region: "South", industry: "Manufacturing" },
+      { client: "Client AB", revenue: 5000, region: "North", industry: "Banking" },
+      { client: "Client AC", revenue: 2000, region: "West", industry: "E-commerce" }
+    ]
+  },
+  {
+    month: "February",
+    actual: 15000,
+    projected: 17500,
+    adjustedProjected: 2500,
+    revenueBreakup: [
+      { client: "Client AD", revenue: 8000, region: "East", industry: "Technology" },
+      { client: "Client AE", revenue: 4000, region: "South", industry: "Finance" },
+      { client: "Client AF", revenue: 3000, region: "North", industry: "Retail" }
+    ]
+  },
+  {
+    month: "March",
+    actual: 16000,
+    projected: 18500,
+    adjustedProjected: 2500,
+    revenueBreakup: [
+      { client: "Client AG", revenue: 7000, region: "West", industry: "Logistics" },
+      { client: "Client AH", revenue: 6000, region: "North", industry: "Healthcare" },
+      { client: "Client AI", revenue: 3000, region: "South", industry: "Automobile" }
+    ]
+  }
+];
 
 const CoWorking = () => {
-  // Financial Year Months
-  const months = [
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-    "January",
-    "February",
-    "March",
-  ];
-
-  // Set the current month for development purposes
-  const [currentMonth, setCurrentMonth] = useState("April");
-
-  // Initial Sales Data (Contains both actual and projected sales)
-  const initialSalesData = [
-    { month: "April", actual: 10000, projected: 10000 },
-    { month: "May", actual: 11000, projected: 11000 },
-    { month: "June", actual: 0, projected: 12000 },
-    { month: "July", actual: 0, projected: 10500 },
-    { month: "August", actual: 0, projected: 11500 },
-    { month: "September", actual: 0, projected: 12500 },
-    { month: "October", actual: 0, projected: 13500 },
-    { month: "November", actual: 0, projected: 14500 },
-    { month: "December", actual: 0, projected: 15500 },
-    { month: "January", actual: 0, projected: 16500 },
-    { month: "February", actual: 0, projected: 17500 },
-    { month: "March", actual: 0, projected: 18500 },
-  ];
-
-  // Carry Forward & Adjusted Projected Sales
-  let carryForward = 0;
-  const salesData = initialSalesData.map((data, index) => {
-    if (months.indexOf(currentMonth) < index)
-      return { ...data, adjustedProjected: data.projected }; // Use original projected for future months
-
-    const remainingProjected = Math.max(
-      data.projected + carryForward - data.actual,
-      0
-    );
-    carryForward = data.projected + carryForward - data.actual; // Carry forward deficit
-
-    return { ...data, adjustedProjected: remainingProjected ?? 0 }; // Ensure it's never undefined
-  });
-
-  // Function to Generate Revenue Breakup for Each Month
-  const generateRevenueBreakup = (actualAmount) => {
-    if (actualAmount === 0) return [{ client: "No Sales", revenue: "₹0" }]; // No sales case
-  
-    let remainingAmount = actualAmount;
-    const numEntries = Math.floor(Math.random() * 3) + 2; // 2 to 4 entries
-    const revenueBreakup = [];
-  
-    const clientNames = [
-      "Client A", "Client B", "Client C", "Client D", "Client E",
-      "Client F", "Client G", "Client H", "Client I", "Client J"
-    ];
-  
-    const regions = ["North", "South", "East", "West"]; // Example extra data field
-    const industries = ["Retail", "Finance", "Technology", "Healthcare"]; // Example category
-  
-    for (let i = 0; i < numEntries - 1; i++) {
-      let part = Math.floor(Math.random() * (remainingAmount * 0.6)) + 1000;
-      remainingAmount -= part;
-      revenueBreakup.push({
-        client: clientNames[i % clientNames.length], // Assign client names
-        revenue: `₹${part.toLocaleString()}`,
-        region: regions[i % regions.length], // Random region
-        industry: industries[i % industries.length] // Random industry category
-      });
-    }
-  
-    // Last entry to ensure total matches actual sales
-    revenueBreakup.push({
-      client: clientNames[revenueBreakup.length % clientNames.length],
-      revenue: `₹${remainingAmount.toLocaleString()}`,
-      region: regions[revenueBreakup.length % regions.length],
-      industry: industries[revenueBreakup.length % industries.length]
-    });
-  
-    return revenueBreakup;
-  };
-  
-  // Dynamic Table Columns (Easily Add More Fields)
-  const tableColumns = [
-    { header: "Client Name", field: "client" },
-    { header: "Revenue", field: "revenue" },
-    { header: "Region", field: "region" }, // Additional column
-    { header: "Industry", field: "industry" } // Additional column
-  ];
-    
-
-  // Prepare Bar Graph Data from salesData
-  const graphData = [
-    { name: "Actual Sales", data: salesData.map((data) => data.actual) },
-    {
-      name: "Remaining Projected Sales",
-      data: salesData.map((data) => data.adjustedProjected),
-    },
-  ];
-
-  // ApexCharts options
-  const options = {
-    chart: { type: "bar", stacked: true },
-    xaxis: { categories: months },
-    yaxis: { title: { text: "Amount (in Rupees)" } },
-    plotOptions: { bar: { horizontal: false, columnWidth: "50%" } },
-    legend: { position: "top" },
-  };
-
   return (
     <div>
-      {/* Development Purpose: Select Current Month */}
-      <div className="mb-4">
-        <FormControl size="small">
-          <InputLabel>Current Month</InputLabel>
-          <Select
-            value={currentMonth}
-            onChange={(event) => setCurrentMonth(event.target.value)}
-            label="Current Month"
-          >
-            {months.map((month) => (
-              <MenuItem key={month} value={month}>
-                {month}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </div>
-
-      {/* Bar Graph Component */}
-      <BarGraph
-        data={graphData}
-        options={options}
-        height={400}
-        year={true}
-        customLegend={true}
-        firstParam={{
-          title: "Actual Sales",
-          data: "₹" + graphData[0].data.reduce((a, b) => a + b, 0),
-        }}
-        secondParam={{
-          title: "Remaining Projected Sales (Adjusted)",
-          data:
-            "₹" + (graphData[1]?.data?.reduce((a, b) => a + (b || 0), 0) || 0),
-        }}
-      />
-
-      {/* Accordion Section for Monthly Revenue */}
-      <div>
-        {salesData.map((data, index) => {
-          const revenueBreakup = generateRevenueBreakup(data.actual);
-          const totalRevenue = revenueBreakup.reduce(
-            (sum, rev) => sum + parseInt(rev.revenue.replace(/\u20B9/, ""), 10),
-            0
-          );
-
-          return (
-            <Accordion key={index} className="py-4">
-              <AccordionSummary
-                expandIcon={<IoIosArrowDown />}
-                aria-controls={`panel-${index}-content`}
-                id={`panel-${index}-header`}
-                className="border-b-[1px] border-borderGray"
-              >
-                <div className="flex justify-between items-center w-full px-4">
-                  <span className="text-subtitle font-medium">
-                    {data.month}
-                  </span>
-                  <span className="text-subtitle font-medium">
-                    ₹{data.actual.toLocaleString()}
-                  </span>
-                </div>
-              </AccordionSummary>
-              <AccordionDetails>
-                <AgTable
-                  data={revenueBreakup}
-                  columns={tableColumns}
-                  tableHeight={300}
-                />
-                <span className="block mt-2 font-medium">
-                  Total Revenue for {data.month}: ₹
-                  {totalRevenue.toLocaleString()}
-                </span>
-              </AccordionDetails>
-            </Accordion>
-          );
-        })}
-      </div>
+      <ParentRevenue salesData={mockSalesData} financialYear="2024-2025" />
     </div>
   );
 };

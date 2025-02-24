@@ -126,6 +126,8 @@ import ParentRevenue from "../pages/Dashboard/SalesDashboard/ParentRevenue";
 import ClientsLayout from "../pages/Dashboard/SalesDashboard/ClientsLayout";
 import ViewClients from "../pages/Dashboard/SalesDashboard/ViewClients";
 import ClientOnboarding from "../pages/Dashboard/SalesDashboard/ClientOnboarding";
+import ActualBusinessRevenue from "../pages/Dashboard/SalesDashboard/ActualBusiness/ActualBusinessRevenue";
+import RevenueTarget from "../pages/Dashboard/SalesDashboard/RevenueTarget/RevenueTarget";
 
 
 export const routes = createBrowserRouter([
@@ -222,6 +224,14 @@ export const routes = createBrowserRouter([
                         element: <SalesDashboard />,
                       },
                       {
+                        path: "actual-business",
+                        element: <ActualBusinessRevenue />,
+                      },
+                      {
+                        path: "revenue-target",
+                        element: <RevenueTarget />,
+                      },
+                      {
                         path: "revenue",
                         element: <TotalRevenueLayout />,
                         children: [
@@ -235,15 +245,15 @@ export const routes = createBrowserRouter([
                           },
                           {
                             path: "meetings",
-                            element: <ParentRevenue />,
+                            element: <MeetingRevenue />,
                           },
                           {
                             path: "virtual-office",
-                            element: <ParentRevenue />,
+                            element: <VirtualOffice />,
                           },
                           {
                             path: "workation",
-                            element: <ParentRevenue />,
+                            element: <Workations />,
                           },
                           {
                             path: "alt-revenue",

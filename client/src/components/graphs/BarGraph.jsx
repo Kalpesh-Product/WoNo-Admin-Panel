@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Chart from "react-apexcharts";
 import { Select, MenuItem, FormControl } from "@mui/material";
-import PrimaryButton from "../PrimaryButton";
 
 const BarGraph = ({ data, title, options, height, customLegend, firstParam, secondParam,year }) => {
   const [selectedYear, setSelectedYear] = useState("2024-2025");
