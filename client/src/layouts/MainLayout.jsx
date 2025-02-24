@@ -17,15 +17,16 @@ const MainLayout = () => {
       { threshold: 0.1 }
     );
 
-    if(dummyRef.current){
+    if (dummyRef.current) {
       observer.observe(dummyRef.current);
-    }else{}
+    } else {
+    }
 
-    return () =>{
-      if(dummyRef.current){
+    return () => {
+      if (dummyRef.current) {
         observer.unobserve(dummyRef.current);
       }
-    }
+    };
   });
 
   return (
@@ -55,8 +56,7 @@ const MainLayout = () => {
             showFooter
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-10"
-          }`}
-        >
+          }`}>
           <Footer />
         </footer>
       )}

@@ -23,6 +23,7 @@
     "cra-template": "1.2.0",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
+    "docx-preview": "^0.3.4",
     "react": "^19.0.0",
     "react-apexcharts": "^1.7.0",
     "react-dom": "^19.0.0",

@@ -1,10 +1,9 @@
 const Company = require("../../models/Company");
 const bcrypt = require("bcryptjs");
-const User = require("../../models/UserData"); 
+const User = require("../../models/UserData");
 const Role = require("../../models/Roles");
 const { default: mongoose } = require("mongoose");
 const Department = require("../../models/Departments");
- 
 
 const createUser = async (req, res, next) => {
   try {
@@ -53,7 +52,9 @@ const createUser = async (req, res, next) => {
     );
 
     if (invalidDepartmentIds.length > 0) {
-      return res.status(400).json({ message: "Invalid department Id provided" });
+      return res
+        .status(400)
+        .json({ message: "Invalid department Id provided" });
     }
 
     // Check if department exists
@@ -162,16 +163,15 @@ const createUser = async (req, res, next) => {
   }
 };
 
-
 const fetchUser = async (req, res, next) => {
   const { deptId } = req.params;
-  const company = req.company 
+  const company = req.company;
 
   try {
     if (deptId) {
       const users = await User.find({
         department: { $elemMatch: { $eq: deptId } },
-        company
+        company,
       })
         .select("-password")
         .populate([
@@ -181,12 +181,10 @@ const fetchUser = async (req, res, next) => {
           { path: "role", select: "roleTitle modulePermissions" },
         ]);
 
-
       res.status(200).json(users);
-
     }
-     
-    const users = await User.find({company})
+
+    const users = await User.find({ company })
       .select("-password")
       .populate([
         // { path: "reportsTo", select: "name email" },
@@ -201,7 +199,7 @@ const fetchUser = async (req, res, next) => {
     }
     res.status(200).json(users);
   } catch (error) {
-     next(error)
+    next(error);
   }
 };
 
@@ -326,12 +324,16 @@ const updateSingleUser = async (req, res, next) => {
     });
 
     // Process nested fields for familyInformation (fatherName, motherName)
-    if (updateData.familyInformation && typeof updateData.familyInformation === "object") {
+    if (
+      updateData.familyInformation &&
+      typeof updateData.familyInformation === "object"
+    ) {
       const allowedFamilyFields = ["fatherName", "motherName"];
       filteredUpdateData.familyInformation = {};
       allowedFamilyFields.forEach((field) => {
         if (updateData.familyInformation[field] !== undefined) {
-          filteredUpdateData.familyInformation[field] = updateData.familyInformation[field];
+          filteredUpdateData.familyInformation[field] =
+            updateData.familyInformation[field];
         }
       });
       if (Object.keys(filteredUpdateData.familyInformation).length === 0) {
@@ -340,12 +342,16 @@ const updateSingleUser = async (req, res, next) => {
     }
 
     // Process nested fields for panAadhaarDetails (aadhaarId, pan)
-    if (updateData.panAadhaarDetails && typeof updateData.panAadhaarDetails === "object") {
+    if (
+      updateData.panAadhaarDetails &&
+      typeof updateData.panAadhaarDetails === "object"
+    ) {
       const allowedPanFields = ["aadhaarId", "pan"];
       filteredUpdateData.panAadhaarDetails = {};
       allowedPanFields.forEach((field) => {
         if (updateData.panAadhaarDetails[field] !== undefined) {
-          filteredUpdateData.panAadhaarDetails[field] = updateData.panAadhaarDetails[field];
+          filteredUpdateData.panAadhaarDetails[field] =
+            updateData.panAadhaarDetails[field];
         }
       });
       if (Object.keys(filteredUpdateData.panAadhaarDetails).length === 0) {
@@ -354,12 +360,16 @@ const updateSingleUser = async (req, res, next) => {
     }
 
     // Process nested fields for bankInformation (bankName, accountNumber, bankIFSC)
-    if (updateData.bankInformation && typeof updateData.bankInformation === "object") {
+    if (
+      updateData.bankInformation &&
+      typeof updateData.bankInformation === "object"
+    ) {
       const allowedBankFields = ["bankName", "accountNumber", "bankIFSC"];
       filteredUpdateData.bankInformation = {};
       allowedBankFields.forEach((field) => {
         if (updateData.bankInformation[field] !== undefined) {
-          filteredUpdateData.bankInformation[field] = updateData.bankInformation[field];
+          filteredUpdateData.bankInformation[field] =
+            updateData.bankInformation[field];
         }
       });
       if (Object.keys(filteredUpdateData.bankInformation).length === 0) {
@@ -373,9 +383,9 @@ const updateSingleUser = async (req, res, next) => {
     }
 
     // Perform the update operation using the id directly
-  
+
     const updatedUser = await User.findByIdAndUpdate(
-     { _id:id},
+      { _id: id },
       { $set: updateData },
       { new: true, runValidators: true }
     )
@@ -384,19 +394,17 @@ const updateSingleUser = async (req, res, next) => {
       .populate("departments", "name")
       .populate("company", "name")
       .populate("role", "roleTitle modulePermissions");
- 
+
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
     }
 
     res.status(200).json({
-      message: "User data updated successfully"
+      message: "User data updated successfully",
     });
   } catch (error) {
-    next(error)
+    next(error);
   }
 };
-
-
 
 module.exports = { createUser, fetchUser, fetchSingleUser, updateSingleUser };

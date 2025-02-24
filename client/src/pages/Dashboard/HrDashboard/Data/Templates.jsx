@@ -8,30 +8,34 @@ import PrimaryButton from "../../../../components/PrimaryButton";
 import { useNavigate } from "react-router-dom";
 
 const Templates = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const templateData = [
     {
-      id:1,
+      id: 1,
       imgSrc: Template,
       title: "Experience Letter",
       date: "Jan 10, 2025",
     },
     {
+      id: 2,
       imgSrc: Template2,
-      title: "Allowance Agreement",
+      title: "Handover & No-Dues Form",
       date: "Opened Jan 7, 2025",
     },
     {
+      id: 3,
       imgSrc: Template1,
       title: "Timings Agreement",
       date: "Opened Jan 7, 2025",
     },
     {
+      id: 4,
       imgSrc: Template3,
       title: "SOP Agreement",
       date: "Opened Jan 6, 2025",
     },
     {
+      id: 5,
       imgSrc: Template4,
       title: "Internship Report",
       date: "Dec 24, 2024",
@@ -50,8 +54,7 @@ const Templates = () => {
           <div
             key={index}
             onClick={() => navigate(`view-template/${template.id}`)}
-            className="bg-white shadow-md rounded-lg overflow-hidden border"
-          >
+            className="bg-white shadow-md rounded-lg overflow-hidden border">
             <div className="h-48">
               <img
                 src={template.imgSrc}

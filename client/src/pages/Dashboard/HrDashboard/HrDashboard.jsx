@@ -599,8 +599,7 @@ const HrDashboard = () => {
               <Skeleton variant="text" width={200} height={30} />
               <Skeleton variant="rectangular" width="100%" height={300} />
             </Box>
-          }
-        >
+          }>
           <LayerBarGraph
             title="Payroll Expense Graph"
             data={data}
@@ -645,8 +644,7 @@ const HrDashboard = () => {
               <Skeleton variant="text" width={200} height={30} />
               <Skeleton variant="rectangular" width="100%" height={300} />
             </Box>
-          }
-        >
+          }>
           <LayerBarGraph
             title="Department Wise Tasks% Vs Achievements in %"
             data={series}
@@ -673,7 +671,6 @@ const HrDashboard = () => {
             data={techGoaVisitors} // Pass processed data
             options={techGoaVisitorsOptions}
           />
-          
         </WidgetSection>,
       ],
     },
