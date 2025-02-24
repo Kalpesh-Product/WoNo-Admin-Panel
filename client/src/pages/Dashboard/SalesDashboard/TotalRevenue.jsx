@@ -18,62 +18,62 @@ const TotalRevenue = () => {
         rows: [
           {
             id: 1,
-            month: "January",
-            revenue: `\u20B92500`,
+            month: "April 2024",
+            revenue: "\u20B92500",
           },
           {
             id: 2,
-            month: "Febraury",
+            month: "May 2024",
             revenue: "\u20B92500",
           },
           {
             id: 3,
-            month: "March",
+            month: "June 2024",
             revenue: "\u20B92500",
           },
           {
             id: 4,
-            month: "April",
+            month: "July 2024",
             revenue: "\u20B92500",
           },
           {
             id: 5,
-            month: "May",
+            month: "August 2024",
             revenue: "\u20B92500",
           },
           {
             id: 6,
-            month: "June",
+            month: "September 2024",
             revenue: "\u20B92500",
           },
           {
             id: 7,
-            month: "July",
+            month: "October 2024",
             revenue: "\u20B92500",
           },
           {
             id: 8,
-            month: "August",
+            month: "November 2024",
             revenue: "\u20B92500",
           },
           {
             id: 9,
-            month: "September",
+            month: "December 2024",
             revenue: "\u20B92500",
           },
           {
             id: 10,
-            month: "October",
+            month: "January 2025",
             revenue: "\u20B92500",
           },
           {
             id: 11,
-            month: "November",
+            month: "February 2025",
             revenue: "\u20B92500",
           },
           {
             id: 12,
-            month: "December",
+            month: "March 2025",
             revenue: "\u20B92500",
           },
         ],
@@ -131,18 +131,17 @@ const TotalRevenue = () => {
       <div>
         {financialData.map((data, index) => {
           const totalRevenue = data.tableData.rows.reduce((sum, rev) => {
-            return sum + parseInt(rev.revenue.replace(/\u20B9/, ""),10) 
-          },0);
+            return sum + parseInt(rev.revenue.replace(/\u20B9/, ""), 10);
+          }, 0);
 
-          console.log(totalRevenue)
+          console.log(totalRevenue);
           return (
             <Accordion key={index} className="py-4">
               <AccordionSummary
                 expandIcon={<IoIosArrowDown />}
                 aria-controls={`panel\u20B9{index}-content`}
                 id={`panel\u20B9{index}-header`}
-                className="border-b-[1px] border-borderGray"
-              >
+                className="border-b-[1px] border-borderGray">
                 <div className="flex justify-between items-center w-full px-4">
                   <span className="text-subtitle font-pmedium">
                     {data.domain}
