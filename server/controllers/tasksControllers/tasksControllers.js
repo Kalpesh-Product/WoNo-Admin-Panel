@@ -327,7 +327,7 @@ const getTeamMembersTasksProjects = async (req, res, next) => {
 
     const teamMembersData = await Promise.all(
       teamMemberIds.map(async (id) => {
-        // Fetch tasks assigned to the employee
+        // Fetch tasks assigned to the team member
         const tasks = await Task.find({
           company,
           assignedTo: { $in: [id] },
@@ -341,7 +341,7 @@ const getTeamMembersTasksProjects = async (req, res, next) => {
             ],
           })
           .populate("assignedBy", "firstName lastName")
-          .populate("project", "projectName") // Populate project name
+          .populate("project", "projectName")
           .select("-company")
           .lean();
 
@@ -360,7 +360,6 @@ const getTeamMembersTasksProjects = async (req, res, next) => {
             (user) => user._id.toString() === id.toString()
           );
 
-          console.log("matchedUser", matchedUser);
           if (matchedUser) {
             userDetails = {
               email: matchedUser.email,
