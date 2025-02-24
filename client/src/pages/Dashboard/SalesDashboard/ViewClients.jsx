@@ -20,7 +20,7 @@ const ViewClients = () => {
           }}
           onClick={() =>
             navigate(
-              `/app/dashboard/HR-dashboard/employee/view-employees/${params.data.clientID}`
+              `/app/dashboard/sales-dashboard/clients/view-clients/${params.data.clientID}`
             )
           }>
           {params.value}

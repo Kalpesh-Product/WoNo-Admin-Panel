@@ -22,7 +22,8 @@ const ClientsLayout = () => {
   }, [location, navigate]);
 
   // Determine whether to show the tabs
-  const showTabs = !location.pathname.includes("budget/");
+  const showTabs = !location.pathname.includes("view-clients/");
+
 
   // Determine active tab based on location
   const activeTab = tabs.findIndex((tab) =>
