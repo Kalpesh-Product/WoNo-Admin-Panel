@@ -1,14 +1,38 @@
 const mongoose = require("mongoose");
 
-const meetingLogSchema = new mongoose.Schema(
+const hrLogSchema = new mongoose.Schema(
   {
-    meeting: {
+    companyData: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Meeting",
+      ref: "Company",
     },
-    room: {
+    department: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Room",
+      ref: "Department",
+    },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "UserData",
+    },
+    vendor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Vendor",
+    },
+    attendance: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Attendance",
+    },
+    leave: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Leave",
+    },
+    budget: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Budget",
+    },
+    payroll: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Payroll",
     },
     action: {
       type: String,
@@ -42,5 +66,5 @@ const meetingLogSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const MeetingLog = mongoose.model("MeetingLog", meetingLogSchema);
-module.exports = MeetingLog;
+const HrLog = mongoose.model("HrLog", hrLogSchema);
+module.exports = HrLog;

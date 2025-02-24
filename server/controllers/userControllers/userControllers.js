@@ -5,11 +5,13 @@ const Role = require("../../models/roles/Roles");
 const { default: mongoose } = require("mongoose");
 const Department = require("../../models/Departments");
 const { createLog } = require("../../utils/moduleLogs");
+const CustomError = require("../../utils/customErrorlogs");
 
 const createUser = async (req, res, next) => {
+  const logPath = "hr/HrLog";
+  const logAction = "Create User";
+  const logSourceKey = "user";
   const { user, ip, company } = req;
-  const path = "UserLogs";
-  const action = "Create User";
 
   try {
     const {
@@ -49,35 +51,25 @@ const createUser = async (req, res, next) => {
       !employeeType ||
       !departments
     ) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Missing required fields",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(400).json({ message: "Missing required fields" });
     }
 
+    // Validate departments: check for any invalid department IDs
     const invalidDepartmentIds = departments.filter(
       (id) => !mongoose.Types.ObjectId.isValid(id)
     );
-
     if (invalidDepartmentIds.length > 0) {
-      await createLog(
-        path,
-        action,
-        "Invalid department ID provided",
-        "Failed",
-        user,
-        ip,
-        company
+      throw new CustomError(
+        "Invalid department Id provided",
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res
-        .status(400)
-        .json({ message: "Invalid department Id provided" });
     }
 
     // Check if department exists
@@ -86,18 +78,13 @@ const createUser = async (req, res, next) => {
     })
       .lean()
       .exec();
-
     if (!departmentExists || departmentExists.length === 0) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Department not found",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(404).json({ message: "Department not found" });
     }
 
     // Check if company exists
@@ -105,16 +92,12 @@ const createUser = async (req, res, next) => {
       .lean()
       .exec();
     if (!companyExists) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Company not found",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(404).json({ message: "Company not found" });
     }
 
     // Check if the employee ID or email is already registered
@@ -122,36 +105,26 @@ const createUser = async (req, res, next) => {
       $or: [{ company: companyId, empId }, { email }],
     }).exec();
     if (existingUser) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Employee ID or email already exists",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res
-        .status(409)
-        .json({ message: "Employee ID or email already exists" });
     }
 
     // Check role validity
     const roleValue = await Role.findOne({ _id: role }).lean().exec();
     if (!roleValue) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Invalid role provided",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(400).json({ message: "Invalid role provided" });
     }
 
-    // Master Admin check
+    // Master Admin check: only one Master Admin allowed per company
     if (roleValue.roleTitle === "Master Admin") {
       const doesMasterAdminExist = await User.findOne({
         role: { $in: [roleValue._id] },
@@ -162,26 +135,18 @@ const createUser = async (req, res, next) => {
         doesMasterAdminExist &&
         doesMasterAdminExist.company.toString() === companyId
       ) {
-        await createLog(
-          path,
-          action,
+        throw new CustomError(
           "A master admin already exists",
-          "Failed",
-          user,
-          ip,
-          company
+          logPath,
+          logAction,
+          logSourceKey
         );
-        return res
-          .status(400)
-          .json({ message: "A master admin already exists" });
       }
     }
 
-    // Hash password
-    const defaultPassword = "123456"; // Use a more secure default in production
+    const defaultPassword = "123456";
     const hashedPassword = await bcrypt.hash(defaultPassword, 10);
 
-    // Create user object with all provided fields
     const newUser = new User({
       empId,
       firstName,
@@ -209,32 +174,23 @@ const createUser = async (req, res, next) => {
       familyInformation,
     });
 
-    // Save the user
     const savedUser = await newUser.save();
 
-    // Success log for user creation
-    await createLog(
-      path,
-      action,
-      "User created successfully",
-      "Success",
-      user,
-      ip,
-      company,
-      savedUser._id,
-      {
-        empId: savedUser.empId,
-        firstName: savedUser.firstName,
-        lastName: savedUser.lastName,
-        email: savedUser.email,
-        phone: savedUser.phone,
-        role: savedUser.role,
-        companyId: savedUser.company,
-      }
-    );
+    // Log the successful user creation
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "User created successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: savedUser._id,
+      changes: savedUser,
+    });
 
-    // Send response
-    res.status(201).json({
+    return res.status(201).json({
       message: "User created successfully",
       user: {
         id: savedUser._id,
@@ -249,8 +205,7 @@ const createUser = async (req, res, next) => {
       },
     });
   } catch (error) {
-    console.error("Error creating user:", error.message);
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
@@ -296,7 +251,7 @@ const fetchUser = async (req, res, next) => {
 
 const fetchSingleUser = async (req, res) => {
   try {
-    const { id } = req.params; // Extract user ID from request parameters
+    const { id } = req.params;
     const user = await User.findById(id)
       .select("-password")
       .populate([
@@ -400,8 +355,9 @@ const fetchSingleUser = async (req, res) => {
 
 const updateSingleUser = async (req, res, next) => {
   const { user, ip, company } = req;
-  const path = "UserLogs";
-  const action = "Update User";
+  const logPath = "hr/HrLog";
+  const logAction = "Update User";
+  const logSourceKey = "user";
 
   try {
     const { id } = req.params;
@@ -472,21 +428,17 @@ const updateSingleUser = async (req, res, next) => {
       }
     }
 
-    // If there's nothing to update, return an error response
+    // If there's nothing to update, throw error
     if (Object.keys(filteredUpdateData).length === 0) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "No valid fields to update",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(400).json({ message: "No valid fields to update" });
     }
 
-    // Perform the update operation using the id directly
+    // Perform the update operation
     const updatedUser = await User.findByIdAndUpdate(
       { _id: id },
       { $set: filteredUpdateData },
@@ -499,45 +451,28 @@ const updateSingleUser = async (req, res, next) => {
       .populate("role", "roleTitle modulePermissions");
 
     if (!updatedUser) {
-      await createLog(
-        path,
-        action,
-        "User not found",
-        "Failed",
-        user,
-        ip,
-        company
-      );
-      return res.status(404).json({ message: "User not found" });
+      throw new CustomError("User not found", logPath, logAction, logSourceKey);
     }
 
-    await createLog(
-      path,
-      action,
-      "User data updated successfully",
-      "Success",
-      user,
-      ip,
-      company,
-      updatedUser._id,
-      filteredUpdateData
-    );
+    // Log success for user update
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "User data updated successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: updatedUser._id,
+      changes: filteredUpdateData,
+    });
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "User data updated successfully",
     });
   } catch (error) {
-    await createLog(
-      path,
-      action,
-      "Error updating user",
-      "Failed",
-      user,
-      ip,
-      company,
-      { error: error.message }
-    );
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 

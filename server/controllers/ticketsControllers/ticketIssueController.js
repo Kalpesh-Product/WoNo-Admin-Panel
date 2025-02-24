@@ -2,47 +2,39 @@ const mongoose = require("mongoose");
 const Company = require("../../models/hr/Company");
 const User = require("../../models/hr/UserData");
 const { createLog } = require("../../utils/moduleLogs");
+const CustomError = require("../../utils/customErrorlogs");
 
 const addTicketIssue = async (req, res, next) => {
+  const logPath = "hr/HrLog";
+  const logAction = "Add Ticket Issue";
+  const logSourceKey = "companyData";
+  const { user, company, ip } = req;
+
   try {
     const { title, department, priority = "Low" } = req.body;
-    const user = req.user;
-    const company = req.company;
-    const ip = req.ip;
-    let path = "tickets/TicketLogs";
-    let action = "Add Ticket Issue";
 
     if (!title) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Title is required",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(400).json({ message: "Title is required" });
     }
 
+    // Retrieve the user to get company info
     const foundUser = await User.findOne({ _id: user })
       .select("company")
       .lean()
       .exec();
 
     if (!mongoose.Types.ObjectId.isValid(department)) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Invalid department ID provided",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res
-        .status(400)
-        .json({ message: "Invalid department ID provided" });
     }
 
     // Update the department's ticketIssues array atomically
@@ -62,35 +54,30 @@ const addTicketIssue = async (req, res, next) => {
     );
 
     if (!updatedCompany) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Department not found in any company",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res
-        .status(404)
-        .json({ message: "Department not found in any company" });
     }
 
-    await createLog(
-      path,
-      action,
-      "New issue added successfully",
-      "Success",
-      user,
-      ip,
-      company,
-      null,
-      { title, priority, department }
-    );
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "New issue added successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: null,
+      changes: { title, priority, department },
+    });
 
     return res.status(201).json({ message: "New issue added successfully" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 

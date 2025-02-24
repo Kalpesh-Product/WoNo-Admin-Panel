@@ -2,9 +2,13 @@ const mongoose = require("mongoose");
 
 const ticketLogSchema = new mongoose.Schema(
   {
-    sourceId: {
+    ticket: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Ticket",
+    },
+    supportTicket: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SupportTicket",
     },
     action: {
       type: String,
@@ -22,18 +26,18 @@ const ticketLogSchema = new mongoose.Schema(
     remarks: {
       type: String,
     },
-    ipAddress:{
-        type: String,
-        required: true,
+    ipAddress: {
+      type: String,
+      required: true,
     },
     status: {
-        type: String,
-      },
-      company: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Company",
-        required: true,
-      },
+      type: String,
+    },
+    company: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+      required: true,
+    },
   },
   { timestamps: true }
 );

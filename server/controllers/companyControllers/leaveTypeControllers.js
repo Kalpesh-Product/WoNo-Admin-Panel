@@ -1,88 +1,69 @@
 const Company = require("../../models/hr/Company");
 const mongoose = require("mongoose");
 const { createLog } = require("../../utils/moduleLogs");
+const CustomError = require("../../utils/customErrorlogs");
 
 const addLeaveType = async (req, res, next) => {
+  const logPath = "hr/HrLog";
+  const logAction = "Add Leave Type";
+  const logSourceKey = "companyData";
   const { leaveType } = req.body;
-  const path = "CompanyLogs";
-  const action = "Add Leave Type";
   const { user, ip, company } = req;
 
   try {
     if (!company || !leaveType) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "All fields are required",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(400).json({
-        message: "All fields are required",
-      });
     }
 
     if (!mongoose.Types.ObjectId.isValid(company)) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Invalid company provided",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(400).json({
-        message: "Invalid company provided",
-      });
     }
 
-    const updateLeaveType = await Company.findByIdAndUpdate(
+    const updatedCompany = await Company.findByIdAndUpdate(
       { _id: company },
       {
         $push: {
-          leaveTypes: {
-            name: leaveType,
-          },
+          leaveTypes: { name: leaveType },
         },
-      }
+      },
+      { new: true }
     );
 
-    if (!updateLeaveType) {
-      await createLog(
-        path,
-        action,
+    if (!updatedCompany) {
+      throw new CustomError(
         "Couldn't add leave type",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(400).json({
-        message: "Couldn't add leave type",
-      });
     }
 
-    // Success log
-    await createLog(
-      path,
-      action,
-      "Leave type added successfully",
-      "Success",
-      user,
-      ip,
-      company,
-      updateLeaveType._id,
-      { leaveType }
-    );
-
-    return res.status(200).json({
-      message: "Leave type added successfully",
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Leave type added successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: updatedCompany._id,
+      changes: { leaveType },
     });
+
+    return res.status(200).json({ message: "Leave type added successfully" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 

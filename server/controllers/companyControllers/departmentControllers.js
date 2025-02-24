@@ -1,5 +1,6 @@
 const Department = require("../../models/Departments");
 const User = require("../../models/hr/UserData");
+const CustomError = require("../../utils/customErrorlogs");
 const { createLog } = require("../../utils/moduleLogs");
 
 const createDepartment = async (req, res, next) => {
@@ -7,38 +8,39 @@ const createDepartment = async (req, res, next) => {
   const user = req.user;
   const ip = req.ip;
   const company = req.company;
-  let path = "CompanyLogs";
-  let action = "Create Department";
+  const logPath = "hr/HrLog";
+  const logAction = "Create Department";
+  const logSourceKey = "department";
 
   try {
     if (!deptId || !deptName) {
-      await createLog(
-        path,
-        action,
-        "Invalid department details",
-        "Failed",
-        user,
-        ip,
-        company
+      throw new CustomError(
+        "Missing required fields",
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(400).json({ message: "Invalid department details" });
+    }
+
+    if (mongoose.Types.ObjectId.isValid(deptId)) {
+      throw new CustomError(
+        "Invalid department ID",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const deptExists = await Department.findOne({ departmentId: deptId })
       .lean()
       .exec();
-
     if (deptExists) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Department already exists",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(400).json({ message: "Department already exists" });
     }
 
     const newDept = new Department({
@@ -49,21 +51,22 @@ const createDepartment = async (req, res, next) => {
     await newDept.save();
 
     // Log the successful department creation
-    await createLog(
-      path,
-      action,
-      "New department created",
-      "Success",
-      user,
-      ip,
-      company,
-      newDept._id,
-      { deptId, deptName }
-    );
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "New department created",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: newDept._id,
+      changes: { deptId, deptName },
+    });
 
-    res.status(201).json({ message: "New department created" });
+    return res.status(201).json({ message: "New department created" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
@@ -87,65 +90,62 @@ const getDepartments = async (req, res, next) => {
 };
 
 const assignAdmin = async (req, res, next) => {
-  try {
-    const { departmentId, adminId } = req.body;
-    const { user } = req; // Logged-in user
-    const path = "CompanyLogs";
-    const action = "Assign Admin";
+  const logPath = "hr/HrLog";
+  const logAction = "Assign Admin";
+  const logSourceKey = "department";
+  const { departmentId, adminId } = req.body;
+  const { user, ip, company } = req;
 
-    // Validate the user reference
+  try {
+    if (!departmentId || !adminId) {
+      throw new CustomError(
+        "Department and Admin IDs are required",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    // Validate the admin reference
     const admin = await User.findById(adminId);
     if (!admin) {
-      await createLog(
-        path,
-        action,
-        "User not found",
-        "Failed",
-        user,
-        req.ip,
-        req.company
-      );
-      return res.status(404).json({ message: "User not found" });
+      throw new CustomError("User not found", logPath, logAction, logSourceKey);
     }
 
     // Validate the department reference
     const department = await Department.findById(departmentId);
     if (!department) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Department not found",
-        "Failed",
-        user,
-        req.ip,
-        req.company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(404).json({ message: "Department not found" });
     }
 
     // Update the department's admin field
     department.admin = admin._id;
     const updatedDepartment = await department.save();
 
-    await createLog(
-      path,
-      action,
-      "Admin assigned successfully",
-      "Success",
-      user,
-      req.ip,
-      req.company,
-      updatedDepartment._id,
-      updatedDepartment
-    );
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Admin assigned successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: updatedDepartment._id,
+      changes: { admin: updatedDepartment.admin },
+    });
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Admin assigned successfully",
       department: updatedDepartment,
     });
   } catch (error) {
-    console.error("Error assigning admin:", error);
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 

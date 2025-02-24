@@ -1,9 +1,8 @@
-
 const mongoose = require("mongoose");
 
 const roleLogSchema = new mongoose.Schema(
   {
-    sourceId: {
+    role: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Role",
     },
@@ -23,18 +22,18 @@ const roleLogSchema = new mongoose.Schema(
     remarks: {
       type: String,
     },
-    ipAddress:{
-        type: String,
-        required: true,
+    ipAddress: {
+      type: String,
+      required: true,
     },
     status: {
-        type: String,
-      },
-      company: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Company",
-        required: true,
-      },
+      type: String,
+    },
+    company: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+      required: true,
+    },
   },
   { timestamps: true }
 );

@@ -1,94 +1,71 @@
 const Company = require("../../models/hr/Company");
 const mongoose = require("mongoose");
 const { createLog } = require("../../utils/moduleLogs");
+const CustomError = require("../../utils/customErrorlogs");
 
 const addEmployeeType = async (req, res, next) => {
+  const logPath = "hr/HrLog";
+  const logAction = "Add Employee Type";
+  const logSourceKey = "companyData";
   const { employeeType } = req.body;
-  const path = "CompanyLogs";
-  const action = "Add Employee Type";
   const { user, ip, company } = req;
 
   try {
-    // First check: Missing fields
     if (!company || !employeeType) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Missing fields (company or employeeType)",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(400).json({
-        message: "All fields are required",
-      });
     }
 
-    // Second check: Invalid company ID
     if (!mongoose.Types.ObjectId.isValid(company)) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Invalid company provided",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(400).json({
-        message: "Invalid company provided",
-      });
     }
 
-    // Update the employee type
     const updateEmployeeType = await Company.findByIdAndUpdate(
       { _id: company },
       {
         $push: {
-          employeeTypes: {
-            name: employeeType,
-          },
+          employeeTypes: { name: employeeType },
         },
       },
       { new: true }
     );
 
-    // Third check: Could not update the employee type
     if (!updateEmployeeType) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Couldn't add employee type",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(400).json({
-        message: "Couldn't add employee type",
-      });
     }
 
-    // Log success
-    await createLog(
-      path,
-      action,
-      "Employee type added successfully",
-      "Success",
-      user,
-      ip,
-      company,
-      updateEmployeeType._id,
-      { employeeType }
-    );
-
-    return res.status(200).json({
-      message: "Employee type added successfully",
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Employee type added successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: updateEmployeeType._id,
+      changes: { employeeType },
     });
+
+    return res
+      .status(200)
+      .json({ message: "Employee type added successfully" });
   } catch (error) {
-    console.error("Error adding employee type:", error);
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 

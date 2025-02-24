@@ -3,14 +3,21 @@ const getLogs = async (req, res, next) => {
   const company = req.company;
 
   //Use the path to set the modelname as per the modelname convention
-  const capitalizeFirstLetter = (str) =>
-    str.charAt(0).toUpperCase() + str.slice(1, path.length - 1);
+
+  let capitalizeFirstLetter;
+
+  if (path[path.length - 1] == "s") {
+    capitalizeFirstLetter = (str) =>
+      str.charAt(0).toUpperCase() + str.slice(1, path.length - 1);
+  } else {
+    capitalizeFirstLetter = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+  }
 
   const modelName = `${capitalizeFirstLetter(path)}Log`;
 
   //Import the model dynamically
-  const ModelPath = `../models/${modelName}`;
-  const AlternativeModelPath = `../models/${path}/${modelName}`;
+  const ModelPath = `../models/${path}/${modelName}`;
+  const AlternativeModelPath = `../models/${modelName}`;
 
   let Model;
 
