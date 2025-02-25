@@ -24,7 +24,6 @@ const ClientsLayout = () => {
   // Determine whether to show the tabs
   const showTabs = !location.pathname.includes("view-clients/");
 
-
   // Determine active tab based on location
   const activeTab = tabs.findIndex((tab) =>
     location.pathname.includes(tab.path)
@@ -53,8 +52,7 @@ const ClientsLayout = () => {
                 backgroundColor: "#1E3D73",
                 color: "white",
               },
-            }}
-          >
+            }}>
             {tabs.map((tab, index) => (
               <NavLink
                 key={index}
@@ -68,8 +66,7 @@ const ClientsLayout = () => {
                   padding: "12px 16px",
                   display: "block",
                   backgroundColor: isActive ? "#1E3D73" : "white",
-                })}
-              >
+                })}>
                 {tab.label}
               </NavLink>
             ))}

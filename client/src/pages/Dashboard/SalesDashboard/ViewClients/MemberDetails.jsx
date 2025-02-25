@@ -5,21 +5,21 @@ import { Controller, useForm } from "react-hook-form";
 import SecondaryButton from "../../../../components/SecondaryButton";
 import { toast } from "sonner";
 
-const ClientDetails = () => {
+const MemberDetails = () => {
   const { control, handleSubmit, reset } = useForm({
     defaultValues: {
-      clientRepresentative: "John Doe",
-      companyRegisteredName: "Zomato",
-      companyCertificateOfIncorporation: "Link",
-      companyRegisteredAddress: "Panaji",
-      companyPANCardNumber: "12lkl34",
+      memberName: "Aiwinraj KS",
+      memberDOB: "20/10/2000",
+      memberAddress: "Mapusa",
+      memberDesignation: "Web Developer",
+      memberAADHAR: "0832 1983 6483",
       employeeID: "CO01",
       mobilePhone: "7904895106",
-      companyGSTCertificate: "Link",
-      companyListofDirectors: "Link",
-      natureOfBusiness: "Food Delivery",
-      detailsOfTheSigningAuthority: "Link",
-      credits: "2000",
+      memberPAN: "Link",
+      memberGender: "Male",
+      memberPhoneNo: "9876543201",
+      memberEmailID: "aiwin@email.com",
+      memberMaritalStatus: "Single",
       jobTitle: "Software Engineer",
       jobDescription:
         "Responsible for developing and maintaining web applications.",
@@ -65,7 +65,7 @@ const ClientDetails = () => {
       <div className="flex justify-between items-center">
         <div>
           <span className="text-subtitle font-pmedium text-primary">
-            Client Details
+            Member Details
           </span>
         </div>
         <div>
@@ -79,19 +79,19 @@ const ClientDetails = () => {
             <div className="grid grid-cols-2 sm:grid-cols-1 md:grid-cols-2 gap-4">
               {/* Section:  Customer Details */}
               <div>
-                <div className="py-4 border-b-default border-borderGray">
+                {/* <div className="py-4 border-b-default border-borderGray">
                   <span className="text-subtitle font-pmedium">
                     Customer Details
                   </span>
-                </div>
+                </div> */}
 
                 <div className="grid grid-cols sm:grid-cols-1 md:grid-cols-1 gap-4 p-4">
                   {[
-                    "clientRepresentative",
-                    "companyRegisteredName",
-                    "companyCertificateOfIncorporation",
-                    "companyRegisteredAddress",
-                    "companyPANCardNumber",
+                    "memberName",
+                    "memberDOB",
+                    "memberAddress",
+                    "memberDesignation",
+                    "memberAADHAR",
                     // "employeeID",
                     // "mobilePhone",
                   ].map((fieldKey) => (
@@ -137,19 +137,19 @@ const ClientDetails = () => {
 
               {/* Section: Company Details */}
               <div>
-                <div className="py-4 border-b-default border-borderGray">
+                {/* <div className="py-4 border-b-default border-borderGray">
                   <span className="text-subtitle font-pmedium">
                     Company Details
                   </span>
-                </div>
+                </div> */}
 
                 <div className="grid grid-cols sm:grid-cols-1 md:grid-cols-1 gap-4 p-4">
                   {[
-                    "companyGSTCertificate",
-                    "companyListofDirectors",
-                    "natureOfBusiness",
-                    "detailsOfTheSigningAuthority",
-                    "credits",
+                    "memberPAN",
+                    "memberGender",
+                    "memberPhoneNo",
+                    "memberEmailID",
+                    "memberMaritalStatus",
                     // "jobTitle",
                     // "jobDescription",
                   ].map((fieldKey) => (
@@ -427,4 +427,4 @@ const ClientDetails = () => {
   );
 };
 
-export default ClientDetails;
+export default MemberDetails;

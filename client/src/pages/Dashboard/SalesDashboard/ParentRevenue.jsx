@@ -87,7 +87,7 @@ const ParentRevenue = ({ salesData: initialSalesData, falseAccordion }) => {
   return (
     <div>
       {/* Select Current Month */}
-      <div className="mb-4">
+      <div className="mb-4 flex gap-4">
         <FormControl size="small">
           <InputLabel>Current Month</InputLabel>
           <Select
@@ -102,6 +102,7 @@ const ParentRevenue = ({ salesData: initialSalesData, falseAccordion }) => {
             ))}
           </Select>
         </FormControl>
+        <span> ⬅️DEVELOPMENT PURPOSE</span>
       </div>
 
       {/* Bar Graph Component */}

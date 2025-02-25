@@ -141,6 +141,8 @@ import SalesBudget from "../pages/Dashboard/SalesDashboard/SalesFinance/SalesBud
 import SalesPayment from "../pages/Dashboard/SalesDashboard/SalesFinance/SalesPayment";
 import LeadsLayout from "../pages/Dashboard/SalesDashboard/ViewClients/LeadsLayout";
 import UniqueClients from "../pages/Dashboard/SalesDashboard/UniqueClients";
+import MemberDetails from "../pages/Dashboard/SalesDashboard/ViewClients/MemberDetails";
+import ViewMemberLayout from "../pages/Dashboard/SalesDashboard/ViewClients/ViewMemberLayout";
 
 export const routes = createBrowserRouter([
   {
@@ -331,6 +333,29 @@ export const routes = createBrowserRouter([
                               {
                                 path: "members",
                                 element: <ClientMembers />,
+
+                                // children: [
+                                //   // {
+                                //   //   path: "view-member",
+                                //   //   index: true,
+                                //   //   element: <MemberDetails />,
+                                //   // },
+                                //   {
+                                //     path: "view-member/:id",
+                                //     // index: true,
+                                //     element: <MemberDetails />,
+                                //     // children: [
+                                //     //   {
+                                //     //     path: "member-details",
+                                //     //     element: <MemberDetails />,
+                                //     //   },
+                                //     // ],
+                                //   },
+                                // ],
+                              },
+                              {
+                                path: "members/view-member/:id",
+                                element: <MemberDetails />,
                               },
                             ],
                           },
@@ -338,6 +363,10 @@ export const routes = createBrowserRouter([
                             path: "client-onboarding",
                             element: <ClientOnboarding />,
                           },
+                          // {
+                          //   path: "view-member/:id",
+                          //   element: <MemberDetails />,
+                          // },
                         ],
                       },
                       {

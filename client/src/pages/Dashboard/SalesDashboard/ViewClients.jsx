@@ -336,7 +336,7 @@ const ViewClients = () => {
     {
       srno: "1",
       clientName: "Zomato",
-      clientID: "WO001",
+      clientID: "CO001",
       email: "aiwinraj.wono@gmail.com",
       credits: "200",
       typeOfClient: "Coworking",
@@ -345,7 +345,7 @@ const ViewClients = () => {
     {
       srno: "2",
       clientName: "91 HR",
-      clientID: "WO002",
+      clientID: "CO002",
       email: "allan.wono@gmail.com",
       credits: "200",
       typeOfClient: "Coworking",
@@ -354,7 +354,7 @@ const ViewClients = () => {
     {
       srno: "3",
       clientName: "WoNo",
-      clientID: "WO003",
+      clientID: "CO003",
       email: "sankalp.wono@gmail.com",
       credits: "200",
       typeOfClient: "Coworking",
@@ -363,7 +363,7 @@ const ViewClients = () => {
     {
       srno: "4",
       clientName: "Axis Bank",
-      clientID: "WO004",
+      clientID: "CO004",
       email: "anushri.wono@gmail.com",
       credits: "200",
       typeOfClient: "Coworking",
@@ -372,7 +372,7 @@ const ViewClients = () => {
     {
       srno: "5",
       clientName: "Turtle Mint",
-      clientID: "WO005",
+      clientID: "CO005",
       email: "muskan.wono@gmail.com",
       credits: "200",
       typeOfClient: "Coworking",
@@ -381,7 +381,7 @@ const ViewClients = () => {
     {
       srno: "6",
       clientName: "Zimetrics",
-      clientID: "WO006",
+      clientID: "CO006",
       email: "kalpesh.wono@gmail.com",
       credits: "200",
       typeOfClient: "Coworking",
@@ -390,7 +390,7 @@ const ViewClients = () => {
     {
       srno: "7",
       clientName: "mCaffiene",
-      clientID: "WO007",
+      clientID: "CO007",
       email: "allan2.wono@gmail.com",
       credits: "200",
       typeOfClient: "Coworking",
