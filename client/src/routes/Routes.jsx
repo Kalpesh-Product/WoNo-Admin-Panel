@@ -139,6 +139,8 @@ import UniqueLeads from "../pages/Dashboard/SalesDashboard/UniqueLeads";
 import SalesFinance from "../pages/Dashboard/SalesDashboard/SalesFinance/SalesFinance";
 import SalesBudget from "../pages/Dashboard/SalesDashboard/SalesFinance/SalesBudget";
 import SalesPayment from "../pages/Dashboard/SalesDashboard/SalesFinance/SalesPayment";
+import MemberDetails from "../pages/Dashboard/SalesDashboard/ViewClients/MemberDetails";
+import ViewMemberLayout from "../pages/Dashboard/SalesDashboard/ViewClients/ViewMemberLayout";
 
 export const routes = createBrowserRouter([
   {
@@ -240,16 +242,16 @@ export const routes = createBrowserRouter([
                       {
                         path: "finance",
                         element: <SalesFinance />,
-                        children:[
+                        children: [
                           {
-                            path:'budget',
-                            element: <SalesBudget />
+                            path: "budget",
+                            element: <SalesBudget />,
                           },
                           {
-                            path:'payment-schedule',
-                            element:<SalesPayment />
+                            path: "payment-schedule",
+                            element: <SalesPayment />,
                           },
-                        ]
+                        ],
                       },
                       {
                         path: "revenue-target",
@@ -325,6 +327,29 @@ export const routes = createBrowserRouter([
                               {
                                 path: "members",
                                 element: <ClientMembers />,
+
+                                // children: [
+                                //   // {
+                                //   //   path: "view-member",
+                                //   //   index: true,
+                                //   //   element: <MemberDetails />,
+                                //   // },
+                                //   {
+                                //     path: "view-member/:id",
+                                //     // index: true,
+                                //     element: <MemberDetails />,
+                                //     // children: [
+                                //     //   {
+                                //     //     path: "member-details",
+                                //     //     element: <MemberDetails />,
+                                //     //   },
+                                //     // ],
+                                //   },
+                                // ],
+                              },
+                              {
+                                path: "members/view-member/:id",
+                                element: <MemberDetails />,
                               },
                             ],
                           },
@@ -332,6 +357,10 @@ export const routes = createBrowserRouter([
                             path: "client-onboarding",
                             element: <ClientOnboarding />,
                           },
+                          // {
+                          //   path: "view-member/:id",
+                          //   element: <MemberDetails />,
+                          // },
                         ],
                       },
                       {
