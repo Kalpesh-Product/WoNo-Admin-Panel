@@ -8,7 +8,6 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  AccordionDetails,
 } from "@mui/material";
 import { IoIosArrowDown } from "react-icons/io";
 import AgTable from "../../../../components/AgTable";
@@ -165,16 +164,11 @@ const ActualBusinessRevenue = () => {
   const selectedMonthData = mockBusinessRevenueData.find(
     (data) => data.month === selectedMonth
   );
-  const selectedMonthData = mockBusinessRevenueData.find(
-    (data) => data.month === selectedMonth
-  );
 
   // Prepare Bar Graph Data
   const graphData = [
     {
       name: "Revenue",
-      data: selectedMonthData.domains.map((domain) => domain.revenue),
-    },
       data: selectedMonthData.domains.map((domain) => domain.revenue),
     },
   ];
