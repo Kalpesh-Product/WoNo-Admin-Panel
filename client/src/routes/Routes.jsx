@@ -122,7 +122,6 @@ import MeetingRevenue from "../pages/Dashboard/SalesDashboard/MeetingRevenue";
 import VirtualOffice from "../pages/Dashboard/SalesDashboard/VirtualOffice";
 import Workations from "../pages/Dashboard/SalesDashboard/Workations";
 import AltRevenues from "../pages/Dashboard/SalesDashboard/AltRevenues";
-import ParentRevenue from "../pages/Dashboard/SalesDashboard/ParentRevenue";
 import ClientsLayout from "../pages/Dashboard/SalesDashboard/ClientsLayout";
 import ViewClients from "../pages/Dashboard/SalesDashboard/ViewClients";
 import ClientOnboarding from "../pages/Dashboard/SalesDashboard/ClientOnboarding";
@@ -133,6 +132,13 @@ import ClientDetails from "../pages/Dashboard/SalesDashboard/ViewClients/ClientD
 import Desks from "../pages/Dashboard/SalesDashboard/ViewClients/Desks";
 import ClientRevenue from "../pages/Dashboard/SalesDashboard/ViewClients/ClientRevenue";
 import ClientMembers from "../pages/Dashboard/SalesDashboard/ViewClients/ClientMembers";
+import CoWorkingSeats from "../pages/Dashboard/SalesDashboard/CoWorkingSeats/CoWorkingSeats";
+import CheckAvailability from "../pages/Dashboard/SalesDashboard/CoWorkingSeats/CheckAvailability";
+import ViewAvailability from "../pages/Dashboard/SalesDashboard/CoWorkingSeats/ViewAvailability";
+import UniqueLeads from "../pages/Dashboard/SalesDashboard/UniqueLeads";
+import SalesFinance from "../pages/Dashboard/SalesDashboard/SalesFinance/SalesFinance";
+import SalesBudget from "../pages/Dashboard/SalesDashboard/SalesFinance/SalesBudget";
+import SalesPayment from "../pages/Dashboard/SalesDashboard/SalesFinance/SalesPayment";
 
 export const routes = createBrowserRouter([
   {
@@ -216,10 +222,6 @@ export const routes = createBrowserRouter([
                     ],
                   },
                   {
-                    path: "finance-dashboard",
-                    element: <Dashboard />,
-                  },
-                  {
                     path: "sales-dashboard",
                     element: <SalesDashboardLayout />,
                     children: [
@@ -232,8 +234,38 @@ export const routes = createBrowserRouter([
                         element: <ActualBusinessRevenue />,
                       },
                       {
+                        path: "unique-leads",
+                        element: <UniqueLeads />,
+                      },
+                      {
+                        path: "finance",
+                        element: <SalesFinance />,
+                        children:[
+                          {
+                            path:'budget',
+                            element: <SalesBudget />
+                          },
+                          {
+                            path:'payment-schedule',
+                            element:<SalesPayment />
+                          },
+                        ]
+                      },
+                      {
                         path: "revenue-target",
                         element: <RevenueTarget />,
+                      },
+                      {
+                        path: "co-working-seats",
+                        element: <CoWorkingSeats />,
+                      },
+                      {
+                        path: "co-working-seats/check-availability",
+                        element: <CheckAvailability />,
+                      },
+                      {
+                        path: "co-working-seats/view-availability",
+                        element: <ViewAvailability />,
                       },
                       {
                         path: "revenue",
@@ -299,50 +331,6 @@ export const routes = createBrowserRouter([
                           {
                             path: "client-onboarding",
                             element: <ClientOnboarding />,
-                          },
-                        ],
-                      },
-                      {
-                        path: "data",
-                        element: <Data />,
-                        children: [
-                          {
-                            path: "job-application-list",
-                            index: true,
-                            element: <JobApplicationList />,
-                          },
-
-                          {
-                            path: "reports",
-
-                            element: <HrReports />,
-                          },
-                        ],
-                      },
-                      {
-                        path: "finance",
-                        element: <HrFinance />,
-                        children: [
-                          {
-                            path: "budget",
-                            index: true,
-                            element: <HrBudget />,
-                          },
-                          {
-                            path: "payment-schedule",
-                            element: <HrPayment />,
-                          },
-                          {
-                            path: "payroll",
-                            element: <HrPayroll />,
-                          },
-                          {
-                            path: "payroll/view-payroll",
-                            element: <HrPayroll />,
-                          },
-                          {
-                            path: "payroll/view-payroll/:id",
-                            element: <ViewPayroll />,
                           },
                         ],
                       },

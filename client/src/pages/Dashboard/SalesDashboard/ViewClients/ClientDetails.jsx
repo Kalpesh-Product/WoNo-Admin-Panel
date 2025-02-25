@@ -8,7 +8,7 @@ import { toast } from "sonner";
 const ClientDetails = () => {
   const { control, handleSubmit, reset } = useForm({
     defaultValues: {
-      clientRepresentative: "Aiwin",
+      clientRepresentative: "John",
       middleName: "Raj",
       lastName: "K.S",
       gender: "Male",
