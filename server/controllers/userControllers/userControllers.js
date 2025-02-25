@@ -247,7 +247,6 @@ const fetchUser = async (req, res, next) => {
       res.status(200).json(users);
     }
 
-
     const users = await User.find({ company })
       .select("-password")
       .populate([
@@ -398,16 +397,10 @@ const updateSingleUser = async (req, res, next) => {
       updateData.familyInformation &&
       typeof updateData.familyInformation === "object"
     ) {
-    if (
-      updateData.familyInformation &&
-      typeof updateData.familyInformation === "object"
-    ) {
       const allowedFamilyFields = ["fatherName", "motherName"];
       filteredUpdateData.familyInformation = {};
       allowedFamilyFields.forEach((field) => {
         if (updateData.familyInformation[field] !== undefined) {
-          filteredUpdateData.familyInformation[field] =
-            updateData.familyInformation[field];
           filteredUpdateData.familyInformation[field] =
             updateData.familyInformation[field];
         }
@@ -422,16 +415,10 @@ const updateSingleUser = async (req, res, next) => {
       updateData.panAadhaarDetails &&
       typeof updateData.panAadhaarDetails === "object"
     ) {
-    if (
-      updateData.panAadhaarDetails &&
-      typeof updateData.panAadhaarDetails === "object"
-    ) {
       const allowedPanFields = ["aadhaarId", "pan"];
       filteredUpdateData.panAadhaarDetails = {};
       allowedPanFields.forEach((field) => {
         if (updateData.panAadhaarDetails[field] !== undefined) {
-          filteredUpdateData.panAadhaarDetails[field] =
-            updateData.panAadhaarDetails[field];
           filteredUpdateData.panAadhaarDetails[field] =
             updateData.panAadhaarDetails[field];
         }
@@ -452,8 +439,6 @@ const updateSingleUser = async (req, res, next) => {
         if (updateData.bankInformation[field] !== undefined) {
           filteredUpdateData.bankInformation[field] =
             updateData.bankInformation[field];
-          filteredUpdateData.bankInformation[field] =
-            updateData.bankInformation[field];
         }
       });
       if (Object.keys(filteredUpdateData.bankInformation).length === 0) {
@@ -464,8 +449,8 @@ const updateSingleUser = async (req, res, next) => {
     // If there's nothing to update, throw error
     if (Object.keys(filteredUpdateData).length === 0) {
       await createLog(
-        path,
-        action,
+        logPath,
+        logAction,
         "No valid fields to update",
         "Failed",
         user,
@@ -489,8 +474,8 @@ const updateSingleUser = async (req, res, next) => {
 
     if (!updatedUser) {
       await createLog(
-        path,
-        action,
+        logPath,
+        logAction,
         "User not found",
         "Failed",
         user,
@@ -501,8 +486,8 @@ const updateSingleUser = async (req, res, next) => {
     }
 
     await createLog(
-      path,
-      action,
+      logPath,
+      logAction,
       "User data updated successfully",
       "Success",
       user,
@@ -517,8 +502,8 @@ const updateSingleUser = async (req, res, next) => {
     });
   } catch (error) {
     await createLog(
-      path,
-      action,
+      logPath,
+      logAction,
       "Error updating user",
       "Failed",
       user,
@@ -526,8 +511,7 @@ const updateSingleUser = async (req, res, next) => {
       company,
       { error: error.message }
     );
-    next(error);
-    next(error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
