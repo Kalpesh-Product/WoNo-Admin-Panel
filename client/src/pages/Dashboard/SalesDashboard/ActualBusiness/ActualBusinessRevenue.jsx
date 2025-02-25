@@ -8,6 +8,7 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  AccordionDetails,
 } from "@mui/material";
 import { IoIosArrowDown } from "react-icons/io";
 import AgTable from "../../../../components/AgTable";
@@ -36,7 +37,16 @@ const ActualBusinessRevenue = () => {
           ],
         },
         {
-          name: "Co-Living",
+          name: "Meetings",
+          revenue: 15000,
+          clients: [
+            { client: "Client F", revenue: 5000 },
+            { client: "Client G", revenue: 7000 },
+            { client: "Client H", revenue: 3000 },
+          ],
+        },
+        {
+          name: "Virtual Office",
           revenue: 15000,
           clients: [
             { client: "Client F", representative: "Daniel Green", registerDate: "2024-03-12", actualRevenue: 5000 },
@@ -155,11 +165,16 @@ const ActualBusinessRevenue = () => {
   const selectedMonthData = mockBusinessRevenueData.find(
     (data) => data.month === selectedMonth
   );
+  const selectedMonthData = mockBusinessRevenueData.find(
+    (data) => data.month === selectedMonth
+  );
 
   // Prepare Bar Graph Data
   const graphData = [
     {
       name: "Revenue",
+      data: selectedMonthData.domains.map((domain) => domain.revenue),
+    },
       data: selectedMonthData.domains.map((domain) => domain.revenue),
     },
   ];
@@ -215,8 +230,7 @@ const ActualBusinessRevenue = () => {
                 expandIcon={<IoIosArrowDown />}
                 aria-controls={`panel-${index}-content`}
                 id={`panel-${index}-header`}
-                className="border-b-[1px] border-borderGray"
-              >
+                className="border-b-[1px] border-borderGray">
                 <div className="flex justify-between items-center w-full px-4">
                   <span className="text-subtitle font-pmedium">
                     {domain.name}
@@ -239,6 +253,8 @@ const ActualBusinessRevenue = () => {
                   tableHeight={300}
                 />
                 <span className="block mt-2 font-medium">
+                  Total Revenue for {domain.name}: ₹
+                  {domain.revenue.toLocaleString()}
                   Total Revenue for {domain.name}: ₹
                   {domain.revenue.toLocaleString()}
                 </span>

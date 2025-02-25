@@ -46,8 +46,7 @@ const ViewClientLayout = () => {
             backgroundColor: "#1E3D73", // Highlight background color for the active tab
             color: "white",
           },
-        }}
-      >
+        }}>
         {tabs.map((tab, index) => (
           <NavLink
             key={index}
@@ -61,8 +60,7 @@ const ViewClientLayout = () => {
               padding: "12px 16px",
               display: "block",
               backgroundColor: isActive ? "#1E3D73" : "white",
-            })}
-          >
+            })}>
             {tab.label}
           </NavLink>
         ))}
