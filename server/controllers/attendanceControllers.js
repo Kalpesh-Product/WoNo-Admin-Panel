@@ -574,7 +574,7 @@ const bulkInsertAttendance = async (req, res, next) => {
       .pipe(csvParser())
       .on("data", async (row) => {
         try {
-          const empId = row["user (Emp ID)"].trim();
+          const empId = row["User (Emp ID)"].trim();
           if (!employeeMap.has(empId)) {
             throw new Error(`Employee not found: ${empId}`);
           }
@@ -582,10 +582,10 @@ const bulkInsertAttendance = async (req, res, next) => {
           const attendanceRecord = {
             company: new mongoose.Types.ObjectId(companyId),
             user: employeeMap.get(empId), 
-            date: new Date(row["date"]),
-            inTime: new Date(`${row["date"].trim()} ${row["inTime"].trim()}`),
-            outTime: new Date(`${row["date"].trim()} ${row["outTime"].trim()}`),
-            entryType: row["entryType"] || "web", 
+            date: new Date(row["Date"]),
+            inTime: new Date(`${row["Date"].trim()} ${row["In Time"].trim()}`),
+            outTime: new Date(`${row["Date"].trim()} ${row["Out Time"].trim()}`),
+            entryType: row["Entry Type"] || "web", 
           };
 
           newAttendanceRecords.push(attendanceRecord);
