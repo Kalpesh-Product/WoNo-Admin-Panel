@@ -45,13 +45,17 @@ const SalesDashboard = () => {
     {
       layout: 6,
       widgets: [
-        <Card route={"actual-business"} title={"Actual Business"} icon={<RiPagesLine />} />,
-        <Card route={"revenue-target"} title={"Targets"} icon={<RiPagesLine />} />,
         <Card
-          route={""}
-          title={"Finance"}
-          icon={<MdFormatListBulleted />}
+          route={"actual-business"}
+          title={"Actual Business"}
+          icon={<RiPagesLine />}
         />,
+        <Card
+          route={"revenue-target"}
+          title={"Targets"}
+          icon={<RiPagesLine />}
+        />,
+        <Card route={""} title={"Finance"} icon={<MdFormatListBulleted />} />,
         <Card route={""} title={"Mix Bag"} icon={<MdFormatListBulleted />} />,
         <Card route={""} title={"Reports"} icon={<CgProfile />} />,
         <Card
