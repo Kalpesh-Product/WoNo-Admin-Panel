@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import LayerBarGraph from "../../../../components/graphs/LayerBarGraph";
-import WidgetSection from "../../../../components/WidgetSection";
+import LayerBarGraph from "../components/graphs/LayerBarGraph";
+import WidgetSection from "../components/WidgetSection";
 import {
   TextField,
   Select,
@@ -14,28 +14,17 @@ import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import { IoIosArrowDown } from "react-icons/io";
-import AgTable from "../../../../components/AgTable";
-import PrimaryButton from "../../../../components/PrimaryButton";
-import useAxiosPrivate from "../../../../hooks/useAxiosPrivate";
-import { useQuery } from "@tanstack/react-query";
+import AgTable from "../components/AgTable";
+import PrimaryButton from "../components/PrimaryButton";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import dayjs from "dayjs";
-import MuiModal from "../../../../components/MuiModal";
+import MuiModal from "../components/MuiModal";
 import { Controller, useForm } from "react-hook-form";
 
-const HrBudget = () => {
+const BudgetDisplay = ({budgetData}) => {
   const axios = useAxiosPrivate();
   const [openModal, setOpenModal] = useState(false);
-  const { data: hrFinance = [] } = useQuery({
-    queryKey: ["hrFinance"],
-    queryFn: async () => {
-      try {
-        const response = await axios.get("/api/budget/company-budget");
-        return response.data.allBudgets;
-      } catch (error) {
-        throw new Error("Error fetching data");
-      }
-    },
-  });
+  
 
   const { control, handleSubmit, reset } = useForm({
     defaultValues: {
@@ -53,7 +42,7 @@ const HrBudget = () => {
   };
 
   // Transform data into the required format
-  const groupedData = hrFinance.reduce((acc, item) => {
+  const groupedData = budgetData.reduce((acc, item) => {
     const month = dayjs(item.dueDate).format("MMMM YYYY"); // Extracting month and year
 
     if (!acc[month]) {
@@ -351,4 +340,4 @@ const HrBudget = () => {
   );
 };
 
-export default HrBudget;
+export default BudgetDisplay;

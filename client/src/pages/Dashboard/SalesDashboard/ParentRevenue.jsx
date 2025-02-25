@@ -12,7 +12,7 @@ import {
 import { IoIosArrowDown } from "react-icons/io";
 import AgTable from "../../../components/AgTable";
 
-const ParentRevenue = ({ salesData: initialSalesData, financialYear }) => {
+const ParentRevenue = ({ salesData: initialSalesData, falseAccordion }) => {
   const [salesData, setSalesData] = useState(initialSalesData); // Store received sales data
   const [currentMonth, setCurrentMonth] = useState("April"); // Selectable current month
 
@@ -63,11 +63,14 @@ const ParentRevenue = ({ salesData: initialSalesData, financialYear }) => {
 
   // ApexCharts options
   const options = {
-    chart: { type: "bar", stacked: true },
+    chart: { type: "bar", stacked: true, fontFamily: "Poppins-Regular" },
     xaxis: { categories: months },
     yaxis: { title: { text: "Amount (in Rupees)" } },
-    plotOptions: { bar: { horizontal: false, columnWidth: "50%" } },
-    legend: { position: "top" },
+    plotOptions: {
+      bar: { horizontal: false, columnWidth: "50%", borderRadius: 2 },
+    },
+    legend: { position: "top", show: false },
+    colors: [ "#80bf01","#1E3D73"],
   };
 
   return (
@@ -102,51 +105,55 @@ const ParentRevenue = ({ salesData: initialSalesData, financialYear }) => {
           data: "₹" + graphData[0].data.reduce((a, b) => a + b, 0),
         }}
         secondParam={{
-          title: "Remaining Projected Sales (Adjusted)",
+          title: "Projected Sales",
           data: "₹" + graphData[1].data.reduce((a, b) => a + b, 0),
         }}
       />
 
       {/* Accordion Section for Monthly Revenue */}
-      <div>
-        {salesData.map((data, index) => {
-          const totalRevenue = data.revenueBreakup.reduce(
-            (sum, rev) => sum + (rev.revenue || 0),
-            0
-          );
+      {falseAccordion ? (
+        ""
+      ) : (
+        <div>
+          {salesData.map((data, index) => {
+            const totalRevenue = data.revenueBreakup.reduce(
+              (sum, rev) => sum + (rev.revenue || 0),
+              0
+            );
 
-          return (
-            <Accordion key={index} className="py-4">
-              <AccordionSummary
-                expandIcon={<IoIosArrowDown />}
-                aria-controls={`panel-${index}-content`}
-                id={`panel-${index}-header`}
-                className="border-b-[1px] border-borderGray"
-              >
-                <div className="flex justify-between items-center w-full px-4">
-                  <span className="text-subtitle font-medium">
-                    {data.month}
+            return (
+              <Accordion key={index} className="py-4">
+                <AccordionSummary
+                  expandIcon={<IoIosArrowDown />}
+                  aria-controls={`panel-${index}-content`}
+                  id={`panel-${index}-header`}
+                  className="border-b-[1px] border-borderGray"
+                >
+                  <div className="flex justify-between items-center w-full px-4">
+                    <span className="text-subtitle font-medium">
+                      {data.month}
+                    </span>
+                    <span className="text-subtitle font-medium">
+                      ₹{data.actual.toLocaleString()}
+                    </span>
+                  </div>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <AgTable
+                    data={data.revenueBreakup}
+                    columns={tableColumns}
+                    tableHeight={300}
+                  />
+                  <span className="block mt-2 font-medium">
+                    Total Revenue for {data.month}: ₹
+                    {totalRevenue.toLocaleString()}
                   </span>
-                  <span className="text-subtitle font-medium">
-                    ₹{data.actual.toLocaleString()}
-                  </span>
-                </div>
-              </AccordionSummary>
-              <AccordionDetails>
-                <AgTable
-                  data={data.revenueBreakup}
-                  columns={tableColumns}
-                  tableHeight={300}
-                />
-                <span className="block mt-2 font-medium">
-                  Total Revenue for {data.month}: ₹
-                  {totalRevenue.toLocaleString()}
-                </span>
-              </AccordionDetails>
-            </Accordion>
-          );
-        })}
-      </div>
+                </AccordionDetails>
+              </Accordion>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };

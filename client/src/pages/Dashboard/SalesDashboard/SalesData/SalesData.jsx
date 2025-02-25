@@ -3,6 +3,7 @@ import duration from "dayjs/plugin/duration";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 
+
 dayjs.extend(duration);
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -59,6 +60,14 @@ const leadsData = [
     domain: "Workation",
     leads: [15, 20, 30, 35, 40, 20, 45, 55, 65, 25, 30, 50],
   },
+  {
+    domain: "Virtual Office",
+    leads: [15, 20, 30, 35, 40, 20, 45, 55, 65, 25, 30, 50],
+  },
+  {
+    domain: "Alt Revenue",
+    leads: [15, 20, 30, 35, 40, 20, 45, 55, 65, 25, 30, 50],
+  },
 ];
 
 // ✅ Process Data: Stack Leads from Each Domain for Each Month
@@ -71,6 +80,7 @@ const monthlyLeadsOptions = {
   chart: {
     type: "bar",
     stacked: true, // Enable stacking for domains
+    fontFamily:'Poppins-Regular'
   },
   xaxis: {
     categories: financialYearMonths,
@@ -462,5 +472,6 @@ export {
   companyTableColumns,
   formattedCompanyTableData,
   upcomingBirthdays,
-  upcomingBirthdaysColumns
+  upcomingBirthdaysColumns,
+  financialYearMonths
 };

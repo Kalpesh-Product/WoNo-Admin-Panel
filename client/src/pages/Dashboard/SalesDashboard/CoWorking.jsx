@@ -15,7 +15,7 @@ const mockSalesData = [
   },
   {
     month: "May",
-    actual: 11000,
+    actual: 10000,
     projected: 11000,
     adjustedProjected: 0,
     revenueBreakup: [

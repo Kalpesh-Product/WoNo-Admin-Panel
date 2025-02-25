@@ -21,8 +21,7 @@ const AgTable = React.memo(
     columns,
     dropdownColumns = [],
     paginationPageSize,
-    highlightFirstRow,
-    highlightEditedRow,
+    hideFilter,
     rowSelection,
     search,
     tableTitle,
@@ -30,7 +29,7 @@ const AgTable = React.memo(
     buttonTitle,
     tableHeight,
     enableCheckbox, // ✅ New prop to enable checkboxes
-    getRowStyle
+    getRowStyle,
   }) => {
     const [filteredData, setFilteredData] = useState(data);
     const [searchQuery, setSearchQuery] = useState("");
@@ -154,8 +153,6 @@ const AgTable = React.memo(
       ];
     }, [columns, enableCheckbox]);
 
-    
-
     return (
       <div className="border-b-[1px] border-borderGray">
         <div className="flex justify-between items-center py-2">
@@ -174,21 +171,25 @@ const AgTable = React.memo(
               }}
             />
           )}
-          <div className="flex justify-end items-center w-full">
-            <PrimaryButton
-              title={<MdFilterAlt />}
-              handleSubmit={() => setFilterDrawerOpen(true)}
-            />
-            <SecondaryButton
-              title={<MdFilterAltOff />}
-              handleSubmit={() => {
-                setFilters({});
-                setAppliedFilters({});
-                setSearchQuery("");
-                setFilteredData(data);
-              }}
-            />
-          </div>
+          {hideFilter ? (
+            ""
+          ) : (
+            <div className="flex justify-end items-center w-full">
+              <PrimaryButton
+                title={<MdFilterAlt />}
+                handleSubmit={() => setFilterDrawerOpen(true)}
+              />
+              <SecondaryButton
+                title={<MdFilterAltOff />}
+                handleSubmit={() => {
+                  setFilters({});
+                  setAppliedFilters({});
+                  setSearchQuery("");
+                  setFilteredData(data);
+                }}
+              />
+            </div>
+          )}
         </div>
         <div className="flex gap-2">
           {Object.keys(appliedFilters).map((field) =>
