@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import BarGraph from "../../../../components/graphs/BarGraph";
 import { Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
 import { IoIosArrowDown } from "react-icons/io";
@@ -7,6 +7,7 @@ import WidgetSection from "../../../../components/WidgetSection";
 import DataCard from "../../../../components/DataCard";
 import PrimaryButton from "../../../../components/PrimaryButton";
 import { useNavigate } from "react-router-dom";
+import MuiModal from "../../../../components/MuiModal";
 
 // JSON data structure for coworking seats and client details
 const jsonData = {
@@ -19,7 +20,7 @@ const jsonData = {
       remaining: 700,
       clients: [
         {
-          location: "Office A",
+          location: "DTC",
           floor: 1,
           totalSeats: 80,
           booked: 75,
@@ -27,7 +28,7 @@ const jsonData = {
           action: "view",
         },
         {
-          location: "Office B",
+          location: "DTC",
           floor: 2,
           totalSeats: 55,
           booked: 50,
@@ -35,7 +36,7 @@ const jsonData = {
           action: "view",
         },
         {
-          location: "Office C",
+          location: "ST",
           floor: 1,
           totalSeats: 110,
           booked: 100,
@@ -43,7 +44,7 @@ const jsonData = {
           action: "view",
         },
         {
-          location: "Office D",
+          location: "ST",
           floor: 3,
           totalSeats: 80,
           booked: 75,
@@ -221,8 +222,13 @@ const jsonData = {
 };
 
 const CoWorkingSeats = () => {
-
-const navigate = useNavigate()
+  const navigate = useNavigate();
+  const [openModal, setOpenModal] = useState(false);
+  const [location, setLocation] = useState({});
+  const handleViewDetails = (data) => {
+    setOpenModal(true);
+    setLocation(data);
+  };
   // Prepare data for the BarGraph from jsonData
   const totalSeats = jsonData.totalSeats;
   const categories = jsonData.months.map((m) => m.month);
@@ -241,7 +247,9 @@ const navigate = useNavigate()
   const options = {
     chart: {
       stacked: true,
+      fontFamily: "Poppins-Regular",
     },
+    legend: { position: "top" },
     xaxis: {
       categories: categories,
       title: { text: "Financial Year Months" },
@@ -256,51 +264,61 @@ const navigate = useNavigate()
     },
     tooltip: {
       y: {
-        formatter: (value) => `${value}%`,
+        formatter: (value) => `${Math.round(value)}%`,
       },
     },
+    dataLabels: { enabled: true, formatter: (value) => Math.round(value) },
     plotOptions: {
       bar: {
         horizontal: false,
+        borderRadius: 3,
+        columnWidth: "40%",
       },
     },
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-semibold mb-4">
-        Coworking Seats Utilization
-      </h2>
-
+    <div className="p-4 flex flex-col gap-4">
       <div>
-        {/* BarGraph Component */}
-        <BarGraph
-          data={series}
-          title="Coworking Seats Utilization"
-          options={options}
-          year={true} // Display the financial year dropdown in the BarGraph
-          firstParam={{
-            title: "Total Booked",
-            data: jsonData.months.reduce((acc, m) => acc + m.booked, 0),
-          }}
-          secondParam={{
-            title: "Total Remaining",
-            data:
-              totalSeats -
-              jsonData.months.reduce((acc, m) => acc + m.booked, 0),
-          }}
-        />
+        <WidgetSection
+          layout={1}
+          border
+          padding
+          title={"Co-Working Seart 24-25"}
+        >
+          <BarGraph
+            data={series}
+            options={options}
+            year={true} // Display the financial year dropdown in the BarGraph
+            firstParam={{
+              title: "Total Booked",
+              data: jsonData.months.reduce((acc, m) => acc + m.booked, 0),
+            }}
+            secondParam={{
+              title: "Total Remaining",
+              data:
+                totalSeats -
+                jsonData.months.reduce((acc, m) => acc + m.booked, 0),
+            }}
+          />
+        </WidgetSection>
       </div>
 
       <div>
         <WidgetSection layout={3} padding>
-            <DataCard title={"Total Seats"} data={"1000"}/>
-            <DataCard  title={"Available Seats"} data={"200"}/>
-            <PrimaryButton handleSubmit={()=>{navigate('check-availability')}} title={"Check Availability"} externalStyles={"h-full w-full"}/>
+          <DataCard title={"Total Seats"} data={"1000"} />
+          <DataCard title={"Available Seats"} data={"200"} />
+          <PrimaryButton
+            handleSubmit={() => {
+              navigate("check-availability");
+            }}
+            title={"Check Availability"}
+            externalStyles={"h-full w-full"}
+          />
         </WidgetSection>
       </div>
       {/* Accordion Section */}
-      <div className="mt-8">
+      <div>
         {jsonData.months.map((domain, index) => (
           <Accordion key={index} className="py-4">
             <AccordionSummary
@@ -310,24 +328,38 @@ const navigate = useNavigate()
               className="border-b-[1px] border-borderGray"
             >
               <div className="flex justify-between items-center w-full px-4">
-                <span className="text-subtitle font-medium">
+                <span className="text-subtitle font-pmedium">
                   {domain.month}
                 </span>
-                <span className="text-subtitle font-medium">
-                  Booked: {domain.booked}
+                <span className="text-subtitle font-pmedium">
+                  {domain.booked}
                 </span>
               </div>
             </AccordionSummary>
-            <AccordionDetails>
+            <AccordionDetails sx={{ borderTop: "1px solid #d1d5db" }}>
               <AgTable
                 data={domain.clients}
+                hideFilter
                 columns={[
                   { headerName: "Location", field: "location" },
                   { headerName: "Floor", field: "floor" },
                   { headerName: "Total Seats", field: "totalSeats" },
                   { headerName: "Booked", field: "booked" },
                   { headerName: "Available", field: "available" },
-                  { headerName: "Action", field: "action" },
+                  {
+                    headerName: "Action",
+                    field: "action",
+                    cellRenderer: (params) => (
+                      <>
+                        <div className="p-1 flex gap-2">
+                          <PrimaryButton
+                            title={"View"}
+                            handleSubmit={() => handleViewDetails(params.data)}
+                          />
+                        </div>
+                      </>
+                    ),
+                  },
                 ]}
                 tableHeight={300}
               />
@@ -335,6 +367,46 @@ const navigate = useNavigate()
           </Accordion>
         ))}
       </div>
+
+      <MuiModal
+        open={openModal}
+        title={"Location Details"}
+        onClose={() => {
+          setOpenModal(false);
+          setLocation({});
+        }}
+      >
+        <div className="grid grid-cols-2 gap-8 px-2 pb-8 border-b-default border-borderGray">
+          <div className="flex items-center justify-between">
+            <span className="text-content">Location</span>
+            <span className="text-content text-gray-500">
+              {location.location}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-content">Floor</span>
+            <span className="text-content text-gray-500">{location.floor}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-content">Total Seats</span>
+            <span className="text-content text-gray-500">
+              {location.totalSeats}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-content">Booked</span>
+            <span className="text-content text-gray-500">
+              {location.booked}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-content">Available</span>
+            <span className="text-content text-gray-500">
+              {location.available}
+            </span>
+          </div>
+        </div>
+      </MuiModal>
     </div>
   );
 };

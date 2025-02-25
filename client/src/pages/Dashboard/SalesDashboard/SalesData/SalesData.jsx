@@ -3,7 +3,6 @@ import duration from "dayjs/plugin/duration";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 
-
 dayjs.extend(duration);
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -28,18 +27,66 @@ const financialYearMonths = [
 const annualMonthlyRawData = [
   {
     domain: "Co-working",
-    actualData: [240000, 54000, 70000, 88000, 70000, 81000, 53000, 63000, null, null, null, null],
-    projectedData: [240000, 55000, 75000, 90000, 75000, 85000, 60000, 70000, 75000, 80000, 85000, 90000],
+    actualData: [
+      240000,
+      54000,
+      70000,
+      88000,
+      70000,
+      81000,
+      53000,
+      63000,
+      null,
+      null,
+      null,
+      null,
+    ],
+    projectedData: [
+      240000, 55000, 75000, 90000, 75000, 85000, 60000, 70000, 75000, 80000,
+      85000, 90000,
+    ],
   },
   {
     domain: "Meetings",
-    actualData: [240000, 54000, 70000, 88000, 70000, 81000, 53000, 63000, null, null, null, null],
-    projectedData: [240000, 55000, 75000, 90000, 75000, 85000, 60000, 70000, 75000, 80000, 85000, 90000],
+    actualData: [
+      240000,
+      54000,
+      70000,
+      88000,
+      70000,
+      81000,
+      53000,
+      63000,
+      null,
+      null,
+      null,
+      null,
+    ],
+    projectedData: [
+      240000, 55000, 75000, 90000, 75000, 85000, 60000, 70000, 75000, 80000,
+      85000, 90000,
+    ],
   },
   {
     domain: "Workation",
-    actualData: [240000, 54000, 70000, 88000, 70000, 81000, 53000, 63000, null, null, null, null],
-    projectedData: [240000, 55000, 75000, 90000, 75000, 85000, 60000, 70000, 75000, 80000, 85000, 90000],
+    actualData: [
+      240000,
+      54000,
+      70000,
+      88000,
+      70000,
+      81000,
+      53000,
+      63000,
+      null,
+      null,
+      null,
+      null,
+    ],
+    projectedData: [
+      240000, 55000, 75000, 90000, 75000, 85000, 60000, 70000, 75000, 80000,
+      85000, 90000,
+    ],
   },
 ];
 
@@ -80,7 +127,7 @@ const monthlyLeadsOptions = {
   chart: {
     type: "bar",
     stacked: true, // Enable stacking for domains
-    fontFamily:'Poppins-Regular'
+    fontFamily: "Poppins-Regular",
   },
   xaxis: {
     categories: financialYearMonths,
@@ -89,13 +136,31 @@ const monthlyLeadsOptions = {
   yaxis: {
     title: { text: "Lead Count" },
   },
+  plotOptions: {
+    bar: {
+      horizontal: false,
+      columnWidth: "30%",
+      borderRadius: 3,
+      dataLabels: {
+        position: "center",
+      },
+    },
+  },
   legend: { position: "top" },
   dataLabels: { enabled: false },
   tooltip: {
     y: {
       formatter: (val) => `${val} Leads`,
     },
+    
   },
+  colors: [
+    "#1E3D73", // Dark Blue (Co-Working)
+    "#2196F3", // Bright Blue (Meetings)
+    "#98F5E1", // Light Mint Green (Virtual Office)
+    "#00BCD4", // Cyan Blue (Workation)
+    "#1976D2", // Medium Blue (Alt Revenues)
+  ],
 };
 
 //----------------Monthly Unique Leads end------------------------
@@ -126,19 +191,46 @@ const sourcingChannelsOptions = {
   chart: {
     type: "bar",
     stacked: true, // Enable stacking for domains
+    fontFamily: "Poppins-Regular",
   },
+  colors: ["#00cdd1"],
   xaxis: {
     categories: financialYearMonths,
     title: { text: "Months" },
   },
-  yaxis: {
-    title: { text: "Lead Count" },
+  plotOptions: {
+    bar: {
+      dataLabels: { position: "top" },
+      columnWidth: "30%",
+      borderRadius: 3,
+    },
   },
-  legend: { position: "top" },
-  dataLabels: { enabled: false },
+  legend: { position: "top", show: false },
+  dataLabels: { enabled: false, position: "top" },
   tooltip: {
-    y: {
-      formatter: (val) => `${val} Leads`,
+    shared: false, // ✅ Show all stacked values in a single tooltip
+    custom: ({ series, seriesIndex, dataPointIndex, w }) => {
+      if (!w || !w.globals.seriesNames) return "";
+
+      // Extract values for the current hovered month
+      const allLeads = w.globals.series
+        .map(
+          (data, index) =>
+            `${w.globals.seriesNames[index]}: ${data[dataPointIndex]}`
+        )
+        .join("<br>");
+
+      return `<div style="
+        background: white; 
+        padding: 10px; 
+        border-radius: 5px; 
+        box-shadow: 0px 0px 5px rgba(0,0,0,0.2);
+        font-family: Poppins, sans-serif;
+        font-size: 12px;
+        color: #333;
+      ">
+        ${allLeads}
+      </div>`;
     },
   },
 };
@@ -164,8 +256,8 @@ const clientOccupancyData = [
   },
   {
     id: 2,
-    client: "Swiggy",
-    sector: "Food Delivery",
+    client: "Turtlemint",
+    sector: "Technology",
     location: "Bangalore",
     totalSeatsTaken: 15,
     startDate: "2022-06-15",
@@ -176,8 +268,8 @@ const clientOccupancyData = [
   },
   {
     id: 3,
-    client: "Uber",
-    sector: "Ride Sharing",
+    client: "WoNo",
+    sector: "Technology",
     location: "Mumbai",
     totalSeatsTaken: 8,
     startDate: "2021-09-20",
@@ -185,8 +277,8 @@ const clientOccupancyData = [
   },
   {
     id: 4,
-    client: "Ola",
-    sector: "Ride Sharing",
+    client: "Infuse",
+    sector: "Technology",
     location: "Hyderabad",
     totalSeatsTaken: 12,
     startDate: "2022-12-05",
@@ -267,6 +359,7 @@ const clientOccupancyPieData = processedClients.map((client) => ({
 const clientOccupancyPieOptions = {
   chart: {
     type: "pie",
+    fontFamily: "Poppins-Regular",
   },
   labels: clientOccupancyPieData.map((item) => item.label),
   tooltip: {
@@ -277,6 +370,7 @@ const clientOccupancyPieOptions = {
   legend: {
     position: "right",
   },
+  colors: ["#34c659", "#2fafc6", "#757575", "#5756d6"],
 };
 
 // -----------------------Department Pie Data End--------------------
@@ -302,6 +396,7 @@ const sectorPieChartData = Object.keys(sectorMap).map((sector) => ({
 const sectorPieChartOptions = {
   chart: {
     type: "pie",
+    fontFamily: "Poppins-Regular",
   },
   labels: sectorPieChartData.map((item) => item.label),
   tooltip: {
@@ -327,6 +422,7 @@ const clientGenderData = [
 const clientGenderPieChartOptions = {
   chart: {
     type: "pie",
+    fontFamily: "Poppins-Regular",
   },
   labels: clientGenderData.map((item) => item.label),
   tooltip: {
@@ -362,6 +458,7 @@ const locationPieChartData = Object.keys(locationMap).map((location) => ({
 const locationPieChartOptions = {
   chart: {
     type: "pie",
+    fontFamily: "Poppins-Regular",
   },
   labels: locationPieChartData.map((item) => item.label),
   tooltip: {
@@ -441,17 +538,16 @@ clientOccupancyData.forEach((company) => {
   });
 });
 
-upcomingBirthdays.sort((a, b) => dayjs(a.dateOfBirth).diff(dayjs(b.dateOfBirth)));
+upcomingBirthdays.sort((a, b) =>
+  dayjs(a.dateOfBirth).diff(dayjs(b.dateOfBirth))
+);
 
 const upcomingBirthdaysColumns = [
-    { id: "id", label: "ID" },
-    { id: "name", label: "Employee Name" },
-    { id: "birthday", label: "Date of Birth" },
-    { id: "daysLeft", label: "Days Left" },
-  ];
-
-
-  
+  { id: "id", label: "ID" },
+  { id: "name", label: "Employee Name" },
+  { id: "birthday", label: "Date of Birth" },
+  { id: "daysLeft", label: "Days Left" },
+];
 
 // -----------------------Client Members birthday End--------------------
 
@@ -473,5 +569,5 @@ export {
   formattedCompanyTableData,
   upcomingBirthdays,
   upcomingBirthdaysColumns,
-  financialYearMonths
+  financialYearMonths,
 };

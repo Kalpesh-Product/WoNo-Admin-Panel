@@ -17,20 +17,31 @@ const ParentRevenue = ({ salesData: initialSalesData, falseAccordion }) => {
   const [currentMonth, setCurrentMonth] = useState("April"); // Selectable current month
 
   useEffect(() => {
-    // Apply Carry Forward Logic on the received salesData
+    if (!initialSalesData.length) return;
+
     let carryForward = 0;
+    const selectedMonthIndex = initialSalesData.findIndex(
+      (item) => item.month === currentMonth
+    );
+
     const updatedSalesData = initialSalesData.map((item, index) => {
-      if (index < months.indexOf(currentMonth)) {
-        return { ...item, adjustedProjected: 0 }; // No adjustments for past months
+      if (index < selectedMonthIndex) {
+        return { ...item, adjustedProjected: 0 }; // No changes for past months
       }
 
-      const remainingProjected = Math.max(
+      if (index === selectedMonthIndex) {
+        carryForward = Math.max(item.projected - item.actual, 0); // Calculate carry forward for first selected month
+        return { ...item, adjustedProjected: carryForward };
+      }
+
+      // Apply carry forward to future months
+      const newProjected = Math.max(
         item.projected + carryForward - item.actual,
         0
       );
       carryForward = item.projected + carryForward - item.actual; // Update carry forward deficit
 
-      return { ...item, adjustedProjected: remainingProjected };
+      return { ...item, adjustedProjected: newProjected };
     });
 
     setSalesData(updatedSalesData);
@@ -70,7 +81,7 @@ const ParentRevenue = ({ salesData: initialSalesData, falseAccordion }) => {
       bar: { horizontal: false, columnWidth: "50%", borderRadius: 2 },
     },
     legend: { position: "top", show: false },
-    colors: [ "#80bf01","#1E3D73"],
+    colors: ["#80bf01", "#1E3D73"],
   };
 
   return (

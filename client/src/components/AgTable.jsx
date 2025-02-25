@@ -274,6 +274,7 @@ const AgTable = React.memo(
             rowSelection={enableCheckbox ? "multiple" : rowSelection} // ✅ Enable multiple selection only when checkboxes are on
             onSelectionChanged={handleSelectionChanged}
             getRowStyle={getRowStyle}
+            className="font-pregular"
           />
         </div>
 

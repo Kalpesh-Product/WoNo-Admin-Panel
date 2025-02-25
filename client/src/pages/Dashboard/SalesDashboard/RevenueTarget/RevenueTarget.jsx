@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { IoIosArrowDown } from "react-icons/io";
 import AgTable from "../../../../components/AgTable";
+import WidgetSection from "../../../../components/WidgetSection";
 
 const RevenueTarget = () => {
   const mockBusinessRevenueData = [
@@ -51,6 +52,24 @@ const RevenueTarget = () => {
         },
         {
           name: "Co-Living",
+          revenue: 15000,
+          clients: [
+            { client: "Client F", revenue: 5000 },
+            { client: "Client G", revenue: 7000 },
+            { client: "Client H", revenue: 3000 },
+          ],
+        },
+        {
+          name: "Virtual Office",
+          revenue: 15000,
+          clients: [
+            { client: "Client F", revenue: 5000 },
+            { client: "Client G", revenue: 7000 },
+            { client: "Client H", revenue: 3000 },
+          ],
+        },
+        {
+          name: "Other Channels",
           revenue: 15000,
           clients: [
             { client: "Client F", revenue: 5000 },
@@ -179,22 +198,25 @@ const RevenueTarget = () => {
 
   // Graph Options
   const options = {
-    chart: { type: "bar", stacked: false },
+    chart: { type: "bar", stacked: false, fontFamily: "Poppins-Regular" },
     xaxis: {
       categories: selectedMonthData.domains.map((domain) => domain.name),
     },
     yaxis: { title: { text: "Revenue (in Rupees)" } },
-    plotOptions: { bar: { horizontal: false, columnWidth: "20%" } },
+    plotOptions: {
+      bar: { horizontal: false, columnWidth: "30%", borderRadius: 5 },
+    },
     legend: { position: "top" },
+    colors: ["#1E3D73"],
   };
 
   return (
-    <div className="p-4">
+    <div className="p-4 flex flex-col gap-4">
       {/* Month Selection Dropdown */}
       <div className="mb-4">
         <FormControl size="small">
           <InputLabel>Select Month</InputLabel>
-          <Select value={selectedMonth} onChange={handleMonthChange}>
+          <Select value={selectedMonth} onChange={handleMonthChange} sx={{ width: "200px" }}  label="Select Month">
             {mockBusinessRevenueData.map((data) => (
               <MenuItem key={data.month} value={data.month}>
                 {data.month}
@@ -205,12 +227,9 @@ const RevenueTarget = () => {
       </div>
 
       {/* Bar Graph Component */}
-      <BarGraph
-        data={graphData}
-        options={options}
-        height={400}
-        title="Domain-wise Revenue"
-      />
+      <WidgetSection layout={1} border padding title={"Revenue Targets"}>
+        <BarGraph data={graphData} options={options} height={400} />
+      </WidgetSection>
 
       {/* Accordion Section for Domain-wise Revenue Breakdown */}
       <div>
@@ -221,19 +240,21 @@ const RevenueTarget = () => {
                 expandIcon={<IoIosArrowDown />}
                 aria-controls={`panel-${index}-content`}
                 id={`panel-${index}-header`}
-                className="border-b-[1px] border-borderGray">
+                className="border-b-[1px] border-borderGray"
+              >
                 <div className="flex justify-between items-center w-full px-4">
-                  <span className="text-subtitle font-medium">
+                  <span className="text-subtitle font-pmedium">
                     {domain.name}
                   </span>
-                  <span className="text-subtitle font-medium">
-                    ₹{domain.revenue.toLocaleString()}
+                  <span className="text-subtitle font-pmedium">
+                    {domain.revenue.toLocaleString()}{" "}INR
                   </span>
                 </div>
               </AccordionSummary>
-              <AccordionDetails>
+               <AccordionDetails sx={{borderTop:'1px solid  #d1d5db'}}>
                 <AgTable
                   data={domain.clients}
+                  hideFilter
                   columns={[
                     { header: "Client Name", field: "client", flex: 1 },
                     {

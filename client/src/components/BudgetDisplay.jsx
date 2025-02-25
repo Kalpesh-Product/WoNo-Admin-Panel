@@ -21,10 +21,9 @@ import dayjs from "dayjs";
 import MuiModal from "../components/MuiModal";
 import { Controller, useForm } from "react-hook-form";
 
-const BudgetDisplay = ({budgetData}) => {
+const BudgetDisplay = ({ budgetData }) => {
   const axios = useAxiosPrivate();
   const [openModal, setOpenModal] = useState(false);
-  
 
   const { control, handleSubmit, reset } = useForm({
     defaultValues: {
@@ -70,7 +69,7 @@ const BudgetDisplay = ({budgetData}) => {
       expanseName: item.expanseName,
       department: item.department,
       expanseType: item.expanseType,
-      amount: item.amount.toFixed(2), // Ensuring two decimal places
+      amount: item.amount.toLocaleString("en-IN", { maximumFractionDigits: 0 }), // Ensuring two decimal places
       dueDate: dayjs(item.dueDate).format("DD-MM-YYYY"),
       status: item.status,
     });
@@ -82,7 +81,7 @@ const BudgetDisplay = ({budgetData}) => {
   const financialData = Object.values(groupedData)
     .map((data) => ({
       ...data,
-      amount: data.amount.toFixed(2), // Ensuring two decimal places for total amount
+      amount: data.amount.toLocaleString("en-IN", { maximumFractionDigits: 0 }), // Ensuring two decimal places for total amount
     }))
     .sort((a, b) => dayjs(b.latestDueDate).diff(dayjs(a.latestDueDate))); // Sort descending
 
@@ -185,7 +184,6 @@ const BudgetDisplay = ({budgetData}) => {
     },
   };
 
-
   return (
     <div className="flex flex-col gap-8">
       <div className="border-default border-borderGray rounded-md">
@@ -223,15 +221,14 @@ const BudgetDisplay = ({budgetData}) => {
                     {data.month}
                   </span>
                   <span className="text-subtitle font-pmedium">
-                    {data.amount}
+                    {data.amount} INR
                   </span>
                 </div>
               </AccordionSummary>
-              <AccordionDetails>
+              <AccordionDetails sx={{ borderTop: "1px solid  #d1d5db" }}>
                 <AgTable
                   search={true}
                   searchColumn={"Department"}
-                  tableTitle={`${data.month}`}
                   data={data.tableData.rows}
                   columns={data.tableData.columns}
                   tableHeight={250}
@@ -272,7 +269,9 @@ const BudgetDisplay = ({budgetData}) => {
             render={({ field, fieldState }) => (
               <FormControl fullWidth error={!!fieldState.error}>
                 <Select {...field} size="small" displayEmpty>
-                  <MenuItem value="" disabled>Select Expense Type</MenuItem>
+                  <MenuItem value="" disabled>
+                    Select Expense Type
+                  </MenuItem>
                   <MenuItem value="Internal">Internal</MenuItem>
                   <MenuItem value="External">External</MenuItem>
                 </Select>

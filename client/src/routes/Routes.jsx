@@ -139,6 +139,8 @@ import UniqueLeads from "../pages/Dashboard/SalesDashboard/UniqueLeads";
 import SalesFinance from "../pages/Dashboard/SalesDashboard/SalesFinance/SalesFinance";
 import SalesBudget from "../pages/Dashboard/SalesDashboard/SalesFinance/SalesBudget";
 import SalesPayment from "../pages/Dashboard/SalesDashboard/SalesFinance/SalesPayment";
+import LeadsLayout from "../pages/Dashboard/SalesDashboard/ViewClients/LeadsLayout";
+import UniqueClients from "../pages/Dashboard/SalesDashboard/UniqueClients";
 
 export const routes = createBrowserRouter([
   {
@@ -238,18 +240,22 @@ export const routes = createBrowserRouter([
                         element: <UniqueLeads />,
                       },
                       {
+                        path: "unique-clients",
+                        element: <UniqueClients />,
+                      },
+                      {
                         path: "finance",
                         element: <SalesFinance />,
-                        children:[
+                        children: [
                           {
-                            path:'budget',
-                            element: <SalesBudget />
+                            path: "budget",
+                            element: <SalesBudget />,
                           },
                           {
-                            path:'payment-schedule',
-                            element:<SalesPayment />
+                            path: "payment-schedule",
+                            element: <SalesPayment />,
                           },
-                        ]
+                        ],
                       },
                       {
                         path: "revenue-target",

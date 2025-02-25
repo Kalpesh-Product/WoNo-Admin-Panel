@@ -1,17 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import { Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
 import { IoIosArrowDown } from "react-icons/io";
 import AgTable from "../../../../components/AgTable";
 import occupied from "../../../../assets/biznest/occupancy/occupied.png";
 import cleared from "../../../../assets/biznest/occupancy/cleared.png";
+import PrimaryButton from "../../../../components/PrimaryButton";
+import MuiModal from "../../../../components/MuiModal";
 
 const mockSalesData = [
   {
-    client: "Zomato",
+    client: "WoNo",
     memberDetails: [
-      { member: "Member A", date: "2024-02-20" },
-      { member: "Member B", date: "2024-02-21" },
-      { member: "Member C", date: "2024-02-22" },
+      { member: "Aiwinraj", date: "2024-02-20" },
+      { member: "Allan", date: "2024-02-21" },
+      { member: "Sankalp", date: "2024-02-22" },
     ],
   },
   {
@@ -24,6 +26,12 @@ const mockSalesData = [
 ];
 
 const ViewAvailability = () => {
+    const [openModal, setOpenModal] = useState(false);
+    const [memberDetails, setMemberDetails] = useState({});
+  const handleViewDetails = (data) => {
+    setOpenModal(true);
+    setMemberDetails(data);
+  };
   return (
     <div className="p-4 flex flex-col gap-4">
       <div>
@@ -58,12 +66,27 @@ const ViewAvailability = () => {
                 </span>
               </div>
             </AccordionSummary>
-            <AccordionDetails>
+            <AccordionDetails sx={{ borderTop: "1px solid #d1d5db" }}>
               <AgTable
                 data={data.memberDetails}
+                hideFilter
                 columns={[
-                  { field: "member", headerName: "Member", flex: 1 },
+                  { field: "member", headerName: "Member Name", flex: 1 },
                   { field: "date", headerName: "Date", flex: 1 },
+                  {
+                    headerName: "Action",
+                    field: "action",
+                    cellRenderer: (params) => (
+                      <>
+                        <div className="p-1 flex gap-2">
+                          <PrimaryButton
+                            title={"View"}
+                            handleSubmit={() => handleViewDetails(params.data)}
+                          />
+                        </div>
+                      </>
+                    ),
+                  },
                 ]}
                 tableHeight={300}
               />
@@ -71,6 +94,27 @@ const ViewAvailability = () => {
           </Accordion>
         ))}
       </div>
+      <MuiModal
+        open={openModal}
+        title={"Member Details"}
+        onClose={() => {
+          setOpenModal(false);
+          setMemberDetails({});
+        }}
+      >
+        <div className="grid grid-cols-2 gap-8 px-2 pb-8 border-b-default border-borderGray">
+          <div className="flex items-center justify-between">
+            <span className="text-content">Member Name</span>
+            <span className="text-content text-gray-500">
+              {memberDetails.member}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-content">Date of Joining</span>
+            <span className="text-content text-gray-500">{memberDetails.date}</span>
+          </div>
+        </div>
+      </MuiModal>
     </div>
   );
 };

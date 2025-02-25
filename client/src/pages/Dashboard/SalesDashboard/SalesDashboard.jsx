@@ -39,6 +39,7 @@ const SalesDashboard = () => {
     chart: {
       type: "bar",
       stacked: true, // Enable stacking for domains
+      fontFamily:"Poppins-Regular",
       events: {
         dataPointSelection: () => {
           navigate("unique-leads"); // Navigates to the same component for any bar click
@@ -61,6 +62,7 @@ const SalesDashboard = () => {
     },
     yaxis: {
       title: { text: "Lead Count" },
+      tickAmount:10,
     },
     legend: { position: "top" },
     dataLabels: { enabled: true },
@@ -81,7 +83,7 @@ const SalesDashboard = () => {
   const mockSalesData = [
     {
       month: "April",
-      actual: 10000,
+      actual: 9000,
       projected: 10000,
       adjustedProjected: 0,
       revenueBreakup: [
@@ -92,7 +94,7 @@ const SalesDashboard = () => {
     },
     {
       month: "May",
-      actual: 10000,
+      actual: 0,
       projected: 11000,
       adjustedProjected: 0,
       revenueBreakup: [
@@ -335,7 +337,7 @@ const SalesDashboard = () => {
             options={clientGenderPieChartOptions}
           />
         </WidgetSection>,
-        <WidgetSection layout={1} title={"Sector-wise Occupancy"} border>
+        <WidgetSection layout={1} title={"India-wise Members"} border>
           <PieChartMui
             data={locationPieChartData}
             options={locationPieChartOptions}
