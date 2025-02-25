@@ -1,7 +1,7 @@
 const sharp = require("sharp");
 const mongoose = require("mongoose");
 const { handleFileUpload } = require("../../config/cloudinaryConfig");
-const Company = require("../../models/Company");
+const Company = require("../../models/hr/Company");
 const {
   updateWorkLocationStatus,
   updateShiftStatus,
@@ -9,8 +9,14 @@ const {
   UpdateEmployeeTypeStatus,
 } = require("../../utils/companyData");
 const { createLog } = require("../../utils/moduleLogs");
+const CustomError = require("../../utils/customErrorlogs");
 
 const addCompany = async (req, res, next) => {
+  const logPath = "hr/HrLog";
+  const logAction = "Add Company";
+  const logSourceKey = "companyData";
+  const { user, ip, company } = req;
+
   try {
     const {
       companyId,
@@ -25,12 +31,6 @@ const addCompany = async (req, res, next) => {
       employeeType,
     } = req.body;
 
-    const { user } = req;
-    const company = req.company;
-    const ip = req.ip;
-    let path = "CompanyLogs";
-    let action = "Add Company";
-
     // Validate required fields
     if (
       !companyId ||
@@ -40,8 +40,12 @@ const addCompany = async (req, res, next) => {
       !companyCity ||
       !companyState
     ) {
-      await createLog(path, action, "Missing required fields", "Failed", user, ip, company);
-      return res.status(400).json({ message: "Missing required fields" });
+      throw new CustomError(
+        "Missing required fields",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     // Create a new company instance
@@ -62,28 +66,27 @@ const addCompany = async (req, res, next) => {
     await newCompany.save();
 
     // Log the successful creation of a company
-    await createLog(path, action, "Company added successfully", "Success", user, ip, company, newCompany._id, {
-      companyName,
-      industry,
-      companySize,
-      companyCity,
-      companyState,
-      websiteURL,
-      linkedinURL,
-      employeeType,
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Company added successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: newCompany._id,
+      changes: newCompany,
     });
 
-    // Respond with success message
     return res.status(201).json({
       message: "Company added successfully",
       company: newCompany,
     });
   } catch (error) {
-    // Pass the error to the next middleware
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
-
 
 const getCompanies = async (req, res, next) => {
   try {
@@ -95,13 +98,14 @@ const getCompanies = async (req, res, next) => {
 };
 
 const addCompanyLogo = async (req, res, next) => {
-  try {
-    const { company } = req.userData;
-    const { user } = req;
-    const ip = req.ip;
-    let path = "CompanyLogs";
-    let action = "Add Company Logo";
+  const logPath = "hr/HrLog";
+  const logAction = "Add Company Logo";
+  const logSourceKey = "companyData";
+  const { company } = req.userData;
+  const { user } = req;
+  const ip = req.ip;
 
+  try {
     let imageId;
     let imageUrl;
 
@@ -120,10 +124,7 @@ const addCompanyLogo = async (req, res, next) => {
       imageUrl = uploadResult.secure_url;
     }
 
-    const companyLogo = {
-      logoId: imageId,
-      logoUrl: imageUrl,
-    };
+    const companyLogo = { logoId: imageId, logoUrl: imageUrl };
 
     const newCompanyLogo = await Company.findByIdAndUpdate(
       { _id: company },
@@ -132,23 +133,34 @@ const addCompanyLogo = async (req, res, next) => {
     );
 
     if (!newCompanyLogo) {
-      await createLog(path, action, "Couldn't add company logo", "Failed", user, ip, company);
-      return res.status(400).json({
-        message: "Couldn't add company logo",
-      });
+      throw new CustomError(
+        "Couldn't add company logo",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    // Log the successful addition of the company logo
-    await createLog(path, action, "Logo added successfully", "Success", user, ip, company, newCompanyLogo._id, { companyLogo });
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Logo added successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: newCompanyLogo._id,
+      changes: { companyLogo },
+    });
 
     return res.status(201).json({
       message: "Logo added successfully",
     });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
-
 
 const getCompanyLogo = async (req, res, next) => {
   try {
@@ -215,27 +227,36 @@ const updateActiveStatus = async (req, res, next) => {
   const companyId = req.userData.company;
   const user = req.user;
   const ip = req.ip;
-  let path = "CompanyLogs";
-  let action = "Update Active Status";
+  const logPath = "hr/HrLog";
+  const logAction = "Update Active Status";
+  const logSourceKey = "companyData";
 
   try {
     if (!field) {
-      await createLog(path, action, "Field is missing", "Failed", user, ip, companyId);
-      return res.status(400).json({
-        message: "All fields are required",
-      });
+      throw new CustomError(
+        "Missing required field: field",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    if (typeof status != "boolean") {
-      await createLog(path, action, "Status should be a boolean", "Failed", user, ip, companyId);
-      return res.status(400).json({
-        message: "Status should be a boolean",
-      });
+    if (typeof status !== "boolean") {
+      throw new CustomError(
+        "Status should be a boolean",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     if (!mongoose.Types.ObjectId.isValid(companyId)) {
-      await createLog(path, action, "Invalid company ID provided", "Failed", user, ip, companyId);
-      return res.status(400).json({ message: "Invalid company ID provided" });
+      throw new CustomError(
+        "Invalid company ID provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const updateHandlers = {
@@ -246,27 +267,46 @@ const updateActiveStatus = async (req, res, next) => {
     };
 
     const updatedFunction = updateHandlers[field];
+    if (!updatedFunction) {
+      throw new CustomError(
+        "Invalid field provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
 
     const updatedStatus = await updatedFunction(companyId, name, status);
-
     if (!updatedStatus) {
-      await createLog(path, action, "Couldn't update status", "Failed", user, ip, companyId);
-      return res.status(400).json({
-        message: "Couldn't update status",
-      });
+      throw new CustomError(
+        "Couldn't update status",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     // Log the successful status update
-    await createLog(path, action, "Status updated successfully", "Success", user, ip, companyId, updatedStatus._id, { field, status });
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Status updated successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: companyId,
+      sourceKey: logSourceKey,
+      sourceId: updatedStatus._id,
+      changes: { field, status },
+    });
 
     return res.status(200).json({
       message: "Status updated successfully",
     });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
-
 
 module.exports = {
   addCompany,

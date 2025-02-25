@@ -1,10 +1,9 @@
-
 const mongoose = require("mongoose");
 
-const attendanceLogSchema = new mongoose.Schema({
-  sourceId: {
+const eventLogSchema = new mongoose.Schema({
+  event: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Attendance",
+    ref: "Event",
   },
   action: {
     type: String,
@@ -35,5 +34,5 @@ const attendanceLogSchema = new mongoose.Schema({
   },
 });
 
-const AttendanceLog = mongoose.model("AttendanceLog", attendanceLogSchema);
-module.exports = AttendanceLog;
+const EventLog = mongoose.model("EventLog", eventLogSchema);
+module.exports = EventLog;

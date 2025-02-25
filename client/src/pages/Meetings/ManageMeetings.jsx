@@ -68,7 +68,7 @@ const ManageMeetings = () => {
   // API mutation for submitting housekeeping tasks
   const housekeepingMutation = useMutation({
     mutationFn: async (data) => {
-      await axios.patch("/api/meetings/add-housekeeping-tasks", data);
+      await axios.patch("/api/meetings/create-housekeeping-tasks", data);
     },
     onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ["meetings"] }); // ✅ Refetch meetings after update

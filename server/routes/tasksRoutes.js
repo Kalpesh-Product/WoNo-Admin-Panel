@@ -13,6 +13,7 @@ const {
   deleteTask,
   todayTasks,
   getTodayTasks,
+  getTeamMembersTasksProjects,
 } = require("../controllers/tasksControllers/tasksControllers");
 
 router.post("/create-project", createProject);
@@ -21,6 +22,7 @@ router.put("/update-project/:id", updateProject);
 router.delete("/delete-project/:id", deleteProject);
 router.post("/create-tasks", createTasks);
 router.get("/get-tasks", getTasks);
+router.get("/get-team-tasks-projects", getTeamMembersTasksProjects);
 router.get("/get-today-tasks", getTodayTasks);
 router.put("/update-task/:id", updateTask);
 router.delete("/delete-task/:id", deleteTask);

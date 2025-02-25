@@ -1,5 +1,6 @@
-const Company = require("../../models/Company");
+const Company = require("../../models/hr/Company");
 const bcrypt = require("bcryptjs");
+const User = require("../../models/hr/UserData");
 const User = require("../../models/UserData");
 const Role = require("../../models/roles/Roles");
 const { default: mongoose } = require("mongoose");
@@ -9,9 +10,10 @@ const csvParser = require("csv-parser");
 const { Readable } = require("stream");
 
 const createUser = async (req, res, next) => {
+  const logPath = "hr/HrLog";
+  const logAction = "Create User";
+  const logSourceKey = "user";
   const { user, ip, company } = req;
-  const path = "UserLogs";
-  const action = "Create User";
 
   try {
     const {
@@ -48,10 +50,10 @@ const createUser = async (req, res, next) => {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
+    // Validate departments: check for any invalid department IDs
     const invalidDepartmentIds = departments.filter(
       (id) => !mongoose.Types.ObjectId.isValid(id)
     );
-
     if (invalidDepartmentIds.length > 0) {
       await createLog(
         path,
@@ -72,7 +74,6 @@ const createUser = async (req, res, next) => {
     })
       .lean()
       .exec();
-
     if (!departmentExists || departmentExists.length === 0) {
       await createLog(
         path,
@@ -137,7 +138,7 @@ const createUser = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid role provided" });
     }
 
-    // Master Admin check
+    // Master Admin check: only one Master Admin allowed per company
     if (roleValue.roleTitle === "Master Admin") {
       const doesMasterAdminExist = await User.findOne({
         role: { $in: [roleValue._id] },
@@ -163,11 +164,9 @@ const createUser = async (req, res, next) => {
       }
     }
 
-    // Hash password
-    const defaultPassword = "123456"; // Use a more secure default in production
+    const defaultPassword = "123456";
     const hashedPassword = await bcrypt.hash(defaultPassword, 10);
 
-    // Create user object with all provided fields
     const newUser = new User({
       empId,
       firstName,
@@ -184,7 +183,6 @@ const createUser = async (req, res, next) => {
       employeeType,
     });
 
-    // Save the user
     const savedUser = await newUser.save();
 
     // Success log for user creation
@@ -208,8 +206,7 @@ const createUser = async (req, res, next) => {
       }
     );
 
-    // Send response
-    res.status(201).json({
+    return res.status(201).json({
       message: "User created successfully",
       user: {
         id: savedUser._id,
@@ -224,8 +221,7 @@ const createUser = async (req, res, next) => {
       },
     });
   } catch (error) {
-    console.error("Error creating user:", error.message);
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
@@ -238,6 +234,7 @@ const fetchUser = async (req, res, next) => {
       const users = await User.find({
         department: { $elemMatch: { $eq: deptId } },
         company,
+        company,
       })
         .select("-password")
         .populate([
@@ -249,6 +246,7 @@ const fetchUser = async (req, res, next) => {
 
       res.status(200).json(users);
     }
+
 
     const users = await User.find({ company })
       .select("-password")
@@ -272,7 +270,7 @@ const fetchUser = async (req, res, next) => {
 
 const fetchSingleUser = async (req, res) => {
   try {
-    const { id } = req.params; // Extract user ID from request parameters
+    const { id } = req.params;
     const user = await User.findById(id)
       .select("-password")
       .populate([
@@ -376,8 +374,9 @@ const fetchSingleUser = async (req, res) => {
 
 const updateSingleUser = async (req, res, next) => {
   const { user, ip, company } = req;
-  const path = "UserLogs";
-  const action = "Update User";
+  const logPath = "hr/HrLog";
+  const logAction = "Update User";
+  const logSourceKey = "user";
 
   try {
     const { id } = req.params;
@@ -399,10 +398,16 @@ const updateSingleUser = async (req, res, next) => {
       updateData.familyInformation &&
       typeof updateData.familyInformation === "object"
     ) {
+    if (
+      updateData.familyInformation &&
+      typeof updateData.familyInformation === "object"
+    ) {
       const allowedFamilyFields = ["fatherName", "motherName"];
       filteredUpdateData.familyInformation = {};
       allowedFamilyFields.forEach((field) => {
         if (updateData.familyInformation[field] !== undefined) {
+          filteredUpdateData.familyInformation[field] =
+            updateData.familyInformation[field];
           filteredUpdateData.familyInformation[field] =
             updateData.familyInformation[field];
         }
@@ -417,10 +422,16 @@ const updateSingleUser = async (req, res, next) => {
       updateData.panAadhaarDetails &&
       typeof updateData.panAadhaarDetails === "object"
     ) {
+    if (
+      updateData.panAadhaarDetails &&
+      typeof updateData.panAadhaarDetails === "object"
+    ) {
       const allowedPanFields = ["aadhaarId", "pan"];
       filteredUpdateData.panAadhaarDetails = {};
       allowedPanFields.forEach((field) => {
         if (updateData.panAadhaarDetails[field] !== undefined) {
+          filteredUpdateData.panAadhaarDetails[field] =
+            updateData.panAadhaarDetails[field];
           filteredUpdateData.panAadhaarDetails[field] =
             updateData.panAadhaarDetails[field];
         }
@@ -441,6 +452,8 @@ const updateSingleUser = async (req, res, next) => {
         if (updateData.bankInformation[field] !== undefined) {
           filteredUpdateData.bankInformation[field] =
             updateData.bankInformation[field];
+          filteredUpdateData.bankInformation[field] =
+            updateData.bankInformation[field];
         }
       });
       if (Object.keys(filteredUpdateData.bankInformation).length === 0) {
@@ -448,7 +461,7 @@ const updateSingleUser = async (req, res, next) => {
       }
     }
 
-    // If there's nothing to update, return an error response
+    // If there's nothing to update, throw error
     if (Object.keys(filteredUpdateData).length === 0) {
       await createLog(
         path,
@@ -462,7 +475,7 @@ const updateSingleUser = async (req, res, next) => {
       return res.status(400).json({ message: "No valid fields to update" });
     }
 
-    // Perform the update operation using the id directly
+    // Perform the update operation
     const updatedUser = await User.findByIdAndUpdate(
       { _id: id },
       { $set: filteredUpdateData },
@@ -499,7 +512,7 @@ const updateSingleUser = async (req, res, next) => {
       filteredUpdateData
     );
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "User data updated successfully",
     });
   } catch (error) {

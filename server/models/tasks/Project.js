@@ -9,6 +9,10 @@ const projectSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Company",
   },
+  department: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Department",
+  },
   assignedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "UserData",

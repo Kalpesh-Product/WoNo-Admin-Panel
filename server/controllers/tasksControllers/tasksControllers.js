@@ -1,7 +1,17 @@
+const User = require("../../models/hr/UserData");
+const Project = require("../../models/tasks/Project");
 const Task = require("../../models/tasks/Task");
+const CustomError = require("../../utils/customErrorlogs");
+const { formatDate } = require("../../utils/formatDateTime");
+const { createLog } = require("../../utils/moduleLogs");
 const validateUsers = require("../../utils/validateUsers");
 
 const createTasks = async (req, res, next) => {
+  const { user, ip, company } = req;
+  const logPath = "tasks/TaskLog";
+  const logAction = "Create Task";
+  const logSourceKey = "task";
+
   try {
     const {
       taskName,
@@ -14,7 +24,6 @@ const createTasks = async (req, res, next) => {
       dueTime,
       taskType,
     } = req.body;
-    const { user, company } = req;
 
     if (
       !taskName ||
@@ -25,7 +34,12 @@ const createTasks = async (req, res, next) => {
       !assignees ||
       !dueDate
     ) {
-      return res.status(400).json({ message: "Missing required fields" });
+      throw new CustomError(
+        "Missing required fields",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const assignedDate = new Date();
@@ -33,26 +47,45 @@ const createTasks = async (req, res, next) => {
     const parsedDueTime = new Date(dueTime);
 
     if (isNaN(parsedDueDate.getTime())) {
-      return res.status(400).json({ message: "Invalid date format" });
+      throw new CustomError(
+        "Invalid date format",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
-    if (dueTime && isNaN(parsedDueDate.getTime())) {
-      return res.status(400).json({ message: "Invalid date format" });
+
+    if (dueTime && isNaN(parsedDueTime.getTime())) {
+      throw new CustomError(
+        "Invalid date format",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     if (
       typeof description !== "string" ||
       !description.length ||
-      description?.replace(/\s/g, "")?.length > 100
+      description.replace(/\s/g, "").length > 100
     ) {
-      return res.status(400).json({ message: "Character limit exceeded" });
+      throw new CustomError(
+        "Character limit exceeded",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
+    // Validate all assignees
     const existingUsers = await validateUsers(assignees);
-
     if (existingUsers.length !== assignees.length) {
-      return res
-        .status(400)
-        .json({ message: "One or more assignees are invalid or do not exist" });
+      throw new CustomError(
+        "One or more assignees are invalid or do not exist",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const newTask = new Task({
@@ -71,17 +104,56 @@ const createTasks = async (req, res, next) => {
     });
 
     await newTask.save();
-    res.status(201).json({ message: "Task added successfully" });
+
+    // Log success with createLog
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Task added successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: newTask._id,
+      changes: {
+        taskName,
+        description,
+        projectId,
+        status,
+        priority,
+        assignees,
+        dueDate,
+        dueTime,
+        taskType,
+      },
+    });
+
+    return res.status(201).json({ message: "Task added successfully" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
 const updateTask = async (req, res, next) => {
+  const { user, ip, company } = req;
+  const logPath = "tasks/TaskLog";
+  const logAction = "Update Task";
+  const logSourceKey = "task";
+
   try {
     const { id } = req.params;
     const { taskName, description, status, priority, assignees, taskType } =
       req.body;
+
+    if (!id) {
+      throw new CustomError(
+        "Task ID must be provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
 
     const updates = {};
 
@@ -91,39 +163,76 @@ const updateTask = async (req, res, next) => {
     if (status !== undefined) {
       const validStatuses = ["Upcoming", "In progress", "Pending", "Completed"];
       if (!validStatuses.includes(status)) {
-        return res.status(400).json({ error: "Invalid status value" });
+        throw new CustomError(
+          "Invalid status value",
+          logPath,
+          logAction,
+          logSourceKey
+        );
       }
       updates.status = status;
     }
     if (priority !== undefined) {
       const validPriorities = ["High", "Medium", "Low"];
       if (!validPriorities.includes(priority)) {
-        return res.status(400).json({ error: "Invalid priority value" });
+        throw new CustomError(
+          "Invalid priority value",
+          logPath,
+          logAction,
+          logSourceKey
+        );
       }
       updates.priority = priority;
     }
     if (assignees !== undefined) {
       if (!Array.isArray(assignees)) {
-        return res
-          .status(400)
-          .json({ error: "Assignees must be an array of user IDs" });
+        throw new CustomError(
+          "Assignees must be an array of user IDs",
+          logPath,
+          logAction,
+          logSourceKey
+        );
       }
       updates.assignedTo = assignees;
     }
 
     if (Object.keys(updates).length === 0) {
-      return res.status(400).json({ error: "No valid fields to update" });
+      throw new CustomError(
+        "No valid fields to update",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    await Task.findByIdAndUpdate(
+    const updatedTask = await Task.findByIdAndUpdate(
       id,
       { $set: updates },
       { new: true, runValidators: true }
     );
 
-    return res.status(200).json({ message: "Task updated successfully" });
+    if (!updatedTask) {
+      throw new CustomError("Task not found", logPath, logAction, logSourceKey);
+    }
+
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Task updated successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: updatedTask._id,
+      changes: updates,
+    });
+
+    return res
+      .status(200)
+      .json({ message: "Task updated successfully", task: updatedTask });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
@@ -131,12 +240,29 @@ const getTasks = async (req, res, next) => {
   try {
     const { company } = req;
 
-    const projects = await Task.find({ company }).populate({
-      path: "project",
-      select: "projectName",
+    const tasks = await Task.find({ company })
+      .populate({
+        path: "project",
+        select: "projectName department",
+        populate: {
+          path: "department",
+          select: "name",
+        },
+      })
+      .populate("assignedBy", "firstName lastName")
+      .populate("assignedTo", "firstName lastName")
+      .select("-company")
+      .lean();
+
+    const transformedTasks = tasks.map((task) => {
+      return {
+        ...task,
+        dueDate: formatDate(task.dueDate),
+        assignedDate: formatDate(task.assignedDate),
+      };
     });
 
-    return res.status(200).json(projects);
+    return res.status(200).json(transformedTasks);
   } catch (error) {
     next(error);
   }
@@ -156,35 +282,162 @@ const getTodayTasks = async (req, res, next) => {
       company,
       assignedTo: { $in: [user] },
       assignedDate: { $gte: startOfDay, $lte: endOfDay },
-    });
+    })
+      .populate({
+        path: "project",
+        select: "projectName department",
+        populate: {
+          path: "department",
+          select: "name",
+        },
+      })
+      .populate("assignedBy", "firstName lastName")
+      .populate("assignedTo", "firstName lastName")
+      .select("-company")
+      .lean();
 
     if (!tasks) {
       return res.status(400).json({ message: "Failed to fetch the tasks" });
     }
 
-    return res.status(200).json(tasks);
+    const transformedTasks = tasks.map((task) => {
+      return {
+        ...task,
+        dueDate: formatDate(task.dueDate),
+        assignedDate: formatDate(task.assignedDate),
+      };
+    });
+
+    return res.status(200).json(transformedTasks);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getTeamMembersTasksProjects = async (req, res, next) => {
+  try {
+    const { company, departments } = req;
+
+    //Find team members
+    const teamMembers = await User.find({
+      departments: { $in: departments },
+    });
+
+    const teamMemberIds = teamMembers.map((member) => member._id);
+
+    const teamMembersData = await Promise.all(
+      teamMemberIds.map(async (id) => {
+        // Fetch tasks assigned to the team member
+        const tasks = await Task.find({
+          company,
+          assignedTo: { $in: [id] },
+        })
+          .populate({
+            path: "assignedTo",
+            select: "email firstName lastName status",
+            populate: [
+              { path: "role", select: "roleTitle" },
+              { path: "departments", select: "name" },
+            ],
+          })
+          .populate("assignedBy", "firstName lastName")
+          .populate("project", "projectName")
+          .select("-company")
+          .lean();
+
+        // Fetch projects assigned to the employee
+        const projects = await Project.find({
+          company,
+          assignedTo: { $in: [id] },
+        })
+          .select("projectName")
+          .lean();
+
+        // Find the correct user details from the first task
+        let userDetails = {};
+        if (tasks.length > 0) {
+          const matchedUser = tasks[0].assignedTo.find(
+            (user) => user._id.toString() === id.toString()
+          );
+
+          if (matchedUser) {
+            userDetails = {
+              email: matchedUser.email,
+              name: `${matchedUser.firstName} ${matchedUser.lastName}`,
+              role:
+                matchedUser.role?.map((role) => role.roleTitle) ||
+                [] ||
+                "No Role", // Extract role title
+              departments:
+                matchedUser.departments?.map((dept) => dept.name) || [], // Extract department names
+              status: matchedUser.status || "Unknown",
+            };
+          }
+        }
+
+        return {
+          ...userDetails,
+          tasksCount: tasks.length,
+          projectsCount: projects.length,
+        };
+      })
+    );
+
+    return res.status(200).json(teamMembersData);
   } catch (error) {
     next(error);
   }
 };
 
 const deleteTask = async (req, res, next) => {
+  const { company, user, ip } = req;
+  const logPath = "tasks/TaskLog";
+  const logAction = "Delete Task";
+  const logSourceKey = "task";
+
   try {
-    const { company } = req;
     const { id } = req.params;
+    if (!id) {
+      throw new CustomError(
+        "Task ID must be provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
 
     const deletedTask = await Task.findByIdAndUpdate(
       { _id: id, company },
-      { isDeleted: true }
+      { isDeleted: true },
+      { new: true }
     );
 
     if (!deletedTask) {
-      return res.status(400).json({ message: "Failed to delete the task" });
+      throw new CustomError(
+        "Failed to delete the task",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
+
+    // Log the successful deletion
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Task deleted successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: deletedTask._id,
+      changes: { isDeleted: true },
+    });
 
     return res.status(200).json({ message: "Task deleted successfully" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
@@ -193,5 +446,6 @@ module.exports = {
   updateTask,
   getTasks,
   getTodayTasks,
+  getTeamMembersTasksProjects,
   deleteTask,
 };

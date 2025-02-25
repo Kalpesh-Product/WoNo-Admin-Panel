@@ -1,9 +1,17 @@
 const mongoose = require("mongoose");
 
 const assetLogSchema = new mongoose.Schema({
-  sourceId: {
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Category",
+  },
+  asset: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Asset",
+  },
+  assignAsset: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "AssignAsset",
   },
   action: {
     type: String,

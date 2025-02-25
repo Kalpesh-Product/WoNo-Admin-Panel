@@ -10,7 +10,6 @@ const {
   bulkInsertAttendance,
 } = require("../controllers/attendanceControllers");
 const upload = require("../config/multerConfig");
-const getAttendanceLogs = require("../controllers/attendanceLogsController");
 
 const router = require("express").Router();
 router.post("/clock-in", clockIn);

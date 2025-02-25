@@ -20,16 +20,18 @@ const errorHandler = async (err, req, res, next) => {
   const sourceId = null;
   const remarks = err.message;
 
-  await createLog({
-    path,
-    action,
-    remarks,
-    user,
-    ip,
-    company,
-    sourceKey,
-    sourceId,
-  });
+  if (req.method !== "GET") {
+    await createLog({
+      path,
+      action,
+      remarks,
+      user,
+      ip,
+      company,
+      sourceKey,
+      sourceId,
+    });
+  }
 
   res.status(statusCode).json({ message });
   next();

@@ -1,11 +1,10 @@
-
 const mongoose = require("mongoose");
 
-const LeaveLogSchema = new mongoose.Schema(
+const roleLogSchema = new mongoose.Schema(
   {
-    sourceId: {
+    role: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Leave",
+      ref: "Role",
     },
     action: {
       type: String,
@@ -23,21 +22,21 @@ const LeaveLogSchema = new mongoose.Schema(
     remarks: {
       type: String,
     },
-    ipAddress:{
-        type: String,
-        required: true,
+    ipAddress: {
+      type: String,
+      required: true,
     },
     status: {
-        type: String,
-      },
-      company: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Company",
-        required: true,
-      },
+      type: String,
+    },
+    company: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+      required: true,
+    },
   },
   { timestamps: true }
 );
 
-const LeaveLog = mongoose.model("LeaveLog", LeaveLogSchema);
-module.exports = LeaveLog;
+const RoleLog = mongoose.model("RoleLog", roleLogSchema);
+module.exports = RoleLog;

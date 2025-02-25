@@ -1,6 +1,6 @@
 const Meeting = require("../../models/meetings/Meetings");
 const ExternalClient = require("../../models/meetings/ExternalClients");
-const User = require("../../models/UserData");
+const User = require("../../models/hr/UserData");
 const { default: mongoose } = require("mongoose");
 const Room = require("../../models/meetings/Rooms");
 const {
@@ -9,7 +9,7 @@ const {
   formatDuration,
 } = require("../../utils/formatDateTime");
 const Department = require("../../models/Departments");
-const MeetingLog = require("../../models/meetings/MeetingLogs");
+const MeetingLog = require("../../models/meetings/MeetingLog");
 const { createLog } = require("../../utils/moduleLogs");
 const CustomError = require("../../utils/customErrorlogs");
 
@@ -35,7 +35,7 @@ const addMeetings = async (req, res, next) => {
     const ip = req.ip;
 
     // Define log-related variables
-    const logPath = "meetings/MeetingLogs";
+    const logPath = "meetings/MeetingLog";
     const logAction = "Book Meeting";
     const logSourceKey = "meeting";
 
@@ -353,8 +353,8 @@ const addHousekeepingTask = async (req, res, next) => {
     const company = req.company;
     const user = req.user;
     const ip = req.ip;
-    const logPath = "meetings/MeetingLogs";
-    const logAction = "Housekeeping Tasks Added";
+    const logPath = "meetings/MeetingLog";
+    const logAction = "Add Housekeeping Tasks";
     const logSourceKey = "meeting";
 
     if (!housekeepingTasks || !meetingId || !roomName) {
@@ -447,8 +447,8 @@ const deleteHousekeepingTask = async (req, res, next) => {
   const company = req.company;
   const user = req.user;
   const ip = req.ip;
-  const logPath = "meetings/MeetingLogs";
-  const logAction = "Delete housekeeping tasks";
+  const logPath = "meetings/MeetingLog";
+  const logAction = "Delete Housekeeping Tasks";
   const logSourceKey = "meeting";
 
   try {
@@ -517,7 +517,7 @@ const getMeetingsByTypes = async (req, res, next) => {
       throw new CustomError(
         "Please send the meeting type",
         400,
-        "meetings/MeetingLogs",
+        "meetings/MeetingLog",
         "Delete Meeting",
         "meeting"
       );
@@ -563,14 +563,14 @@ const cancelMeeting = async (req, res, next) => {
     const company = req.company;
     const user = req.user;
     const ip = req.ip;
-    let path = "meetings/MeetingLogs";
+    let path = "meetings/MeetingLog";
     let action = "Cancel Meeting";
 
     if (!meetingId) {
       throw new CustomError(
         "Meeting ID is required",
         400,
-        "meetings/MeetingLogs",
+        "meetings/MeetingLog",
         "Cancel Meeting",
         "meeting"
       );
@@ -586,7 +586,7 @@ const cancelMeeting = async (req, res, next) => {
       throw new CustomError(
         "Meeting not found, please check the ID",
         400,
-        "meetings/MeetingLogs",
+        "meetings/MeetingLog",
         "Cancel Meeting",
         "meeting"
       );
@@ -619,7 +619,7 @@ const extendMeeting = async (req, res, next) => {
     const company = req.company;
     const user = req.user;
     const ip = req.ip;
-    let path = "meetings/MeetingLogs";
+    let path = "meetings/MeetingLog";
     let action = "Extend Meeting";
 
     if (!meetingId || !newEndTime) {

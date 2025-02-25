@@ -1,22 +1,32 @@
-const Company = require("../../models/Company");
-const User = require("../../models/UserData");
+const Company = require("../../models/hr/Company");
+const User = require("../../models/hr/UserData");
 const { handleDocumentUpload } = require("../../config/cloudinaryConfig");
 const { PDFDocument } = require("pdf-lib");
+const CustomError = require("../../utils/customErrorlogs");
+const { createLog } = require("../../utils/moduleLogs");
 
 const uploadCompanyDocument = async (req, res, next) => {
-  try {
-    const { documentName, type } = req.body;
-    const file = req.file;
-    const user = req.user;
-    const path = "CompanyLogs";
-    const action = "Upload Company Document";
+  const logPath = "hr/HrLog";
+  const logAction = "Upload Company Document";
+  const logSourceKey = "companyData";
+  const { documentName, type } = req.body;
+  const file = req.file;
+  const user = req.user;
+  const ip = req.ip;
+  const company = req.company;
 
     if (!file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
+  try {
     if (!["template", "sop", "policy", "agreement"].includes(type)) {
-      return res.status(400).json({ message: "Invalid document type" });
+      throw new CustomError(
+        "Invalid document type. Allowed values: template, sop, policy, agreement",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const foundUser = await User.findById(user)
@@ -25,13 +35,22 @@ const uploadCompanyDocument = async (req, res, next) => {
       .lean();
 
     if (!foundUser?.company) {
-      await createLog(path, action, "Company not found", "Failed", user, req.ip, req.company);
-      return res.status(404).json({ message: "Company not found" });
+      throw new CustomError(
+        "Company not found",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    let processedBuffer = file.buffer;
-    const originalFilename = file.originalname;
+    // Process the PDF document
+    const pdfDoc = await PDFDocument.load(file.buffer);
+    pdfDoc.setTitle(
+      file.originalname ? file.originalname.split(".")[0] : "Untitled"
+    );
+    const processedBuffer = await pdfDoc.save();
 
+    // Upload the processed PDF to storage
     const response = await handleDocumentUpload(
       processedBuffer,
       `${foundUser.company.companyName}/${type}s`,
@@ -39,15 +58,22 @@ const uploadCompanyDocument = async (req, res, next) => {
     );
 
     if (!response?.public_id) {
-      throw new Error("Failed to upload document");
+      throw new CustomError(
+        "Failed to upload document",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    const updateField = {
-      template: "templates",
-      sop: "sop",
-      policy: "policies",
-      agreement: "agreements",
-    }[type];
+    const updateField =
+      type === "template"
+        ? "templates"
+        : type === "sop"
+        ? "sop"
+        : type === "policy"
+        ? "policies"
+        : "agreements";
 
     await Company.findByIdAndUpdate(foundUser.company._id, {
       $push: {
@@ -59,17 +85,32 @@ const uploadCompanyDocument = async (req, res, next) => {
       },
     });
 
-    await createLog(path, action, `${type.toUpperCase()} uploaded successfully`, "Success", user, req.ip, req.company, foundUser.company._id);
+    // Log the successful upload
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: `${type.toUpperCase()} uploaded successfully`,
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: foundUser.company._id,
+      changes: {
+        documentName,
+        type,
+        documentLink: response.secure_url,
+        documentId: response.public_id,
+      },
+    });
 
     return res
       .status(200)
       .json({ message: `${type.toUpperCase()} uploaded successfully` });
   } catch (error) {
-    console.error("Error uploading document:", error);
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
-
 
 const getCompanyDocuments = async (req, res, next) => {
   try {
@@ -97,16 +138,24 @@ const getCompanyDocuments = async (req, res, next) => {
 };
 
 const uploadDepartmentDocument = async (req, res, next) => {
-  try {
-    const { documentName, type } = req.body;
-    const file = req.file;
-    const user = req.user;
-    const { departmentId } = req.params;
-    const path = "CompanyLogs";
-    const action = "Upload Department Document";
+  const logPath = "hr/HrLog";
+  const logAction = "Upload Department Document";
+  const logSourceKey = "department";
+  const { documentName, type } = req.body;
+  const file = req.file;
+  const user = req.user;
+  const { departmentId } = req.params;
+  const ip = req.ip;
+  const company = req.company;
 
+  try {
     if (!["sop", "policy"].includes(type)) {
-      throw new Error("Invalid document type. Allowed values: sop, policy");
+      throw new CustomError(
+        "Invalid document type. Allowed values: sop, policy",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const foundUser = await User.findOne({ _id: user })
@@ -115,21 +164,47 @@ const uploadDepartmentDocument = async (req, res, next) => {
       .lean()
       .exec();
 
-    const company = await Company.findOne({ _id: foundUser.company._id })
-      .select("selectedDepartments")
-      .populate([{ path: "selectedDepartments.department", select: "name" }]);
+    if (!foundUser || !foundUser.company) {
+      throw new CustomError(
+        "User's company not found",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
 
-    const department = company.selectedDepartments.find(
+    const foundCompany = await Company.findOne({ _id: foundUser.company._id })
+      .select("selectedDepartments")
+      .populate([{ path: "selectedDepartments.department", select: "name" }])
+      .lean()
+      .exec();
+
+    if (!foundCompany) {
+      throw new CustomError(
+        "Company not found",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    const department = foundCompany.selectedDepartments.find(
       (dept) => dept.department._id.toString() === departmentId
     );
 
     if (!department) {
-      await createLog(path, action, "Department not found in selectedDepartments", "Failed", user, req.ip, req.company);
-      throw new Error("Department not found in selectedDepartments.");
+      throw new CustomError(
+        "Department not found in selectedDepartments",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const pdfDoc = await PDFDocument.load(file.buffer);
-    pdfDoc.setTitle(file.originalname?.split(".")[0]);
+    pdfDoc.setTitle(
+      file.originalname ? file.originalname.split(".")[0] : "Untitled"
+    );
     const processedBuffer = await pdfDoc.save();
 
     const originalFilename = file.originalname;
@@ -141,8 +216,12 @@ const uploadDepartmentDocument = async (req, res, next) => {
     );
 
     if (!response.public_id) {
-      await createLog(path, action, "Failed to upload document", "Failed", user, req.ip, req.company);
-      throw new Error("Failed to upload document");
+      throw new CustomError(
+        "Failed to upload document",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const updateField =
@@ -150,7 +229,7 @@ const uploadDepartmentDocument = async (req, res, next) => {
         ? "selectedDepartments.$.sop"
         : "selectedDepartments.$.policies";
 
-    await Company.findOneAndUpdate(
+    const updatedCompany = await Company.findOneAndUpdate(
       {
         _id: foundUser.company._id,
         "selectedDepartments.department": departmentId,
@@ -168,17 +247,45 @@ const uploadDepartmentDocument = async (req, res, next) => {
       { new: true }
     ).exec();
 
-    await createLog(path, action, `${type.toUpperCase()} uploaded successfully for ${department.department.name} department`, "Success", user, req.ip, req.company, foundUser.company._id);
+    if (!updatedCompany) {
+      throw new CustomError(
+        "Failed to update company document field",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    // Log the successful upload
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: `${type.toUpperCase()} uploaded successfully for ${
+        department.department.name
+      } department`,
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: foundUser.company._id,
+      changes: {
+        documentName,
+        type,
+        documentLink: response.secure_url,
+        documentId: response.public_id,
+      },
+    });
 
     return res.status(200).json({
-      message: `${type.toUpperCase()} uploaded successfully for ${department.department.name} department`,
+      message: `${type.toUpperCase()} uploaded successfully for ${
+        department.department.name
+      } department`,
     });
   } catch (error) {
-    console.error("Error uploading department document:", error);
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
-
 
 module.exports = {
   uploadCompanyDocument,

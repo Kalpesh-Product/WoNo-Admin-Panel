@@ -1,34 +1,57 @@
 const Role = require("../../models/roles/Roles"); // Adjust path as needed
+const CustomError = require("../../utils/customErrorlogs");
 const { createLog } = require("../../utils/moduleLogs");
 
 const addRole = async (req, res, next) => {
   const { user, company, ip } = req;
-  const path = "roles/RoleLogs";
-  const action = "Add Role";
+  const logPath = "roles/RoleLog";
+  const logAction = "Add Role";
+  const logSourceKey = "role";
 
   try {
     const { roleTitle } = req.body;
 
-    // Check if role already exists
-    const roleExists = await Role.findOne({ roleTitle }).lean().exec();
-    if (roleExists) {
-      await createLog(path, action, "Role already exists", "Failed", user, ip, company, { roleTitle });
-      return res.status(400).json({ message: "Role already exists" });
+    if (!roleTitle) {
+      throw new CustomError(
+        "Role title is required",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    // Create and save the new role
+    const roleExists = await Role.findOne({ roleTitle }).lean().exec();
+    if (roleExists) {
+      throw new CustomError(
+        "Role already exists",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
     const newRole = new Role({ roleTitle });
     await newRole.save();
 
-    await createLog(path, action, "Role added successfully", "Success", user, ip, company,newRole._id, { roleTitle });
+    // Success log for role creation
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Role added successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: newRole._id,
+      changes: { roleTitle },
+    });
 
-    res.status(201).json({message:"Role added successfully"});
+    return res.status(201).json({ message: "Role added successfully" });
   } catch (error) {
-     await createLog(path, action, "Error adding role", "Failed", user, ip, company,id=null, { error: error.message });
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
-
 
 const getRoles = async (req, res, next) => {
   try {

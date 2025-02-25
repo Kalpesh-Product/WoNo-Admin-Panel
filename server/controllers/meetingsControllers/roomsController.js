@@ -1,6 +1,6 @@
 const Room = require("../../models/meetings/Rooms");
 const idGenerator = require("../../utils/idGenerator");
-const User = require("../../models/UserData");
+const User = require("../../models/hr/UserData");
 const sharp = require("sharp");
 const mongoose = require("mongoose");
 const { handleFileUpload } = require("../../config/cloudinaryConfig");
@@ -25,7 +25,6 @@ const addRoom = async (req, res, next) => {
       );
     }
 
-    // Find the user and populate the company
     const foundUser = await User.findById(user)
       .select("company")
       .populate({
@@ -131,55 +130,39 @@ const getRooms = async (req, res, next) => {
 
 const updateRoom = async (req, res, next) => {
   const { user, ip, company } = req;
-  const path = "RoomLogs";
-  const action = "Update Room";
+  const logPath = "meetings/MeetingLogs";
+  const logAction = "Update Room";
+  const logSourceKey = "room";
 
   try {
     const { id: roomId } = req.params;
     const { name, description, seats } = req.body;
 
     if (!roomId) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Room ID must be provided",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(400).json({ message: "Room ID must be provided." });
     }
 
-    // Validate the Room ID
     if (!mongoose.Types.ObjectId.isValid(roomId)) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Invalid Room ID",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(400).json({ message: "Invalid Room ID." });
     }
 
-    // Find the room to updatecompany,
+    // Find the room to update
     const room = await Room.findOne({ _id: roomId });
     if (!room) {
-      await createLog(
-        path,
-        action,
-        "Room not found",
-        "Failed",
-        user,
-        ip,
-        company
-      );
-      return res.status(404).json({ message: "Room not found." });
+      throw new CustomError("Room not found", logPath, logAction, logSourceKey);
     }
 
+    // Keep track of the existing image
     let imageId = room.image?.id;
     let imageUrl = room.image?.url;
 
@@ -206,48 +189,39 @@ const updateRoom = async (req, res, next) => {
       imageUrl = uploadResult.secure_url;
     }
 
+    // Only update fields if they were provided and changed
     const updatedFields = {};
     if (name && name !== room.name) updatedFields.name = name;
-    if (description && description !== room.description)
+    if (description && description !== room.description) {
       updatedFields.description = description;
+    }
     if (seats && seats !== room.seats) updatedFields.seats = seats;
     if (req.file) updatedFields.image = { id: imageId, url: imageUrl };
 
-    // Update the room details only if they are provided
     Object.assign(room, updatedFields);
 
     const updatedRoom = await room.save();
 
-    await createLog(
-      path,
-      action,
-      "Room updated successfully",
-      "Success",
-      "Success",
-      user,
-      ip,
-      company,
-      updatedRoom._id,
-      updatedFields
-    );
+    // Log the successful update
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Room updated successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: updatedRoom._id,
+      changes: updatedFields,
+    });
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Room updated successfully.",
       room: updatedRoom,
     });
   } catch (error) {
-    await createLog(
-      path,
-      action,
-      "Error updating room",
-      "Failed",
-      user,
-      ip,
-      company,
-      (id = null),
-      { error: error.message }
-    );
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 

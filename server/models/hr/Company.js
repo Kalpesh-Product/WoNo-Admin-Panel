@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 
-// Define the Company schema
 const companySchema = new mongoose.Schema({
   companyId: {
     type: String,

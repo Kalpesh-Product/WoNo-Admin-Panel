@@ -1,57 +1,72 @@
-const Company = require("../../models/Company");
+const Company = require("../../models/hr/Company");
 const mongoose = require("mongoose");
 const { createLog } = require("../../utils/moduleLogs");
 const csvParser = require("csv-parser");
 const { Readable } = require("stream");
+const CustomError = require("../../utils/customErrorlogs");
 
 const addWorkLocation = async (req, res, next) => {
-  const path = "CompanyLogs";
-  const action = "Add Work Location";
+  const logPath = "hr/HrLog";
+  const logAction = "Add Work Location";
+  const logSourceKey = "companyData";
   const { user, ip, company } = req;
   const { workLocation } = req.body;
- 
+
   try {
     if (!company || !workLocation) {
-      await createLog(path, action, "All fields are required", "Failed", user, ip, company);
-      return res.status(400).json({
-        message: "All fields are required",
-      });
+      throw new CustomError(
+        "All fields are required",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     if (!mongoose.Types.ObjectId.isValid(company)) {
-      await createLog(path, action, "Invalid company provided", "Failed", user, ip, company);
-      return res.status(400).json({
-        message: "Invalid company provided",
-      });
+      throw new CustomError(
+        "Invalid company provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    const updateWorkLocation = await Company.findByIdAndUpdate(
+    const updatedCompany = await Company.findByIdAndUpdate(
       { _id: company },
       { $push: { workLocations: { name: workLocation } } },
       { new: true }
     );
 
-    if (!updateWorkLocation) {
-      await createLog(path, action, "Couldn't add work location", "Failed", user, ip, company);
-      return res.status(400).json({
-        message: "Couldn't add work location",
-      });
+    if (!updatedCompany) {
+      throw new CustomError(
+        "Couldn't add work location",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    // Success log with direct object instead of "data"
-    await createLog(path, action, "Work location added successfully", "Success", user, ip, company, 
-      updateWorkLocation._id,
-      {workLocation: workLocation},
-    );
-
-    return res.status(200).json({
-      message: "Work location added successfully",
+    // Log the successful addition of the work location
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Work location added successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: updatedCompany._id,
+      changes: { workLocation },
     });
+
+    return res
+      .status(200)
+      .json({ message: "Work location added successfully" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
-
 
 const bulkInsertWorkLocations = async (req, res, next) => {
   try {
