@@ -143,6 +143,11 @@ import UniqueClients from "../pages/Dashboard/SalesDashboard/UniqueClients";
 import MemberDetails from "../pages/Dashboard/SalesDashboard/ViewClients/MemberDetails";
 import SalesMixBag from "../pages/Dashboard/SalesDashboard/SalesMixBag";
 import EarningsLayout from "../pages/Dashboard/SalesDashboard/EarningsLayout";
+import FinanceDashboard from "../pages/Dashboard/FinanceDashboard/FinanceDashboard";
+import AdminstartionLayout from "../pages/Dashboard/AdminDashboard/AdminstartionLayout";
+import AdminDashboard from "../pages/Dashboard/AdminDashboard/AdminDashboard";
+import MaintainanceLayout from "../pages/Dashboard/MaintainanceDashboard/MaintainanceLayout";
+import MaintainanceDashboard from "../pages/Dashboard/MaintainanceDashboard/MaintainanceDashboard";
 
 export const routes = createBrowserRouter([
   {
@@ -222,6 +227,36 @@ export const routes = createBrowserRouter([
                             element: <FrontendPayment />,
                           },
                         ],
+                      },
+                    ],
+                  },
+                  {
+                    path: "finance-dashboard",
+                    element: <FrontendLayout />,
+                    children: [
+                      {
+                        path: "",
+                        element: <FinanceDashboard />,
+                      },
+                    ],
+                  },
+                  {
+                    path: "admin-dashboard",
+                    element: <AdminstartionLayout />,
+                    children: [
+                      {
+                        path: "",
+                        element: <AdminDashboard />,
+                      },
+                    ],
+                  },
+                  {
+                    path: "maintainance-dashboard",
+                    element: <MaintainanceLayout />,
+                    children: [
+                      {
+                        path: "",
+                        element: <MaintainanceDashboard />,
                       },
                     ],
                   },

@@ -6,6 +6,7 @@ import occupied from "../../../../assets/biznest/occupancy/occupied.png";
 import cleared from "../../../../assets/biznest/occupancy/cleared.png";
 import PrimaryButton from "../../../../components/PrimaryButton";
 import MuiModal from "../../../../components/MuiModal";
+import { MdUploadFile } from "react-icons/md";
 
 const mockSalesData = [
   {
@@ -55,10 +56,24 @@ const mockSalesData = [
 
 const ViewAvailability = () => {
   const [openModal, setOpenModal] = useState(false);
+  const [imageOpen, setImageOpen] = useState(false);
   const [memberDetails, setMemberDetails] = useState({});
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(occupied);
+
   const handleViewDetails = (data) => {
     setOpenModal(true);
     setMemberDetails(data);
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setSelectedFile(file);
+      setImagePreview(imageUrl);
+      setImageOpen(false)
+    }
   };
   return (
     <div className="p-4 flex flex-col gap-4">
@@ -66,8 +81,8 @@ const ViewAvailability = () => {
         <div className="grid grid-cols-2  gap-4">
           <div className="flex w-full flex-col gap-4 text-center">
             <span className="text-primary text-title">Occupied</span>
-            <div className="h-full w-full object-contain">
-              <img className="w-full h-full" src={occupied} alt="" />
+            <div onClick={()=>setImageOpen(true)} className="h-full w-full object-contain cursor-pointer">
+              <img className="w-full h-full" src={imagePreview} alt="" />
             </div>
           </div>
           <div className="flex w-full flex-col gap-4 text-center">
@@ -85,7 +100,8 @@ const ViewAvailability = () => {
               expandIcon={<IoIosArrowDown />}
               aria-controls={`panel-${index}-content`}
               id={`panel-${index}-header`}
-              className="border-b-[1px] border-borderGray">
+              className="border-b-[1px] border-borderGray"
+            >
               <div className="flex justify-between items-center w-full px-4">
                 <span className="text-subtitle font-medium">{data.client}</span>
                 <span className="text-subtitle font-medium">
@@ -127,7 +143,8 @@ const ViewAvailability = () => {
         onClose={() => {
           setOpenModal(false);
           setMemberDetails({});
-        }}>
+        }}
+      >
         <div className="grid grid-cols-2 gap-8 px-2 pb-8 border-b-default border-borderGray">
           <div className="flex items-center justify-between">
             <span className="text-content">Member Name</span>
@@ -141,6 +158,27 @@ const ViewAvailability = () => {
               {memberDetails.date}
             </span>
           </div>
+        </div>
+      </MuiModal>
+      <MuiModal open={imageOpen} onClose={()=>setImageOpen(false)} title={"Upload occupied space"}>
+      <div className="flex flex-col items-center justify-center gap-4 p-6">
+          <span className="text-subtitle font-pmedium">Upload New Image</span>
+          <label
+            className="cursor-pointer flex flex-col items-center gap-2 p-4 border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-100"
+          >
+            <MdUploadFile className="text-4xl text-gray-500" />
+            <span className="text-gray-500">Click to upload</span>
+            <input
+              type="file"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+          </label>
+          {selectedFile && (
+            <div className="mt-4 text-gray-700">
+              Selected File: {selectedFile.name}
+            </div>
+          )}
         </div>
       </MuiModal>
     </div>
