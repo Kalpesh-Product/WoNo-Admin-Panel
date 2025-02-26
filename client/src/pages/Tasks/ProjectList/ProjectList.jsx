@@ -29,6 +29,8 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import PrimaryButton from "../../../components/PrimaryButton";
 import MuiModal from "../../../components/MuiModal";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
 const intialProjects = [
   {
@@ -144,6 +146,7 @@ const categoryColors = {
 const priorities = ["HIGH", "MEDIUM", "LOW"];
 
 const ProjectList = () => {
+    const axios = useAxiosPrivate();
   const [projects, setProjects] = useState(intialProjects);
   const [view, setView] = useState("grid");
   const [openModal, setOpenModal] = useState(false);
@@ -156,6 +159,18 @@ const ProjectList = () => {
       deadline: null,
       priority: "",
       status: "",
+    },
+  });
+
+  const { data: projectList, isLoading } = useQuery({
+    queryKey: ["projectList"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/tasks/get-projects");
+        return response.data
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
     },
   });
 
@@ -220,9 +235,9 @@ const ProjectList = () => {
 
         {/* Toggle View */}
         {view === "grid" ? (
-          <GridView projects={projects} />
+          <GridView projects={projectList} />
         ) : (
-          <TableView projects={projects} />
+          <TableView projects={projectList} />
         )}
       </div>
       <MuiModal

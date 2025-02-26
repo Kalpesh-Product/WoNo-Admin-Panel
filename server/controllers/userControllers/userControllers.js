@@ -227,7 +227,6 @@ const createUser = async (req, res, next) => {
 const fetchUser = async (req, res, next) => {
   const { deptId } = req.params;
   const company = req.company;
-  const company = req.company;
 
   try {
     if (deptId) {
@@ -246,8 +245,6 @@ const fetchUser = async (req, res, next) => {
 
       res.status(200).json(users);
     }
-
-    const users = await User.find({ company })
 
     const users = await User.find({ company })
       .select("-password")
@@ -399,16 +396,10 @@ const updateSingleUser = async (req, res, next) => {
       updateData.familyInformation &&
       typeof updateData.familyInformation === "object"
     ) {
-    if (
-      updateData.familyInformation &&
-      typeof updateData.familyInformation === "object"
-    ) {
       const allowedFamilyFields = ["fatherName", "motherName"];
       filteredUpdateData.familyInformation = {};
       allowedFamilyFields.forEach((field) => {
         if (updateData.familyInformation[field] !== undefined) {
-          filteredUpdateData.familyInformation[field] =
-            updateData.familyInformation[field];
           filteredUpdateData.familyInformation[field] =
             updateData.familyInformation[field];
         }
@@ -423,16 +414,10 @@ const updateSingleUser = async (req, res, next) => {
       updateData.panAadhaarDetails &&
       typeof updateData.panAadhaarDetails === "object"
     ) {
-    if (
-      updateData.panAadhaarDetails &&
-      typeof updateData.panAadhaarDetails === "object"
-    ) {
       const allowedPanFields = ["aadhaarId", "pan"];
       filteredUpdateData.panAadhaarDetails = {};
       allowedPanFields.forEach((field) => {
         if (updateData.panAadhaarDetails[field] !== undefined) {
-          filteredUpdateData.panAadhaarDetails[field] =
-            updateData.panAadhaarDetails[field];
           filteredUpdateData.panAadhaarDetails[field] =
             updateData.panAadhaarDetails[field];
         }
@@ -447,16 +432,10 @@ const updateSingleUser = async (req, res, next) => {
       updateData.bankInformation &&
       typeof updateData.bankInformation === "object"
     ) {
-    if (
-      updateData.bankInformation &&
-      typeof updateData.bankInformation === "object"
-    ) {
       const allowedBankFields = ["bankName", "accountNumber", "bankIFSC"];
       filteredUpdateData.bankInformation = {};
       allowedBankFields.forEach((field) => {
         if (updateData.bankInformation[field] !== undefined) {
-          filteredUpdateData.bankInformation[field] =
-            updateData.bankInformation[field];
           filteredUpdateData.bankInformation[field] =
             updateData.bankInformation[field];
         }
@@ -482,7 +461,7 @@ const updateSingleUser = async (req, res, next) => {
 
     // Perform the update operation
     const updatedUser = await User.findByIdAndUpdate(
-      { _id: id },
+      id,
       { $set: filteredUpdateData },
       { new: true, runValidators: true }
     )
@@ -491,7 +470,6 @@ const updateSingleUser = async (req, res, next) => {
       .populate("departments", "name")
       .populate("company", "name")
       .populate("role", "roleTitle modulePermissions");
-
 
     if (!updatedUser) {
       await createLog(

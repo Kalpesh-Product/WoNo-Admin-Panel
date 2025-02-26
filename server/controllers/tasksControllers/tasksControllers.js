@@ -236,11 +236,14 @@ const updateTask = async (req, res, next) => {
   }
 };
 
-const getTasks = async (req, res, next) => {
+const getMyTasks = async (req, res, next) => {
   try {
-    const { company } = req;
+    const { user, company } = req;
 
-    const tasks = await Task.find({ company })
+    const tasks = await Task.find({
+      company,
+      assignedTo: { $in: [user] },
+    })
       .populate({
         path: "project",
         select: "projectName department",
@@ -269,7 +272,7 @@ const getTasks = async (req, res, next) => {
   }
 };
 
-const getTodayTasks = async (req, res, next) => {
+const getMyTodayTasks = async (req, res, next) => {
   try {
     const { user, company } = req;
 
@@ -367,7 +370,7 @@ const getTeamMembersTasksProjects = async (req, res, next) => {
                 "No Role", // Extract role title
               departments:
                 matchedUser.departments?.map((dept) => dept.name) || [], // Extract department names
-              status: matchedUser.status || "Unknown",
+              status: matchedUser.status || "Active",
             };
           }
         }
@@ -380,7 +383,7 @@ const getTeamMembersTasksProjects = async (req, res, next) => {
       })
     );
 
-    return res.status(200).json(teamMembersData);
+    return res.status(200).json(teamMembersData.slice(1));
   } catch (error) {
     next(error);
   }
@@ -470,8 +473,8 @@ const deleteTask = async (req, res, next) => {
 module.exports = {
   createTasks,
   updateTask,
-  getTasks,
-  getTodayTasks,
+  getMyTasks,
+  getMyTodayTasks,
   getTeamMembersTasksProjects,
   getAssignedTasks,
   deleteTask,
