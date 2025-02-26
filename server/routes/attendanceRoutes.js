@@ -24,6 +24,5 @@ router.post(
   upload.single("attandance"),
   bulkInsertAttendance
 );
-router.get("/get-attendance-logs", getAttendanceLogs);
 
 module.exports = router;
