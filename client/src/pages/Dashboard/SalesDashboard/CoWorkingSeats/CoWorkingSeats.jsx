@@ -55,14 +55,38 @@ const jsonData = {
     },
     {
       month: "May",
-      booked: 500,
-      remaining: 500,
+      booked: 300,
+      remaining: 700,
       clients: [
         {
-          location: "Office B",
+          location: "DTC",
           floor: 1,
-          totalSeats: 20,
-          booked: 15,
+          totalSeats: 80,
+          booked: 75,
+          available: 5,
+          action: "view",
+        },
+        {
+          location: "DTC",
+          floor: 2,
+          totalSeats: 55,
+          booked: 50,
+          available: 5,
+          action: "view",
+        },
+        {
+          location: "ST",
+          floor: 1,
+          totalSeats: 110,
+          booked: 100,
+          available: 10,
+          action: "view",
+        },
+        {
+          location: "ST",
+          floor: 3,
+          totalSeats: 80,
+          booked: 75,
           available: 5,
           action: "view",
         },
@@ -70,14 +94,38 @@ const jsonData = {
     },
     {
       month: "June",
-      booked: 700,
-      remaining: 300,
+      booked: 300,
+      remaining: 700,
       clients: [
         {
-          location: "Office C",
+          location: "DTC",
+          floor: 1,
+          totalSeats: 80,
+          booked: 75,
+          available: 5,
+          action: "view",
+        },
+        {
+          location: "DTC",
           floor: 2,
-          totalSeats: 20,
-          booked: 15,
+          totalSeats: 55,
+          booked: 50,
+          available: 5,
+          action: "view",
+        },
+        {
+          location: "ST",
+          floor: 1,
+          totalSeats: 110,
+          booked: 100,
+          available: 10,
+          action: "view",
+        },
+        {
+          location: "ST",
+          floor: 3,
+          totalSeats: 80,
+          booked: 75,
           available: 5,
           action: "view",
         },
@@ -85,7 +133,7 @@ const jsonData = {
     },
     {
       month: "July",
-      booked: 200,
+      booked: 400,
       remaining: 800,
       clients: [
         {
@@ -284,8 +332,7 @@ const CoWorkingSeats = () => {
           layout={1}
           border
           padding
-          title={"Co-Working Seart 24-25"}
-        >
+          title={"Co-Working Seats 24-25"}>
           <BarGraph
             data={series}
             options={options}
@@ -325,8 +372,7 @@ const CoWorkingSeats = () => {
               expandIcon={<IoIosArrowDown />}
               aria-controls={`panel-${index}-content`}
               id={`panel-${index}-header`}
-              className="border-b-[1px] border-borderGray"
-            >
+              className="border-b-[1px] border-borderGray">
               <div className="flex justify-between items-center w-full px-4">
                 <span className="text-subtitle font-pmedium">
                   {domain.month}
@@ -374,8 +420,7 @@ const CoWorkingSeats = () => {
         onClose={() => {
           setOpenModal(false);
           setLocation({});
-        }}
-      >
+        }}>
         <div className="grid grid-cols-2 gap-8 px-2 pb-8 border-b-default border-borderGray">
           <div className="flex items-center justify-between">
             <span className="text-content">Location</span>
