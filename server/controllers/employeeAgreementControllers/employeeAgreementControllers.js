@@ -1,5 +1,5 @@
 const EmploymentAgreement = require("../../models/EmploymentAgreements");
-const { handlePdfUpload } = require("../../config/cloudinaryConfig");
+const { handleDocumentUpload } = require("../../config/cloudinaryConfig");
 const { PDFDocument } = require("pdf-lib");
 
 const multer = require("multer");
@@ -61,7 +61,7 @@ const upload = multer({ storage: storage });
 //     )}`;
 
 //     // Upload the PDF to Cloudinary
-//     const uploadResult = await handlePdfUpload(
+//     const uploadResult = await handleDocumentUpload(
 //       base64Pdf,
 //       "employment-agreements"
 //     );
@@ -107,7 +107,7 @@ const createEmploymentAgreement = async (req, res) => {
     const processedPdfBuffer = await pdfDoc.save();
 
     // Upload the processed PDF buffer to Cloudinary
-    const uploadResult = await handlePdfUpload(
+    const uploadResult = await handleDocumentUpload(
       processedPdfBuffer,
       "employment-agreements"
     );

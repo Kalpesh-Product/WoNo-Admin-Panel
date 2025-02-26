@@ -1,12 +1,32 @@
 const router = require("express").Router();
 
 const {
-    createProject,createTasks,getProjects,updateProject
-} = require('../controllers/tasksControllers/tasksControllers');
+  createProject,
+  getProjects,
+  updateProject,
+  deleteProject,
+} = require("../controllers/tasksControllers/ProjectControllers");
+const {
+  createTasks,
+  getMyTasks,
+  updateTask,
+  deleteTask,
+  todayTasks,
+  getMyTodayTasks,
+  getTeamMembersTasksProjects,
+  getAssignedTasks,
+} = require("../controllers/tasksControllers/tasksControllers");
 
 router.post("/create-project", createProject);
+router.get("/get-projects", getProjects);
+router.put("/update-project/:id", updateProject);
+router.delete("/delete-project/:id", deleteProject);
 router.post("/create-tasks", createTasks);
-router.get("/get-projects",getProjects);
-router.put("/create-project/:id",updateProject)
+router.get("/get-tasks", getMyTasks);
+router.get("/get-team-tasks-projects", getTeamMembersTasksProjects);
+router.get("/get-today-tasks", getMyTodayTasks);
+router.get("/get-assigned-tasks", getAssignedTasks);
+router.put("/update-task/:id", updateTask);
+router.delete("/delete-task/:id", deleteTask);
 
 module.exports = router;

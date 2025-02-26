@@ -1,9 +1,18 @@
-const Vendor = require("../../models/Vendor");
-const User = require("../../models/UserData");
-const Company = require("../../models/Company");
+const Vendor = require("../../models/hr/Vendor");
+const User = require("../../models/hr/UserData");
+const Company = require("../../models/hr/Company");
+const csvParser = require("csv-parser");
+const { Readable } = require("stream");
 const mongoose = require("mongoose");
+const CustomError = require("../../utils/customErrorlogs");
+const { createLog } = require("../../utils/moduleLogs");
 
 const onboardVendor = async (req, res, next) => {
+  const logPath = "hr/HrLog";
+  const logAction = "Onboard Vendor";
+  const logSourceKey = "vendor";
+  const { ip, company, user: userId } = req;
+
   try {
     const {
       name,
@@ -23,27 +32,29 @@ const onboardVendor = async (req, res, next) => {
       isTransporter,
     } = req.body;
 
-    const userId = req.user;
-
-    // Fetch the current user
     const currentUser = await User.findOne({ _id: userId })
       .select("department company")
       .lean()
       .exec();
 
-      
-
     if (!currentUser) {
-      return res.status(404).json({ message: "User not found" });
+      throw new CustomError("User not found", logPath, logAction, logSourceKey);
     }
 
     // Check if the user is part of the given department
-    if (!currentUser.department.find(dept => dept._id.toString() === departmentId)) {
-      return res.status(403).json({
-        message: "You are not a member of this department.",
-      });
+    const isMember = currentUser.department.find(
+      (dept) => dept._id.toString() === departmentId
+    );
+    if (!isMember) {
+      throw new CustomError(
+        "You are not a member of this department.",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
+    // Validate that the user's company and selectedDepartments allow vendor onboarding
     const companyDoc = await Company.findOne({
       _id: currentUser.company, // Match the user's company
       selectedDepartments: {
@@ -60,18 +71,20 @@ const onboardVendor = async (req, res, next) => {
       .exec();
 
     if (!companyDoc) {
-      return res.status(403).json({
-        message:
-          "You are not authorized to onboard a vendor for this department.",
-      });
+      throw new CustomError(
+        "You are not authorized to onboard a vendor for this department.",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    // Step 2: Create and Save the Vendor
+    // Create and save the vendor
     const newVendor = new Vendor({
       name,
       address,
-      departmentId, // Store the validated department
-      company: companyDoc._id, // Ensure correct company reference
+      departmentId, // Validated department
+      company: companyDoc._id, // Use the company from the companyDoc
       state,
       country,
       pinCode,
@@ -88,11 +101,25 @@ const onboardVendor = async (req, res, next) => {
 
     await newVendor.save();
 
-    res
+    // Log the successful vendor onboarding
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Vendor onboarded successfully",
+      status: "Success",
+      user: userId,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: newVendor._id,
+      changes: newVendor,
+    });
+
+    return res
       .status(201)
       .json({ message: "Vendor onboarded successfully", vendor: newVendor });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
@@ -156,7 +183,7 @@ const fetchVendors = async (req, res, next) => {
     }
 
     // Get department IDs
-   
+
     const adminDepartmentIds = adminDepartments.map(
       (dept) => dept.department._id
     );
@@ -169,6 +196,21 @@ const fetchVendors = async (req, res, next) => {
       .exec();
 
     return res.status(200).json(vendors);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const bulkInsertVendor = async (req, res, next) => {
+  try {
+    const vendorCsv = req.file;
+    if (!req.file) {
+      return res
+        .status(400)
+        .json({ message: "please provide a valid csv file" });
+    }
+
+    
   } catch (error) {
     next(error);
   }

@@ -28,6 +28,7 @@ const checkScope = require("./middlewares/checkScope");
 const vendorRoutes = require("./routes/vendorRoutes");
 const budgetRoutes = require("./routes/budgetRoutes");
 const payrollRoutes = require("./routes/payrollRoutes");
+const getLogs = require("./controllers/logController");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -39,7 +40,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
-app.set('trust proxy', true);
+app.set("trust proxy", true);
 
 app.get("/", (req, res) => {
   if (req.accepts("html")) {
@@ -63,13 +64,14 @@ app.use("/api/meetings", verifyJwt, meetingsRoutes);
 app.use("/api/tickets", verifyJwt, ticketsRoutes);
 app.use("/api/leaves", verifyJwt, leaveRoutes);
 app.use("/api/employee-agreements", employeeAgreementRoutes);
-app.use("/api/users",verifyJwt, userRoutes);
-app.use("/api/roles", roleRoutes);
+app.use("/api/users", verifyJwt, userRoutes);
+app.use("/api/roles", verifyJwt, roleRoutes);
 app.use("/api/vendors", verifyJwt, vendorRoutes);
 app.use("/api/events", verifyJwt, eventRoutes);
 app.use("/api/payroll", payrollRoutes);
-app.use("/api/tasks", taskRoutes);
+app.use("/api/tasks", verifyJwt, taskRoutes);
 app.use("/api/attendance", verifyJwt, attendanceRoutes);
+app.use("/api/logs/:path", verifyJwt, getLogs);
 app.get(
   "/api/protected",
   verifyJwt,

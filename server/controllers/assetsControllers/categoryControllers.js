@@ -1,155 +1,173 @@
 const Category = require("../../models/assets/AssetCategory");
 const Department = require("../../models/Departments");
-const Company = require("../../models/Company");
-const  {createLog} = require("../../utils/moduleLogs");
+const Company = require("../../models/hr/Company");
+const { createLog } = require("../../utils/moduleLogs");
 const mongoose = require("mongoose");
 const Asset = require("../../models/assets/Assets");
 const assetCategory = require("../../models/assets/AssetCategory");
 const AssetCategory = require("../../models/assets/AssetCategory");
+const CustomError = require("../../utils/customErrorlogs");
 
 const addAssetCategory = async (req, res, next) => {
   const { assetCategoryName, departmentId } = req.body;
-  const company = req.company;
-  const user = req.user;
-  const ip = req.ip;
-  let errorMessage = ""
-  let path = "assets/AssetLog"
-  let action = "Add Asset Category"
+  const { company, user, ip } = req;
+  const logPath = "assets/AssetLog";
+  const logAction = "Add Asset Category";
+  const logSourceKey = "category";
 
   try {
     if (!assetCategoryName || !departmentId) {
-      errorMessage = "Missing required fields"
-
-      await createLog(path, action, errorMessage, user, ip, company);
-
-      return res.status(400).json({ message: errorMessage});
+      throw new CustomError(
+        "Missing required fields",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
- 
-      if (!mongoose.Types.ObjectId.isValid(departmentId)) {
-       errorMessage = "Invalid department ID"
 
-        await createLog(path, action, errorMessage, user, ip, company);
+    if (!mongoose.Types.ObjectId.isValid(departmentId)) {
+      throw new CustomError(
+        "Invalid department ID",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
 
-        return res.status(400).json({ message: errorMessage});
-      }
+    const departmentExists = await Department.findById(departmentId);
+    if (!departmentExists) {
+      throw new CustomError(
+        "Department doesn't exist",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
 
-      const departmentExists = await Department.findById(departmentId);
-      if (!departmentExists) {
-        errorMessage = "Department doesn't exists"
+    if (!mongoose.Types.ObjectId.isValid(company)) {
+      throw new CustomError(
+        "Invalid company ID",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
 
-        await createLog(path, action, errorMessage, user, ip, company);
-
-        return res.status(400).json({ message: errorMessage});
-        
-      }
-    
-      if (!mongoose.Types.ObjectId.isValid(company)) {
-        errorMessage = "Invalid company ID"
-
-        await createLog(path, action, errorMessage, user, ip, company);
-
-        return res.status(400).json({ message: errorMessage});
-      }
-
-      const companyExists = await Company.findById(company);
-      if (!companyExists) {
-         errorMessage = "Company doesn't exists"
-
-         await createLog(path, action, errorMessage, user, ip, company);
-
-        return res.status(400).json({ message: errorMessage});
-      }
+    const companyExists = await Company.findById(company);
+    if (!companyExists) {
+      throw new CustomError(
+        "Company doesn't exist",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
 
     const newAssetCategory = new AssetCategory({
       categoryName: assetCategoryName,
-      department:departmentId,
+      department: departmentId,
       company,
     });
 
-   const savedAssetCategory =  await newAssetCategory.save();
+    const savedAssetCategory = await newAssetCategory.save();
 
-   const addCompanyAssetCategory = await Company.findByIdAndUpdate(
-    { _id: company },
-    { 
-      $push: { 
-        "selectedDepartments.$[elem].assetCategories": savedAssetCategory._id 
-      } 
-    },
-    { 
-      new: true,
-      arrayFilters: [{ "elem.department": departmentId }]   
-    }
-  );
-
-    if(!addCompanyAssetCategory){
-      errorMessage = "Failed to add asset category"
-      await createLog(path, action, errorMessage, user, ip, company);
-
-      return res.status(400).json({ message: errorMessage});
-    }
- 
-    const data = 
+    const addCompanyAssetCategory = await Company.findByIdAndUpdate(
+      { _id: company },
       {
-        categoryName: assetCategoryName,
-        department:departmentId,
+        $push: {
+          "selectedDepartments.$[elem].assetCategories": savedAssetCategory._id,
+        },
+      },
+      {
+        new: true,
+        arrayFilters: [{ "elem.department": departmentId }],
       }
-    
-    await createLog(path,action, "Category added successfully","Success",user,ip, company, savedAssetCategory._id, data);
+    );
 
-    res.status(201).json({ message: "Category added successfully" });
+    if (!addCompanyAssetCategory) {
+      throw new CustomError(
+        "Failed to add asset category",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
 
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Category added successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: savedAssetCategory._id,
+      changes: {
+        categoryName: assetCategoryName,
+        department: departmentId,
+      },
+    });
+
+    return res.status(201).json({ message: "Category added successfully" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
 const addSubCategory = async (req, res, next) => {
   const { assetCategoryId, assetSubCategoryName } = req.body;
-  const company = req.company;
-  const user = req.user;
-  const ip = req.ip;
-  let errorMessage = "";  
-  let path = "assets/AssetLog"
-  let action = "Add Asset Sub Category" 
+  const { company, user, ip } = req;
+  const logPath = "assets/AssetLog";
+  const logAction = "Add Asset Sub Category";
+  const logSourceKey = "category";
 
   try {
     if (!assetSubCategoryName || !assetCategoryId) {
-      errorMessage = "Missing required fields";
-      await createLog(path, action, errorMessage, user, ip, company);
-
-      return res.status(400).json({ message: errorMessage});
+      throw new CustomError(
+        "Missing required fields",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     if (!mongoose.Types.ObjectId.isValid(assetCategoryId)) {
-      errorMessage = "Invalid category ID";
-      await createLog(path, action, errorMessage, user, ip, company);
-
-      return res.status(400).json({ message: errorMessage});
-      
+      throw new CustomError(
+        "Invalid category ID",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    const categoryExists = await AssetCategory.findById({ _id: assetCategoryId });
-
+    const categoryExists = await AssetCategory.findById(assetCategoryId);
     if (!categoryExists) {
-      errorMessage = "Category doesn't exist";
-      await createLog(path, action, errorMessage, user, ip, company);
-
-      return res.status(400).json({ message: errorMessage});
+      throw new CustomError(
+        "Category doesn't exist",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     if (!mongoose.Types.ObjectId.isValid(company)) {
-      errorMessage = "Invalid company ID";
-      await createLog(path, action, errorMessage, user, ip, company);
-
-      return res.status(400).json({ message: errorMessage});
+      throw new CustomError(
+        "Invalid company ID",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const companyExists = await Company.findById(company);
     if (!companyExists) {
-      errorMessage = "Company doesn't exist";
-      await createLog(path, action, errorMessage, user, ip, company);
-
-      return res.status(400).json({ message: errorMessage});
+      throw new CustomError(
+        "Company doesn't exist",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const subcategory = await AssetCategory.findByIdAndUpdate(
@@ -159,167 +177,219 @@ const addSubCategory = async (req, res, next) => {
     );
 
     if (!subcategory) {
-      errorMessage = "Failed to add subcategory";
-      await createLog(path, action, errorMessage, user, ip, company);
-
-      return res.status(400).json({ message: errorMessage});
+      throw new CustomError(
+        "Failed to add subcategory",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    const data = 
-    {
-      subCategoryName: assetSubCategoryName,
-    }
-    // Create a log for success
-    await createLog(path,action, "Subcategory added successfully", "Success", user, ip, company,subcategory._id,data);
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Subcategory added successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: subcategory._id,
+      changes: {
+        subCategoryName: assetSubCategoryName,
+      },
+    });
 
-    res.status(200).json({ message: "Sub category added successfully" });
+    return res.status(200).json({ message: "Sub category added successfully" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
-
 const disableCategory = async (req, res, next) => {
   const { assetCategoryId } = req.params;
-  const company = req.company;
-  const user = req.user;
-  const ip = req.ip;
-  let errorMessage = "";  
-  let path = "assets/AssetLog"
-  let action = "Disable Asset Category" 
+  const { company, user, ip } = req;
+  const logPath = "assets/AssetLog";
+  const logAction = "Disable Asset Category";
+  const logSourceKey = "category";
 
   try {
-    
     if (!assetCategoryId) {
-      errorMessage = "Missing required fields";
-      await createLog(path, action, errorMessage, user, ip, company);
-
-      return res.status(400).json({ message: errorMessage});
-      
+      throw new CustomError(
+        "Missing required fields",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     if (!mongoose.Types.ObjectId.isValid(company)) {
-      errorMessage = "Invalid company ID";
-      await createLog(path, action, errorMessage, user, ip, company);
-
-      return res.status(400).json({ message: errorMessage});
+      throw new CustomError(
+        "Invalid company ID",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const companyExists = await Company.findById(company);
     if (!companyExists) {
-      errorMessage = "Company doesn't exist";
-      await createLog(path, action, errorMessage, user, ip, company);
-
-      return res.status(400).json({ message: errorMessage});
+      throw new CustomError(
+        "Company doesn't exist",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     if (!mongoose.Types.ObjectId.isValid(assetCategoryId)) {
-      errorMessage = "Invalid category ID";
-      await createLog(path, action, errorMessage, user, ip, company);
-
-      return res.status(400).json({ message: errorMessage});
+      throw new CustomError(
+        "Invalid category ID",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    const categoryExists = await AssetCategory.findById({ _id: assetCategoryId });
+    const categoryExists = await AssetCategory.findById(assetCategoryId);
     if (!categoryExists) {
-      errorMessage = "Category doesn't exist";
-      await createLog(path, action, errorMessage, user, ip, company);
-
-      return res.status(400).json({ message: errorMessage});
+      throw new CustomError(
+        "Category doesn't exist",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
- 
-    const disableCategory = await AssetCategory.findByIdAndUpdate(
+
+    const disabledCategory = await AssetCategory.findByIdAndUpdate(
       { _id: assetCategoryId },
       { isActive: false },
       { new: true }
     );
- 
-    if (!disableCategory) {
-      errorMessage = "Failed to disable category";
-      await createLog(path, action, errorMessage, user, ip, company);
 
-      return res.status(400).json({ message: errorMessage});
+    if (!disabledCategory) {
+      throw new CustomError(
+        "Failed to disable category",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    const data={isActive: false}
-    await createLog(path,action, "Category disabled successfully", "Success", user, ip, company,disableCategory._id,data);
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Category disabled successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: disabledCategory._id,
+      changes: {
+        categoryName: disabledCategory.categoryName,
+        isActive: false,
+      },
+    });
 
-    res.status(200).json({ message: "Category disabled successfully" });
+    return res.status(200).json({ message: "Category disabled successfully" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
-
 const disableSubCategory = async (req, res, next) => {
   const { assetSubCategoryId } = req.params;
-  const company = req.company;
-  const user = req.user;
-  const ip = req.ip;
-  let errorMessage = "";  
-  let path = "assets/AssetLog"
-  let action = "Disable Asset Sub Category"  
+  const { company, user, ip } = req;
+  const logPath = "assets/AssetLog";
+  const logAction = "Disable Asset Sub Category";
+  const logSourceKey = "category";
 
   try {
-   
     if (!assetSubCategoryId) {
-      errorMessage = "Missing required fields";
-      await createLog(path, action, errorMessage, user, ip, company);
-
-      return res.status(400).json({ message: errorMessage});
+      throw new CustomError(
+        "Missing required fields",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     if (!mongoose.Types.ObjectId.isValid(company)) {
-      errorMessage = "Invalid company ID";
-      await createLog(path, action, errorMessage, user, ip, company);
-
-      return res.status(400).json({ message: errorMessage});
+      throw new CustomError(
+        "Invalid company ID",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
- 
-    const companyExists = await Company.findById({_id:company});
-    if (!companyExists) {
-      errorMessage = "Company doesn't exist";
-      await createLog(path, action, errorMessage, user, ip, company);
 
-      return res.status(400).json({ message: errorMessage});
+    const companyExists = await Company.findById(company);
+    if (!companyExists) {
+      throw new CustomError(
+        "Company doesn't exist",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     if (!mongoose.Types.ObjectId.isValid(assetSubCategoryId)) {
-      errorMessage = "Invalid subcategory ID";
-      await createLog(path, action, errorMessage, user, ip, company);
-
-      return res.status(400).json({ message: errorMessage});
+      throw new CustomError(
+        "Invalid subcategory ID",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
- 
-    const disableSubCategory = await AssetCategory.findOneAndUpdate(
+
+    const disabledSubCategory = await AssetCategory.findOneAndUpdate(
       { "subCategories._id": assetSubCategoryId },
       { $set: { "subCategories.$.isActive": false } },
       { new: true }
     );
- 
-    if (!disableSubCategory) {
-      errorMessage = "Failed to disable subcategory";
-      await createLog(path, action, errorMessage, user, ip, company);
 
-      return res.status(400).json({ message: errorMessage});
+    if (!disabledSubCategory) {
+      throw new CustomError(
+        "Failed to disable subcategory",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    const data={isActive: false}
-    await createLog(path,action, "Sub Category disabled successfully", "Success", user, ip, company,disableSubCategory._id,data);
- 
-    res.status(200).json({ message: "Subcategory disabled successfully" });
+    const updatedSubCategory = disabledSubCategory.subCategories.find(
+      (sub) => sub._id.toString() === assetSubCategoryId
+    );
+
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Sub Category disabled successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: disabledSubCategory._id,
+      changes: {
+        subCategoryName: updatedSubCategory.name,
+        isActive: false,
+      },
+    });
+
+    return res
+      .status(200)
+      .json({ message: "Subcategory disabled successfully" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
-
 const getCategory = async (req, res, next) => {
-
   const company = req.company;
 
   try {
-
     if (!mongoose.Types.ObjectId.isValid(company)) {
       return res.status(400).json({ message: "Invalid company ID" });
     }
@@ -328,8 +398,11 @@ const getCategory = async (req, res, next) => {
     if (!companyExists) {
       return res.status(400).json({ message: "Company doesn't exists" });
     }
- 
-      const assetCategories = await AssetCategory.find({company});
+
+    const assetCategories = await AssetCategory.find({
+      company,
+      isActive: { $ne: false },
+    });
 
     if (!assetCategories) {
       res.status(400).json({ message: "Failed to fetch categories" });
@@ -343,9 +416,8 @@ const getCategory = async (req, res, next) => {
 
 const getSubCategory = async (req, res, next) => {
   const company = req.company;
-  
-  try {
 
+  try {
     if (!mongoose.Types.ObjectId.isValid(company)) {
       return res.status(400).json({ message: "Invalid company ID" });
     }
@@ -354,10 +426,11 @@ const getSubCategory = async (req, res, next) => {
     if (!companyExists) {
       return res.status(400).json({ message: "Company doesn't exists" });
     }
- 
-      const assetSubCategories = await AssetCategory.find({company,
-        isActive:{$ne : false}
-      }) ;
+
+    const assetSubCategories = await AssetCategory.find({
+      company,
+      isActive: { $ne: false },
+    });
 
     if (!assetSubCategories) {
       res.status(400).json({ message: "Failed to fetch categories" });
@@ -369,4 +442,11 @@ const getSubCategory = async (req, res, next) => {
   }
 };
 
-module.exports = { addAssetCategory, addSubCategory, disableCategory, disableSubCategory,getCategory,getSubCategory };
+module.exports = {
+  addAssetCategory,
+  addSubCategory,
+  disableCategory,
+  disableSubCategory,
+  getCategory,
+  getSubCategory,
+};

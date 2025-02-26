@@ -1,17 +1,55 @@
-const Role = require("../../models/Roles"); // Adjust path as needed
+const Role = require("../../models/roles/Roles"); // Adjust path as needed
+const CustomError = require("../../utils/customErrorlogs");
+const { createLog } = require("../../utils/moduleLogs");
 
 const addRole = async (req, res, next) => {
+  const { user, company, ip } = req;
+  const logPath = "roles/RoleLog";
+  const logAction = "Add Role";
+  const logSourceKey = "role";
+
   try {
     const { roleTitle } = req.body;
+
+    if (!roleTitle) {
+      throw new CustomError(
+        "Role title is required",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
     const roleExists = await Role.findOne({ roleTitle }).lean().exec();
     if (roleExists) {
-      return res.status(400).json({ message: "role already exists" });
+      throw new CustomError(
+        "Role already exists",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
+
     const newRole = new Role({ roleTitle });
     await newRole.save();
-    res.sendStatus(204);
+
+    // Success log for role creation
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Role added successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: newRole._id,
+      changes: { roleTitle },
+    });
+
+    return res.status(201).json({ message: "Role added successfully" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 

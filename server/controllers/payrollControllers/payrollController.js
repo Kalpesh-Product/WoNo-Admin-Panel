@@ -1,35 +1,70 @@
 const { default: mongoose } = require("mongoose");
 const Payroll = require("../../models/Payroll");
-const User = require("../../models/UserData");
+const User = require("../../models/hr/UserData");
+const CustomError = require("../../utils/customErrorlogs");
+const { createLog } = require("../../utils/moduleLogs");
 
 const generatePayroll = async (req, res, next) => {
+  const logPath = "hr/HrLog";
+  const logAction = "Generate Payroll";
+  const logSourceKey = "payroll";
+  const { user, ip, company } = req;
   try {
     const { totalSalary, reimbursment } = req.body;
     const { userId } = req.params;
 
     if (!totalSalary) {
-      return res.status(400).json({ message: "invalid payroll data" });
+      throw new CustomError(
+        "Invalid payroll data",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ message: "invalid user ID" });
+      throw new CustomError(
+        "Invalid user ID",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const foundUser = await User.findOne({ _id: userId }).lean().exec();
     if (!foundUser) {
-      return res.status(404).json({ message: "No such user found" });
+      throw new CustomError(
+        "No such user found",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const newPayroll = new Payroll({
-      empoloyee: userId,
+      empoloyee: userId, // Note: Ensure the field name is as intended. It might be "employee" if that's the schema.
       reimbursment,
       totalSalary,
     });
 
     await newPayroll.save();
-    res.status(200).json({ message: "Payroll generated successfully" });
+
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Payroll generated successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: newPayroll._id,
+      changes: { totalSalary, reimbursment },
+    });
+
+    return res.status(200).json({ message: "Payroll generated successfully" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 

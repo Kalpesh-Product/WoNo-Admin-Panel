@@ -1,84 +1,122 @@
-const Company = require("../../models/Company");
+const Company = require("../../models/hr/Company");
 const bcrypt = require("bcryptjs");
-const User = require("../../models/UserData");
-const Role = require("../../models/Roles");
+const User = require("../../models/hr/UserData");
+const Role = require("../../models/roles/Roles");
 const { default: mongoose } = require("mongoose");
 const Department = require("../../models/Departments");
+const { createLog } = require("../../utils/moduleLogs");
+const csvParser = require("csv-parser");
+const { Readable } = require("stream");
 
 const createUser = async (req, res, next) => {
+  const logPath = "hr/HrLog";
+  const logAction = "Create User";
+  const logSourceKey = "user";
+  const { user, ip, company } = req;
+
   try {
     const {
       empId,
-      firstName,
-      middleName,
-      lastName,
+      name,
       gender,
-      dateOfBirth,
-      phone,
       email,
+      phone,
       role,
       companyId,
       departments,
       employeeType,
-      designation,
-      startDate,
-      workLocation,
-      reportsTo,
-      assetDescription,
-      policies,
-      homeAddress,
-      bankInformation,
-      panAadhaarDetails,
-      payrollInformation,
-      familyInformation,
     } = req.body;
 
     // Validate required fields
     if (
       !empId ||
-      !firstName ||
-      !lastName ||
+      !name ||
       !email ||
       !phone ||
       !companyId ||
       !employeeType ||
       !departments
     ) {
+      await createLog(
+        path,
+        action,
+        "Missing required fields",
+        "Failed",
+        user,
+        ip,
+        company
+      );
       return res.status(400).json({ message: "Missing required fields" });
     }
 
+    // Validate departments: check for any invalid department IDs
     const invalidDepartmentIds = departments.filter(
       (id) => !mongoose.Types.ObjectId.isValid(id)
     );
-
     if (invalidDepartmentIds.length > 0) {
+      await createLog(
+        path,
+        action,
+        "Invalid department ID provided",
+        "Failed",
+        user,
+        ip,
+        company
+      );
       return res
         .status(400)
         .json({ message: "Invalid department Id provided" });
     }
 
-    // Check if department exists
     const departmentExists = await Department.find({
       _id: { $in: departments },
     })
       .lean()
       .exec();
-
     if (!departmentExists || departmentExists.length === 0) {
+      await createLog(
+        path,
+        action,
+        "Department not found",
+        "Failed",
+        user,
+        ip,
+        company
+      );
       return res.status(404).json({ message: "Department not found" });
     }
 
     // Check if company exists
-    const company = await Company.findOne({ _id: companyId }).lean().exec();
-    if (!company) {
+    const companyExists = await Company.findOne({ _id: companyId })
+      .lean()
+      .exec();
+    if (!companyExists) {
+      await createLog(
+        path,
+        action,
+        "Company not found",
+        "Failed",
+        user,
+        ip,
+        company
+      );
       return res.status(404).json({ message: "Company not found" });
     }
 
     // Check if the employee ID or email is already registered
     const existingUser = await User.findOne({
-      $or: [{ company: companyId, empId }, { email }],
+      $or: [{ company, empId }, { email }],
     }).exec();
     if (existingUser) {
+      await createLog(
+        path,
+        action,
+        "Employee ID or email already exists",
+        "Failed",
+        user,
+        ip,
+        company
+      );
       return res
         .status(409)
         .json({ message: "Employee ID or email already exists" });
@@ -87,31 +125,47 @@ const createUser = async (req, res, next) => {
     // Check role validity
     const roleValue = await Role.findOne({ _id: role }).lean().exec();
     if (!roleValue) {
+      await createLog(
+        path,
+        action,
+        "Invalid role provided",
+        "Failed",
+        user,
+        ip,
+        company
+      );
       return res.status(400).json({ message: "Invalid role provided" });
     }
 
-    // Master Admin check
+    // Master Admin check: only one Master Admin allowed per company
     if (roleValue.roleTitle === "Master Admin") {
-      const doesMasterAdminExists = await User.findOne({
+      const doesMasterAdminExist = await User.findOne({
         role: { $in: [roleValue._id] },
       })
         .lean()
         .exec();
       if (
-        doesMasterAdminExists &&
-        doesMasterAdminExists.company.toString() === companyId
+        doesMasterAdminExist &&
+        doesMasterAdminExist.company.toString() === companyId
       ) {
+        await createLog(
+          path,
+          action,
+          "A master admin already exists",
+          "Failed",
+          user,
+          ip,
+          company
+        );
         return res
           .status(400)
           .json({ message: "A master admin already exists" });
       }
     }
 
-    // Hash password
-    const defaultPassword = "123456"; // Use a more secure default in production
+    const defaultPassword = "123456";
     const hashedPassword = await bcrypt.hash(defaultPassword, 10);
 
-    // Create user object with all provided fields
     const newUser = new User({
       empId,
       firstName,
@@ -126,24 +180,32 @@ const createUser = async (req, res, next) => {
       password: hashedPassword,
       departments,
       employeeType,
-      designation,
-      startDate,
-      workLocation,
-      reportsTo,
-      assetDescription,
-      policies,
-      homeAddress,
-      bankInformation,
-      panAadhaarDetails,
-      payrollInformation,
-      familyInformation,
     });
 
-    // Save the user
     const savedUser = await newUser.save();
 
-    // Send response
-    res.status(201).json({
+    // Success log for user creation
+    await createLog(
+      path,
+      action,
+      "User created successfully",
+      "Success",
+      user,
+      ip,
+      company,
+      savedUser._id,
+      {
+        empId: savedUser.empId,
+        firstName: savedUser.firstName,
+        lastName: savedUser.lastName,
+        email: savedUser.email,
+        phone: savedUser.phone,
+        role: savedUser.role,
+        companyId: savedUser.company,
+      }
+    );
+
+    return res.status(201).json({
       message: "User created successfully",
       user: {
         id: savedUser._id,
@@ -158,8 +220,7 @@ const createUser = async (req, res, next) => {
       },
     });
   } catch (error) {
-    console.error("Error creating user:", error.message);
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
@@ -171,6 +232,7 @@ const fetchUser = async (req, res, next) => {
     if (deptId) {
       const users = await User.find({
         department: { $elemMatch: { $eq: deptId } },
+        company,
         company,
       })
         .select("-password")
@@ -199,13 +261,14 @@ const fetchUser = async (req, res, next) => {
     }
     res.status(200).json(users);
   } catch (error) {
-    next(error);
+    "Error fetching users : ", error;
+    res.status(500).json({ error: error.message });
   }
 };
 
 const fetchSingleUser = async (req, res) => {
   try {
-    const { id } = req.params; // Extract user ID from request parameters
+    const { id } = req.params;
     const user = await User.findById(id)
       .select("-password")
       .populate([
@@ -308,6 +371,11 @@ const fetchSingleUser = async (req, res) => {
 // };
 
 const updateSingleUser = async (req, res, next) => {
+  const { user, ip, company } = req;
+  const logPath = "hr/HrLog";
+  const logAction = "Update User";
+  const logSourceKey = "user";
+
   try {
     const { id } = req.params;
     const updateData = req.body;
@@ -377,16 +445,24 @@ const updateSingleUser = async (req, res, next) => {
       }
     }
 
-    // If there's nothing to update, return an error response
+    // If there's nothing to update, throw error
     if (Object.keys(filteredUpdateData).length === 0) {
+      await createLog(
+        logPath,
+        logAction,
+        "No valid fields to update",
+        "Failed",
+        user,
+        ip,
+        company
+      );
       return res.status(400).json({ message: "No valid fields to update" });
     }
 
-    // Perform the update operation using the id directly
-
+    // Perform the update operation
     const updatedUser = await User.findByIdAndUpdate(
-      { _id: id },
-      { $set: updateData },
+      id,
+      { $set: filteredUpdateData },
       { new: true, runValidators: true }
     )
       .select("-password")
@@ -396,15 +472,212 @@ const updateSingleUser = async (req, res, next) => {
       .populate("role", "roleTitle modulePermissions");
 
     if (!updatedUser) {
+      await createLog(
+        logPath,
+        logAction,
+        "User not found",
+        "Failed",
+        user,
+        ip,
+        company
+      );
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json({
+    await createLog(
+      logPath,
+      logAction,
+      "User data updated successfully",
+      "Success",
+      user,
+      ip,
+      company,
+      updatedUser._id,
+      filteredUpdateData
+    );
+
+    return res.status(200).json({
       message: "User data updated successfully",
     });
+  } catch (error) {
+    await createLog(
+      logPath,
+      logAction,
+      "Error updating user",
+      "Failed",
+      user,
+      ip,
+      company,
+      { error: error.message }
+    );
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const bulkInsertUsers = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    const companyId = req.company;
+    const foundCompany = await Company.findById(companyId)
+      .select("selectedDepartments")
+      .populate({
+        path: "selectedDepartments.department",
+        select: "_id departmentId",
+      })
+      .lean()
+      .exec();
+
+    if (!foundCompany) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+
+    const departmentMap = new Map(
+      foundCompany.selectedDepartments.map((dep) => [
+        dep.department.departmentId,
+        dep.department._id,
+      ])
+    );
+
+    const roles = await Role.find();
+    const roleMap = new Map(roles.map((role) => [role.roleID, role._id]));
+
+    const newUsers = [];
+    const hashedPassword = await bcrypt.hash("123456", 10);
+    const stream = Readable.from(req.file.buffer.toString("utf-8").trim());
+
+    stream
+      .pipe(csvParser())
+      .on("data", async (row) => {
+        try {
+          const departmentIds = row["Departments"]
+            ? row["Departments"].split("/").map((d) => d.trim())
+            : [];
+
+          const departmentObjectIds = departmentIds.map((id) => {
+            if (!departmentMap.has(id)) {
+              throw new Error(`Invalid department: ${id}`);
+            }
+            return departmentMap.get(id);
+          });
+
+          const roleIds = row["Roles"]
+            ? row["Roles"].split("/").map((r) => r.trim())
+            : [];
+          const roleObjectIds = roleIds
+            .map((id) => roleMap.get(id))
+            .filter(Boolean);
+
+          let reportsToId = row["Reports To"]
+            ? roleMap.get(row["Reports To"].trim())
+            : null;
+
+          const user = {
+            empId: row["Emp ID"],
+            firstName: row["First Name"],
+            middleName: row["Middle Name (optional)"] || "",
+            lastName: row["Last Name"],
+            gender: row["Gender"],
+            dateOfBirth: new Date(row["Date Of Birth"]),
+            phone: row["Phone Number"],
+            email: row["Company Email"],
+            company: new mongoose.Types.ObjectId(companyId),
+            password: hashedPassword,
+
+            departments: departmentObjectIds,
+            role: roleObjectIds,
+            reportsTo: reportsToId,
+
+            employeeType: {
+              name: row["Employement Type"] || "Full-Time",
+              leavesCount: [
+                { leaveType: "Privileged", count: row["Privileged"] || "0" },
+                { leaveType: "Sick", count: row["Sick"] || "0" },
+              ],
+            },
+
+            designation: row["Designation"],
+            startDate: new Date(row["Date Of Joining"]),
+            workLocation: row["Work Building"],
+
+            policies: {
+              shift: row["Shift Policy"] || "General",
+              workSchedulePolicy: row["Work Schedule Policy"] || "",
+              leavePolicy: row["Leave Policy"] || "",
+              holidayPolicy: row["Holiday Policy"] || "",
+            },
+
+            homeAddress: {
+              addressLine1: row["Address"] || "",
+              addressLine2: row["Present Address"] || "",
+              city: row["City"] || "",
+              state: row["State"] || "",
+              pinCode: row["PIN Code"] || "",
+            },
+
+            bankInformation: {
+              bankIFSC: row["Bank IFSC"] || "",
+              bankName: row["Bank Name"] || "",
+              branchName: row["Branch Name"] || "",
+              nameOnAccount: row["Account Name"] || "",
+              accountNumber: row["Account Number"] || "",
+            },
+
+            panAadhaarDetails: {
+              aadhaarId: row["Aadhaar Number"] || "",
+              pan: row["PAN Card Number"] || "",
+              pfAccountNumber: row["PF Account Number"] || "",
+              pfUAN: row["PF UAN"] || "",
+              esiAccountNumber: row["ESI Account Number"] || "",
+            },
+
+            payrollInformation: {
+              includeInPayroll: row["Include In Payroll (Yes/No)"] === "Yes",
+              professionTaxExemption: row["Profession Tax Exemption"] === "Yes",
+              includePF: row["Include PF"] === "Yes",
+              pfContributionRate: parseFloat(row["Employer PF Contri"] || "0"),
+              employeePF: parseFloat(row["Employee PF"] || "0"),
+            },
+
+            familyInformation: {
+              fatherName: row["Father's Name"] || "",
+              motherName: row["Mother's Name"] || "",
+              maritalStatus: row["Martial Status"] || "Single",
+            },
+          };
+
+          newUsers.push(user);
+        } catch (error) {
+          console.error("Error processing row:", row, error);
+        }
+      })
+      .on("end", async () => {
+        try {
+          if (newUsers.length === 0) {
+            return res
+              .status(400)
+              .json({ message: "No valid data found in CSV" });
+          }
+          await User.insertMany(newUsers);
+          res.status(201).json({
+            message: "Bulk data inserted successfully",
+            insertedCount: newUsers.length,
+          });
+        } catch (error) {
+          res.status(500).json({ message: "Error inserting data", error });
+        }
+      });
   } catch (error) {
     next(error);
   }
 };
 
-module.exports = { createUser, fetchUser, fetchSingleUser, updateSingleUser };
+module.exports = {
+  createUser,
+  fetchUser,
+  fetchSingleUser,
+  updateSingleUser,
+  bulkInsertUsers,
+};

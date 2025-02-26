@@ -4,40 +4,40 @@ const attendanceSchema = new mongoose.Schema(
   {
     inTime: {
       type: Date,
-      required: true
+      required: true,
     },
     outTime: {
       type: Date,
+      required: true,
     },
-    startBreak:{
+    startBreak: {
       type: Date,
     },
-    endBreak:{
+    endBreak: {
       type: Date,
     },
     breakDuration: {
       type: Number,
-      default:0
+      default: 0,
     },
     breakCount: {
       type: Number,
-      default:0
+      default: 0,
     },
     entryType: {
       type: String,
-      required: true,
     },
-    user:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref:"UserData"
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "UserData",
     },
-    company:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref:"Company"
-    }
+    company: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+    },
   },
   {
-    timestamps: true,  
+    timestamps: true,
   }
 );
 

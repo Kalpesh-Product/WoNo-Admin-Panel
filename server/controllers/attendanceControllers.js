@@ -1,124 +1,227 @@
-const Attendance = require("../models/Attendance");
-const UserData = require("../models/UserData");
-const mongoose = require("mongoose")
+const Attendance = require("../models/hr/Attendance");
+const UserData = require("../models/hr/UserData");
+const mongoose = require("mongoose");
 const { formatDate, formatTime } = require("../utils/formatDateTime");
+const { createLog } = require("../utils/moduleLogs");
+const CustomError = require("../utils/customErrorlogs");
+const { Readable } = require("stream");
+const csvParser = require("csv-parser");
 
 const clockIn = async (req, res, next) => {
+  const { user, ip, company } = req;
   const { inTime, entryType } = req.body;
-  const loggedInUser = req.userData.userId;
-  const company = req.userData.company;
+  const logPath = "hr/HrLog";
+  const logAction = "Clock In";
+  const logSourceKey = "attendance";
 
   try {
     if (!inTime || !entryType) {
-      return res.status(400).json({ message: "All fields are required" });
+      throw new CustomError(
+        "All fields are required",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    const clockIn = new Date(inTime);
+    const clockInTime = new Date(inTime);
+    const currDate = new Date();
 
-    if (isNaN(clockIn.getTime())) {
-      return res.status(400).json({ message: "Invalid date format" });
+    if (clockInTime.getDate() !== currDate.getDate()) {
+      throw new CustomError(
+        "Please select present date",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    const attendances = await Attendance.find({ user: loggedInUser });
+    if (isNaN(clockInTime.getTime())) {
+      throw new CustomError(
+        "Invalid date format",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
 
+    // Check if the user has already clocked in today
+    const attendances = await Attendance.find({ user: user._id });
     const todayClockInExists = attendances.some((attendance) => {
-      const inTime = new Date(attendance.inTime);
-      return inTime.getDate() === clockIn.getDate();
+      const attendanceTime = new Date(attendance.inTime);
+      return attendanceTime.getDate() === clockInTime.getDate();
     });
 
     if (todayClockInExists) {
-      return res
-        .status(400)
-        .json({ message: "Cannot clock in for the day again" });
+      throw new CustomError(
+        "Cannot clock in for the day again",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    const user = await UserData.findById({ _id: loggedInUser });
-
     const newAttendance = new Attendance({
-      inTime: clockIn,
+      inTime: clockInTime,
       entryType,
       user: user._id,
       company,
     });
 
     await newAttendance.save();
+
+    // Log the successful clock-in
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Clock in successful",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: newAttendance._id,
+      changes: {
+        inTime: clockInTime,
+        entryType,
+      },
+    });
+
     return res.status(201).json({ message: "You clocked in" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
 const clockOut = async (req, res, next) => {
+  const { user, ip, company } = req;
   const { outTime } = req.body;
-  const loggedInUser = req.user;
+  const logPath = "hr/HrLog";
+  const logAction = "Clock Out";
+  const logSourceKey = "attendance";
 
   try {
     if (!outTime) {
-      return res.status(400).json({ message: "All fields are required" });
+      throw new CustomError(
+        "All fields are required",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    const clockOut = new Date(outTime);
-    const currDate = new Date();
-    if (isNaN(clockOut.getTime())) {
-      return res.status(400).json({ message: "Invalid date format" });
+    const clockOutTime = new Date(outTime);
+    if (isNaN(clockOutTime.getTime())) {
+      throw new CustomError(
+        "Invalid date format",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    const noOfDays = currDate.getDate() - clockOut.getDate();
-
-    // if (noOfDays > 1 || noOfDays < 0) {
-    //   return res
-    //     .status(400)
-    //     .json({ message: "Can clock out only for present / previous day" });
-    // }
-
-    const attendance = await Attendance.findOne({ user: loggedInUser })
-      .sort({ createdAt: -1 })
-      .limit(1);
-
+    // Retrieve the latest attendance record for the user
+    const attendance = await Attendance.findOne({ user: user._id }).sort({
+      createdAt: -1,
+    });
     if (!attendance) {
-      return res.status(400).json({ message: "No attendance record exists" });
+      throw new CustomError(
+        "No attendance record exists",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    const updatedAttendance = await Attendance.findOneAndUpdate(
-      { user: loggedInUser },
-      { outTime: clockOut },
-      { new: true, sort: { createdAt: -1 } }
-    );
-
-    if (!updatedAttendance) {
-      return res.status(400).json({ message: "No clock in record exists" });
+    if (attendance.outTime) {
+      throw new CustomError(
+        "Already clocked out",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
+
+    // Update the attendance record with outTime
+    attendance.outTime = clockOutTime;
+    await attendance.save();
+
+    // Log the successful clock out
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Clock out successful",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: attendance._id,
+      changes: {
+        inTime: attendance.inTime,
+        outTime: clockOutTime,
+      },
+    });
 
     return res.status(200).json({ message: "You clocked out" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
 const startBreak = async (req, res, next) => {
+  const logPath = "AttendanceLogs";
+  const logAction = "Start Break";
+  const logSourceKey = "attendance";
   const { startBreak } = req.body;
   const loggedInUser = req.user;
+  const ip = req.ip;
+  const company = req.company;
 
   try {
     if (!startBreak) {
-      return res.status(400).json({ message: "All fields are required" });
+      throw new CustomError(
+        "All fields are required",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const startBreakTime = new Date(startBreak);
     if (isNaN(startBreakTime.getTime())) {
-      return res.status(400).json({ message: "Invalid date format" });
+      throw new CustomError(
+        "Invalid date format",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    const attendance = await Attendance.findOne({ user: loggedInUser })
-      .sort({ createdAt: -1 })
-      .limit(1);
+    // Retrieve the latest attendance record for the user
+    const attendance = await Attendance.findOne({
+      user: loggedInUser._id,
+    }).sort({ createdAt: -1 });
+    if (!attendance) {
+      throw new CustomError(
+        "No clock in record exists",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
 
     if (attendance.breakCount === 2) {
-      return res.status(400).json({ message: "Only 2 breaks allowed" });
+      throw new CustomError(
+        "Only 2 breaks allowed",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const updatedAttendance = await Attendance.findByIdAndUpdate(
-      { _id: attendance._id },
+      attendance._id,
       {
         startBreak: startBreakTime,
         endBreak: null,
@@ -128,62 +231,122 @@ const startBreak = async (req, res, next) => {
     );
 
     if (!updatedAttendance) {
-      return res.status(400).json({ message: "No clock in record exists" });
+      throw new CustomError(
+        "No clock in record exists",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
+
+    // Log the successful break start
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Break started successfully",
+      status: "Success",
+      user: loggedInUser,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: updatedAttendance._id,
+      changes: {
+        startBreak: startBreakTime,
+        breakCount: updatedAttendance.breakCount,
+      },
+    });
 
     return res.status(200).json({ message: "Break started" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
 const endBreak = async (req, res, next) => {
+  const { user, ip, company } = req;
   const { endBreak } = req.body;
-  const loggedInUser = req.user;
+  const logPath = "hr/HrLog";
+  const logAction = "End Break";
+  const logSourceKey = "attendance";
 
   try {
     if (!endBreak) {
-      return res.status(400).json({ message: "All fields are required" });
+      throw new CustomError(
+        "All fields are required",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const endBreakTime = new Date(endBreak);
     if (isNaN(endBreakTime.getTime())) {
-      return res.status(400).json({ message: "Invalid date format" });
+      throw new CustomError(
+        "Invalid date format",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    const attendance = await Attendance.findOne({ user: loggedInUser })
-      .sort({ createdAt: -1 })
-      .limit(1);
-
+    // Retrieve the latest attendance record for the user
+    const attendance = await Attendance.findOne({ user: user._id }).sort({
+      createdAt: -1,
+    });
     if (!attendance) {
-      return res.status(400).json({ message: "No clock in record exists" });
+      throw new CustomError(
+        "No clock in record exists",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    if (!attendance.startBreak) {
+      throw new CustomError(
+        "No break record found",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const startBreakTime = new Date(attendance.startBreak);
-
     const breakDuration =
-      (endBreakTime - startBreakTime) / (1000 * 60) + attendance.breakDuration;
+      (endBreakTime - startBreakTime) / (1000 * 60) +
+      (attendance.breakDuration || 0);
 
-    const updatedAttendance = await Attendance.findByIdAndUpdate(
-      { _id: attendance._id },
-      { endBreak: endBreakTime, breakDuration },
-      { new: true }
-    );
+    attendance.endBreak = endBreakTime;
+    attendance.breakDuration = breakDuration;
+    await attendance.save();
 
-    if (!updatedAttendance) {
-      return res.status(400).json({ message: "No clock in record exists" });
-    } 
+    // Log the successful break end
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Break ended successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: attendance._id,
+      changes: {
+        startBreak: attendance.startBreak,
+        endBreak: endBreakTime,
+        breakDuration,
+      },
+    });
 
     return res.status(200).json({ message: "Break ended" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
 const getAllAttendance = async (req, res, next) => {
-  const loggedInUser = req.userData.userId;
   const company = req.userData.company;
- 
+
   try {
     // const user = await UserData.findById({ _id: loggedInUser }).populate({
     //   path: "role",
@@ -200,37 +363,39 @@ const getAllAttendance = async (req, res, next) => {
     //   return res.sendStatus(403);
     // }
 
-    if(!mongoose.Types.ObjectId.isValid(company)){
+    if (!mongoose.Types.ObjectId.isValid(company)) {
       return res.status(400).json("Invalid company Id provided");
     }
 
     let attendances = [];
-    attendances = await Attendance.find({company});
+    attendances = await Attendance.find({ company });
+    attendances = await Attendance.find({ company });
 
     if (!attendances) {
       return res.status(400).json({ message: "No attendance exists" });
     }
 
     const transformedAttendances = attendances.map((attendance) => {
-      
-      const totalMins = attendance.outTime && attendance.inTime 
-        ? (attendance.outTime - attendance.inTime) / (1000 * 60)
-        : 0;
-    
+      const totalMins =
+        attendance.outTime && attendance.inTime
+          ? (attendance.outTime - attendance.inTime) / (1000 * 60)
+          : 0;
+
       const breakMins = attendance.breakDuration || 0;
       const workMins = totalMins > breakMins ? totalMins - breakMins : 0;
-    
+
       return {
-        date: formatDate(attendance.inTime)|| "N/A",
+        date: formatDate(attendance.inTime) || "N/A",
+        date: formatDate(attendance.inTime) || "N/A",
         inTime: formatTime(attendance.inTime) || "N/A",
         outTime: formatTime(attendance.outTime) || "N/A",
-        workHours: (workMins / 60).toFixed(2),  
+        workHours: (workMins / 60).toFixed(2),
+        workHours: (workMins / 60).toFixed(2),
         breakHours: (breakMins / 60).toFixed(2),
         totalHours: (totalMins / 60).toFixed(2),
         entryType: attendance.entryType || "N/A",
       };
     });
-    
 
     return res.status(200).json(transformedAttendances);
   } catch (error) {
@@ -239,11 +404,9 @@ const getAllAttendance = async (req, res, next) => {
 };
 
 const getAttendance = async (req, res, next) => {
-  const loggedInUser = req.userData.userId;
-  const company = req.userData.company;
+  const { id } = req.params;
 
   try {
-
     const attendances = await Attendance.find({
       user: loggedInUser,
       company,
@@ -253,20 +416,50 @@ const getAttendance = async (req, res, next) => {
       return res.status(400).json({ message: "No attendance exists" });
     }
 
-    return res.status(200).json(attendances);
+    const transformedAttendances = attendances.map((attendance) => {
+      const totalMins =
+        attendance.outTime && attendance.inTime
+          ? (attendance.outTime - attendance.inTime) / (1000 * 60)
+          : 0;
+
+      const breakMins = attendance.breakDuration || 0;
+      const workMins = totalMins > breakMins ? totalMins - breakMins : 0;
+
+      return {
+        date: formatDate(attendance.inTime) || "N/A",
+        inTime: formatTime(attendance.inTime) || "N/A",
+        outTime: formatTime(attendance.outTime) || "N/A",
+        workHours: (workMins / 60).toFixed(2),
+        breakHours: (breakMins / 60).toFixed(2),
+        totalHours: (totalMins / 60).toFixed(2),
+        entryType: attendance.entryType || "N/A",
+      };
+    });
+
+    return res.status(200).json(transformedAttendances);
   } catch (error) {
     next(error);
   }
 };
 
 const correctAttendance = async (req, res, next) => {
+  const { user, ip, company } = req;
   const { targetedDay, inTime, outTime } = req.body;
+  const logPath = "hr/HrLog";
+  const logAction = "Correct Attendance";
+  const logSourceKey = "attendance";
+
   const clockIn = inTime ? new Date(inTime) : null;
   const clockOut = outTime ? new Date(outTime) : null;
 
   try {
     if (!targetedDay) {
-      return res.status(400).json({ message: "Correction Day is required" });
+      throw new CustomError(
+        "Correction Day is required",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const targetedDate = new Date(targetedDay);
@@ -277,13 +470,28 @@ const correctAttendance = async (req, res, next) => {
     );
 
     if (isNaN(targetedDate.getTime())) {
-      return res.status(400).json({ message: "Invalid Date format" });
+      throw new CustomError(
+        "Invalid Date format",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
     if (inTime && isNaN(clockIn.getTime())) {
-      return res.status(400).json({ message: "Invalid Date format" });
+      throw new CustomError(
+        "Invalid inTime format",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
     if (outTime && isNaN(clockOut.getTime())) {
-      return res.status(400).json({ message: "Invalid Date format" });
+      throw new CustomError(
+        "Invalid outTime format",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const foundDate = await Attendance.findOne({
@@ -294,9 +502,12 @@ const correctAttendance = async (req, res, next) => {
     });
 
     if (!foundDate) {
-      return res
-        .status(400)
-        .json({ message: "No timeclock found for the date" });
+      throw new CustomError(
+        "No timeclock found for the date",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const updateTimeClock = {
@@ -314,12 +525,97 @@ const correctAttendance = async (req, res, next) => {
       { $set: updateTimeClock }
     );
 
+    // Log the successful attendance correction
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Attendance corrected successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: foundDate._id,
+      changes: {
+        oldInTime: foundDate.inTime,
+        oldOutTime: foundDate.outTime,
+        newInTime: updateTimeClock.inTime,
+        newOutTime: updateTimeClock.outTime,
+      },
+    });
+
     return res.status(200).json({ message: "Attendance corrected" });
+  } catch (error) {
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+  }
+};
+
+const bulkInsertAttendance = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    const companyId = req.company;
+
+    const employees = await UserData.find({ company: companyId })
+      .select("_id empId")
+      .lean();
+
+    const employeeMap = new Map(employees.map((emp) => [emp.empId, emp._id]));
+
+    const newAttendanceRecords = [];
+    const stream = Readable.from(req.file.buffer.toString("utf-8").trim());
+
+    stream
+      .pipe(csvParser())
+      .on("data", async (row) => {
+        try {
+          const empId = row["User (Emp ID)"].trim();
+          if (!employeeMap.has(empId)) {
+            throw new Error(`Employee not found: ${empId}`);
+          }
+
+          const attendanceRecord = {
+            company: new mongoose.Types.ObjectId(companyId),
+            user: employeeMap.get(empId),
+            date: new Date(row["Date"]),
+            inTime: new Date(`${row["Date"].trim()} ${row["In Time"].trim()}`),
+            outTime: new Date(
+              `${row["Date"].trim()} ${row["Out Time"].trim()}`
+            ),
+            entryType: row["Entry Type"] || "web",
+          };
+
+          newAttendanceRecords.push(attendanceRecord);
+        } catch (error) {
+          console.error("Error processing row:", row, error);
+        }
+      })
+      .on("end", async () => {
+        try {
+          if (newAttendanceRecords.length === 0) {
+            return res
+              .status(400)
+              .json({ message: "No valid attendance records found in CSV" });
+          }
+
+          await Attendance.insertMany(newAttendanceRecords);
+
+          res.status(201).json({
+            message: "Bulk attendance data inserted successfully",
+            insertedCount: newAttendanceRecords.length,
+          });
+        } catch (error) {
+          res
+            .status(500)
+            .json({ message: "Error inserting attendance records", error });
+        }
+      });
   } catch (error) {
     next(error);
   }
 };
-
 module.exports = {
   clockIn,
   clockOut,
@@ -328,4 +624,5 @@ module.exports = {
   getAllAttendance,
   getAttendance,
   correctAttendance,
+  bulkInsertAttendance,
 };

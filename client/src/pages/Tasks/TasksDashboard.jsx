@@ -23,8 +23,24 @@ import {
   recentlyAddedTasksCol,
   recentlyAddedTasksData,
 } from "./TasksData";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 
 const TasksDashboard = () => {
+  const axios = useAxiosPrivate();
+
+  const { data: tasks, isLoading } = useQuery({
+    queryKey: ["tasks"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/tasks/get-today-tasks");
+        return response.data
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
+
   const meetingsWidgets = [
     {
       layout: 1,

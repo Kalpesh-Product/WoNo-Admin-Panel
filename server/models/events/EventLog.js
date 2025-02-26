@@ -1,17 +1,9 @@
 const mongoose = require("mongoose");
 
-const assetLogSchema = new mongoose.Schema({
-  category: {
+const eventLogSchema = new mongoose.Schema({
+  event: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Category",
-  },
-  asset: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Asset",
-  },
-  assignAsset: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "AssignAsset",
+    ref: "Event",
   },
   action: {
     type: String,
@@ -42,5 +34,5 @@ const assetLogSchema = new mongoose.Schema({
   },
 });
 
-const AssetLog = mongoose.model("AssetLog", assetLogSchema);
-module.exports = AssetLog;
+const EventLog = mongoose.model("EventLog", eventLogSchema);
+module.exports = EventLog;

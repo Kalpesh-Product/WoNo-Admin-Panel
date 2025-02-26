@@ -1,23 +1,40 @@
 const mongoose = require("mongoose");
-const Company = require("../../models/Company");
-const User = require("../../models/UserData");
+const Company = require("../../models/hr/Company");
+const User = require("../../models/hr/UserData");
+const { createLog } = require("../../utils/moduleLogs");
+const CustomError = require("../../utils/customErrorlogs");
 
 const addTicketIssue = async (req, res, next) => {
+  const logPath = "hr/HrLog";
+  const logAction = "Add Ticket Issue";
+  const logSourceKey = "companyData";
+  const { user, company, ip } = req;
+
   try {
     const { title, department, priority = "Low" } = req.body;
-    const user = req.user;
 
     if (!title) {
-      return res.status(400).json({ message: "Title is required" });
+      throw new CustomError(
+        "Title is required",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
+
+    // Retrieve the user to get company info
     const foundUser = await User.findOne({ _id: user })
       .select("company")
       .lean()
       .exec();
+
     if (!mongoose.Types.ObjectId.isValid(department)) {
-      return res
-        .status(400)
-        .json({ message: "Invalid department ID provided" });
+      throw new CustomError(
+        "Invalid department ID provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     // Update the department's ticketIssues array atomically
@@ -37,14 +54,30 @@ const addTicketIssue = async (req, res, next) => {
     );
 
     if (!updatedCompany) {
-      return res
-        .status(404)
-        .json({ message: "Department not found in any company" });
+      throw new CustomError(
+        "Department not found in any company",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
+
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "New issue added successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: null,
+      changes: { title, priority, department },
+    });
 
     return res.status(201).json({ message: "New issue added successfully" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 

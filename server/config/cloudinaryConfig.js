@@ -21,7 +21,7 @@ const handleFileUpload = async (file, path) => {
     });
     return res;
   } catch (error) {
-    (error);
+    error;
     throw new Error(error.message);
   }
 };
@@ -35,63 +35,42 @@ const handleFileDelete = async (public_id) => {
   }
 };
 
-// Function to upload PDF files
-// const handlePdfUpload = async (file, path) => {
-//   try {
-//     const res = await cloudinary.uploader.upload(file, {
-//       resource_type: "raw", // Specify "raw" for non-image files
-//       timeout: 65000,
-//       folder: path,
-//     });
-//     return res;
-//   } catch (error) {
-//     console.error("Error uploading PDF:", error);
-//     throw new Error(error.message);
-//   }
-// };
-
-const handlePdfUpload = async (buffer, path) => {
-  try {
-    // Create a new promise to handle the upload stream
-    return new Promise((resolve, reject) => {
-      const uploadStream = cloudinary.uploader.upload_stream(
-        {
-          resource_type: "raw", // Specify "raw" for non-image files
-          timeout: 65000,
-          folder: path,
-          format: "pdf", // Ensure the file is treated as a PDF
-          type: "upload",
-        },
-        (error, result) => {
-          if (error) {
-            console.error("Error uploading PDF:", error);
-            reject(error); // Reject the promise on error
-          } else {
-            resolve(result); // Resolve the promise with the result
-          }
+const handleDocumentUpload = async (buffer, path, originalFilename) => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        resource_type: "raw", 
+        folder: path,
+        public_id: originalFilename, 
+        use_filename: true,
+        unique_filename: false,
+        format: undefined, 
+      },
+      (error, result) => {
+        if (error) {
+          console.error("Cloudinary Upload Error:", error);
+          reject(error);
+        } else {
+          resolve(result);
         }
-      );
+      }
+    );
 
-      // Create a readable stream from the buffer
-      const bufferStream = new PassThrough();
-      bufferStream.end(buffer); // Pass the PDF buffer into the stream
-      bufferStream.pipe(uploadStream); // Pipe the buffer stream into Cloudinary's upload stream
-    });
-  } catch (error) {
-    console.error("Error uploading PDF:", error);
-    throw new Error(error.message);
-  }
+    const bufferStream = new PassThrough();
+    bufferStream.end(buffer);
+    bufferStream.pipe(uploadStream);
+  });
 };
 
 // Function to delete PDF files
-const handlePdfDelete = async (public_id) => {
+const handleDocumentDelete = async (public_id) => {
   try {
     const res = await cloudinary.uploader.destroy(public_id, {
       resource_type: "raw", // Specify "raw" for non-image files
     });
     return res;
   } catch (error) {
-    console.error("Error deleting PDF:", error);
+    console.error("Error deleting document:", error);
     throw new Error(error.message);
   }
 };
@@ -99,6 +78,6 @@ const handlePdfDelete = async (public_id) => {
 module.exports = {
   handleFileUpload,
   handleFileDelete,
-  handlePdfUpload,
-  handlePdfDelete,
+  handleDocumentDelete,
+  handleDocumentUpload,
 };

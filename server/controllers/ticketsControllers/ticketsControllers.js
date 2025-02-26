@@ -1,5 +1,5 @@
 const Tickets = require("../../models/tickets/Tickets");
-const User = require("../../models/UserData");
+const User = require("../../models/hr/UserData");
 const mongoose = require("mongoose");
 const Department = require("../../models/Departments");
 const {
@@ -9,82 +9,119 @@ const {
   filterEscalatedTickets,
   filterAssignedTickets,
 } = require("../../utils/filterTickets");
-const Company = require("../../models/Company");
+const Company = require("../../models/hr/Company");
+const { createLog } = require("../../utils/moduleLogs");
+const CustomError = require("../../utils/customErrorlogs");
 
 const raiseTicket = async (req, res, next) => {
+  const logPath = "tickets/TicketLog";
+  const logAction = "Raise Ticket";
+  const logSourceKey = "ticket";
+  const { departmentId, issueId, newIssue, description } = req.body;
+  const { user, ip, company } = req;
+
   try {
-    const user = req.user;
-    const { departmentId, issueId, newIssue, description } = req.body;
     if (!mongoose.Types.ObjectId.isValid(departmentId)) {
-      return res
-        .status(400)
-        .json({ message: "Invalid department ID provided" });
+      throw new CustomError(
+        "Invalid department ID provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     if (
       typeof description !== "string" ||
       !description.length ||
-      description?.replace(/\s/g, "")?.length > 100
+      description.replace(/\s/g, "").length > 100
     ) {
-      return res.status(400).json({ message: "Invalid description provided" });
+      throw new CustomError(
+        "Invalid description provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    const loggedInUser = await User.findOne({ _id: user })
-      .select("-refreshToken -password")
-      .lean()
-      .exec();
-
-    if (!loggedInUser) {
-      return res.sendStatus(403);
-    }
-
-    const company = await Company.findOne({ _id: loggedInUser.company })
+    const foundCompany = await Company.findOne({ _id: company })
       .select("selectedDepartments")
       .lean()
       .exec();
 
-    if (!company) {
-      return res.status(400).json({ message: "Company not found" });
+    if (!foundCompany) {
+      throw new CustomError(
+        "Company not found",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    // Find the department in selectedDepartments
-    const department = company.selectedDepartments.find(
+    const department = foundCompany.selectedDepartments.find(
       (dept) => dept.department.toString() === departmentId
     );
-
     if (!department) {
-      return res.status(400).json({ message: "Invalid Department ID" });
+      throw new CustomError(
+        "Invalid Department ID",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    // Check if the issueId exists in the department's ticketIssues
     let foundIssue;
     if (issueId) {
       if (!mongoose.Types.ObjectId.isValid(issueId)) {
-        return res.status(400).json({ message: "Invalid issueId provided" });
+        throw new CustomError(
+          "Invalid issueId provided",
+          logPath,
+          logAction,
+          logSourceKey
+        );
       }
-
       foundIssue = department.ticketIssues.find(
         (ticketIssue) => ticketIssue._id.toString() === issueId
       );
-
       if (!foundIssue) {
-        return res.status(400).json({ message: "Invalid Issue ID provided" });
+        throw new CustomError(
+          "Issue not found",
+          logPath,
+          logAction,
+          logSourceKey
+        );
       }
     }
 
-    // Now create the ticket
+    // Determine the ticket title based on the found issue or newIssue provided
+    const ticketTitle = foundIssue ? foundIssue.title : newIssue;
+
     const newTicket = new Tickets({
-      ticket: foundIssue ? foundIssue.title : newIssue,
+      ticket: ticketTitle,
       description,
       raisedToDepartment: departmentId,
-      raisedBy: loggedInUser._id,
-      company: loggedInUser.company,
+      raisedBy: user,
+      company: company,
     });
 
-    await newTicket.save();
+    const savedTicket = await newTicket.save();
+
+    // Log the successful ticket creation
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Ticket raised successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: savedTicket._id,
+      changes: savedTicket,
+    });
+
     return res.status(201).json({ message: "Ticket raised successfully" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
@@ -92,7 +129,6 @@ const getTickets = async (req, res, next) => {
   try {
     const { user } = req;
 
-    // Fetch logged-in user details
     const loggedInUser = await User.findOne({ _id: user })
       .populate({ path: "role", select: "roleTitle" })
       .lean()
@@ -177,211 +213,421 @@ const getTickets = async (req, res, next) => {
 };
 
 const acceptTicket = async (req, res, next) => {
+  const logPath = "tickets/TicketLog";
+  const logAction = "Accept Ticket";
+  const logSourceKey = "ticket";
+  const { user, company, ip } = req;
+
   try {
-    const { user } = req;
     const { ticketId } = req.body;
+
+    if (!ticketId) {
+      throw new CustomError(
+        "Ticket ID is required",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(ticketId)) {
+      throw new CustomError(
+        "Invalid ticket ID provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
 
     const foundUser = await User.findOne({ _id: user })
       .select("-refreshToken -password")
       .lean()
       .exec();
-
     if (!foundUser) {
-      return res.status(404).json({ message: "User not found" });
+      throw new CustomError("User not found", logPath, logAction, logSourceKey);
     }
 
-    let foundTicket;
-    if (mongoose.Types.ObjectId.isValid(ticketId)) {
-      foundTicket = await Tickets.findOne({ _id: ticketId }).lean().exec();
-      if (!foundTicket) {
-        return res.status(400).json({ message: "Invalid ticket ID provided" });
-      }
+    const foundTicket = await Tickets.findOne({ _id: ticketId }).lean().exec();
+    if (!foundTicket) {
+      throw new CustomError(
+        "Ticket not found",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
+    // Check if the ticket's raised department is among the user's departments
     const userDepartments = foundUser.departments.map((dept) =>
       dept.toString()
     );
-
-    const ticketInDepartment = userDepartments.some((id) =>
-      foundTicket.raisedToDepartment.equals(id)
+    const ticketInDepartment = userDepartments.some(
+      (deptId) => foundTicket.raisedToDepartment.toString() === deptId
     );
-
     if (!ticketInDepartment) {
-      return res.sendStatus(403);
+      throw new CustomError(
+        "User does not have permission to accept this ticket",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    await Tickets.findByIdAndUpdate(
-      { _id: ticketId },
-      { accepted: user, status: "In Progress" }
+    // Update the ticket by marking it as accepted and setting status to "In Progress"
+    const updatedTicket = await Tickets.findByIdAndUpdate(
+      ticketId,
+      { accepted: user, status: "In Progress" },
+      { new: true }
     );
+    if (!updatedTicket) {
+      throw new CustomError(
+        "Failed to accept ticket",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    // Log the successful ticket acceptance
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Ticket accepted successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: updatedTicket._id,
+      changes: { acceptedBy: user, status: "In Progress" },
+    });
 
     return res.status(200).json({ message: "Ticket accepted successfully" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
 const assignTicket = async (req, res, next) => {
+  const logPath = "tickets/TicketLog";
+  const logAction = "Assign Ticket";
+  const logSourceKey = "ticket";
+  const { user, company, ip } = req;
+
   try {
-    const { user } = req;
     const { ticketId, assignee } = req.body;
+
+    if (!ticketId || !assignee) {
+      throw new CustomError(
+        "Ticket ID and assignee are required",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(assignee)) {
+      throw new CustomError(
+        "Invalid assignee ID provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
 
     const foundUser = await User.findOne({ _id: user })
       .select("-refreshToken -password")
       .lean()
       .exec();
-
     if (!foundUser) {
-      return res.status(400).json({ message: "User not found" });
+      throw new CustomError("User not found", logPath, logAction, logSourceKey);
     }
 
-    if (mongoose.Types.ObjectId.isValid(assignee)) {
-      const foundAssignee = await User.findOne({ _id: assignee })
-        .select("-refreshToken -password")
-        .lean()
-        .exec();
-
-      if (!foundAssignee) {
-        return res
-          .status(400)
-          .json({ message: "Invalid Assignee ID provided" });
-      }
-    }
-    let foundTicket;
-    if (mongoose.Types.ObjectId.isValid(ticketId)) {
-      foundTicket = await Tickets.findOne({ _id: ticketId }).lean().exec();
-
-      if (!foundTicket) {
-        return res.status(400).json({ message: "Invalid ticket ID provided" });
-      }
+    const foundAssignee = await User.findOne({ _id: assignee })
+      .select("-refreshToken -password")
+      .lean()
+      .exec();
+    if (!foundAssignee) {
+      throw new CustomError(
+        "Assignee not found",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
+    if (!mongoose.Types.ObjectId.isValid(ticketId)) {
+      throw new CustomError(
+        "Invalid ticket ID provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    const foundTicket = await Tickets.findOne({ _id: ticketId }).lean().exec();
+    if (!foundTicket) {
+      throw new CustomError(
+        "Ticket not found",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    // Check if the ticket's raised department is among the user's departments
     const userDepartments = foundUser.departments.map((dept) =>
       dept.toString()
     );
-
-    const ticketInDepartment = userDepartments.some((id) =>
-      foundTicket.raisedToDepartment.equals(id)
+    const ticketInDepartment = userDepartments.some(
+      (deptId) => foundTicket.raisedToDepartment.toString() === deptId
     );
-
     if (!ticketInDepartment) {
-      return res.sendStatus(403);
+      throw new CustomError(
+        "User does not have permission to assign this ticket",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    await Tickets.findOneAndUpdate(
+    // Update the ticket by adding the assignee and setting status to "In Progress"
+    const updatedTicket = await Tickets.findOneAndUpdate(
       { _id: ticketId },
-      { $addToSet: { assignees: assignee }, status: "In Progress" }
+      { $addToSet: { assignees: assignee }, status: "In Progress" },
+      { new: true }
     );
+    if (!updatedTicket) {
+      throw new CustomError(
+        "Failed to assign ticket",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    // Log the successful ticket assignment
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Ticket assigned successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: updatedTicket._id,
+      changes: {
+        assignedTo: assignee,
+        assignedBy: user,
+        status: "In Progress",
+      },
+    });
 
     return res.status(200).json({ message: "Ticket assigned successfully" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
 const escalateTicket = async (req, res, next) => {
-  try {
-    const { user } = req;
-    const { ticketId, departmentId } = req.body;
+  const logPath = "tickets/TicketLog";
+  const logAction = "Escalate Ticket";
+  const logSourceKey = "ticket";
+  const { user, company, ip } = req;
+  const { ticketId, departmentId } = req.body;
 
+  try {
     const foundUser = await User.findOne({ _id: user })
       .select("-refreshToken -password")
       .lean()
       .exec();
-
     if (!foundUser) {
-      return res.status(400).json({ message: "User not found" });
+      throw new CustomError("User not found", logPath, logAction, logSourceKey);
     }
 
     if (!mongoose.Types.ObjectId.isValid(departmentId)) {
-      return res
-        .status(400)
-        .json({ message: "Invalid Department ID provided" });
+      throw new CustomError(
+        "Invalid Department ID provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
-
     const foundDepartment = await Department.findOne({ _id: departmentId })
       .lean()
       .exec();
-
     if (!foundDepartment) {
-      return res.status(400).json({ message: "Department doesn't exists" });
+      throw new CustomError(
+        "Department does not exist",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     if (!mongoose.Types.ObjectId.isValid(ticketId)) {
-      return res.status(400).json({ message: "Invalid ticket ID provided" });
+      throw new CustomError(
+        "Invalid ticket ID provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
-
     const foundTicket = await Tickets.findOne({ _id: ticketId }).lean().exec();
-
     if (!foundTicket) {
-      return res.status(400).json({ message: "Ticket doesn't exists" });
+      throw new CustomError(
+        "Ticket does not exist",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
+    // Check if the current user belongs to any department relevant to the ticket
     const userDepartments = foundUser.departments.map((dept) =>
       dept.toString()
     );
-
     const foundTickets = await Tickets.find({
       raisedToDepartment: {
         $in: userDepartments.map((id) => new mongoose.Types.ObjectId(id)),
       },
     });
-
     if (!foundTickets.length) {
-      return res.sendStatus(403);
+      throw new CustomError(
+        "User does not have permission to escalate this ticket",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    await Tickets.findByIdAndUpdate(
-      { _id: ticketId },
-      { $push: { escalatedTo: departmentId } }
+    // Update the ticket: add the departmentId to the escalatedTo array
+    const updatedTicket = await Tickets.findByIdAndUpdate(
+      ticketId,
+      { $push: { escalatedTo: departmentId } },
+      { new: true }
     );
+    if (!updatedTicket) {
+      throw new CustomError(
+        "Failed to escalate ticket",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    // Log the successful escalation
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Ticket escalated successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: updatedTicket._id,
+      changes: { escalatedTo: departmentId, escalatedBy: user },
+    });
 
     return res.status(200).json({ message: "Ticket escalated successfully" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
 const closeTicket = async (req, res, next) => {
+  const logPath = "tickets/TicketLog";
+  const logAction = "Close Ticket";
+  const logSourceKey = "ticket";
+  const { user, company, ip } = req;
+
   try {
-    const { user } = req;
     const { ticketId } = req.body;
+
+    if (!ticketId) {
+      throw new CustomError(
+        "Ticket ID is required",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(ticketId)) {
+      throw new CustomError(
+        "Invalid ticket ID provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
 
     const foundUser = await User.findOne({ _id: user })
       .select("-refreshToken -password")
       .lean()
       .exec();
-
     if (!foundUser) {
-      return res.status(400).json({ message: "User not found" });
+      throw new CustomError("User not found", logPath, logAction, logSourceKey);
     }
 
-    let foundTicket;
-    if (mongoose.Types.ObjectId.isValid(ticketId)) {
-      foundTicket = await Tickets.findOne({ _id: ticketId }).lean().exec();
-
-      if (!foundTicket) {
-        return res.status(400).json({ message: "Invalid ticket ID provided" });
-      }
+    const foundTicket = await Tickets.findOne({ _id: ticketId }).lean().exec();
+    if (!foundTicket) {
+      throw new CustomError(
+        "Ticket does not exist",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const userDepartments = foundUser.departments.map((dept) =>
       dept.toString()
     );
-
-    const ticketInDepartment = userDepartments.some((id) =>
-      foundTicket.raisedToDepartment.equals(id)
+    const ticketInDepartment = userDepartments.some(
+      (deptId) => foundTicket.raisedToDepartment.toString() === deptId
     );
-
     if (!ticketInDepartment && !foundTicket.assignees.includes(foundUser._id)) {
-      return res.sendStatus(403);
+      throw new CustomError(
+        "User does not have permission to close this ticket",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    await Tickets.findByIdAndUpdate({ _id: ticketId }, { status: "Closed" });
+    const updatedTicket = await Tickets.findByIdAndUpdate(
+      ticketId,
+      { status: "Closed" },
+      { new: true }
+    );
+    if (!updatedTicket) {
+      throw new CustomError(
+        "Failed to close ticket",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    // Log the successful ticket closure
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Ticket closed successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: updatedTicket._id,
+      changes: { closedBy: user, status: "Closed" },
+    });
 
     return res.status(200).json({ message: "Ticket closed successfully" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 

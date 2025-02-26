@@ -2,9 +2,24 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import AgTable from "../../../../components/AgTable";
 import { Chip } from "@mui/material";
+import useAxiosPrivate from "../../../../hooks/useAxiosPrivate";
+import { useQuery } from "@tanstack/react-query";
 
 const ViewEmployees = () => {
   const navigate = useNavigate();
+
+  const axios = useAxiosPrivate();
+  const { data: employees, isLoading } = useQuery({
+    queryKey: ["employees"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/users/fetch-users");
+        return response.data;
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
 
   const viewEmployeeColumns = [
     { field: "srno", headerName: "SR No" },
@@ -18,11 +33,14 @@ const ViewEmployees = () => {
             textDecoration: "underline",
             cursor: "pointer",
           }}
-          onClick={() =>
-            navigate(
-              `/app/dashboard/HR-dashboard/employee/view-employees/${params.data.employmentID}`
-            )
-          }>
+          onClick={() => {
+
+            localStorage.setItem("employeeName",params.data.employeeName) 
+            navigate(`/app/dashboard/HR-dashboard/employee/view-employees/${params.data.employmentID}`, {state: { name: params.data.employeeName }})
+        }
+        }
+
+        >
           {params.value}
         </span>
       ),
@@ -121,7 +139,15 @@ const ViewEmployees = () => {
         <AgTable
           search={true}
           searchColumn="Email"
-          data={rows}
+          data={isLoading? []:[...employees.map((employee, index)=>({
+            id : employee._id,
+            srno: index + 1,
+            employeeName : employee.firstName,
+            employmentID : employee.empId,
+            email : employee.email,
+            role : employee.role[0].roleTitle,
+            status : 'Active',
+           }))]}
           columns={viewEmployeeColumns}
         />
       </div>

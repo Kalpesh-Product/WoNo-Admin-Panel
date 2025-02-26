@@ -45,6 +45,7 @@ const userDataSchema = new mongoose.Schema({
       ref: "Department",
     },
   ],
+  password: String,
   role: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -57,12 +58,9 @@ const userDataSchema = new mongoose.Schema({
       ref: "Asset",
     },
   ],
-  subordinates: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-  ],
+  qualification: {
+    type: String,
+  },
   employeeType: {
     name: {
       type: String,
@@ -92,7 +90,7 @@ const userDataSchema = new mongoose.Schema({
   },
   reportsTo: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "UserData",
+    ref: "Role",
   },
   refreshToken: String,
 

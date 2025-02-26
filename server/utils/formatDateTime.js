@@ -1,16 +1,41 @@
-const {format, intervalToDuration} = require("date-fns");
+const { format, intervalToDuration } = require("date-fns");
 
 const formatDate = (date) => {
-    if (!date) return "N/A";
-    return format(new Date(date), "dd-MM-yyyy");
-  };
+  if (!date) return "N/A";
+  return format(new Date(date), "dd/MM/yyyy");
+};
 
-  const formatTime = (timestamp) => {
-    if (!timestamp) return "N/A";
-    return format(new Date(timestamp), "hh:mm a");  
-  };
+const formatWithOrdinal = (date) => {
+  if (!date) return "N/A";
 
-const formatDuration= (startTime, endTime) => {
+  const d = new Date(date);
+
+  // Extract day, month, and year using Intl
+  const day = d.getDate();
+  const month = new Intl.DateTimeFormat("en-GB", {
+    month: "long",
+  }).format(d);
+  const year = new Intl.DateTimeFormat("en-GB", {
+    year: "numeric",
+  }).format(d);
+
+  return `${getOrdinalSuffix(day)} ${month}, ${year}`;
+};
+
+// Function to add ordinal suffix (st, nd, rd, th)
+const getOrdinalSuffix = (day) => {
+  if (day > 3 && day < 21) return `${day}th`;
+  const suffixes = ["st", "nd", "rd"];
+  const lastDigit = day % 10;
+  return `${day}${suffixes[lastDigit - 1] || "th"}`;
+};
+
+const formatTime = (timestamp) => {
+  if (!timestamp) return "N/A";
+  return format(new Date(timestamp), "hh:mm a");
+};
+
+const formatDuration = (startTime, endTime) => {
   if (!startTime || !endTime) return "N/A";
 
   const duration = intervalToDuration({
@@ -21,14 +46,14 @@ const formatDuration= (startTime, endTime) => {
   const { hours, minutes } = duration;
 
   if (hours > 0 && minutes > 0) {
-    return `${hours}h ${minutes}m`;  
+    return `${hours}h ${minutes}m`;
   } else if (hours > 0) {
-    return `${hours}h`;  
+    return `${hours}h`;
   } else if (minutes > 0) {
-    return `${minutes}m`;  
+    return `${minutes}m`;
   } else {
-    return "0m";  
+    return "0m";
   }
 };
 
-  module.exports = {formatDate,formatTime,formatDuration}
+module.exports = { formatDate, formatWithOrdinal, formatTime, formatDuration };

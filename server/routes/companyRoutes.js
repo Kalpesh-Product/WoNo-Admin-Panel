@@ -29,10 +29,14 @@ const {
   addWorkLocation,
   bulkInsertWorkLocations,
 } = require("../controllers/companyControllers/workLocationControllers");
+const {
+  createDepartment,
+} = require("../controllers/companyControllers/departmentControllers");
 
 router.post("/create-company", addCompany);
 router.get("/get-companies", getCompanies);
 
+router.post("/add-department", createDepartment);
 router.post("/add-employee-type", addEmployeeType);
 router.post("/add-leave-type", addLeaveType);
 router.post("/add-work-location", addWorkLocation);

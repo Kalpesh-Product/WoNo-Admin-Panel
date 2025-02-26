@@ -1,21 +1,35 @@
- 
-const Event = require("../../models/Events");
+const Event = require("../../models/events/Events");
+const CustomError = require("../../utils/customErrorlogs");
+const { createLog } = require("../../utils/moduleLogs");
 
 const createEvent = async (req, res, next) => {
+  const { user, ip, company } = req;
+  const { title, type, description, start, end, participants } = req.body;
+
+  const logPath = "events/EventLog";
+  const logAction = "Create Event";
+  const logSourceKey = "event";
+
   try {
-    const { title, type, description, start, end, participants} = req.body;
-
-    const {company} = req.userData
-
     const startDate = new Date(start);
     const endDate = new Date(end);
- 
+
     if (!title || !type || !description || !start || !end) {
-      return res.status(400).json({ message: "All fields are required" });
+      throw new CustomError(
+        "All fields are required",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-      return res.status(400).json({ message: "Invalid date format" });
+      throw new CustomError(
+        "Invalid date format",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const validParticipants = Array.isArray(participants) ? participants : [];
@@ -27,23 +41,43 @@ const createEvent = async (req, res, next) => {
       start: startDate,
       end: endDate,
       participants: validParticipants,
-      company
+      company,
     });
 
     const event = await newEvent.save();
-    res.status(201).json({message:"Event created successfully"});
+
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Event created successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: event._id,
+      changes: {
+        title,
+        type,
+        description,
+        start: startDate,
+        end: endDate,
+        participants: validParticipants,
+      },
+    });
+
+    return res.status(201).json({ message: "Event created successfully" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
 const getAllEvents = async (req, res, next) => {
   try {
-     
-    const {company} = req.userData;
+    const { company } = req.userData;
 
-    (company)
-    const events = await Event.find({company:company});
+    company;
+    const events = await Event.find({ company: company });
 
     if (!events || events.length === 0) {
       return res.status(204).json({ message: "No events found" });
@@ -57,31 +91,41 @@ const getAllEvents = async (req, res, next) => {
         end: event.end,
         allDay: event.allDay,
         description: event.description,
-        active:event.active,
-        backgroundColor: event.type === "holiday" ? "#4caf50" : (event.type === "meeting" ? "purple" : (event.type === "task" ? "yellow" : (event.type === "event" ? "blue" : event.type === "birthday" ?"#ff9800" : ''))),
+        active: event.active,
+        backgroundColor:
+          event.type === "Holiday"
+            ? "#4caf50"
+            : event.type === "Meeting"
+            ? "purple"
+            : event.type === "task"
+            ? "yellow"
+            : event.type === "event"
+            ? "blue"
+            : event.type === "Birthday"
+            ? "#ff9800"
+            : "",
         extendedProps: {
           type: event.type,
         },
       };
     });
 
-
     res.status(200).json(eventsData);
   } catch (error) {
     next(error);
-   }
+  }
 };
 
 const getNormalEvents = async (req, res, next) => {
   try {
-    const {company} = req.userData
+    const { company } = req.userData;
 
-    const normalEvents = await Event.find({company:company,type:"event"});
+    const normalEvents = await Event.find({ company: company, type: "event" });
 
-    if(!normalEvents || normalEvents.length < 0){
-      res.status(400).json({message:"No event found"});
+    if (!normalEvents || normalEvents.length < 0) {
+      res.status(400).json({ message: "No event found" });
     }
- 
+
     res.status(200).json(normalEvents);
   } catch (error) {
     next(error);
@@ -90,12 +134,12 @@ const getNormalEvents = async (req, res, next) => {
 
 const getHolidays = async (req, res, next) => {
   try {
-    const {company} = req.userData
+    const { company } = req.userData;
 
-    const holidays = await Event.find({company:company,type:"holiday"});
+    const holidays = await Event.find({ company: company, type: "holiday" });
 
-    if(!holidays || holidays.length < 0){
-      res.status(400).json({message:"No holiday found"});
+    if (!holidays || holidays.length < 0) {
+      res.status(400).json({ message: "No holiday found" });
     }
 
     res.status(200).json(holidays);
@@ -106,12 +150,12 @@ const getHolidays = async (req, res, next) => {
 
 const getBirthdays = async (req, res, next) => {
   try {
-    const {company} = req.userData
+    const { company } = req.userData;
 
-    const birthdays = await Event.find({company:company,type:"birthday"});
+    const birthdays = await Event.find({ company: company, type: "birthday" });
 
-    if(!birthdays || birthdays.length < 0){
-      res.status(400).json({message:"No birthday found"});
+    if (!birthdays || birthdays.length < 0) {
+      res.status(400).json({ message: "No birthday found" });
     }
 
     res.status(200).json(birthdays);
@@ -120,66 +164,148 @@ const getBirthdays = async (req, res, next) => {
   }
 };
 
-const  extendEvent = async (req,res,next) => {
+const extendEvent = async (req, res, next) => {
+  const { user, ip, company } = req;
+  const { id, extend } = req.body;
+  const extendTime = new Date(extend);
 
-  const {id,extend} = req.body
-  const extendTime = new Date(extend)
+  const logPath = "events/EventLog";
+  const logAction = "Extend Event";
+  const logSourceKey = "event";
 
-  if(!id){
-    return res.status(400).json({ message: "EventId is required" });
-  }
-  if (isNaN(extendTime.getTime())) {
-    return res.status(400).json({ message: "Invalid date format" });
-  }
+  try {
+    if (!id) {
+      throw new CustomError(
+        "EventId is required",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
 
-  try{
-     
-  const meetings = await Event.find({type:"holiday"});
+    if (isNaN(extendTime.getTime())) {
+      throw new CustomError(
+        "Invalid date format",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
 
-  const onGoingMeetings = meetings.some((meeting)=> {
-    const startDate = new Date(meeting.start)
-    const endDate = new Date(meeting.end)
-    ("startDate: ",startDate)
-    
-    return extendTime > startDate && extendTime < endDate
-  })
+    const meetings = await Event.find({ type: "holiday" });
 
-  if(onGoingMeetings){
-    return res.status(400).json({ message: "Cannot extend the  meeting" });
-  }
-  
-  const extendedMeeting = await Event.findOneAndUpdate({_id:id},{end:extendTime},{new:true})
+    const onGoingMeetings = meetings.some((meeting) => {
+      const startDate = new Date(meeting.start);
+      const endDate = new Date(meeting.end);
+      return extendTime > startDate && extendTime < endDate;
+    });
 
-  return res.status(200).json({ message: "Meeting time extended" });
+    if (onGoingMeetings) {
+      throw new CustomError(
+        "Cannot extend the meeting due to ongoing meetings",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
 
-  }
-  catch(error){
-    next(error)
+    const extendedMeeting = await Event.findOneAndUpdate(
+      { _id: id },
+      { end: extendTime },
+      { new: true }
+    );
+
+    if (!extendedMeeting) {
+      throw new CustomError(
+        "Event not found",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    // Success log with the updated event details
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Meeting time extended successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: extendedMeeting._id,
+      changes: { extendedEnd: extendTime },
+    });
+
+    return res.status(200).json({ message: "Meeting time extended" });
+  } catch (error) {
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
+const deleteEvent = async (req, res, next) => {
+  const { user, ip, company } = req;
+  const { id } = req.params;
 
-const deleteEvent = async (req,res,next) => {
+  const logPath = "events/EventLog";
+  const logAction = "Delete Event";
+  const logSourceKey = "event";
 
-  const {id} = req.body
+  try {
+    if (!id) {
+      throw new CustomError(
+        "EventId is required",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
 
-  if(!id){
-    return res.status(400).json({ message: "EventId is required" });
-  }
+    const inActiveEvent = await Event.findOneAndUpdate(
+      { _id: id },
+      { active: false },
+      { new: true }
+    );
 
-  try{
-     const inActiveEvent = await Event.findOneAndUpdate({_id:id},{active:false},{new:true});
-  
-    res.status(200).json({message:"Event deleted successfully",data:inActiveEvent});
-    
-  }
-  catch(error){
-    ('error:',error)
-    next(error)
+    if (!inActiveEvent) {
+      throw new CustomError(
+        "Event not found",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    // Success log with event ID and details
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Event deleted successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: inActiveEvent._id,
+      changes: { eventId: inActiveEvent._id, active: "false" },
+    });
+
+    return res.status(200).json({
+      message: "Event deleted successfully",
+      data: inActiveEvent,
+    });
+  } catch (error) {
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
-
-
-
-module.exports = { createEvent, getAllEvents, getNormalEvents, getHolidays, getBirthdays, extendEvent,deleteEvent };
+module.exports = {
+  createEvent,
+  getAllEvents,
+  getNormalEvents,
+  getHolidays,
+  getBirthdays,
+  extendEvent,
+  deleteEvent,
+};

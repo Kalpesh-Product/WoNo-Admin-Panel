@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const User = require("../../models/UserData");
+const User = require("../../models/hr/UserData");
 
 const handleRefreshToken = async (req, res, next) => {
   try {
@@ -13,7 +13,7 @@ const handleRefreshToken = async (req, res, next) => {
 
     const userExists = await User.findOne({ refreshToken })
       .select(
-        "firstName lastName role email empId company password designation selectedDepartments"
+        "firstName lastName role email empId company password designation departments selectedDepartments"
       )
       .populate([
         {
@@ -50,6 +50,7 @@ const handleRefreshToken = async (req, res, next) => {
               role: userExists.designation,
               userId: userExists._id,
               company: userExists.company._id,
+              departments: userExists.departments,
             },
           },
           process.env.ACCESS_TOKEN_SECRET,

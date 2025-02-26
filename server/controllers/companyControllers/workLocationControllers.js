@@ -1,48 +1,70 @@
-const Company = require("../../models/Company");
+const Company = require("../../models/hr/Company");
 const mongoose = require("mongoose");
+const { createLog } = require("../../utils/moduleLogs");
 const csvParser = require("csv-parser");
 const { Readable } = require("stream");
+const CustomError = require("../../utils/customErrorlogs");
 
 const addWorkLocation = async (req, res, next) => {
+  const logPath = "hr/HrLog";
+  const logAction = "Add Work Location";
+  const logSourceKey = "companyData";
+  const { user, ip, company } = req;
   const { workLocation } = req.body;
-  const companyId = req.userData.company;
 
   try {
-    if (!companyId || !workLocation) {
-      return res.status(400).json({
-        message: "All feilds are required",
-      });
+    if (!company || !workLocation) {
+      throw new CustomError(
+        "All fields are required",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    if (!mongoose.Types.ObjectId.isValid(companyId)) {
-      return res.status(400).json({
-        message: "Invalid companyId provided",
-      });
+    if (!mongoose.Types.ObjectId.isValid(company)) {
+      throw new CustomError(
+        "Invalid company provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    const updateWorkLocation = await Company.findByIdAndUpdate(
-      { _id: companyId },
-      {
-        $push: {
-          workLocations: {
-            name: workLocation,
-          },
-        },
-        new: true,
-      }
+    const updatedCompany = await Company.findByIdAndUpdate(
+      { _id: company },
+      { $push: { workLocations: { name: workLocation } } },
+      { new: true }
     );
 
-    if (!updateWorkLocation) {
-      return res.status(400).json({
-        message: "Couldn't add work location",
-      });
+    if (!updatedCompany) {
+      throw new CustomError(
+        "Couldn't add work location",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
-    updateWorkLocation;
-    return res.status(200).json({
-      message: "Work location added successfully",
+
+    // Log the successful addition of the work location
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Work location added successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: updatedCompany._id,
+      changes: { workLocation },
     });
+
+    return res
+      .status(200)
+      .json({ message: "Work location added successfully" });
   } catch (error) {
-    next(error);
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
