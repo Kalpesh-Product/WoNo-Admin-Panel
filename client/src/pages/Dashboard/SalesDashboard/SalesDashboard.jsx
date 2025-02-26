@@ -398,16 +398,11 @@ const SalesDashboard = () => {
       ],
     },
     {
-      layout: 6,
+      layout: 5,
       widgets: [
         <Card
-          route={"actual-business"}
-          title={"Actual Business"}
-          icon={<RiPagesLine />}
-        />,
-        <Card
-          route={"revenue-target"}
-          title={"Target"}
+          route={"turnover"}
+          title={"Turnover"}
           icon={<RiPagesLine />}
         />,
         <Card
@@ -415,7 +410,7 @@ const SalesDashboard = () => {
           title={"Finance"}
           icon={<MdFormatListBulleted />}
         />,
-        <Card route={""} title={"Mix Bag"} icon={<MdFormatListBulleted />} />,
+        <Card route={"mix-bag"} title={"Mix Bag"} icon={<MdFormatListBulleted />} />,
         <Card route={""} title={"Reports"} icon={<CgProfile />} />,
         <Card
           route={""}
