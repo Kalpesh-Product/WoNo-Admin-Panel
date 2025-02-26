@@ -1,7 +1,6 @@
-const Company = require("../../models/Company");
+const Company = require("../../models/hr/Company");
 const bcrypt = require("bcryptjs");
 const User = require("../../models/hr/UserData");
-const User = require("../../models/UserData");
 const Role = require("../../models/roles/Roles");
 const { default: mongoose } = require("mongoose");
 const Department = require("../../models/Departments");

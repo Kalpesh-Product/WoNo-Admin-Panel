@@ -4,7 +4,7 @@ const UserData = require("../../models/hr/UserData");
 const { createLog } = require("../../utils/moduleLogs");
 const csvParser = require("csv-parser");
 const { Readable } = require("stream");
-const Company = require("../../models/Company");
+const Company = require("../../models/hr/Company");
 
 const CustomError = require("../../utils/customErrorlogs");
 

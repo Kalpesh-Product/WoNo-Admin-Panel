@@ -1,5 +1,5 @@
 const Attendance = require("../models/hr/Attendance");
-const UserData = require("../models/UserData");
+const UserData = require("../models/hr/UserData");
 const mongoose = require("mongoose");
 const { formatDate, formatTime } = require("../utils/formatDateTime");
 const { createLog } = require("../utils/moduleLogs");

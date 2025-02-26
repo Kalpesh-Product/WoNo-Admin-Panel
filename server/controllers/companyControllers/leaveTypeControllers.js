@@ -1,4 +1,4 @@
-const Company = require("../../models/Company");
+const Company = require("../../models/hr/Company");
 const mongoose = require("mongoose");
 const { createLog } = require("../../utils/moduleLogs");
 const CustomError = require("../../utils/customErrorlogs");
