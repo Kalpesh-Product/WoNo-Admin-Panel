@@ -139,10 +139,15 @@ import UniqueLeads from "../pages/Dashboard/SalesDashboard/UniqueLeads";
 import SalesFinance from "../pages/Dashboard/SalesDashboard/SalesFinance/SalesFinance";
 import SalesBudget from "../pages/Dashboard/SalesDashboard/SalesFinance/SalesBudget";
 import SalesPayment from "../pages/Dashboard/SalesDashboard/SalesFinance/SalesPayment";
-import LeadsLayout from "../pages/Dashboard/SalesDashboard/ViewClients/LeadsLayout";
 import UniqueClients from "../pages/Dashboard/SalesDashboard/UniqueClients";
 import MemberDetails from "../pages/Dashboard/SalesDashboard/ViewClients/MemberDetails";
-import ViewMemberLayout from "../pages/Dashboard/SalesDashboard/ViewClients/ViewMemberLayout";
+import SalesMixBag from "../pages/Dashboard/SalesDashboard/SalesMixBag";
+import EarningsLayout from "../pages/Dashboard/SalesDashboard/EarningsLayout";
+import FinanceDashboard from "../pages/Dashboard/FinanceDashboard/FinanceDashboard";
+import AdminstartionLayout from "../pages/Dashboard/AdminDashboard/AdminstartionLayout";
+import AdminDashboard from "../pages/Dashboard/AdminDashboard/AdminDashboard";
+import MaintainanceLayout from "../pages/Dashboard/MaintainanceDashboard/MaintainanceLayout";
+import MaintainanceDashboard from "../pages/Dashboard/MaintainanceDashboard/MaintainanceDashboard";
 
 export const routes = createBrowserRouter([
   {
@@ -226,6 +231,36 @@ export const routes = createBrowserRouter([
                     ],
                   },
                   {
+                    path: "finance-dashboard",
+                    element: <FrontendLayout />,
+                    children: [
+                      {
+                        path: "",
+                        element: <FinanceDashboard />,
+                      },
+                    ],
+                  },
+                  {
+                    path: "admin-dashboard",
+                    element: <AdminstartionLayout />,
+                    children: [
+                      {
+                        path: "",
+                        element: <AdminDashboard />,
+                      },
+                    ],
+                  },
+                  {
+                    path: "maintainance-dashboard",
+                    element: <MaintainanceLayout />,
+                    children: [
+                      {
+                        path: "",
+                        element: <MaintainanceDashboard />,
+                      },
+                    ],
+                  },
+                  {
                     path: "sales-dashboard",
                     element: <SalesDashboardLayout />,
                     children: [
@@ -234,9 +269,21 @@ export const routes = createBrowserRouter([
                         element: <SalesDashboard />,
                       },
                       {
-                        path: "actual-business",
-                        element: <ActualBusinessRevenue />,
+                        path: "turnover",
+                        element: <EarningsLayout />,
+                        children:[
+                          {
+                            path: "actual-business",
+                            element: <ActualBusinessRevenue />,
+                          },
+    
+                          {
+                            path: "revenue-target",
+                            element: <RevenueTarget />,
+                          },
+                        ]
                       },
+                      
                       {
                         path: "unique-leads",
                         element: <UniqueLeads />,
@@ -260,8 +307,8 @@ export const routes = createBrowserRouter([
                         ],
                       },
                       {
-                        path: "revenue-target",
-                        element: <RevenueTarget />,
+                        path: "mix-bag",
+                        element: <SalesMixBag />,
                       },
                       {
                         path: "co-working-seats",
@@ -333,25 +380,6 @@ export const routes = createBrowserRouter([
                               {
                                 path: "members",
                                 element: <ClientMembers />,
-
-                                // children: [
-                                //   // {
-                                //   //   path: "view-member",
-                                //   //   index: true,
-                                //   //   element: <MemberDetails />,
-                                //   // },
-                                //   {
-                                //     path: "view-member/:id",
-                                //     // index: true,
-                                //     element: <MemberDetails />,
-                                //     // children: [
-                                //     //   {
-                                //     //     path: "member-details",
-                                //     //     element: <MemberDetails />,
-                                //     //   },
-                                //     // ],
-                                //   },
-                                // ],
                               },
                               {
                                 path: "members/view-member/:id",

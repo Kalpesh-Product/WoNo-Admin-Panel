@@ -6,6 +6,7 @@ import occupied from "../../../../assets/biznest/occupancy/occupied.png";
 import cleared from "../../../../assets/biznest/occupancy/cleared.png";
 import PrimaryButton from "../../../../components/PrimaryButton";
 import MuiModal from "../../../../components/MuiModal";
+import { MdUploadFile } from "react-icons/md";
 
 const mockSalesData = [
   {
@@ -17,20 +18,62 @@ const mockSalesData = [
     ],
   },
   {
-    client: "Uber Eats",
+    client: "Axis Bank",
     memberDetails: [
-      { member: "Member X", date: "2024-02-25" },
-      { member: "Member Y", date: "2024-02-26" },
+      { member: "John Doe", date: "2024-02-25" },
+      { member: "Jane Smith", date: "2024-02-26" },
+      { member: "Bob Johnson", date: "2024-02-26" },
+      { member: "Alice Brown", date: "2024-02-26" },
+      { member: "Mike Davis", date: "2024-02-26" },
+    ],
+  },
+  {
+    client: "Turtlemint",
+    memberDetails: [
+      { member: "Alex Turner", date: "2024-03-01" },
+      { member: "Emma Watson", date: "2024-03-01" },
+      { member: "Ryan Carter", date: "2024-03-02" },
+      { member: "Sophia Martinez", date: "2024-03-02" },
+      { member: "Liam Parker", date: "2024-03-02" },
+      { member: "Olivia Scott", date: "2024-03-03" },
+      { member: "Noah Adams", date: "2024-03-03" },
+      { member: "Ava Green", date: "2024-03-03" },
+      { member: "Ethan King", date: "2024-03-04" },
+      { member: "Mia Wright", date: "2024-03-04" },
+      { member: "James Baker", date: "2024-03-04" },
+      { member: "Charlotte Hill", date: "2024-03-05" },
+      { member: "Benjamin Evans", date: "2024-03-05" },
+      { member: "Amelia Collins", date: "2024-03-05" },
+      { member: "Lucas Allen", date: "2024-03-06" },
+      { member: "Harper Nelson", date: "2024-03-06" },
+      { member: "Alexander Carter", date: "2024-03-06" },
+      { member: "Ella Mitchell", date: "2024-03-07" },
+      { member: "Daniel Perez", date: "2024-03-07" },
+      { member: "Grace Roberts", date: "2024-03-07" },
     ],
   },
 ];
 
 const ViewAvailability = () => {
-    const [openModal, setOpenModal] = useState(false);
-    const [memberDetails, setMemberDetails] = useState({});
+  const [openModal, setOpenModal] = useState(false);
+  const [imageOpen, setImageOpen] = useState(false);
+  const [memberDetails, setMemberDetails] = useState({});
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(occupied);
+
   const handleViewDetails = (data) => {
     setOpenModal(true);
     setMemberDetails(data);
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setSelectedFile(file);
+      setImagePreview(imageUrl);
+      setImageOpen(false)
+    }
   };
   return (
     <div className="p-4 flex flex-col gap-4">
@@ -38,8 +81,8 @@ const ViewAvailability = () => {
         <div className="grid grid-cols-2  gap-4">
           <div className="flex w-full flex-col gap-4 text-center">
             <span className="text-primary text-title">Occupied</span>
-            <div className="h-full w-full object-contain">
-              <img className="w-full h-full" src={occupied} alt="" />
+            <div onClick={()=>setImageOpen(true)} className="h-full w-full object-contain cursor-pointer">
+              <img className="w-full h-full" src={imagePreview} alt="" />
             </div>
           </div>
           <div className="flex w-full flex-col gap-4 text-center">
@@ -111,8 +154,31 @@ const ViewAvailability = () => {
           </div>
           <div className="flex items-center justify-between">
             <span className="text-content">Date of Joining</span>
-            <span className="text-content text-gray-500">{memberDetails.date}</span>
+            <span className="text-content text-gray-500">
+              {memberDetails.date}
+            </span>
           </div>
+        </div>
+      </MuiModal>
+      <MuiModal open={imageOpen} onClose={()=>setImageOpen(false)} title={"Upload occupied space"}>
+      <div className="flex flex-col items-center justify-center gap-4 p-6">
+          <span className="text-subtitle font-pmedium">Upload New Image</span>
+          <label
+            className="cursor-pointer flex flex-col items-center gap-2 p-4 border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-100"
+          >
+            <MdUploadFile className="text-4xl text-gray-500" />
+            <span className="text-gray-500">Click to upload</span>
+            <input
+              type="file"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+          </label>
+          {selectedFile && (
+            <div className="mt-4 text-gray-700">
+              Selected File: {selectedFile.name}
+            </div>
+          )}
         </div>
       </MuiModal>
     </div>

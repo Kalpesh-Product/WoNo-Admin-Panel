@@ -93,6 +93,30 @@ const ActualBusinessRevenue = () => {
             },
           ],
         },
+        {
+          name: "Other Channels",
+          revenue: 15000,
+          clients: [
+            {
+              client: "Client F",
+              representative: "Daniel Green",
+              registerDate: "2024-03-12",
+              actualRevenue: 5000,
+            },
+            {
+              client: "Client G",
+              representative: "Eva Black",
+              registerDate: "2024-04-18",
+              actualRevenue: 7000,
+            },
+            {
+              client: "Client H",
+              representative: "Frank Blue",
+              registerDate: "2024-05-10",
+              actualRevenue: 3000,
+            },
+          ],
+        },
       ],
     },
     {

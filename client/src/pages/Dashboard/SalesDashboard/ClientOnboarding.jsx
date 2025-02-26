@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { TextField } from "@mui/material";
+import { TextField, Select, MenuItem } from "@mui/material";
 import PrimaryButton from "../../../components/PrimaryButton";
 import SecondaryButton from "../../../components/SecondaryButton";
 
@@ -13,30 +13,33 @@ const ClientOnboarding = () => {
     reset();
   };
 
+  const [selectedValue, setSelectedValue] = useState("Coworking");
+
+  const handleChange = (event) => {
+    setSelectedValue(event.target.value);
+  };
+
   return (
     <div className="h-[65vh] overflow-y-auto">
       <form onSubmit={handleSubmit(onSubmit)} className="">
-        <div className="p-4">
-          <div className="grid grid-cols-2 sm:grid-cols-1 md:grid-cols-2 gap-4">
-            <Controller
-              name="typeOfClient"
-              control={control}
-              defaultValue=""
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  size="small"
-                  label="Type Of Client"
-                  fullWidth
-                />
-              )}
-            />
-          </div>
-          <div className="pt-2">
-            <p className="text-primary text-lg font-bold">
-              Coworking Client Onbording Form
-            </p>
-          </div>
+        <div className="flex gap-4">
+          <Select
+            value={selectedValue} // Use the state value here
+            onChange={handleChange} // Update the state on change
+            variant="outlined"
+            size="small"
+            sx={{
+              width: "15rem",
+              height: "2.5rem",
+              paddingX: "5px",
+              ".MuiOutlinedInput-input": {
+                padding: "5px", // Customize padding inside the input
+              },
+            }}>
+            <MenuItem value="Coworking">Coworking</MenuItem>
+            <MenuItem value="Workation">Workation</MenuItem>
+            <MenuItem value="Virtual Office">Virtual Office</MenuItem>
+          </Select>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-1 md:grid-cols-2 gap-4">
           <div>
