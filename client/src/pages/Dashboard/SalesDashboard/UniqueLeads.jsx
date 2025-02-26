@@ -23,19 +23,19 @@ const UniqueLeads = () => {
           revenue: 12000,
           clients: [
             {
-              client: "Client AIO",
+              client: "Google",
               representative: "John Doe",
               callDate: "2024-04-02",
               status: "Closed",
             },
             {
-              client: "Client B",
+              client: "Meta",
               representative: "Jane Smith",
               callDate: "2024-04-04",
               status: "Follow-Up",
             },
             {
-              client: "Client C",
+              client: "Apple",
               representative: "Mike Johnson",
               callDate: "2024-04-10",
               status: "Pending",
@@ -47,14 +47,26 @@ const UniqueLeads = () => {
           revenue: 8000,
           clients: [
             {
-              client: "Client D",
+              client: "Amazon",
               representative: "Chris Evans",
               callDate: "2024-04-05",
               status: "Closed",
             },
             {
-              client: "Client E",
+              client: "Microsoft",
               representative: "Sophia Williams",
+              callDate: "2024-04-09",
+              status: "Pending",
+            },
+            {
+              client: "Tesla",
+              representative: "Ralph Williams",
+              callDate: "2024-04-09",
+              status: "Pending",
+            },
+            {
+              client: "Samsung",
+              representative: "Tom Harris",
               callDate: "2024-04-09",
               status: "Pending",
             },
@@ -65,19 +77,19 @@ const UniqueLeads = () => {
           revenue: 15000,
           clients: [
             {
-              client: "Client F",
+              client: "Nike",
               representative: "Emma Brown",
               callDate: "2024-04-06",
               status: "Closed",
             },
             {
-              client: "Client G",
+              client: "Sony",
               representative: "Liam Wilson",
               callDate: "2024-04-11",
               status: "Follow-Up",
             },
             {
-              client: "Client H",
+              client: "PayPal",
               representative: "Olivia Taylor",
               callDate: "2024-04-15",
               status: "Pending",
@@ -369,8 +381,7 @@ const UniqueLeads = () => {
             value={viewType}
             onChange={handleViewTypeChange}
             label={"Select Year"}
-            sx={{ width: 200 }}
-          >
+            sx={{ width: 200 }}>
             <MenuItem value="month">Monthly</MenuItem>
             <MenuItem value="year">Yearly</MenuItem>
           </Select>
@@ -383,8 +394,7 @@ const UniqueLeads = () => {
               value={selectedMonth}
               onChange={handleMonthChange}
               label="Select Month"
-              sx={{ width: 200 }}
-            >
+              sx={{ width: 200 }}>
               {mockBusinessRevenueData.map((data) => (
                 <MenuItem key={data.month} value={data.month}>
                   {data.month}
@@ -407,8 +417,7 @@ const UniqueLeads = () => {
               <Accordion key={index} className="py-4">
                 <AccordionSummary
                   expandIcon={<IoIosArrowDown />}
-                  className="border-b-[1px] border-borderGray"
-                >
+                  className="border-b-[1px] border-borderGray">
                   <div className="flex justify-between items-center w-full px-4">
                     <span className="text-subtitle font-medium">
                       {domain.name}
@@ -445,8 +454,7 @@ const UniqueLeads = () => {
                 <Accordion key={index} className="py-4">
                   <AccordionSummary
                     expandIcon={<IoIosArrowDown />}
-                    className="border-b-[1px] border-borderGray"
-                  >
+                    className="border-b-[1px] border-borderGray">
                     <div className="flex justify-between items-center w-full px-4">
                       <span className="text-subtitle font-medium">
                         {domainName}
