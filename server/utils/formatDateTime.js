@@ -5,6 +5,31 @@ const formatDate = (date) => {
   return format(new Date(date), "dd/MM/yyyy");
 };
 
+const formatWithOrdinal = (date) => {
+  if (!date) return "N/A";
+
+  const d = new Date(date);
+
+  // Extract day, month, and year using Intl
+  const day = d.getDate();
+  const month = new Intl.DateTimeFormat("en-GB", {
+    month: "long",
+  }).format(d);
+  const year = new Intl.DateTimeFormat("en-GB", {
+    year: "numeric",
+  }).format(d);
+
+  return `${getOrdinalSuffix(day)} ${month}, ${year}`;
+};
+
+// Function to add ordinal suffix (st, nd, rd, th)
+const getOrdinalSuffix = (day) => {
+  if (day > 3 && day < 21) return `${day}th`;
+  const suffixes = ["st", "nd", "rd"];
+  const lastDigit = day % 10;
+  return `${day}${suffixes[lastDigit - 1] || "th"}`;
+};
+
 const formatTime = (timestamp) => {
   if (!timestamp) return "N/A";
   return format(new Date(timestamp), "hh:mm a");
@@ -31,4 +56,4 @@ const formatDuration = (startTime, endTime) => {
   }
 };
 
-module.exports = { formatDate, formatTime, formatDuration };
+module.exports = { formatDate, formatWithOrdinal, formatTime, formatDuration };
