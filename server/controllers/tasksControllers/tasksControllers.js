@@ -2,7 +2,7 @@ const User = require("../../models/hr/UserData");
 const Project = require("../../models/tasks/Project");
 const Task = require("../../models/tasks/Task");
 const CustomError = require("../../utils/customErrorlogs");
-const { formatDate } = require("../../utils/formatDateTime");
+const { formatDate, formatTime } = require("../../utils/formatDateTime");
 const { createLog } = require("../../utils/moduleLogs");
 const validateUsers = require("../../utils/validateUsers");
 
@@ -258,6 +258,7 @@ const getTasks = async (req, res, next) => {
       return {
         ...task,
         dueDate: formatDate(task.dueDate),
+        dueTime: task.dueTime ? formatTime(task.dueTime) : null,
         assignedDate: formatDate(task.assignedDate),
       };
     });
@@ -285,11 +286,7 @@ const getTodayTasks = async (req, res, next) => {
     })
       .populate({
         path: "project",
-        select: "projectName department",
-        populate: {
-          path: "department",
-          select: "name",
-        },
+        select: "projectName",
       })
       .populate("assignedBy", "firstName lastName")
       .populate("assignedTo", "firstName lastName")
@@ -389,6 +386,35 @@ const getTeamMembersTasksProjects = async (req, res, next) => {
   }
 };
 
+const getAssignedTasks = async (req, res, next) => {
+  try {
+    const { user, company } = req;
+
+    const tasks = await Task.find({ company, assignedBy: user })
+      .populate({
+        path: "project",
+        select: "projectName",
+      })
+      .populate("assignedBy", "firstName lastName")
+      .populate("assignedTo", "firstName lastName")
+      .select("-company")
+      .lean();
+
+    const transformedTasks = tasks.map((task) => {
+      return {
+        ...task,
+        dueDate: formatDate(task.dueDate),
+        dueTime: task.dueTime ? formatTime(task.dueTime) : null,
+        assignedDate: formatDate(task.assignedDate),
+      };
+    });
+
+    return res.status(200).json(transformedTasks);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const deleteTask = async (req, res, next) => {
   const { company, user, ip } = req;
   const logPath = "tasks/TaskLog";
@@ -447,5 +473,6 @@ module.exports = {
   getTasks,
   getTodayTasks,
   getTeamMembersTasksProjects,
+  getAssignedTasks,
   deleteTask,
 };

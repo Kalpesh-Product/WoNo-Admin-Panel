@@ -33,7 +33,12 @@ const ViewEmployees = () => {
             textDecoration: "underline",
             cursor: "pointer",
           }}
-          onClick={() => navigate(`/app/dashboard/HR-dashboard/employee/view-employees/${params.data.employmentID}`)}
+          onClick={() => {
+
+            localStorage.setItem("employeeName",params.data.employeeName) 
+            navigate(`/app/dashboard/HR-dashboard/employee/view-employees/${params.data.employmentID}`, {state: { name: params.data.employeeName }})
+        }
+        }
 
         >
           {params.value}

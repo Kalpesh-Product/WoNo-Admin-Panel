@@ -1,7 +1,8 @@
 const Department = require("../../models/Departments");
 const Project = require("../../models/tasks/Project");
+const Task = require("../../models/tasks/Task");
 const CustomError = require("../../utils/customErrorlogs");
-const { formatDate } = require("../../utils/formatDateTime");
+const { formatDate, formatWithOrdinal } = require("../../utils/formatDateTime");
 const { createLog } = require("../../utils/moduleLogs");
 const validateUsers = require("../../utils/validateUsers");
 
@@ -134,25 +135,82 @@ const createProject = async (req, res, next) => {
   }
 };
 
+// const getProjects = async (req, res, next) => {
+//   try {
+//     const { company } = req;
+
+//     const projects = await Project.find({ company })
+//       .populate("department", "name")
+//       .populate("assignedBy", "firstName lastName")
+//       .populate("assignedTo", "firstName lastName")
+//       .lean();
+
+//     const transformedProjects = projects.map((project) => {
+//       return {
+//         ...project,
+//         dueDate: formatDate(project.dueDate),
+//         assignedDate: formatDate(project.assignedDate),
+//       };
+//     });
+
+//     return res.status(200).json(transformedProjects);
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
 const getProjects = async (req, res, next) => {
   try {
     const { company } = req;
 
-    const projects = await Project.find({ company })
-      .populate("department", "name")
-      .populate("assignedBy", "firstName lastName")
-      .populate("assignedTo", "firstName lastName")
+    // Fetch all tasks along with project and assignee details
+    const tasks = await Task.find({ company })
+      .populate("project", "projectName priority assignedDate dueDate status")
+      .populate("assignedTo", "firstName")
       .lean();
 
-    const transformedProjects = projects.map((project) => {
-      return {
-        ...project,
-        dueDate: formatDate(project.dueDate),
-        assignedDate: formatDate(project.assignedDate),
-      };
+    // Group tasks by project
+    const projectMap = new Map();
+
+    tasks.forEach((task) => {
+      const { project, assignedTo, taskType } = task;
+      if (!project) return;
+
+      if (!projectMap.has(project._id)) {
+        projectMap.set(project._id, {
+          id: project._id,
+          title: project.projectName,
+          priority: project.priority.toUpperCase(),
+          startDate: formatWithOrdinal(project.assignedDate),
+          deadline: formatWithOrdinal(project.dueDate),
+          status: project.status,
+          assignees: {},
+        });
+      }
+
+      const projectData = projectMap.get(project._id);
+
+      assignedTo.forEach((assignee) => {
+        const assigneeName = assignee.firstName;
+        if (!projectData.assignees[assigneeName]) {
+          projectData.assignees[assigneeName] = {
+            dailyTasks: 0,
+            monthlyTasks: 0,
+            additionalTasks: 0,
+          };
+        }
+
+        // Increment task count based on task type
+        if (taskType === "Daily")
+          projectData.assignees[assigneeName].dailyTasks++;
+        if (taskType === "Monthly")
+          projectData.assignees[assigneeName].monthlyTasks++;
+        if (taskType === "Additional")
+          projectData.assignees[assigneeName].additionalTasks++;
+      });
     });
 
-    return res.status(200).json(transformedProjects);
+    return res.status(200).json([...projectMap.values()]);
   } catch (error) {
     next(error);
   }

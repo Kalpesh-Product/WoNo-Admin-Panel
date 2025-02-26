@@ -8,13 +8,14 @@ import BarGraph from "../../../../../components/graphs/BarGraph";
 import DataCard from "../../../../../components/DataCard";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../../../../hooks/useAxiosPrivate";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 
 const Attendance = () => {
   const axios = useAxiosPrivate();
   const  {id} = useParams();
+  const name = localStorage.getItem("employeeName") || "Employee";
  
-   const { data: attendance, isLoading } = useQuery({
+    const { data: attendance, isLoading } = useQuery({
     queryKey: ["attendance"],
     queryFn: async () => {
       try {
@@ -383,7 +384,7 @@ const Attendance = () => {
       <div>
         <AgTable
           key={isLoading ? 1:attendance.length}
-          tableTitle="Aiwin's Attendance Table"
+          tableTitle= {`${name}'s Attendance Table`}
           buttonTitle={"Correction Request"}
           search={true}
           searchColumn={"Date"}
