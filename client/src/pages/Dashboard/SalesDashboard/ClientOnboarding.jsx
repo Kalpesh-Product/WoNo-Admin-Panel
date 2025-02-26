@@ -1,10 +1,10 @@
 import React from "react";
 import { useForm, Controller } from "react-hook-form";
 import { TextField } from "@mui/material";
-import PrimaryButton from "../../../../components/PrimaryButton";
-import SecondaryButton from "../../../../components/SecondaryButton";
+import PrimaryButton from "../../../components/PrimaryButton";
+import SecondaryButton from "../../../components/SecondaryButton";
 
-const EmployeeOnboard = () => {
+const ClientOnboarding = () => {
   const { control, handleSubmit, reset } = useForm();
 
   const onSubmit = (data) => {};
@@ -16,12 +16,34 @@ const EmployeeOnboard = () => {
   return (
     <div className="h-[65vh] overflow-y-auto">
       <form onSubmit={handleSubmit(onSubmit)} className="">
+        <div className="p-4">
+          <div className="grid grid-cols-2 sm:grid-cols-1 md:grid-cols-2 gap-4">
+            <Controller
+              name="typeOfClient"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  size="small"
+                  label="Type Of Client"
+                  fullWidth
+                />
+              )}
+            />
+          </div>
+          <div className="pt-2">
+            <p className="text-primary text-lg font-bold">
+              Coworking Client Onbording Form
+            </p>
+          </div>
+        </div>
         <div className="grid grid-cols-2 sm:grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             {/* Section: Basic Information */}
             <div className="py-4 border-b-default border-borderGray">
               <span className="text-subtitle font-pmedium">
-                Basic Information
+                Customer Details
               </span>
             </div>
             <div className="grid grid-cols sm:grid-cols-1 md:grid-cols-1 gap-4 p-4 ">
@@ -33,7 +55,7 @@ const EmployeeOnboard = () => {
                   <TextField
                     {...field}
                     size="small"
-                    label="First Name"
+                    label="Client Representative"
                     fullWidth
                   />
                 )}
@@ -47,7 +69,7 @@ const EmployeeOnboard = () => {
                   <TextField
                     {...field}
                     size="small"
-                    label="Middle Name"
+                    label="Company/ Entity Registered Name"
                     fullWidth
                   />
                 )}
@@ -60,7 +82,7 @@ const EmployeeOnboard = () => {
                   <TextField
                     {...field}
                     size="small"
-                    label="Last Name"
+                    label="Company Certificate of Incorporation"
                     fullWidth
                   />
                 )}
@@ -71,7 +93,12 @@ const EmployeeOnboard = () => {
                 control={control}
                 defaultValue=""
                 render={({ field }) => (
-                  <TextField {...field} size="small" label="gender" fullWidth />
+                  <TextField
+                    {...field}
+                    size="small"
+                    label="Company Registered Address"
+                    fullWidth
+                  />
                 )}
               />
 
@@ -80,10 +107,15 @@ const EmployeeOnboard = () => {
                 control={control}
                 defaultValue=""
                 render={({ field }) => (
-                  <TextField {...field} size="small" label="DOB" fullWidth />
+                  <TextField
+                    {...field}
+                    size="small"
+                    label="Company PAN Card Number"
+                    fullWidth
+                  />
                 )}
               />
-              <Controller
+              {/* <Controller
                 name="employeeID"
                 control={control}
                 defaultValue=""
@@ -108,14 +140,14 @@ const EmployeeOnboard = () => {
                     fullWidth
                   />
                 )}
-              />
+              /> */}
             </div>
           </div>
           <div>
             {/* Section: Job Information */}
             <div className="py-4 border-b-default border-borderGray">
               <span className="text-subtitle font-pmedium">
-                Job Information
+                Company Details
               </span>
             </div>
             <div className="grid grid-cols sm:grid-cols-1 md:grid-cols-1 gap-4 p-4">
@@ -127,7 +159,7 @@ const EmployeeOnboard = () => {
                   <TextField
                     {...field}
                     size="small"
-                    label="Start Date"
+                    label="Company GST Certificate"
                     fullWidth
                   />
                 )}
@@ -141,7 +173,7 @@ const EmployeeOnboard = () => {
                   <TextField
                     {...field}
                     size="small"
-                    label="Work Location"
+                    label="Company List of Directors"
                     fullWidth
                   />
                 )}
@@ -155,7 +187,7 @@ const EmployeeOnboard = () => {
                   <TextField
                     {...field}
                     size="small"
-                    label="Employee Type"
+                    label="Nature of Business"
                     fullWidth
                   />
                 )}
@@ -169,7 +201,7 @@ const EmployeeOnboard = () => {
                   <TextField
                     {...field}
                     size="small"
-                    label="Department"
+                    label="Details of the Signing Authority"
                     fullWidth
                   />
                 )}
@@ -182,12 +214,12 @@ const EmployeeOnboard = () => {
                   <TextField
                     {...field}
                     size="small"
-                    label="Reports To"
+                    label="Credits"
                     fullWidth
                   />
                 )}
               />
-              <Controller
+              {/* <Controller
                 name="jobTitle"
                 control={control}
                 defaultValue=""
@@ -212,11 +244,11 @@ const EmployeeOnboard = () => {
                     fullWidth
                   />
                 )}
-              />
+              /> */}
             </div>
           </div>
-          <div>
-            {/* Section: Policies */}
+          {/* <div>
+        
             <div className="py-4 border-b-default border-borderGray">
               <span className="text-subtitle font-pmedium">Policies</span>
             </div>
@@ -285,9 +317,9 @@ const EmployeeOnboard = () => {
                 )}
               />
             </div>
-          </div>
-          <div>
-            {/* Section: KYC Information */}
+          </div> */}
+          {/* <div>
+         
             <div className="py-4 border-b-default border-borderGray">
               <span className="text-subtitle font-pmedium">KYC</span>
             </div>
@@ -329,9 +361,9 @@ const EmployeeOnboard = () => {
                 )}
               />
             </div>
-          </div>
-          <div>
-            {/* Section: Home Address Information */}
+          </div> */}
+          {/* <div>
+   
             <div className="py-4 border-b-default border-borderGray">
               <span className="text-subtitle font-pmedium">
                 Home Address Information
@@ -397,9 +429,9 @@ const EmployeeOnboard = () => {
                 )}
               />
             </div>
-          </div>
-          <div>
-            {/* Section: Payroll Information */}
+          </div> */}
+          {/* <div>
+         
             <div className="py-4 border-b-default border-borderGray">
               <span className="text-subtitle font-pmedium">
                 Payroll Information
@@ -488,9 +520,9 @@ const EmployeeOnboard = () => {
                 )}
               />
             </div>
-          </div>
-          <div>
-            {/* Section: Payroll Information */}
+          </div> */}
+          {/* <div>
+        
             <div className="py-4 border-b-default border-borderGray">
               <span className="text-subtitle font-pmedium">
                 Bank Information
@@ -566,9 +598,9 @@ const EmployeeOnboard = () => {
                 )}
               />
             </div>
-          </div>
-          <div>
-            {/* Section: Payroll Information */}
+          </div> */}
+          {/* <div>
+     
             <div className="py-4 border-b-default border-borderGray">
               <span className="text-subtitle font-pmedium">
                 Family Information
@@ -617,7 +649,7 @@ const EmployeeOnboard = () => {
                 )}
               />
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Submit Button */}
@@ -630,4 +662,4 @@ const EmployeeOnboard = () => {
   );
 };
 
-export default EmployeeOnboard;
+export default ClientOnboarding;

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import LayerBarGraph from "../../../../components/graphs/LayerBarGraph";
-import WidgetSection from "../../../../components/WidgetSection";
+import LayerBarGraph from "../components/graphs/LayerBarGraph";
+import WidgetSection from "../components/WidgetSection";
 import {
   TextField,
   Select,
@@ -14,28 +14,16 @@ import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import { IoIosArrowDown } from "react-icons/io";
-import AgTable from "../../../../components/AgTable";
-import PrimaryButton from "../../../../components/PrimaryButton";
-import useAxiosPrivate from "../../../../hooks/useAxiosPrivate";
-import { useQuery } from "@tanstack/react-query";
+import AgTable from "../components/AgTable";
+import PrimaryButton from "../components/PrimaryButton";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import dayjs from "dayjs";
-import MuiModal from "../../../../components/MuiModal";
+import MuiModal from "../components/MuiModal";
 import { Controller, useForm } from "react-hook-form";
 
-const HrBudget = () => {
+const BudgetDisplay = ({ budgetData }) => {
   const axios = useAxiosPrivate();
   const [openModal, setOpenModal] = useState(false);
-  const { data: hrFinance = [] } = useQuery({
-    queryKey: ["hrFinance"],
-    queryFn: async () => {
-      try {
-        const response = await axios.get("/api/budget/company-budget");
-        return response.data.allBudgets;
-      } catch (error) {
-        throw new Error("Error fetching data");
-      }
-    },
-  });
 
   const { control, handleSubmit, reset } = useForm({
     defaultValues: {
@@ -53,7 +41,7 @@ const HrBudget = () => {
   };
 
   // Transform data into the required format
-  const groupedData = hrFinance.reduce((acc, item) => {
+  const groupedData = budgetData.reduce((acc, item) => {
     const month = dayjs(item.dueDate).format("MMMM YYYY"); // Extracting month and year
 
     if (!acc[month]) {
@@ -81,7 +69,7 @@ const HrBudget = () => {
       expanseName: item.expanseName,
       department: item.department,
       expanseType: item.expanseType,
-      amount: item.amount.toFixed(2), // Ensuring two decimal places
+      amount: item.amount.toLocaleString("en-IN", { maximumFractionDigits: 0 }), // Ensuring two decimal places
       dueDate: dayjs(item.dueDate).format("DD-MM-YYYY"),
       status: item.status,
     });
@@ -93,7 +81,7 @@ const HrBudget = () => {
   const financialData = Object.values(groupedData)
     .map((data) => ({
       ...data,
-      amount: data.amount.toFixed(2), // Ensuring two decimal places for total amount
+      amount: data.amount.toLocaleString("en-IN", { maximumFractionDigits: 0 }), // Ensuring two decimal places for total amount
     }))
     .sort((a, b) => dayjs(b.latestDueDate).diff(dayjs(a.latestDueDate))); // Sort descending
 
@@ -196,7 +184,6 @@ const HrBudget = () => {
     },
   };
 
-
   return (
     <div className="flex flex-col gap-8">
       <div className="border-default border-borderGray rounded-md">
@@ -234,15 +221,14 @@ const HrBudget = () => {
                     {data.month}
                   </span>
                   <span className="text-subtitle font-pmedium">
-                    {data.amount}
+                    {data.amount} INR
                   </span>
                 </div>
               </AccordionSummary>
-              <AccordionDetails>
+              <AccordionDetails sx={{ borderTop: "1px solid  #d1d5db" }}>
                 <AgTable
                   search={true}
                   searchColumn={"Department"}
-                  tableTitle={`${data.month}`}
                   data={data.tableData.rows}
                   columns={data.tableData.columns}
                   tableHeight={250}
@@ -283,7 +269,9 @@ const HrBudget = () => {
             render={({ field, fieldState }) => (
               <FormControl fullWidth error={!!fieldState.error}>
                 <Select {...field} size="small" displayEmpty>
-                  <MenuItem value="" disabled>Select Expense Type</MenuItem>
+                  <MenuItem value="" disabled>
+                    Select Expense Type
+                  </MenuItem>
                   <MenuItem value="Internal">Internal</MenuItem>
                   <MenuItem value="External">External</MenuItem>
                 </Select>
@@ -351,4 +339,4 @@ const HrBudget = () => {
   );
 };
 
-export default HrBudget;
+export default BudgetDisplay;

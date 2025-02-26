@@ -1,31 +1,16 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import AgTable from "../../../../components/AgTable";
 import { Chip } from "@mui/material";
-import useAxiosPrivate from "../../../../hooks/useAxiosPrivate";
-import { useQuery } from "@tanstack/react-query";
 
-const ViewEmployees = () => {
+const ClientMembers = () => {
   const navigate = useNavigate();
-
-  const axios = useAxiosPrivate();
-  const { data: employees, isLoading } = useQuery({
-    queryKey: ["employees"],
-    queryFn: async () => {
-      try {
-        const response = await axios.get("/api/users/fetch-users");
-        return response.data;
-      } catch (error) {
-        throw new Error(error.response.data.message);
-      }
-    },
-  });
 
   const viewEmployeeColumns = [
     { field: "srno", headerName: "SR No" },
     {
       field: "employeeName",
-      headerName: "Employee Name",
+      headerName: "Member Name",
       cellRenderer: (params) => (
         <span
           style={{
@@ -33,19 +18,17 @@ const ViewEmployees = () => {
             textDecoration: "underline",
             cursor: "pointer",
           }}
-          onClick={() => {
-
-            localStorage.setItem("employeeName",params.data.employeeName) 
-            navigate(`/app/dashboard/HR-dashboard/employee/view-employees/${params.data.employmentID}`, {state: { name: params.data.employeeName }})
-        }
-        }
-
-        >
+          onClick={() =>
+            navigate(
+              `/app/dashboard/sales-dashboard/clients/view-clients/${params.data.clientID}/members/view-member/${params.data.memberID}`
+            )
+          }>
           {params.value}
         </span>
       ),
     },
-    { field: "employmentID", headerName: "Employment ID" },
+    { field: "clientID", headerName: "Client ID" },
+    { field: "memberID", headerName: "Member ID" },
     { field: "email", headerName: "Email", flex: 1 },
     { field: "role", headerName: "Role", flex: 1 },
     {
@@ -78,7 +61,8 @@ const ViewEmployees = () => {
     {
       srno: "1",
       employeeName: "Aiwinraj",
-      employmentID: "WO001",
+      clientID: "CO001",
+      memberID: "MO001",
       email: "aiwinraj.wono@gmail.com",
       role: "Employee",
       status: "Active",
@@ -86,7 +70,8 @@ const ViewEmployees = () => {
     {
       srno: "2",
       employeeName: "Allan",
-      employmentID: "WO002",
+      clientID: "CO002",
+      memberID: "MO002",
       email: "allan.wono@gmail.com",
       role: "Employee",
       status: "Active",
@@ -94,7 +79,8 @@ const ViewEmployees = () => {
     {
       srno: "3",
       employeeName: "Sankalp",
-      employmentID: "WO003",
+      clientID: "CO003",
+      memberID: "MO003",
       email: "sankalp.wono@gmail.com",
       role: "Employee",
       status: "Active",
@@ -102,7 +88,8 @@ const ViewEmployees = () => {
     {
       srno: "4",
       employeeName: "Anushri",
-      employmentID: "WO004",
+      clientID: "CO004",
+      memberID: "MO004",
       email: "anushri.wono@gmail.com",
       role: "Employee",
       status: "Active",
@@ -110,7 +97,8 @@ const ViewEmployees = () => {
     {
       srno: "5",
       employeeName: "Muskan",
-      employmentID: "WO005",
+      clientID: "CO005",
+      memberID: "MO005",
       email: "muskan.wono@gmail.com",
       role: "Employee",
       status: "Active",
@@ -118,7 +106,8 @@ const ViewEmployees = () => {
     {
       srno: "6",
       employeeName: "Kalpesh",
-      employmentID: "WO006",
+      clientID: "CO006",
+      memberID: "MO006",
       email: "kalpesh.wono@gmail.com",
       role: "Employee",
       status: "Active",
@@ -126,7 +115,8 @@ const ViewEmployees = () => {
     {
       srno: "7",
       employeeName: "Allan2",
-      employmentID: "WO007",
+      clientID: "CO007",
+      memberID: "MO007",
       email: "allan2.wono@gmail.com",
       role: "Employee",
       status: "InActive",
@@ -139,20 +129,15 @@ const ViewEmployees = () => {
         <AgTable
           search={true}
           searchColumn="Email"
-          data={isLoading? []:[...employees.map((employee, index)=>({
-            id : employee._id,
-            srno: index + 1,
-            employeeName : employee.firstName,
-            employmentID : employee.empId,
-            email : employee.email,
-            role : employee.role[0].roleTitle,
-            status : 'Active',
-           }))]}
+          data={rows}
           columns={viewEmployeeColumns}
         />
+      </div>
+      <div>
+        <Outlet />
       </div>
     </div>
   );
 };
 
-export default ViewEmployees;
+export default ClientMembers;

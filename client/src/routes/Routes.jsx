@@ -112,6 +112,37 @@ import TaskReportLayout from "../pages/Tasks/TaskReports.jsx/TaskReportLayout";
 import MyTaskReports from "../pages/Tasks/TaskReports.jsx/MyTaskReports";
 import AssignedTaskReports from "../pages/Tasks/TaskReports.jsx/AssignedTaskReports";
 import DepartmentTaskReports from "../pages/Tasks/TaskReports.jsx/DepartmentTaskReports";
+import SalesDashboardLayout from "../pages/Dashboard/SalesDashboard/SalesDashboardLayout";
+import SalesDashboard from "../pages/Dashboard/SalesDashboard/SalesDashboard";
+import TotalRevenueLayout from "../pages/Dashboard/SalesDashboard/TotalRevenueLayout";
+import TotalRevenue from "../pages/Dashboard/SalesDashboard/TotalRevenue";
+import ViewTemplate from "../pages/Dashboard/HrDashboard/Data/ViewTemplate";
+import CoWorking from "../pages/Dashboard/SalesDashboard/CoWorking";
+import MeetingRevenue from "../pages/Dashboard/SalesDashboard/MeetingRevenue";
+import VirtualOffice from "../pages/Dashboard/SalesDashboard/VirtualOffice";
+import Workations from "../pages/Dashboard/SalesDashboard/Workations";
+import AltRevenues from "../pages/Dashboard/SalesDashboard/AltRevenues";
+import ClientsLayout from "../pages/Dashboard/SalesDashboard/ClientsLayout";
+import ViewClients from "../pages/Dashboard/SalesDashboard/ViewClients";
+import ClientOnboarding from "../pages/Dashboard/SalesDashboard/ClientOnboarding";
+import ActualBusinessRevenue from "../pages/Dashboard/SalesDashboard/ActualBusiness/ActualBusinessRevenue";
+import RevenueTarget from "../pages/Dashboard/SalesDashboard/RevenueTarget/RevenueTarget";
+import ViewClientLayout from "../pages/Dashboard/SalesDashboard/ViewClients/ViewClientLayout";
+import ClientDetails from "../pages/Dashboard/SalesDashboard/ViewClients/ClientDetails";
+import Desks from "../pages/Dashboard/SalesDashboard/ViewClients/Desks";
+import ClientRevenue from "../pages/Dashboard/SalesDashboard/ViewClients/ClientRevenue";
+import ClientMembers from "../pages/Dashboard/SalesDashboard/ViewClients/ClientMembers";
+import CoWorkingSeats from "../pages/Dashboard/SalesDashboard/CoWorkingSeats/CoWorkingSeats";
+import CheckAvailability from "../pages/Dashboard/SalesDashboard/CoWorkingSeats/CheckAvailability";
+import ViewAvailability from "../pages/Dashboard/SalesDashboard/CoWorkingSeats/ViewAvailability";
+import UniqueLeads from "../pages/Dashboard/SalesDashboard/UniqueLeads";
+import SalesFinance from "../pages/Dashboard/SalesDashboard/SalesFinance/SalesFinance";
+import SalesBudget from "../pages/Dashboard/SalesDashboard/SalesFinance/SalesBudget";
+import SalesPayment from "../pages/Dashboard/SalesDashboard/SalesFinance/SalesPayment";
+import LeadsLayout from "../pages/Dashboard/SalesDashboard/ViewClients/LeadsLayout";
+import UniqueClients from "../pages/Dashboard/SalesDashboard/UniqueClients";
+import MemberDetails from "../pages/Dashboard/SalesDashboard/ViewClients/MemberDetails";
+import ViewMemberLayout from "../pages/Dashboard/SalesDashboard/ViewClients/ViewMemberLayout";
 
 export const routes = createBrowserRouter([
   {
@@ -195,8 +226,160 @@ export const routes = createBrowserRouter([
                     ],
                   },
                   {
-                    path: "finance-dashboard",
-                    element: <Dashboard />,
+                    path: "sales-dashboard",
+                    element: <SalesDashboardLayout />,
+                    children: [
+                      {
+                        path: "",
+                        element: <SalesDashboard />,
+                      },
+                      {
+                        path: "actual-business",
+                        element: <ActualBusinessRevenue />,
+                      },
+                      {
+                        path: "unique-leads",
+                        element: <UniqueLeads />,
+                      },
+                      {
+                        path: "unique-clients",
+                        element: <UniqueClients />,
+                      },
+                      {
+                        path: "finance",
+                        element: <SalesFinance />,
+                        children: [
+                          {
+                            path: "budget",
+                            element: <SalesBudget />,
+                          },
+                          {
+                            path: "payment-schedule",
+                            element: <SalesPayment />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "revenue-target",
+                        element: <RevenueTarget />,
+                      },
+                      {
+                        path: "co-working-seats",
+                        element: <CoWorkingSeats />,
+                      },
+                      {
+                        path: "co-working-seats/check-availability",
+                        element: <CheckAvailability />,
+                      },
+                      {
+                        path: "co-working-seats/view-availability",
+                        element: <ViewAvailability />,
+                      },
+                      {
+                        path: "revenue",
+                        element: <TotalRevenueLayout />,
+                        children: [
+                          {
+                            path: "total-revenue",
+                            element: <TotalRevenue />,
+                          },
+                          {
+                            path: "co-working",
+                            element: <CoWorking />,
+                          },
+                          {
+                            path: "meetings",
+                            element: <MeetingRevenue />,
+                          },
+                          {
+                            path: "virtual-office",
+                            element: <VirtualOffice />,
+                          },
+                          {
+                            path: "workation",
+                            element: <Workations />,
+                          },
+                          {
+                            path: "alt-revenue",
+                            element: <AltRevenues />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "clients",
+                        element: <ClientsLayout />,
+                        children: [
+                          {
+                            path: "view-clients",
+                            index: true,
+                            element: <ViewClients />,
+                          },
+                          {
+                            path: "view-clients/:id",
+                            element: <ViewClientLayout />,
+                            children: [
+                              {
+                                path: "client-details",
+                                element: <ClientDetails />,
+                              },
+                              {
+                                path: "desks",
+                                element: <Desks />,
+                              },
+                              {
+                                path: "revenue",
+                                element: <ClientRevenue />,
+                              },
+                              {
+                                path: "members",
+                                element: <ClientMembers />,
+
+                                // children: [
+                                //   // {
+                                //   //   path: "view-member",
+                                //   //   index: true,
+                                //   //   element: <MemberDetails />,
+                                //   // },
+                                //   {
+                                //     path: "view-member/:id",
+                                //     // index: true,
+                                //     element: <MemberDetails />,
+                                //     // children: [
+                                //     //   {
+                                //     //     path: "member-details",
+                                //     //     element: <MemberDetails />,
+                                //     //   },
+                                //     // ],
+                                //   },
+                                // ],
+                              },
+                              {
+                                path: "members/view-member/:id",
+                                element: <MemberDetails />,
+                              },
+                            ],
+                          },
+                          {
+                            path: "client-onboarding",
+                            element: <ClientOnboarding />,
+                          },
+                          // {
+                          //   path: "view-member/:id",
+                          //   element: <MemberDetails />,
+                          // },
+                        ],
+                      },
+                      {
+                        path: "settings",
+                        element: <HrSettings />,
+                        children: [
+                          {
+                            path: "bulk-upload",
+                            element: <BulkUpload />,
+                          },
+                        ],
+                      },
+                    ],
                   },
                   {
                     path: "HR-dashboard",
@@ -257,6 +440,10 @@ export const routes = createBrowserRouter([
                           {
                             path: "templates",
                             element: <Templates />,
+                          },
+                          {
+                            path: "templates/view-template/:id",
+                            element: <ViewTemplate />,
                           },
                         ],
                       },
@@ -515,20 +702,20 @@ export const routes = createBrowserRouter([
                   {
                     path: "manage-assets",
                     element: <ManageAssets />,
-                    children:[
+                    children: [
                       {
-                        path:'assign-assets',
-                        element:<AssignAssets />
+                        path: "assign-assets",
+                        element: <AssignAssets />,
                       },
                       {
-                        path:'assigned-assets',
-                        element:<AssignedAssets />
+                        path: "assigned-assets",
+                        element: <AssignedAssets />,
                       },
                       {
-                        path:'approvals',
-                        element:<Approvals />
+                        path: "approvals",
+                        element: <Approvals />,
                       },
-                    ]
+                    ],
                   },
                   {
                     path: "calendar",
@@ -596,25 +783,25 @@ export const routes = createBrowserRouter([
                   },
                   {
                     path: "team-members",
-                    element: <TeamMember />, 
+                    element: <TeamMember />,
                   },
                   {
                     path: "manage-assets",
                     element: <ManageAssets />,
-                    children:[
+                    children: [
                       {
-                        path:'assign-assets',
-                        element:<AssignAssets />
+                        path: "assign-assets",
+                        element: <AssignAssets />,
                       },
                       {
-                        path:'assigned-assets',
-                        element:<AssignedAssets />
+                        path: "assigned-assets",
+                        element: <AssignedAssets />,
                       },
                       {
-                        path:'approvals',
-                        element:<Approvals />
+                        path: "approvals",
+                        element: <Approvals />,
                       },
-                    ]
+                    ],
                   },
                   {
                     path: "calendar",
@@ -623,20 +810,20 @@ export const routes = createBrowserRouter([
                   {
                     path: "reports",
                     element: <TaskReportLayout />,
-                    children:[
+                    children: [
                       {
-                        path:'my-task-reports',
-                        element:<MyTaskReports />
+                        path: "my-task-reports",
+                        element: <MyTaskReports />,
                       },
                       {
-                        path:'assigned-task-reports',
-                        element:<AssignedTaskReports />
+                        path: "assigned-task-reports",
+                        element: <AssignedTaskReports />,
                       },
                       {
-                        path:'department-task-reports',
-                        element:<DepartmentTaskReports />
+                        path: "department-task-reports",
+                        element: <DepartmentTaskReports />,
                       },
-                    ]
+                    ],
                   },
                   {
                     path: "reviews",
