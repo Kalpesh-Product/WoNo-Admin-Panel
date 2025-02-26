@@ -1,6 +1,6 @@
 const Category = require("../../models/assets/AssetCategory");
 const Department = require("../../models/Departments");
-const Company = require("../../models/hr/Company");
+const Company = require("../../models/Company");
 const { createLog } = require("../../utils/moduleLogs");
 const mongoose = require("mongoose");
 const Asset = require("../../models/assets/Assets");

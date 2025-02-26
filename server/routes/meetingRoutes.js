@@ -1,11 +1,8 @@
 const upload = require("../config/multerConfig");
-const getMeetingLogs = require("../controllers/meetingsControllers/meetingLogController");
 const {
   addMeetings,
   getMeetings,
   addHousekeepingTask,
-  updateHousekeepingTasks,
-  getHousekeepingTasks,
   deleteHousekeepingTask,
   getMeetingsByTypes, cancelMeeting,
 } = require("../controllers/meetingsControllers/meetingsControllers");

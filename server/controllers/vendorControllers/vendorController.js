@@ -1,6 +1,6 @@
 const Vendor = require("../../models/hr/Vendor");
 const User = require("../../models/hr/UserData");
-const Company = require("../../models/hr/Company");
+const Company = require("../../models/Company");
 const csvParser = require("csv-parser");
 const { Readable } = require("stream");
 const mongoose = require("mongoose");

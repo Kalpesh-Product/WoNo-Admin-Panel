@@ -1,4 +1,4 @@
-const Company = require("../../models/hr/Company");
+const Company = require("../../models/Company");
 const bcrypt = require("bcryptjs");
 const User = require("../../models/hr/UserData");
 const User = require("../../models/UserData");

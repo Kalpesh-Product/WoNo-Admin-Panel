@@ -1,4 +1,4 @@
-const Company = require("../../models/hr/Company");
+const Company = require("../../models/Company");
 const User = require("../../models/hr/UserData");
 const { handleDocumentUpload } = require("../../config/cloudinaryConfig");
 const { PDFDocument } = require("pdf-lib");

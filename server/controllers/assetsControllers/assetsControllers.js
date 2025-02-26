@@ -1,6 +1,6 @@
 const Asset = require("../../models/assets/Assets");
 const User = require("../../models/hr/UserData");
-const Company = require("../../models/hr/Company");
+const Company = require("../../models/Company");
 const Category = require("../../models/assets/AssetCategory");
 const Vendor = require("../../models/hr/Vendor");
 const sharp = require("sharp");

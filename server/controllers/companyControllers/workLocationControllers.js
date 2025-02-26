@@ -1,4 +1,4 @@
-const Company = require("../../models/hr/Company");
+const Company = require("../../models/Company");
 const mongoose = require("mongoose");
 const { createLog } = require("../../utils/moduleLogs");
 const csvParser = require("csv-parser");

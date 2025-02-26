@@ -1,7 +1,7 @@
 const sharp = require("sharp");
 const mongoose = require("mongoose");
 const { handleFileUpload } = require("../../config/cloudinaryConfig");
-const Company = require("../../models/hr/Company");
+const Company = require("../../models/Company");
 const {
   updateWorkLocationStatus,
   updateShiftStatus,
