@@ -509,6 +509,8 @@ const ProjectCard = ({ project }) => {
 
 // Dropdown Menu for Actions
 const ProjectMenu = ({ project }) => {
+
+  
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
 
