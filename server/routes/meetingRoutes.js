@@ -11,10 +11,10 @@ const {
   addReview,
   replyReview,
 } = require("../controllers/meetingsControllers/reviewsController");
-const getRoomLogs = require("../controllers/meetingsControllers/RoomLogController");
 const {
   addRoom,
   getRooms,
+  updateRoom
 } = require("../controllers/meetingsControllers/roomsController");
 
 const router = require("express").Router();
