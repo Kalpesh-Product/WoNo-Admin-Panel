@@ -29,7 +29,7 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import PrimaryButton from "../../../components/PrimaryButton";
 import MuiModal from "../../../components/MuiModal";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
 const intialProjects = [
@@ -509,16 +509,23 @@ const ProjectCard = ({ project }) => {
 
 // Dropdown Menu for Actions
 const ProjectMenu = ({ project }) => {
+  const createRoomMutation = useMutation({
+    mutationFn: async (formData) => {
+      return axios.put(`/api/tasks/update-project/${project.id}`);
+    },
+    onSuccess: () => {
+console.log("Project updated");
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || "Failed to add room.");
+    },
+  });
 
-  
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
 
   const handleEditClick = () => {
     setAnchorEl(null);
-    navigate(`/app/tasks/project-list/edit-project/${project.id}`, {
-      state: { project },
-    }); // Pass project data
   };
   return (
     <>
