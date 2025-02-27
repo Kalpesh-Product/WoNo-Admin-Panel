@@ -31,6 +31,7 @@ import MuiModal from "../../../components/MuiModal";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import { toast } from "sonner";
 
 const intialProjects = [
   {
@@ -174,6 +175,22 @@ const ProjectList = () => {
     },
   });
 
+  const { mutate, isPending } = useMutation({
+    mutationFn: async (data) => {
+      const response = await axios.patch(`/api/tasks/delete-project/${data._id}`, {
+        departmentId: data.department,
+        assetCategoryName: data.categoryName,
+      });
+      return response.data;
+    },
+    onSuccess: function (data) {
+      toast.success(data.message);
+    },
+    onError: function (data) {
+      toast.error(data.response.data.message || "Failed to add category");
+    },
+  });
+
   useEffect(() => {
     console.log(projectList);
   }, [projectList]);
@@ -240,8 +257,8 @@ const ProjectList = () => {
         {view === "grid" ? (
           <GridView projects={projectList} isLoading={isLoading} />
         ) : (
-          // <TableView projects={projectList} isLoading={isLoading} />
-          ''
+          <TableView projects={projectList} isLoading={isLoading} />
+          
         )}
       </div>
       <MuiModal
@@ -390,7 +407,6 @@ const ProjectList = () => {
 
 // Grid View Component
 const GridView = ({ projects, isLoading }) => {
-  console.log(projects);
   return (
     <div className="grid grid-cols-4 gap-6">
       {categories.map((category) => (
@@ -526,6 +542,10 @@ console.log("Project updated");
 
   const handleEditClick = () => {
     setAnchorEl(null);
+  };
+  const handleDeleteClick = () => {
+     
+
   };
   return (
     <>
