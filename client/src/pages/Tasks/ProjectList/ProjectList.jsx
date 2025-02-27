@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   TextField,
@@ -29,7 +29,7 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import PrimaryButton from "../../../components/PrimaryButton";
 import MuiModal from "../../../components/MuiModal";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
 const intialProjects = [
@@ -146,7 +146,7 @@ const categoryColors = {
 const priorities = ["HIGH", "MEDIUM", "LOW"];
 
 const ProjectList = () => {
-    const axios = useAxiosPrivate();
+  const axios = useAxiosPrivate();
   const [projects, setProjects] = useState(intialProjects);
   const [view, setView] = useState("grid");
   const [openModal, setOpenModal] = useState(false);
@@ -167,19 +167,23 @@ const ProjectList = () => {
     queryFn: async () => {
       try {
         const response = await axios.get("/api/tasks/get-projects");
-        return response.data
+        return response.data;
       } catch (error) {
         throw new Error(error.response.data.message);
       }
     },
   });
 
+  useEffect(() => {
+    console.log(projectList);
+  }, [projectList]);
+
   const onSubmit = (data) => {
     if (!data.title || !data.priority || !data.status) {
       alert("Please fill in required fields!");
       return;
     }
-  
+
     // Convert assignees from an array to an object with default values
     const assigneesObject = data.assignees.reduce((acc, name) => {
       acc[name] = {
@@ -189,7 +193,7 @@ const ProjectList = () => {
       };
       return acc;
     }, {});
-  
+
     const formattedProject = {
       ...data,
       id: projects.length + 1, // Assign new ID
@@ -197,12 +201,11 @@ const ProjectList = () => {
       deadline: data.deadline ? data.deadline.format("YYYY-MM-DD") : "",
       assignees: assigneesObject, // Assign transformed assignees object
     };
-  
+
     setProjects([...projects, formattedProject]); // Update projects list
     setOpenModal(false);
     reset(); // Reset the form fields after submission
   };
-  
 
   return (
     <>
@@ -235,9 +238,10 @@ const ProjectList = () => {
 
         {/* Toggle View */}
         {view === "grid" ? (
-          <GridView projects={projectList} />
+          <GridView projects={projectList} isLoading={isLoading} />
         ) : (
-          <TableView projects={projectList} />
+          // <TableView projects={projectList} isLoading={isLoading} />
+          ''
         )}
       </div>
       <MuiModal
@@ -257,7 +261,7 @@ const ProjectList = () => {
                 slotProps={{ inputLabel: { size: "small" } }}
                 {...field}
                 label="Project Name"
-                value={field.value || []} 
+                value={field.value || []}
                 fullWidth
                 sx={{ fontSize: "10px" }}
                 margin="dense"
@@ -385,7 +389,8 @@ const ProjectList = () => {
 };
 
 // Grid View Component
-const GridView = ({ projects }) => {
+const GridView = ({ projects, isLoading }) => {
+  console.log(projects);
   return (
     <div className="grid grid-cols-4 gap-6">
       {categories.map((category) => (
@@ -397,11 +402,16 @@ const GridView = ({ projects }) => {
               {category}
             </span>
           </div>
-          {projects
-            .filter((p) => p.status === category)
-            .map((project) => (
-              <ProjectCard key={project.id} project={project} />
-            ))}
+          {/*  */}
+          {isLoading ? (
+            <span>loading</span>
+          ) : (
+            projects
+              .filter((p) => p.status === category)
+              .map((project) => (
+                <ProjectCard key={project.id} project={project} />
+              ))
+          )}
         </div>
       ))}
     </div>
@@ -409,7 +419,7 @@ const GridView = ({ projects }) => {
 };
 
 // Table View Component
-const TableView = ({ projects }) => {
+const TableView = ({ projects, isLoading }) => {
   return (
     <TableContainer>
       <Table>
@@ -499,14 +509,23 @@ const ProjectCard = ({ project }) => {
 
 // Dropdown Menu for Actions
 const ProjectMenu = ({ project }) => {
+  const createRoomMutation = useMutation({
+    mutationFn: async (formData) => {
+      return axios.put(`/api/tasks/update-project/${project.id}`);
+    },
+    onSuccess: () => {
+console.log("Project updated");
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || "Failed to add room.");
+    },
+  });
+
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
 
   const handleEditClick = () => {
     setAnchorEl(null);
-    navigate(`/app/tasks/project-list/edit-project/${project.id}`, {
-      state: { project },
-    }); // Pass project data
   };
   return (
     <>
