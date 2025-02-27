@@ -27,6 +27,6 @@ router.get("/get-team-tasks-projects", getTeamMembersTasksProjects);
 router.get("/get-today-tasks", getMyTodayTasks);
 router.get("/get-assigned-tasks", getAssignedTasks);
 router.patch("/update-task/:id", updateTask);
-router.delete("/delete-task/:id", deleteTask);
+router.patch("/delete-task/:id", deleteTask);
 
 module.exports = router;
