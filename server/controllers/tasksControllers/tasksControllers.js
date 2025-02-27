@@ -314,11 +314,91 @@ const getMyTodayTasks = async (req, res, next) => {
   }
 };
 
+// const getTeamMembersTasksProjects = async (req, res, next) => {
+//   try {
+//     const { company, departments } = req;
+
+//     //Find team members
+//     const teamMembers = await User.find({
+//       departments: { $in: departments },
+//     });
+
+//     const teamMemberIds = teamMembers.map((member) => member._id);
+
+//     const teamMembersData = await Promise.all(
+//       teamMemberIds.map(async (id) => {
+//         // Fetch tasks assigned to the team member
+
+//         const tasks = await Task.find({
+//           company,
+//           $and: [
+//             { assignedTo: { $in: [id] } }, // User must be in assignedTo
+//             { assignedBy: { $ne: [id] } }, // User must NOT be assignedBy
+//           ],
+//         })
+//           .populate({
+//             path: "assignedTo",
+//             select: "email firstName lastName status",
+//             populate: [
+//               { path: "role", select: "roleTitle" },
+//               { path: "departments", select: "name" },
+//             ],
+//           })
+//           .populate("assignedBy", "firstName lastName")
+//           .populate("project", "projectName")
+//           .select("-company")
+//           .lean();
+
+//         // Fetch projects assigned to the employee
+//         const projects = await Project.find({
+//           company,
+//           assignedTo: { $in: [id] },
+//         })
+//           .select("projectName")
+//           .lean();
+
+//         // Find the correct user details from the first task
+//         let userDetails = {};
+//         if (tasks.length > 0) {
+//           const matchedUser = tasks[0].assignedTo.find(
+//             (user) => user._id.toString() === id.toString()
+//           );
+
+//           if (matchedUser) {
+//             userDetails = {
+//               email: matchedUser.email,
+//               name: `${matchedUser.firstName} ${matchedUser.lastName}`,
+//               role:
+//                 matchedUser.role?.map((role) => role.roleTitle) ||
+//                 [] ||
+//                 "No Role", // Extract role title
+//               departments:
+//                 matchedUser.departments?.map((dept) => dept.name) || [], // Extract department names
+//               status: matchedUser.status || "Active",
+//             };
+//           }
+//         }
+
+//           return {
+//             ...userDetails,
+//             tasksCount: tasks.length ? tasks.length : null,
+//             projectsCount: projects.length ? projects.length : null,
+//           };
+
+//       })
+//     );
+
+//     return res.status(200).json(teamMembersData);
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
 const getTeamMembersTasksProjects = async (req, res, next) => {
   try {
     const { company, departments } = req;
 
-    //Find team members
+    // Find team members
     const teamMembers = await User.find({
       departments: { $in: departments },
     });
@@ -330,7 +410,10 @@ const getTeamMembersTasksProjects = async (req, res, next) => {
         // Fetch tasks assigned to the team member
         const tasks = await Task.find({
           company,
-          assignedTo: { $in: [id] },
+          $and: [
+            { assignedTo: { $in: [id] } }, // User must be in assignedTo
+            { assignedBy: { $ne: id } }, // User must NOT be assignedBy
+          ],
         })
           .populate({
             path: "assignedTo",
@@ -365,25 +448,32 @@ const getTeamMembersTasksProjects = async (req, res, next) => {
               email: matchedUser.email,
               name: `${matchedUser.firstName} ${matchedUser.lastName}`,
               role:
-                matchedUser.role?.map((role) => role.roleTitle) ||
-                [] ||
-                "No Role", // Extract role title
+                Array.isArray(matchedUser.role) && matchedUser.role.length
+                  ? matchedUser.role.map((role) => role.roleTitle)
+                  : ["No Role"],
               departments:
-                matchedUser.departments?.map((dept) => dept.name) || [], // Extract department names
+                matchedUser.departments?.map((dept) => dept.name) || [],
               status: matchedUser.status || "Active",
             };
           }
         }
 
-        return {
-          ...userDetails,
-          tasksCount: tasks.length,
-          projectsCount: projects.length,
-        };
+        if (tasks.length > 0) {
+          return {
+            ...userDetails,
+            tasksCount: tasks.length,
+            projectsCount: projects.length || null,
+          };
+        }
+
+        return null; // Return null for users with no tasks
       })
     );
 
-    return res.status(200).json(teamMembersData.slice(1));
+    // Filter out null elements (users with 0 tasks)
+    const filteredData = teamMembersData.filter((member) => member !== null);
+
+    return res.status(200).json(filteredData);
   } catch (error) {
     next(error);
   }

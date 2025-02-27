@@ -163,7 +163,6 @@ const getProjects = async (req, res, next) => {
   try {
     const { company } = req;
 
-    console.log("company", company);
     // Fetch all tasks along with project and assignee details
     const tasks = await Task.find({ company })
       .populate("project", "projectName priority assignedDate dueDate status")
