@@ -20,6 +20,7 @@ const {
 router.post("/create-project", createProject);
 router.get("/get-projects", getProjects);
 router.patch("/update-project/:id", updateProject);
+router.patch("/update-project/:id", updateProject);
 router.delete("/delete-project/:id", deleteProject);
 router.post("/create-tasks", createTasks);
 router.get("/get-tasks", getMyTasks);

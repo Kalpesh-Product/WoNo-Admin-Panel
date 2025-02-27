@@ -525,22 +525,26 @@ const ProjectCard = ({ project }) => {
 
 // Dropdown Menu for Actions
 const ProjectMenu = ({ project }) => {
-  const createRoomMutation = useMutation({
-    mutationFn: async (formData) => {
-      return axios.put(`/api/tasks/update-project/${project.id}`);
+  const navigate = useNavigate();
+  const axios = useAxiosPrivate()
+  const passProjectId = useMutation({
+    mutationFn: async () => {
+      return axios.patch(`/api/tasks/update-project/${project.id}`);
     },
     onSuccess: () => {
-console.log("Project updated");
+      console.log("Project updated");
+  
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || "Failed to add room.");
+      console.log(error.response?.data?.message || "Failed to fetch project");
     },
   });
 
-  const [anchorEl, setAnchorEl] = useState(null);
-  const navigate = useNavigate();
-
   const handleEditClick = () => {
+    passProjectId.mutate(); // ✅ Correct way to trigger mutation
+    navigate(`/app/tasks/project-list/edit-project/${project.id}`, {
+      state: { project },
+    });
     setAnchorEl(null);
   };
   const handleDeleteClick = () => {
