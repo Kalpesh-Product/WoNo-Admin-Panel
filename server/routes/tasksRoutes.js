@@ -19,14 +19,14 @@ const {
 
 router.post("/create-project", createProject);
 router.get("/get-projects", getProjects);
-router.put("/update-project/:id", updateProject);
+router.patch("/update-project/:id", updateProject);
 router.delete("/delete-project/:id", deleteProject);
 router.post("/create-tasks", createTasks);
 router.get("/get-tasks", getMyTasks);
 router.get("/get-team-tasks-projects", getTeamMembersTasksProjects);
 router.get("/get-today-tasks", getMyTodayTasks);
 router.get("/get-assigned-tasks", getAssignedTasks);
-router.put("/update-task/:id", updateTask);
+router.patch("/update-task/:id", updateTask);
 router.delete("/delete-task/:id", deleteTask);
 
 module.exports = router;

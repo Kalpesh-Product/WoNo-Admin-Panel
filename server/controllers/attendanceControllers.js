@@ -405,10 +405,11 @@ const getAllAttendance = async (req, res, next) => {
 
 const getAttendance = async (req, res, next) => {
   const { id } = req.params;
+  const { user,company } = req.body;
 
   try {
     const attendances = await Attendance.find({
-      user: loggedInUser,
+      user,
       company,
     });
 
