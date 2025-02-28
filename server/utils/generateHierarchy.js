@@ -34,7 +34,7 @@ const buildHierarchy = (users) => {
   let roots = [];
 
   // Step 3: Assign subordinates based on reporting roles
-  userMap.forEach((user, userId) => {
+  userMap.forEach((user) => {
     if (user.reportsTo && roleToUserMap.has(user.reportsTo)) {
       const managers = roleToUserMap.get(user.reportsTo);
       managers.forEach((managerId) => {
