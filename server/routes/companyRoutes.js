@@ -9,6 +9,7 @@ const {
   updateActiveStatus,
   getCompanyData,
   getCompanyLogo,
+  getHierarchy,
 } = require("../controllers/companyControllers/companyControllers");
 
 const {
@@ -35,6 +36,7 @@ const {
 
 router.post("/create-company", addCompany);
 router.get("/get-companies", getCompanies);
+router.get("/company-hierarchy", getHierarchy);
 
 router.post("/add-department", createDepartment);
 router.post("/add-employee-type", addEmployeeType);

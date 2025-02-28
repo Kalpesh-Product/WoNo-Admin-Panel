@@ -10,6 +10,8 @@ const {
 } = require("../../utils/companyData");
 const { createLog } = require("../../utils/moduleLogs");
 const CustomError = require("../../utils/customErrorlogs");
+const buildHierarchy = require("../../utils/generateHierarchy");
+const UserData = require("../../models/hr/UserData");
 
 const addCompany = async (req, res, next) => {
   const logPath = "hr/HrLog";
@@ -308,6 +310,32 @@ const updateActiveStatus = async (req, res, next) => {
   }
 };
 
+const getHierarchy = async (req, res, next) => {
+  try {
+    const company = req.company;
+    if (!company) {
+      return res
+        .status(400)
+        .json({ message: "User does not belong to any company" });
+    }
+
+    const users = await UserData.find({ company, isActive: true })
+      .populate("role", "roleTitle") // Fetch roles
+      .populate("departments", "name") // Fetch departments
+      .populate("reportsTo", "roleTitle") // Get reportsTo as roleTitle
+      .lean()
+      .exec();
+
+    const generateHierarchy = buildHierarchy(users);
+    if (!generateHierarchy) {
+      return res.status(400).json({ message: "No hierarchy found" });
+    }
+    res.status(200).json({ generateHierarchy });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   addCompany,
   addCompanyLogo,
@@ -315,4 +343,5 @@ module.exports = {
   updateActiveStatus,
   getCompanyData,
   getCompanyLogo,
+  getHierarchy,
 };
