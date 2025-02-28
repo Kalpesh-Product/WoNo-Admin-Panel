@@ -540,16 +540,14 @@ const ProjectMenu = ({ project }) => {
     },
   });
 
+  const [anchorEl, setAnchorEl] = useState(null);
+
   const handleEditClick = () => {
     passProjectId.mutate(); // ✅ Correct way to trigger mutation
     navigate(`/app/tasks/project-list/edit-project/${project.id}`, {
       state: { project },
     });
     setAnchorEl(null);
-  };
-  const handleDeleteClick = () => {
-     
-
   };
   return (
     <>

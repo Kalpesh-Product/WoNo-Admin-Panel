@@ -36,7 +36,7 @@ const taskSchema = new mongoose.Schema({
     required: true,
   },
   dueTime: {
-    type: String,
+    type: Date,
     default: null,
     // match: /^([0-1]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/,
   },

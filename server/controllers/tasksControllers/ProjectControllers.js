@@ -9,7 +9,6 @@ const validateUsers = require("../../utils/validateUsers");
 const createProject = async (req, res, next) => {
   const { user, ip, company } = req;
   const logPath = "tasks/TaskLog";
-  const logPath = "tasks/TaskLog";
   const logAction = "Create Project";
   const logSourceKey = "project";
 
@@ -166,7 +165,10 @@ const getProjects = async (req, res, next) => {
 
     // Fetch all tasks along with project and assignee details
     const tasks = await Task.find({ company })
-      .populate("project", "projectName priority assignedDate dueDate status")
+      .populate(
+        "project",
+        "projectName priority assignedDate assignedBy dueDate status"
+      )
       .populate("assignedTo", "firstName")
       .lean();
 
@@ -186,6 +188,7 @@ const getProjects = async (req, res, next) => {
           deadline: formatWithOrdinal(project.dueDate),
           status: project.status,
           assignees: {},
+          assignedBy: project.assignedBy,
         });
       }
 
@@ -219,7 +222,6 @@ const getProjects = async (req, res, next) => {
 
 const updateProject = async (req, res, next) => {
   const { user, ip, company } = req;
-  const logPath = "tasks/TaskLog";
   const logPath = "tasks/TaskLog";
   const logAction = "Update Project";
   const logSourceKey = "project";
@@ -369,7 +371,6 @@ const updateProject = async (req, res, next) => {
 
 const deleteProject = async (req, res, next) => {
   const { company, user, ip } = req;
-  const logPath = "tasks/TaskLog";
   const logPath = "tasks/TaskLog";
   const logAction = "Delete Project";
   const logSourceKey = "project";
