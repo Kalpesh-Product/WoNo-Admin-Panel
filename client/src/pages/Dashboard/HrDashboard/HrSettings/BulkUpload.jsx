@@ -36,8 +36,7 @@ const BulkUpload = () => {
               <>
                 <div
                   className="space-y-2  border-default p-4 m-2 rounded-md"
-                  key={index}
-                >
+                  key={index}>
                   <div className="mb-2">{index}</div>
                   <div className="flex space-x-2">
                     {/* Placeholder Input Box */}

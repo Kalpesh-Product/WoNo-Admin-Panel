@@ -39,7 +39,7 @@ const SalesDashboard = () => {
     chart: {
       type: "bar",
       stacked: true, // Enable stacking for domains
-      fontFamily:"Poppins-Regular",
+      fontFamily: "Poppins-Regular",
       events: {
         dataPointSelection: () => {
           navigate("unique-leads"); // Navigates to the same component for any bar click
@@ -62,7 +62,7 @@ const SalesDashboard = () => {
     },
     yaxis: {
       title: { text: "Lead Count" },
-      tickAmount:10,
+      tickAmount: 10,
     },
     legend: { position: "top" },
     dataLabels: { enabled: true },
@@ -400,20 +400,20 @@ const SalesDashboard = () => {
     {
       layout: 5,
       widgets: [
-        <Card
-          route={"turnover"}
-          title={"Turnover"}
-          icon={<RiPagesLine />}
-        />,
+        <Card route={"turnover"} title={"Turnover"} icon={<RiPagesLine />} />,
         <Card
           route={"/app/dashboard/sales-dashboard/finance"}
           title={"Finance"}
           icon={<MdFormatListBulleted />}
         />,
-        <Card route={"mix-bag"} title={"Mix Bag"} icon={<MdFormatListBulleted />} />,
+        <Card
+          route={"mix-bag"}
+          title={"Mix Bag"}
+          icon={<MdFormatListBulleted />}
+        />,
         <Card route={""} title={"Reports"} icon={<CgProfile />} />,
         <Card
-          route={""}
+          route={"/app/dashboard/sales-dashboard/settings"}
           title={"Settings"}
           icon={<MdMiscellaneousServices />}
         />,

@@ -41,7 +41,9 @@ const Compliances = () => {
       <Tabs
         value={activeTab}
         onChange={(event, newValue) => {
-          navigate(`/app/dashboard/HR-dashboard/company/${tabs[newValue].path}`);
+          navigate(
+            `/app/dashboard/HR-dashboard/company/${tabs[newValue].path}`
+          );
         }}
         variant="scrollable" // Makes tabs scrollable
         scrollButtons="auto" // Show scroll buttons when needed
@@ -67,8 +69,7 @@ const Compliances = () => {
           "& .MuiTabs-scrollButtons": {
             "&.Mui-disabled": { opacity: 0.3 }, // Style disabled scroll buttons
           },
-        }}
-      >
+        }}>
         {tabs.map((tab, index) => (
           <Tab
             key={index}
