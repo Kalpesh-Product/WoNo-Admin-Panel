@@ -4,6 +4,7 @@ const {
   fetchLeavesBeforeToday,
   approveLeave,
   rejectLeave,
+  bulkInsertLeaves,
 } = require("../controllers/leavesControllers/leavesControllers");
 const {
   createLeaveType,
@@ -12,6 +13,7 @@ const {
   softDeleteLeaveType,
 } = require("../controllers/leavesControllers/leaveTypesControllers");
 const router = require("express").Router();
+const upload = require("../config/multerConfig");
 
 router.post("/request-leave", requestLeave);
 router.get("/view-all-leaves", fetchAllLeaves);
@@ -22,5 +24,6 @@ router.post("/create-leave-type", createLeaveType);
 router.get("/view-all-leave-types", fetchAllLeaveTypes);
 router.delete("/delete-leave-type/:id", deleteLeaveType);
 router.put("/soft-delete-leave-type/:id", softDeleteLeaveType);
+router.post("/bulk-insert-leaves", upload.single("leaves"), bulkInsertLeaves);
 
 module.exports = router;
