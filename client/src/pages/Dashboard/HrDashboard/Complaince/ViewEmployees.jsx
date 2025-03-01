@@ -36,7 +36,7 @@ const ViewEmployees = () => {
           onClick={() => {
 
             localStorage.setItem("employeeName",params.data.employeeName) 
-            navigate(`/app/dashboard/HR-dashboard/employee/view-employees/${params.data.employmentID}`, {state: { name: params.data.employeeName }})
+            navigate(`/app/dashboard/HR-dashboard/employee/view-employees/${params.data.employmentID}`)
         }
         }
 
@@ -145,7 +145,7 @@ const ViewEmployees = () => {
             employeeName : employee.firstName,
             employmentID : employee.empId,
             email : employee.email,
-            role : employee.role[0].roleTitle,
+            role : employee.role.map(r=>r.roleTitle),
             status : 'Active',
            }))]}
           columns={viewEmployeeColumns}

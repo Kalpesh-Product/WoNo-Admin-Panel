@@ -7,6 +7,7 @@ const Department = require("../../models/Departments");
 const { createLog } = require("../../utils/moduleLogs");
 const csvParser = require("csv-parser");
 const { Readable } = require("stream");
+const { formatDate } = require("../../utils/formatDateTime");
 
 const createUser = async (req, res, next) => {
   const logPath = "hr/HrLog";
@@ -266,33 +267,30 @@ const fetchUser = async (req, res, next) => {
   }
 };
 
-const fetchSingleUser = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const user = await User.findById(id)
-      .select("-password")
-      .populate([
-        { path: "reportsTo", select: "name email" },
-        { path: "departments", select: "name" },
-        { path: "company", select: "name" },
-        { path: "role", select: "roleTitle modulePermissions" },
-      ])
-      .lean()
-      .exec();
+// const fetchSingleUser = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const user = await User.findOne({ empId: id })
+//       .select("-password")
+//       .populate([
+//         { path: "reportsTo", select: "name email" },
+//         { path: "departments", select: "name" },
+//         { path: "company", select: "name" },
+//         { path: "role", select: "roleTitle modulePermissions" },
+//       ])
+//       .lean()
+//       .exec();
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
 
-    res.status(200).json({
-      message: "User data fetched",
-      user,
-    });
-  } catch (error) {
-    console.error("Error fetching user by ID: ", error);
-    res.status(500).json({ error: error.message });
-  }
-};
+//     res.status(200).json(user);
+//   } catch (error) {
+//     console.error("Error fetching user by ID: ", error);
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 
 // const updateSingleUser = async (req, res) => {
 //   try {
@@ -369,6 +367,76 @@ const fetchSingleUser = async (req, res) => {
 //     res.status(500).json({ error: error.message });
 //   }
 // };
+
+const fetchSingleUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findOne({ empId: id })
+      .select("-password")
+      .populate([
+        { path: "reportsTo", select: "firstName lastName" },
+        { path: "departments", select: "name" },
+        { path: "company", select: "name" },
+        { path: "role", select: "roleTitle modulePermissions" },
+      ])
+      .lean()
+      .exec();
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // **Transform Data to Match DefaultValues Structure**
+    const formattedUser = {
+      firstName: user.firstName || "",
+      middleName: user.middleName || "",
+      lastName: user.lastName || "",
+      gender: user.gender || "",
+      dob: user.dateOfBirth ? formatDate(user.dateOfBirth) : "",
+      employeeID: user.empId || "",
+      mobilePhone: user.phone || "",
+      startDate: user.startDate ? formatDate(user.startDate) : "",
+      workLocation: user.workLocation || "",
+      employeeType: user.employeeType?.name || "", // Extract `name`
+      department: user.departments?.[0]?.name || "", // Handle array safely
+      reportsTo: user.reportsTo
+        ? `${user.reportsTo.firstName || ""} ${
+            user.reportsTo.lastName || ""
+          }`.trim()
+        : "",
+      jobTitle: user.designation || "",
+      jobDescription: "", // No direct mapping, you may adjust
+      shift: user.policies?.shift || "",
+      workSchedulePolicy: user.policies?.workSchedulePolicy || "",
+      attendanceSource: user.policies?.attendanceSource || "",
+      leavePolicy: user.policies?.leavePolicy || "",
+      holidayPolicy: user.policies?.holidayPolicy || "",
+      aadharID: user.panAadhaarDetails?.aadhaarId || "",
+      pan: user.panAadhaarDetails?.pan || "",
+      pfAcNo: user.panAadhaarDetails?.pfAccountNumber || "",
+      addressLine1: user.homeAddress?.addressLine1 || "",
+      addressLine2: user.homeAddress?.addressLine2 || "",
+      state: user.homeAddress?.state || "",
+      city: user.homeAddress?.city || "",
+      pinCode: user.homeAddress?.pinCode || "",
+      includeInPayroll: user.payrollInformation?.includeInPayroll
+        ? "Yes"
+        : "No",
+      payrollBatch: "", // No direct mapping
+      professionTaxExemption: user.payrollInformation?.professionTaxExemption
+        ? "Yes"
+        : "No",
+      includePF: user.payrollInformation?.includePF ? "Yes" : "No",
+      pfContributionRate: user.payrollInformation?.pfContributionRate || "",
+      employeePF: user.payrollInformation?.employeePF || "",
+    };
+
+    res.status(200).json(formattedUser);
+  } catch (error) {
+    console.error("Error fetching user by ID: ", error);
+    res.status(500).json({ error: error.message });
+  }
+};
 
 const updateSingleUser = async (req, res, next) => {
   const { user, ip, company } = req;

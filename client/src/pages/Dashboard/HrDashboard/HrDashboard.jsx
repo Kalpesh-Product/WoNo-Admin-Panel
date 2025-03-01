@@ -20,6 +20,19 @@ const LayerBarGraph = lazy(() =>
 
 const HrDashboard = () => {
   const axios = useAxiosPrivate();
+
+   const usersQuery = useQuery({
+      queryKey: ["users"],
+      queryFn: async () => {
+        try {
+          const response = await axios.get("/api/users/fetch-users");
+          return response.data
+        } catch (error) {
+          throw new Error(error.response.data.message);
+        }
+      },
+    });
+
   const rawSeries = [
     {
       name: "Sales Total",
@@ -483,10 +496,12 @@ const HrDashboard = () => {
   ];
 
   // Calculate total and gender-specific counts
-  const totalUsers = users.length;
-  const maleCount = users.filter((user) => user.gender === "Male").length;
-  const femaleCount = users.filter((user) => user.gender === "Female").length;
+  const totalUsers = usersQuery.isLoading ? [] : usersQuery.data.length;
 
+  const maleCount = usersQuery.isLoading ? [] : usersQuery.data.filter((user) => user.gender === "Male").length;
+
+  const femaleCount = usersQuery.isLoading ? [] : usersQuery.data.filter((user) => user.gender === "Female").length;
+ 
   const genderData = [
     {
       id: 0,
