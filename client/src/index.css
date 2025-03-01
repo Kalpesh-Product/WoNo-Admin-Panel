@@ -65,6 +65,7 @@
     font-size: 1.5rem !important;
   }
 
+
 }
 /* Hide scrollbar for the specified container */
 .hideScrollbar {
@@ -74,6 +75,11 @@
 
 .hideScrollBar::-webkit-scrollbar {
   display: none !important /* Hide scrollbar for WebKit browsers (Chrome, Safari, etc.) */
+}
+.ag-header-cell {
+  font-family: "Poppins", sans-serif;
+  font-size: 0.875rem;
+  font-weight: bold;
 }
 
 ::-webkit-scrollbar {
@@ -121,6 +127,7 @@
 .apexcharts-canvas {
   overflow: hidden !important; 
 }
+
 
 /* Styles for Reports */
 

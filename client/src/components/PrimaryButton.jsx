@@ -9,7 +9,7 @@ const PrimaryButton = ({
   disabled,
 }) => {
   return (
-    <div>
+  
       <button
         disabled={disabled}
         type={type}
@@ -20,7 +20,7 @@ const PrimaryButton = ({
       >
         {title}
       </button>
-    </div>
+
   );
 };
 

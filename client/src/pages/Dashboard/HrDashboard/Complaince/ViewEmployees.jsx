@@ -36,7 +36,7 @@ const ViewEmployees = () => {
           onClick={() => {
 
             localStorage.setItem("employeeName",params.data.employeeName) 
-            navigate(`/app/dashboard/HR-dashboard/employee/view-employees/${params.data.employmentID}`, {state: { name: params.data.employeeName }})
+            navigate(`/app/dashboard/HR-dashboard/employee/view-employees/${params.data.employmentID}`)
         }
         }
 
@@ -76,7 +76,7 @@ const ViewEmployees = () => {
 
   const rows = [
     {
-      srno:"1",
+      srno: "1",
       employeeName: "Aiwinraj",
       employmentID: "WO001",
       email: "aiwinraj.wono@gmail.com",
@@ -84,7 +84,7 @@ const ViewEmployees = () => {
       status: "Active",
     },
     {
-      srno:"2",
+      srno: "2",
       employeeName: "Allan",
       employmentID: "WO002",
       email: "allan.wono@gmail.com",
@@ -92,7 +92,7 @@ const ViewEmployees = () => {
       status: "Active",
     },
     {
-      srno:"3",
+      srno: "3",
       employeeName: "Sankalp",
       employmentID: "WO003",
       email: "sankalp.wono@gmail.com",
@@ -100,7 +100,7 @@ const ViewEmployees = () => {
       status: "Active",
     },
     {
-      srno:"4",
+      srno: "4",
       employeeName: "Anushri",
       employmentID: "WO004",
       email: "anushri.wono@gmail.com",
@@ -108,7 +108,7 @@ const ViewEmployees = () => {
       status: "Active",
     },
     {
-      srno:"5",
+      srno: "5",
       employeeName: "Muskan",
       employmentID: "WO005",
       email: "muskan.wono@gmail.com",
@@ -116,7 +116,7 @@ const ViewEmployees = () => {
       status: "Active",
     },
     {
-      srno:"6",
+      srno: "6",
       employeeName: "Kalpesh",
       employmentID: "WO006",
       email: "kalpesh.wono@gmail.com",
@@ -124,7 +124,7 @@ const ViewEmployees = () => {
       status: "Active",
     },
     {
-      srno:"7",
+      srno: "7",
       employeeName: "Allan2",
       employmentID: "WO007",
       email: "allan2.wono@gmail.com",
@@ -145,13 +145,12 @@ const ViewEmployees = () => {
             employeeName : employee.firstName,
             employmentID : employee.empId,
             email : employee.email,
-            role : employee.role[0].roleTitle,
+            role : employee.role.map(r=>r.roleTitle),
             status : 'Active',
            }))]}
           columns={viewEmployeeColumns}
         />
       </div>
-      
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   TextField,
@@ -29,6 +29,9 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import PrimaryButton from "../../../components/PrimaryButton";
 import MuiModal from "../../../components/MuiModal";
 import { useNavigate } from "react-router-dom";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import { toast } from "sonner";
 
 const intialProjects = [
   {
@@ -144,6 +147,7 @@ const categoryColors = {
 const priorities = ["HIGH", "MEDIUM", "LOW"];
 
 const ProjectList = () => {
+  const axios = useAxiosPrivate();
   const [projects, setProjects] = useState(intialProjects);
   const [view, setView] = useState("grid");
   const [openModal, setOpenModal] = useState(false);
@@ -159,12 +163,44 @@ const ProjectList = () => {
     },
   });
 
+  const { data: projectList, isLoading } = useQuery({
+    queryKey: ["projectList"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/tasks/get-projects");
+        return response.data;
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: async (data) => {
+      const response = await axios.patch(`/api/tasks/delete-project/${data._id}`, {
+        departmentId: data.department,
+        assetCategoryName: data.categoryName,
+      });
+      return response.data;
+    },
+    onSuccess: function (data) {
+      toast.success(data.message);
+    },
+    onError: function (data) {
+      toast.error(data.response.data.message || "Failed to add category");
+    },
+  });
+
+  useEffect(() => {
+    console.log(projectList);
+  }, [projectList]);
+
   const onSubmit = (data) => {
     if (!data.title || !data.priority || !data.status) {
       alert("Please fill in required fields!");
       return;
     }
-  
+
     // Convert assignees from an array to an object with default values
     const assigneesObject = data.assignees.reduce((acc, name) => {
       acc[name] = {
@@ -174,7 +210,7 @@ const ProjectList = () => {
       };
       return acc;
     }, {});
-  
+
     const formattedProject = {
       ...data,
       id: projects.length + 1, // Assign new ID
@@ -182,12 +218,11 @@ const ProjectList = () => {
       deadline: data.deadline ? data.deadline.format("YYYY-MM-DD") : "",
       assignees: assigneesObject, // Assign transformed assignees object
     };
-  
+
     setProjects([...projects, formattedProject]); // Update projects list
     setOpenModal(false);
     reset(); // Reset the form fields after submission
   };
-  
 
   return (
     <>
@@ -220,9 +255,10 @@ const ProjectList = () => {
 
         {/* Toggle View */}
         {view === "grid" ? (
-          <GridView projects={projects} />
+          <GridView projects={projectList} isLoading={isLoading} />
         ) : (
-          <TableView projects={projects} />
+          <TableView projects={projectList} isLoading={isLoading} />
+          
         )}
       </div>
       <MuiModal
@@ -242,7 +278,7 @@ const ProjectList = () => {
                 slotProps={{ inputLabel: { size: "small" } }}
                 {...field}
                 label="Project Name"
-                value={field.value || []} 
+                value={field.value || []}
                 fullWidth
                 sx={{ fontSize: "10px" }}
                 margin="dense"
@@ -370,7 +406,7 @@ const ProjectList = () => {
 };
 
 // Grid View Component
-const GridView = ({ projects }) => {
+const GridView = ({ projects, isLoading }) => {
   return (
     <div className="grid grid-cols-4 gap-6">
       {categories.map((category) => (
@@ -382,11 +418,16 @@ const GridView = ({ projects }) => {
               {category}
             </span>
           </div>
-          {projects
-            .filter((p) => p.status === category)
-            .map((project) => (
-              <ProjectCard key={project.id} project={project} />
-            ))}
+          {/*  */}
+          {isLoading ? (
+            <span>loading</span>
+          ) : (
+            projects
+              .filter((p) => p.status === category)
+              .map((project) => (
+                <ProjectCard key={project.id} project={project} />
+              ))
+          )}
         </div>
       ))}
     </div>
@@ -394,7 +435,7 @@ const GridView = ({ projects }) => {
 };
 
 // Table View Component
-const TableView = ({ projects }) => {
+const TableView = ({ projects, isLoading }) => {
   return (
     <TableContainer>
       <Table>
@@ -484,14 +525,29 @@ const ProjectCard = ({ project }) => {
 
 // Dropdown Menu for Actions
 const ProjectMenu = ({ project }) => {
-  const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
+  const axios = useAxiosPrivate()
+  const passProjectId = useMutation({
+    mutationFn: async () => {
+      return axios.patch(`/api/tasks/update-project/${project.id}`);
+    },
+    onSuccess: () => {
+      console.log("Project updated");
+  
+    },
+    onError: (error) => {
+      console.log(error.response?.data?.message || "Failed to fetch project");
+    },
+  });
+
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const handleEditClick = () => {
-    setAnchorEl(null);
+    passProjectId.mutate(); // ✅ Correct way to trigger mutation
     navigate(`/app/tasks/project-list/edit-project/${project.id}`, {
       state: { project },
-    }); // Pass project data
+    });
+    setAnchorEl(null);
   };
   return (
     <>

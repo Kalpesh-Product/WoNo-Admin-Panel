@@ -9,7 +9,7 @@ const CustomError = require("../../utils/customErrorlogs");
 
 const addRoom = async (req, res, next) => {
   const { user, ip, company } = req;
-  const logPath = "meetings/MeetingLogs";
+  const logPath = "meetings/MeetingLog";
   const logAction = "Add Room";
   const logSourceKey = "room";
 
@@ -130,7 +130,7 @@ const getRooms = async (req, res, next) => {
 
 const updateRoom = async (req, res, next) => {
   const { user, ip, company } = req;
-  const logPath = "meetings/MeetingLogs";
+  const logPath = "meetings/MeetingLog";
   const logAction = "Update Room";
   const logSourceKey = "room";
 

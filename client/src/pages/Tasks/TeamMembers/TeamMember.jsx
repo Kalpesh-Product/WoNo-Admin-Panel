@@ -1,8 +1,24 @@
 import React from "react";
 import AgTable from "../../../components/AgTable";
 import { BsThreeDotsVertical } from "react-icons/bs";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
 const TeamMember = () => {
+
+  const axios = useAxiosPrivate()
+  const { data: taskList, isLoading } = useQuery({
+    queryKey: ["taskList"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/tasks/get-team-tasks-projects");
+        return response.data
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
+
   const teamMembersColumn = [
     { field: "name", headerName: "Name" ,flex:1},
     { field: "email", headerName: "Email" ,flex:1},
@@ -124,7 +140,15 @@ const TeamMember = () => {
           search={true}
           searchColumn={"kra"}
           tableTitle={"Team Members"}
-          data={teamMembersData}
+          data={isLoading? []:[...taskList.map((task, index)=>({
+            id : index + 1,
+            name:task.name,
+            email : task.email,
+            role : task.role,
+            projects : task.projectsCount,
+            task : task.tasksCount,
+            status : task.status,
+          }))]}
           columns={teamMembersColumn}
         />
       </div>

@@ -4,8 +4,27 @@ import PrimaryButton from "../../../../../components/PrimaryButton";
 import { Controller, useForm } from "react-hook-form";
 import SecondaryButton from "../../../../../components/SecondaryButton";
 import { toast } from "sonner";
+import useAxiosPrivate from "../../../../../hooks/useAxiosPrivate";
+import { useQuery } from "@tanstack/react-query";
+import { useParams } from "react-router-dom";
+
 
 const EditDetails = () => {
+
+  const {id} = useParams()
+  const axios = useAxiosPrivate()
+  const { data: employeeData, isLoading } = useQuery({
+    queryKey: ["employeeData"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get(`/api/users/fetch-single-user/${id}`);
+        return response.data
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
+
   const { control, handleSubmit, reset } = useForm({
     defaultValues: {
       firstName: "Aiwin",
@@ -87,7 +106,7 @@ const EditDetails = () => {
                 </div>
 
                 <div className="grid grid-cols sm:grid-cols-1 md:grid-cols-1 gap-4 p-4">
-                  {[
+                  { isLoading ? [] : [
                     "firstName",
                     "middleName",
                     "lastName",
@@ -129,7 +148,7 @@ const EditDetails = () => {
                           </div>
                           <div className="w-full">
                             <span className="text-gray-500">
-                              {control._defaultValues[fieldKey]}
+                              {employeeData[fieldKey]}
                             </span>
                           </div>
                         </div>
@@ -148,7 +167,7 @@ const EditDetails = () => {
                 </div>
 
                 <div className="grid grid-cols sm:grid-cols-1 md:grid-cols-1 gap-4 p-4">
-                  {[
+                  { isLoading ? [] : [
                     "startDate",
                     "workLocation",
                     "employeeType",
@@ -190,7 +209,7 @@ const EditDetails = () => {
                         </div>
                         <div className="w-full">
                           <span className="text-gray-500">
-                            {control._defaultValues[fieldKey]}
+                            {employeeData[fieldKey]}
                           </span>
                         </div>
                       </div>
@@ -206,7 +225,7 @@ const EditDetails = () => {
                 </div>
 
                 <div className="grid grid-cols sm:grid-cols-1 md:grid-cols-1 gap-4 p-4">
-                  {[
+                  { isLoading ? [] : [
                     "shift",
                     "workSchedulePolicy",
                     "attendanceSource",
@@ -246,7 +265,7 @@ const EditDetails = () => {
                         </div>
                         <div className="w-full">
                           <span className="text-gray-500">
-                            {control._defaultValues[fieldKey]}
+                            {employeeData[fieldKey]}
                           </span>
                         </div>
                       </div>
@@ -262,7 +281,7 @@ const EditDetails = () => {
                 </div>
 
                 <div className="grid grid-cols sm:grid-cols-1 md:grid-cols-1 gap-4 p-4">
-                  {["aadharID", "pan", "pfAcNo"].map((fieldKey) => (
+                  { isLoading ? [] : ["aadharID", "pan", "pfAcNo"].map((fieldKey) => (
                     <div key={fieldKey}>
                       {isEditing ? (
                         <Controller
@@ -296,7 +315,7 @@ const EditDetails = () => {
                         </div>
                         <div className="w-full">
                           <span className="text-gray-500">
-                            {control._defaultValues[fieldKey]}
+                            {employeeData[fieldKey]}
                           </span>
                         </div>
                       </div>
@@ -314,7 +333,7 @@ const EditDetails = () => {
                 </div>
 
                 <div className="grid grid-cols sm:grid-cols-1 md:grid-cols-1 gap-4 p-4">
-                  {[
+                  { isLoading ? [] : [
                     "addressLine1",
                     "addressLine2",
                     "state",
@@ -354,7 +373,7 @@ const EditDetails = () => {
                         </div>
                         <div className="w-full">
                           <span className="text-gray-500">
-                            {control._defaultValues[fieldKey]}
+                            {employeeData[fieldKey]}
                           </span>
                         </div>
                       </div>
@@ -372,7 +391,7 @@ const EditDetails = () => {
                 </div>
 
                 <div className="grid grid-cols sm:grid-cols-1 md:grid-cols-1 gap-4 p-4">
-                  {[
+                  { isLoading ? [] : [
                     "includeInPayroll",
                     "payrollBatch",
                     "professionTaxExemption",
@@ -413,7 +432,7 @@ const EditDetails = () => {
                         </div>
                         <div className="w-full">
                           <span className="text-gray-500">
-                            {control._defaultValues[fieldKey]}
+                            {employeeData[fieldKey]}
                           </span>
                         </div>
                       </div>

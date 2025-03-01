@@ -4,6 +4,8 @@ const mongoose = require("mongoose");
 const { formatDate, formatTime } = require("../utils/formatDateTime");
 const { createLog } = require("../utils/moduleLogs");
 const CustomError = require("../utils/customErrorlogs");
+const { Readable } = require("stream");
+const csvParser = require("csv-parser");
 
 const clockIn = async (req, res, next) => {
   const { user, ip, company } = req;
@@ -345,7 +347,6 @@ const endBreak = async (req, res, next) => {
 const getAllAttendance = async (req, res, next) => {
   const company = req.userData.company;
 
-
   try {
     // const user = await UserData.findById({ _id: loggedInUser }).populate({
     //   path: "role",
@@ -375,7 +376,6 @@ const getAllAttendance = async (req, res, next) => {
     }
 
     const transformedAttendances = attendances.map((attendance) => {
-
       const totalMins =
         attendance.outTime && attendance.inTime
           ? (attendance.outTime - attendance.inTime) / (1000 * 60)
@@ -383,7 +383,6 @@ const getAllAttendance = async (req, res, next) => {
 
       const breakMins = attendance.breakDuration || 0;
       const workMins = totalMins > breakMins ? totalMins - breakMins : 0;
-
 
       return {
         date: formatDate(attendance.inTime) || "N/A",
@@ -406,10 +405,12 @@ const getAllAttendance = async (req, res, next) => {
 
 const getAttendance = async (req, res, next) => {
   const { id } = req.params;
+  const { user, company } = req;
 
   try {
+    const user = await UserData.findOne({ empId: id });
     const attendances = await Attendance.find({
-      user: loggedInUser,
+      user: user._id,
       company,
     });
 
@@ -579,11 +580,13 @@ const bulkInsertAttendance = async (req, res, next) => {
 
           const attendanceRecord = {
             company: new mongoose.Types.ObjectId(companyId),
-            user: employeeMap.get(empId), 
+            user: employeeMap.get(empId),
             date: new Date(row["Date"]),
             inTime: new Date(`${row["Date"].trim()} ${row["In Time"].trim()}`),
-            outTime: new Date(`${row["Date"].trim()} ${row["Out Time"].trim()}`),
-            entryType: row["Entry Type"] || "web", 
+            outTime: new Date(
+              `${row["Date"].trim()} ${row["Out Time"].trim()}`
+            ),
+            entryType: row["Entry Type"] || "web",
           };
 
           newAttendanceRecords.push(attendanceRecord);

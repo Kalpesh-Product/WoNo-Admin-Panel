@@ -17,15 +17,16 @@ const MainLayout = () => {
       { threshold: 0.1 }
     );
 
-    if(dummyRef.current){
+    if (dummyRef.current) {
       observer.observe(dummyRef.current);
-    }else{}
+    } else {
+    }
 
-    return () =>{
-      if(dummyRef.current){
+    return () => {
+      if (dummyRef.current) {
         observer.unobserve(dummyRef.current);
       }
-    }
+    };
   });
 
   return (
@@ -42,9 +43,9 @@ const MainLayout = () => {
             <div className="p-4 rounded-t-md bg-white">
               <BreadCrumbComponent />
             </div>
-            <div className="bg-white h-[80vh] overflow-y-auto flex flex-col">
+            <div className="bg-white h-[80vh] overflow-y-auto flex flex-col justify-between">
               <Outlet />
-              <div ref={dummyRef} className="h-1 bg-transparent"></div>
+              <div ref={dummyRef} className="h-1 w-1 bg-red-500 text-red-500"></div>
             </div>
           </main>
         </div>
@@ -55,8 +56,7 @@ const MainLayout = () => {
             showFooter
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-10"
-          }`}
-        >
+          }`}>
           <Footer />
         </footer>
       )}

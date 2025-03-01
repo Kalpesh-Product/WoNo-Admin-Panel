@@ -1,3 +1,5 @@
+// const Model = require("../models/tasks/TaskLog");
+
 const getLogs = async (req, res, next) => {
   const { path } = req.params;
   const company = req.company;
