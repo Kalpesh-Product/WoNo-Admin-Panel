@@ -67,10 +67,22 @@ const TasksDashboard = () => {
     },
   });
 
+  const meetingsQuery = useQuery({
+    queryKey: ["meetings"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/meetings/get-meetings");
+        return response.data
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
+
   
   const completedTasks =  allTasksQuery.isLoading ? 0 : allTasksQuery.data.filter((task)=>task.status === 'Completed').length
  
-  const pendingTasks =   allTasksQuery.data.length - completedTasks
+  const pendingTasks =  allTasksQuery.isLoading ? 0 : allTasksQuery.data.length - completedTasks
  
   const projectsAssignedByMe =  allProjectsQuery.isLoading ? 0 : allProjectsQuery.data?.filter((project)=>{
     return project.assignedBy === auth.user._id
@@ -133,6 +145,17 @@ const TasksDashboard = () => {
       },
     },
   };
+
+
+  const myTodayMeetingsData = !meetingsQuery.isLoading ? meetingsQuery.data.map((meeting, index)=>{
+    return {
+      id: index + 1,
+      meeting: meeting.subject,
+      location: meeting.roomName,
+      participants: meeting.participants?.length > 0 ? meeting.participants.map((participant)=> participant.email) : [],
+      time: meeting.startTime
+    }
+  }) : []
     
   const meetingsWidgets = [
     {

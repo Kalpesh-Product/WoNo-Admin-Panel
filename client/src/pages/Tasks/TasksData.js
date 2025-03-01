@@ -313,7 +313,8 @@ const myTodayMeetingsColumns = [
           <Avatar
             key={index}
             alt={participant.name}
-            src={participant.avatar}
+            // src={participant.avatar}
+            src="https://ui-avatars.com/api/?name=Alice+Johnson&background=random"
             sx={{ width: 23, height: 23 }}
           />
         ))}
