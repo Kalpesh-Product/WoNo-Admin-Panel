@@ -84,7 +84,6 @@ app.get(
     res.json({ message: "This is protected route" });
   }
 );
-app.use("/api/access", verifyJwt, accessRoutes);
 app.all("*", (req, res) => {
   if (req.accepts("html")) {
     res.status(404).sendFile(path.join(__dirname, "views", "404.html"));
