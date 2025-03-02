@@ -2,7 +2,7 @@ const masterPermissions = [
   {
     departmentId: "6798bab9e469e809084e249e",
     departmentName: "HR",
-    module: [
+    modules: [
       {
         name: "Employee",
         submodules: [
@@ -93,25 +93,111 @@ const masterPermissions = [
           },
         ],
       },
-    ],
-  },
-  {
-    departmentId: "",
-    departmentName: "Finance",
-    submodules: [
       {
-        submoduleName: "Budget Allocation",
-        actions: ["View", "Edit"],
+        name: "Finance",
+        submodules: [
+          {
+            submoduleName: "Budget",
+            actions: ["View", "Edit"],
+          },
+          {
+            submoduleName: "Payment Schedule",
+            actions: ["View", "Edit"],
+          },
+          {
+            submoduleName: "Payroll",
+            actions: ["View", "Edit"],
+          },
+        ],
+      },
+      {
+        name: "Data",
+        submodules: [
+          {
+            submoduleName: "Job Application List",
+            actions: ["View", "Edit"],
+          },
+          {
+            submoduleName: "Reports",
+            actions: ["View", "Edit"],
+          },
+        ],
+      },
+      {
+        name: "Settings",
+        submodules: [
+          {
+            submoduleName: "Bulk Insert",
+            actions: ["View", "Edit"],
+          },
+        ],
       },
     ],
   },
   {
-    departmentId: "",
-    departmentName: "IT",
-    submodules: [
+    departmentId: "6798ba9de469e809084e2494",
+    departmentName: "Tech",
+    modules: [
       {
-        submoduleName: "Server Management",
-        actions: ["View", "Restart", "Shutdown"],
+        name: "Create Website",
+        submodules: [
+          {
+            submoduleName: "Select Theme",
+            actions: ["View", "Edit"],
+          },
+          {
+            submoduleName: "View Theme",
+            actions: ["View", "Edit"],
+          },
+          {
+            submoduleName: "Live Demo",
+            actions: ["View", "Edit"],
+          },
+        ],
+      },
+      {
+        name: "Edit Website",
+        submodules: [
+          {
+            submoduleName: "Edit Website",
+            actions: ["View", "Edit"],
+          },
+        ],
+      },
+      {
+        name: "Finance",
+        submodules: [
+          {
+            submoduleName: "Budget",
+            actions: ["View", "Edit"],
+          },
+          {
+            submoduleName: "Payment Schedule",
+            actions: ["View", "Edit"],
+          },
+        ],
+      },
+      {
+        name: "Data",
+        submodules: [
+          {
+            submoduleName: "New Leads",
+            actions: ["View", "Edit"],
+          },
+          {
+            submoduleName: "Website Issue Reports",
+            actions: ["View", "Edit"],
+          },
+        ],
+      },
+      {
+        name: "Settings",
+        submodules: [
+          {
+            submoduleName: "Bulk Insert",
+            actions: ["View", "Edit"],
+          },
+        ],
       },
     ],
   },

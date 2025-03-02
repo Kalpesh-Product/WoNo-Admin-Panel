@@ -24,7 +24,6 @@ const eventRoutes = require("./routes/eventsRoutes");
 const taskRoutes = require("./routes/tasksRoutes");
 const accessRoutes = require("./routes/accessRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
-const checkScope = require("./middlewares/checkScope");
 const vendorRoutes = require("./routes/vendorRoutes");
 const budgetRoutes = require("./routes/budgetRoutes");
 const payrollRoutes = require("./routes/payrollRoutes");
@@ -54,7 +53,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 
-//protected routes that should be protected later 👽
+app.use("/api/access", verifyJwt, accessRoutes);
 app.use("/api/company", verifyJwt, companyRoutes);
 app.use("/api/budget", verifyJwt, budgetRoutes);
 app.use("/api/departments", departmentsRoutes);
@@ -72,18 +71,6 @@ app.use("/api/payroll", payrollRoutes);
 app.use("/api/tasks", verifyJwt, taskRoutes);
 app.use("/api/attendance", verifyJwt, attendanceRoutes);
 app.use("/api/logs/:path", verifyJwt, getLogs);
-app.get(
-  "/api/protected",
-  verifyJwt,
-  checkScope({
-    module: "Asset Management",
-    subModule: "Manage Asset",
-    permissions: ["write"],
-  }),
-  (req, res) => {
-    res.json({ message: "This is protected route" });
-  }
-);
 app.all("*", (req, res) => {
   if (req.accepts("html")) {
     res.status(404).sendFile(path.join(__dirname, "views", "404.html"));

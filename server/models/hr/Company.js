@@ -30,12 +30,11 @@ const companySchema = new mongoose.Schema({
           ref: "Category",
         },
       ],
-      admin: [
-        {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Role",
-        },
-      ],
+      admin: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Role",
+      },
+
       ticketIssues: [
         {
           title: {
