@@ -7,14 +7,20 @@ const checkPermissions = (requiredPermissions, requiredRole) => {
       const { user: userId, company: companyId } = req;
 
       // Step 1: Fetch User from Database
-      const user = await User.findById(userId).populate("role");
+      const user = await User.findById(userId).populate({
+        path: "role",
+        select: "roleTitle",
+      });
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
 
       // Step 2: Check if User Has the Required Role
-      const userRoles = user.role.map((r) => r.roleTitle); // Get user's roles
-      if (userRoles.includes(requiredRole)) {
+      const userRoles = user.role.map((r) => r.roleID); // Get user's roles
+      if (
+        userRoles.includes(requiredRole) ||
+        user.role.find((r) => r.roleID === "ROLE_MASTER_ADMIN")
+      ) {
         return next(); // ✅ Role matches, proceed
       }
 
@@ -50,14 +56,13 @@ const checkPermissions = (requiredPermissions, requiredRole) => {
       });
 
       if (hasPermission) {
-        return next(); // ✅ Permission found, proceed
+        return next();
       } else {
         return res
           .status(403)
           .json({ error: "Access Denied: Insufficient permissions" });
       }
     } catch (error) {
-      console.error("Authorization Middleware Error:", error);
       return res.status(500).json({ error: "Internal Server Error" });
     }
   };
