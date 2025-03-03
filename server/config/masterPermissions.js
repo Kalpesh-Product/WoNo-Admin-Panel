@@ -19,7 +19,7 @@ const masterPermissions = [
             actions: ["View", "Edit"],
           },
           {
-            submoduleName: "Attandance",
+            submoduleName: "Attendance",
             actions: ["View", "Edit"],
           },
           {
@@ -195,6 +195,60 @@ const masterPermissions = [
         submodules: [
           {
             submoduleName: "Bulk Insert",
+            actions: ["View", "Edit"],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    departmentId: "6798bacce469e809084e24a1",
+    departmentName: "Sales",
+    modules: [
+      {
+        name: "Turnover",
+        submodules: [
+          {
+            submoduleName: "Actual Business",
+            actions: ["View", "Edit"],
+          },
+          {
+            submoduleName: "Revenue Target",
+            actions: ["View", "Edit"],
+          },
+        ],
+      },
+      {
+        name: "Finance",
+        submodules: [
+          {
+            submoduleName: "Budget",
+            actions: ["View", "Edit"],
+          },
+          {
+            submoduleName: "Payment Schedule",
+            actions: ["View", "Edit"],
+          },
+        ],
+      },
+      {
+        name: "Reports",
+        submodules: [
+          {
+            submoduleName: "",
+            actions: ["View", "Edit"],
+          },
+          {
+            submoduleName: "",
+            actions: ["View", "Edit"],
+          },
+        ],
+      },
+      {
+        name: "Settings",
+        submodules: [
+          {
+            submoduleName: "",
             actions: ["View", "Edit"],
           },
         ],

@@ -1,4 +1,3 @@
-
 const SupportTicket = require("../models/tickets/supportTickets");
 const Ticket = require("../models/tickets/Tickets");
 
@@ -8,8 +7,8 @@ async function filterCloseTickets(userDepartments, loggedInUser) {
       status: "Closed",
       raisedBy: { $ne: loggedInUser._id },
     }).populate([
-      { path: "raisedBy", select: "name" },
-      { path: "raisedToDepartment", select: "name" },
+      { path: "raisedBy", select: "firstName lastName" },
+      { path: "raisedToDepartment", select: "firstName lastName" },
     ]);
 
     return tickets;
@@ -22,8 +21,8 @@ async function filterCloseTickets(userDepartments, loggedInUser) {
     ],
   })
     .populate([
-      { path: "raisedBy", select: "name" },
-      { path: "raisedToDepartment", select: "name" },
+      { path: "raisedBy", select: "firstName lastName" },
+      { path: "raisedToDepartment", select: "firstName lastName" },
     ])
     .lean()
     .exec();
@@ -39,8 +38,8 @@ async function filterAcceptTickets(userId, loggedInUser) {
         { raisedBy: { $ne: loggedInUser._id } },
       ],
     }).populate([
-      { path: "raisedBy", select: "name" },
-      { path: "raisedToDepartment", select: "name" },
+      { path: "raisedBy", select: "firstName lastName" },
+      { path: "raisedToDepartment", select: "firstName lastName" },
     ]);
 
     return tickets;
@@ -51,8 +50,8 @@ async function filterAcceptTickets(userId, loggedInUser) {
     status: "In Progress",
   })
     .populate([
-      { path: "raisedBy", select: "name" },
-      { path: "raisedToDepartment", select: "name" },
+      { path: "raisedBy", select: "firstName lastName" },
+      { path: "raisedToDepartment", select: "firstName lastName" },
     ])
     .lean()
     .exec();
@@ -65,8 +64,8 @@ async function filterAssignedTickets(userDepartments, loggedInUser) {
     const tickets = await Ticket.find({
       assignees: { $exists: true, $ne: [] },
     }).populate([
-      { path: "raisedBy", select: "name" },
-      { path: "raisedToDepartment", select: "name" },
+      { path: "raisedBy", select: "firstName lastName" },
+      { path: "raisedToDepartment", select: "firstName lastName" },
     ]);
 
     return tickets;
@@ -79,8 +78,8 @@ async function filterAssignedTickets(userDepartments, loggedInUser) {
     ],
   })
     .populate([
-      { path: "raisedBy", select: "name" },
-      { path: "raisedToDepartment", select: "name" },
+      { path: "raisedBy", select: "firstName lastName" },
+      { path: "raisedToDepartment", select: "firstName lastName" },
     ])
     .lean()
     .exec();
@@ -97,11 +96,11 @@ async function filterSupportTickets(userId, loggedInUser) {
           populate: [
             {
               path: "raisedBy",
-              select: "name",
+              select: "firstName lastName",
             },
             {
               path: "raisedToDepartment",
-              select: "name",
+              select: "firstName lastName",
             },
           ],
         },
@@ -121,11 +120,11 @@ async function filterSupportTickets(userId, loggedInUser) {
         populate: [
           {
             path: "raisedBy",
-            select: "name",
+            select: "firstName lastName",
           },
           {
             path: "raisedToDepartment",
-            select: "name",
+            select: "firstName lastName",
           },
         ],
       },
@@ -141,8 +140,8 @@ async function filterEscalatedTickets(userDepartments, loggedInUser) {
     const tickets = await Ticket.find({
       escalatedTo: { $exists: true, $ne: [] },
     }).populate([
-      { path: "raisedBy", select: "name" },
-      { path: "raisedToDepartment", select: "name" },
+      { path: "raisedBy", select: "firstName lastName" },
+      { path: "raisedToDepartment", select: "firstName lastName" },
     ]);
 
     return tickets;
@@ -152,8 +151,8 @@ async function filterEscalatedTickets(userDepartments, loggedInUser) {
     escalatedTo: { $in: userDepartments },
   })
     .populate([
-      { path: "raisedBy", select: "name" },
-      { path: "raisedToDepartment", select: "name" },
+      { path: "raisedBy", select: "firstName lastName" },
+      { path: "raisedToDepartment", select: "firstName lastName" },
     ])
     .lean()
     .exec();

@@ -475,42 +475,56 @@ const completeTasks = async (req, res, next) => {
   try {
     const { taskIds } = req.body;
 
-    if (!taskIds) {
+    if (!taskIds || !taskIds.length) {
       throw new CustomError("Missing tasks", logPath, logAction, logSourceKey);
     }
 
-    const taskList = await Task.updateMany(
-      { _id: { $in: taskIds }, company },
-      { status: "Completed" },
-      { new: true }
-    );
+    // Step 1: Fetch tasks before updating
+    const existingTasks = await Task.find({ _id: { $in: taskIds }, company });
 
-    if (!taskList) {
+    if (!existingTasks.length) {
       throw new CustomError(
-        "Failed to update the task status",
+        "No tasks found for the given IDs",
         logPath,
         logAction,
         logSourceKey
       );
     }
 
-    // Log the successful deletion
-    await createLog({
-      path: logPath,
-      action: logAction,
-      remarks: "Task status updated successfully",
-      status: "Success",
-      user: user,
-      ip: ip,
-      company: company,
-      sourceKey: logSourceKey,
-      sourceId: taskList._id,
-      changes: { taskList: true },
-    });
+    await Task.updateMany(
+      { _id: { $in: taskIds }, company },
+      { status: "Completed" }
+    );
 
-    return res
-      .status(200)
-      .json({ message: "Task status updated successfully" });
+    // Step 3: Fetch updated tasks
+    const updatedTasks = await Task.find({ _id: { $in: taskIds }, company });
+
+    // Log the changes
+
+    updatedTasks.map(
+      async (task) =>
+        await createLog({
+          path: logPath,
+          action: logAction,
+          remarks: "Task status updated successfully",
+          status: "Success",
+          user: user,
+          ip: ip,
+          company: company,
+          sourceKey: logSourceKey,
+          sourceId: task._id,
+          changes: {
+            taskId: task._id,
+            previousStatus: existingTasks.find((t) => t._id.equals(task._id))
+              ?.status,
+            newStatus: task.status,
+          },
+        })
+    );
+
+    return res.status(200).json({
+      message: "Task status updated successfully",
+    });
   } catch (error) {
     next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
