@@ -32,6 +32,8 @@ import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import { toast } from "sonner";
+import useAuth from "../../../hooks/useAuth";
+
 
 const intialProjects = [
   {
@@ -148,6 +150,7 @@ const priorities = ["HIGH", "MEDIUM", "LOW"];
 
 const ProjectList = () => {
   const axios = useAxiosPrivate();
+  const { auth } = useAuth();
   const [projects, setProjects] = useState(intialProjects);
   const [view, setView] = useState("grid");
   const [openModal, setOpenModal] = useState(false);
@@ -175,11 +178,17 @@ const ProjectList = () => {
     },
   });
 
-  const { mutate, isPending } = useMutation({
+  const { mutate : handleAddProject, isPending : isAddProject } = useMutation({
     mutationFn: async (data) => {
-      const response = await axios.patch(`/api/tasks/delete-project/${data._id}`, {
-        departmentId: data.department,
-        assetCategoryName: data.categoryName,
+      const response = await axios.post(`/api/tasks/create-tasks`, {
+        projectName: data.title,
+        description: data.description,
+        department:data.department,
+        assignees: data.assignees,
+        assignedDate: data.assignedDate,
+        dueDate: data.dueDate,
+        priority: data.priority,
+        status: data.status,
       });
       return response.data;
     },
@@ -187,7 +196,7 @@ const ProjectList = () => {
       toast.success(data.message);
     },
     onError: function (data) {
-      toast.error(data.response.data.message || "Failed to add category");
+      toast.error(data.response.data.message || "Failed to project");
     },
   });
 
@@ -211,13 +220,21 @@ const ProjectList = () => {
       return acc;
     }, {});
 
+    
+
     const formattedProject = {
       ...data,
-      id: projects.length + 1, // Assign new ID
-      startDate: data.startDate ? data.startDate.format("YYYY-MM-DD") : "",
-      deadline: data.deadline ? data.deadline.format("YYYY-MM-DD") : "",
+      priority:data.priority,
+      description:data.description,
+      department : data.department,
+      status:data.status,
+      projectName:data.title,
+      assignedDate: data.assignedDate,
+      dueDate: data.dueDate,
+      deadline: data.deadline,
       assignees: assigneesObject, // Assign transformed assignees object
     };
+    handleAddProject(formattedProject)
 
     setProjects([...projects, formattedProject]); // Update projects list
     setOpenModal(false);
@@ -305,6 +322,27 @@ const ProjectList = () => {
             )}
           />
 
+          {/* Department */}
+          {auth.user.departments.length > 1 ? (
+            <Controller
+            name="department"
+            control={control}
+            render={({field})=>(
+              <Select {...field} fullWidth displayEmpty size="small">
+                <MenuItem value="" disabled>
+                  Select Department
+                </MenuItem>
+                {auth.user.departments.map((department) => (
+                  <MenuItem key={department._id} value={department._id}>
+                    {department.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            )}
+            />
+          ) : ''}
+       
+
           {/* Assignees */}
           <Controller
             name="assignees"
@@ -330,7 +368,7 @@ const ProjectList = () => {
           {/* Date Pickers */}
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <Controller
-              name="startDate"
+              name="assignedDate"
               control={control}
               render={({ field }) => (
                 <DesktopDatePicker
@@ -344,19 +382,24 @@ const ProjectList = () => {
                 />
               )}
             />
+          </LocalizationProvider>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
             <Controller
-              name="deadline"
+              name="dueDate"
               control={control}
               render={({ field }) => (
                 <DesktopDatePicker
                   label="Due Date"
-                  value={field.value}
                   slotProps={{ textField: { size: "small" } }}
+                  value={field.value}
                   onChange={field.onChange}
-                  renderInput={(params) => <TextField {...params} fullWidth />}
+                  renderInput={(params) => (
+                    <TextField size="small" {...params} fullWidth />
+                  )}
                 />
               )}
             />
+            
           </LocalizationProvider>
 
           {/* Priority Dropdown */}
