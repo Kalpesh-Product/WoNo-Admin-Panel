@@ -656,6 +656,7 @@ const bulkInsertUsers = async (req, res, next) => {
             email: row["Company Email"],
             company: new mongoose.Types.ObjectId(companyId),
             password: hashedPassword,
+            isActive: Boolean(row["isActive"]) || false,
 
             departments: departmentObjectIds,
             role: roleObjectIds,
@@ -721,7 +722,7 @@ const bulkInsertUsers = async (req, res, next) => {
 
           newUsers.push(user);
         } catch (error) {
-          console.error("Error processing row:", row, error);
+          next(error)
         }
       })
       .on("end", async () => {

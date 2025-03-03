@@ -1,25 +1,73 @@
-const User = require("../models/User");
+const Permission = require("../models/Permissions");
+const User = require("../models/hr/UserData");
 
-
-const checkPermission = (validRoles) => {
-
-   return async (req,res,next) => {
-
+const checkPermissions = (requiredPermissions, requiredRole) => {
+  return async (req, res, next) => {
     try {
-        const loggedInUser = req.user
-        const user = await User.findById({_id:loggedInUser}).populate({path:"role", select:"roleTitle"});
-    
-            const hasPermission = user.role.some((role) => validRoles.includes(role.roleTitle))
-    
-            if(!hasPermission){
-                return res.sendStatus(403) 
-            }
-    
-            next()
-    } catch (error) {
-        next(error)
-    }
-   }
-}
+      const { user: userId, company: companyId } = req;
 
-module.exports = checkPermission
+      // Step 1: Fetch User from Database
+      const user = await User.findById(userId).populate({
+        path: "role",
+        select: "roleTitle",
+      });
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // Step 2: Check if User Has the Required Role
+      const userRoles = new Set(user.role.map((r) => r.roleID)); 
+
+      if (
+        userRoles.has(requiredRole) ||
+        userRoles.has("ROLE_MASTER_ADMIN") ||
+        userRoles.has("ROLE_SUPER_ADMIN")
+      ) {
+        return next();
+      }
+
+      // Step 3: If No Role Match, Check Permissions
+      const userPermissions = await Permission.findOne({
+        user: userId,
+        company: companyId,
+      });
+
+      if (!userPermissions) {
+        return res
+          .status(403)
+          .json({ error: "Access Denied: No permissions assigned" });
+      }
+
+      let hasPermission = false;
+
+      // Step 4: Check if User Has Required Permissions
+      userPermissions.deptWisePermissions.forEach((dept) => {
+        dept.modules.forEach((mod) => {
+          mod.submodules.forEach((sub) => {
+            sub.actions.forEach((action) => {
+              if (
+                requiredPermissions.includes(
+                  `${mod.name}.${sub.submoduleName}.${action}`
+                )
+              ) {
+                hasPermission = true;
+              }
+            });
+          });
+        });
+      });
+
+      if (hasPermission) {
+        return next();
+      } else {
+        return res
+          .status(403)
+          .json({ error: "Access Denied: Insufficient permissions" });
+      }
+    } catch (error) {
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  };
+};
+
+module.exports = checkPermissions;

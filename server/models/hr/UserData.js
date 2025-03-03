@@ -46,6 +46,10 @@ const userDataSchema = new mongoose.Schema({
       ref: "Role",
     },
   ],
+  permissions: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Permission",
+  },
   assignedAsset: [
     {
       type: mongoose.Schema.Types.ObjectId,
