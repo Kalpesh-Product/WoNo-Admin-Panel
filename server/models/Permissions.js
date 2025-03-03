@@ -16,7 +16,7 @@ const permissionSchema = new mongoose.Schema({
       department: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Department",
-        required: false,
+        required: true,
       },
       modules: [
         {

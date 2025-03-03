@@ -16,12 +16,14 @@ const checkPermissions = (requiredPermissions, requiredRole) => {
       }
 
       // Step 2: Check if User Has the Required Role
-      const userRoles = user.role.map((r) => r.roleID); // Get user's roles
+      const userRoles = new Set(user.role.map((r) => r.roleID)); 
+
       if (
-        userRoles.includes(requiredRole) ||
-        user.role.find((r) => r.roleID === "ROLE_MASTER_ADMIN")
+        userRoles.has(requiredRole) ||
+        userRoles.has("ROLE_MASTER_ADMIN") ||
+        userRoles.has("ROLE_SUPER_ADMIN")
       ) {
-        return next(); // ✅ Role matches, proceed
+        return next();
       }
 
       // Step 3: If No Role Match, Check Permissions
