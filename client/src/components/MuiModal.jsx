@@ -1,6 +1,6 @@
 // MuiModal.js
 import React from "react";
-import { Modal, Box, Typography, IconButton } from "@mui/material";
+import { Modal, Box, IconButton } from "@mui/material";
 import { IoMdClose } from "react-icons/io";
 
 const MuiModal = ({ open, onClose, title, children, headerBackground }) => {
@@ -22,7 +22,7 @@ const MuiModal = ({ open, onClose, title, children, headerBackground }) => {
         }}
       >
         <div
-          className="flex justify-between items-center px-4 py-2  z-[-1] rounded-t-md border-default border-borderGray"
+          className="flex justify-between items-center px-4 py-2  z-[-1] rounded-t-md border-b-default border-borderGray"
           style={{
             backgroundColor: headerBackground ? headerBackground : "white",
             color: headerBackground ? "white" : "black",

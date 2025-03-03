@@ -8,7 +8,7 @@ const addShift = async (req, res, next) => {
   const logAction = "Add Shift";
   const logSourceKey = "companyData";
   const { user, ip, company } = req;
-  const { name } = req.body;
+  const { shiftName, startTime, endTime } = req.body;
 
   try {
     if (!mongoose.Types.ObjectId.isValid(company)) {
@@ -30,11 +30,20 @@ const addShift = async (req, res, next) => {
       );
     }
 
-    const updatedCompany = await Company.findOneAndUpdate(
+    const updatedCompany = await Company.updateOne(
       { _id: company },
-      { $push: { shifts: name } },
-      { new: true }
-    ).exec();
+      {
+        $push: {
+          shifts: {
+            name: shiftName,
+            startTime,
+            endTime,
+          },
+        },
+      }
+    );
+
+    console.log(updatedCompany);
 
     if (!updatedCompany) {
       throw new CustomError(
@@ -55,7 +64,7 @@ const addShift = async (req, res, next) => {
       company: company,
       sourceKey: logSourceKey,
       sourceId: updatedCompany._id,
-      changes: { shift: name },
+      changes: { shift: shiftName },
     });
 
     return res.status(200).json({ message: "Work shift added successfully" });

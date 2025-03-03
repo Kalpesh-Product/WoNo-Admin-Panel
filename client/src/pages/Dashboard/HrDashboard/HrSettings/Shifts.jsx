@@ -1,20 +1,61 @@
-import React from "react";
+import React, { useState } from "react";
 import AgTable from "../../../../components/AgTable";
-import { Chip } from "@mui/material";
+import { Chip, TextField } from "@mui/material";
 import useAxiosPrivate from "../../../../hooks/useAxiosPrivate";
-import { useQuery } from "@tanstack/react-query";
-
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { Controller, useForm } from "react-hook-form";
+import MuiModal from "../../../../components/MuiModal";
+import PrimaryButton from "../../../../components/PrimaryButton";
+import { toast } from "sonner";
+import SecondaryButton from "../../../../components/SecondaryButton";
+import { LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 const Shifts = () => {
+  const axios = useAxiosPrivate();
+  const [openModal, setOpenModal] = useState(false);
+  const { handleSubmit, control, reset } = useForm({
+    defaultValues: {
+      shiftName: "",
+      startTime: null,
+      endTime: null,
+    },
+  });
 
-  const axios = useAxiosPrivate()
+  const {mutate, isPending} = useMutation({
+    mutationFn: async (data)=>{
+      const response = await axios.post('/api/company/add-shift',{
+        shiftName: data.shiftName,
+        startTime: data.startTime,
+        endTime: data.endTime,
+      })
+
+      return response.data
+    },
+    onSuccess: function (data) {
+      toast.success(data.message)
+    },
+    onError:function (data){
+      toast.error(data.message)
+    }
+  })
+
+  const onSubmit = (data) => {
+    console.log(data);
+    mutate(data)
+    setOpenModal(false);
+    toast.success("New Shift Added");
+    reset()
+  };
 
   const { data: shifts = [] } = useQuery({
     queryKey: ["shifts"],
     queryFn: async () => {
       try {
-        const response = await axios.get("/api/company/get-company-data/?field=shifts");
-        return response.data.shifts
+        const response = await axios.get(
+          "/api/company/get-company-data/?field=shifts"
+        );
+        return response.data.shifts;
       } catch (error) {
         throw new Error(error.response.data.message);
       }
@@ -22,74 +63,49 @@ const Shifts = () => {
   });
 
   const departmentsColumn = [
-    { field:"id" , headerName:"SR NO"},
-      { field: "shift", headerName: "Shift List",
-        cellRenderer:(params)=>{
-          return(
-            <div>
-              <span className="text-primary cursor-pointer hover:underline">
-                {params.value}
-              </span>
-            </div>
-          )
-        },flex:1},
-         {
-                 field: "status",
-                 headerName: "Status",
-                 flex: 1,
-                 cellRenderer: (params) => {
-                   const status = params.value ? "Active" : "Inactive"; // Map boolean to string status
-                   const statusColorMap = {
-                     Inactive: { backgroundColor: "#FFECC5", color: "#CC8400" }, // Light orange bg, dark orange font
-                     Active: { backgroundColor: "#90EE90", color: "#006400" }, // Light green bg, dark green font
-                   };
-                 
-                   const { backgroundColor, color } = statusColorMap[status] || {
-                     backgroundColor: "gray",
-                     color: "white",
-                   };
-                 
-                   return (
-                     <Chip
-                       label={status}
-                       style={{
-                         backgroundColor,
-                         color,
-                       }}
-                     />
-                   );
-                 },  
-               }
-    ];
-  
-  
-    const rows = [
-      {
-        srno:"1",
-        id: 1,
-        shiftlist:"General Shift",
-        status: "Active",
+    { field: "id", headerName: "SR NO" },
+    {
+      field: "shift",
+      headerName: "Shift List",
+      cellRenderer: (params) => {
+        return (
+          <div>
+            <span className="text-primary cursor-pointer hover:underline">
+              {params.value}
+            </span>
+          </div>
+        );
       },
-      {
-        srno:"2",
-        id: 2,
-        shiftlist:"Night Shift",
-        status: "Active",
+      flex: 1,
+    },
+    {
+      field: "status",
+      headerName: "Status",
+      flex: 1,
+      cellRenderer: (params) => {
+        const status = params.value ? "Active" : "Inactive"; // Map boolean to string status
+        const statusColorMap = {
+          Inactive: { backgroundColor: "#FFECC5", color: "#CC8400" }, // Light orange bg, dark orange font
+          Active: { backgroundColor: "#90EE90", color: "#006400" }, // Light green bg, dark green font
+        };
+
+        const { backgroundColor, color } = statusColorMap[status] || {
+          backgroundColor: "gray",
+          color: "white",
+        };
+
+        return (
+          <Chip
+            label={status}
+            style={{
+              backgroundColor,
+              color,
+            }}
+          />
+        );
       },
-      {
-        srno:"3",
-        id: 3,
-        shiftlist:"Afternoon Shift",
-        status: "Inactive",
-      },
-      {
-        srno:"4",
-        id: 4,
-        shiftlist:"Evening Shift",
-        status: "Active",
-      },
-      
-    ];
+    },
+  ];
   return (
     <div>
       <AgTable
@@ -97,16 +113,82 @@ const Shifts = () => {
         searchColumn={"Shifts"}
         tableTitle={"Shift List"}
         buttonTitle={"Add Shift List"}
+        handleClick={() => setOpenModal(true)}
         data={[
           ...shifts.map((shift, index) => ({
             id: index + 1, // Auto-increment Sr No
             shift: shift.name,
-            status:shift.isActive
-            ,
+            status: shift.isActive,
           })),
         ]}
         columns={departmentsColumn}
       />
+
+      <div>
+        <MuiModal open={openModal} onClose={() => setOpenModal(false)}>
+          <div>
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="flex flex-col gap-4"
+            >
+              <Controller
+                name="shiftName"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    size="small"
+                    fullWidth
+                    label={"Shift Name"}
+                  />
+                )}
+              />
+
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <Controller
+                  name="startTime"
+                  control={control}
+                  render={({ field }) => (
+                    <TimePicker
+                      {...field}
+                      slotProps={{ textField: { size: "small" } }}
+                      label={"Select Start Time"}
+                      render={(params) => (
+                        <TextField size="small" {...params} fullWidth />
+                      )}
+                    />
+                  )}
+                />
+              </LocalizationProvider>
+
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <Controller
+                  name="endTime"
+                  control={control}
+                  render={({ field }) => (
+                    <TimePicker
+                      {...field}
+                      label={"Select End Time"}
+                      slotProps={{ textField: { size: "small" } }}
+                      renderInput={(params) => (
+                        <TextField {...params} size="small" fullWidth />
+                      )}
+                    />
+                  )}
+                />
+              </LocalizationProvider>
+
+              <div className="flex items-center justify-center gap-4">
+                <SecondaryButton
+                  title={"Cancel"}
+                  handleSubmit={() => setOpenModal(false)}
+                />
+                <PrimaryButton title={"Add Shift"} type={"submit"} />
+              </div>
+            </form>
+          </div>
+        </MuiModal>
+      </div>
     </div>
   );
 };
