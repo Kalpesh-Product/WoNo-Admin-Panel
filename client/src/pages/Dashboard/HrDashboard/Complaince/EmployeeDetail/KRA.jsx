@@ -47,6 +47,7 @@ const KRA = () => {
       <div>
         <AgTable
           search={true}
+          buttonTitle={"Add KRA"}
           searchColumn={"kra"}
           tableTitle={"Aiwin's KRA List"}
           data={rows}
