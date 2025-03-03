@@ -162,10 +162,13 @@ const createProject = async (req, res, next) => {
 const getProjects = async (req, res, next) => {
   try {
     const { company } = req;
- 
+
     // Fetch all tasks along with project and assignee details
     const tasks = await Task.find({ company })
-      .populate("project", "projectName priority assignedDate dueDate status")
+      .populate(
+        "project",
+        "projectName priority assignedDate assignedBy dueDate status"
+      )
       .populate("assignedTo", "firstName")
       .lean();
 
@@ -185,6 +188,7 @@ const getProjects = async (req, res, next) => {
           deadline: formatWithOrdinal(project.dueDate),
           status: project.status,
           assignees: {},
+          assignedBy: project.assignedBy,
         });
       }
 
@@ -224,7 +228,7 @@ const updateProject = async (req, res, next) => {
 
   try {
     const { id } = req.params;
- 
+
     const {
       projectName,
       description,

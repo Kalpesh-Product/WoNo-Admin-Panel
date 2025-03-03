@@ -177,7 +177,7 @@ const fetchAllLeaves = async (req, res, next) => {
   }
 };
 
-const fetchLeavesBeforeToday = async (req, res, next) => {
+const fetchPastLeaves = async (req, res, next) => {
   try {
     const user = req.userData.userId;
     const today = new Date();
@@ -193,6 +193,27 @@ const fetchLeavesBeforeToday = async (req, res, next) => {
     }
 
     return res.status(200).json(leavesBeforeToday);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const fetchUserLeaves = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const user = await UserData.findOne({ empId: id });
+    const leaves = await Leave.find({
+      takenBy: user._id,
+    });
+
+    if (!leaves) {
+      return res.status(204).json({ message: "No leaves found" });
+    }
+
+    return res.status(200).json(leaves);
   } catch (error) {
     next(error);
   }
@@ -364,7 +385,8 @@ const bulkInsertLeaves = async (req, res, next) => {
 module.exports = {
   requestLeave,
   fetchAllLeaves,
-  fetchLeavesBeforeToday,
+  fetchPastLeaves,
+  fetchUserLeaves,
   approveLeave,
   rejectLeave,
 };

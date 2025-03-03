@@ -4,6 +4,8 @@ const {
   fetchLeavesBeforeToday,
   approveLeave,
   rejectLeave,
+  fetchPastLeaves,
+  fetchUserLeaves,
 } = require("../controllers/leavesControllers/leavesControllers");
 const {
   createLeaveType,
@@ -15,7 +17,8 @@ const router = require("express").Router();
 
 router.post("/request-leave", requestLeave);
 router.get("/view-all-leaves", fetchAllLeaves);
-router.get("/view-all-leaves-before-today", fetchLeavesBeforeToday);
+router.get("/view-past-leaves", fetchPastLeaves);
+router.get("/view-leaves/:id", fetchUserLeaves);
 router.put("/approve-leave/:id", approveLeave);
 router.put("/reject-leave/:id", rejectLeave);
 router.post("/create-leave-type", createLeaveType);

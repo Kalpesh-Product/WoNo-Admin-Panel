@@ -35,6 +35,16 @@ const formatTime = (timestamp) => {
   return format(new Date(timestamp), "hh:mm a");
 };
 
+// const formatTime = (timestamp) => {
+//   if (!timestamp) return "N/A";
+
+//   return new Date(timestamp).toLocaleTimeString([], {
+//     hour: "2-digit",
+//     minute: "2-digit",
+//     hour12: true,
+//   });
+// };
+
 const formatDuration = (startTime, endTime) => {
   if (!startTime || !endTime) return "N/A";
 

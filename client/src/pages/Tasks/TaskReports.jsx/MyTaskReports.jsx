@@ -117,7 +117,7 @@ const MyTaskReports = () => {
           data={isLoading? []:[...taskList.map((task, index)=>({
             id : index + 1,
             task:task.taskName,
-            project : task.project.projectName,
+            project : task.project?.projectName,
             assignedBy : task.assignedBy.firstName,
             priority : task.priority,
             startDate : task.assignedDate,

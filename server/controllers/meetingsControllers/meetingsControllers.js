@@ -246,23 +246,14 @@ const addMeetings = async (req, res, next) => {
 
 const getMeetings = async (req, res, next) => {
   try {
-    const company = req.userData.company;
-    const user = req.userData.userId;
+    const { user, company } = req;
 
-    const meetings = await Meeting.find({ company }).populate([
-      {
-        path: "bookedBy",
-        select: "name departments",
-      },
-      {
-        path: "bookedRoom",
-        select: "name location housekeepingStatus",
-      },
-      {
-        path: "internalParticipants",
-        select: "name",
-      },
-    ]);
+    const meetings = await Meeting.find({
+      company,
+    })
+      .populate("bookedRoom", "name location housekeepingStatus")
+      .populate("bookedBy", "firstName lastName email")
+      .populate("internalParticipants", "firstName lastName email");
 
     const departments = await User.findById({ _id: user }).select(
       "departments"
@@ -273,8 +264,8 @@ const getMeetings = async (req, res, next) => {
     });
 
     const internalParticipants = meetings.map((meeting) => {
-      if (!Array.isArray(meeting.internalParticipants)) {
-        return [];
+      if (meeting.internalParticipants.length === 0) {
+        return;
       }
 
       return meetings.map((meeting) =>
@@ -318,7 +309,7 @@ const getMeetings = async (req, res, next) => {
     const transformedMeetings = meetings.map((meeting, index) => {
       return {
         _id: meeting._id,
-        name: meeting.bookedBy.name,
+        name: meeting.bookedBy?.name,
         department: department.name,
         roomName: meeting.bookedRoom.name,
         roomStatus: meeting.bookedRoom.location.status,
@@ -335,8 +326,12 @@ const getMeetings = async (req, res, next) => {
         agenda: meeting.agenda,
         subject: meeting.subject,
         housekeepingChecklist: [...(meeting.housekeepingChecklist ?? [])],
-        internalParticipants: internalParticipants[index],
-        externalParticipants: meeting.externalParticipants,
+        // internalParticipants: internalParticipants[index],
+        // externalParticipants: meeting.externalParticipants,
+        participants:
+          meeting.externalParticipants.length > 0
+            ? meeting.externalParticipants
+            : internalParticipants[index],
         company: meeting.company,
       };
     });

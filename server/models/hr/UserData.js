@@ -3,18 +3,15 @@ const mongoose = require("mongoose");
 const userDataSchema = new mongoose.Schema({
   empId: {
     type: String,
-    required: true,
   },
   firstName: {
     type: String,
-    required: true,
   },
   middleName: {
     type: String,
   },
   lastName: {
     type: String,
-    required: true,
   },
   gender: {
     type: String,
@@ -22,7 +19,6 @@ const userDataSchema = new mongoose.Schema({
   },
   dateOfBirth: {
     type: Date,
-    required: true,
   },
   phone: {
     type: String,
@@ -31,13 +27,11 @@ const userDataSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: true,
     unique: true,
   },
   company: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Company",
-    required: true,
   },
   departments: [
     {
@@ -82,19 +76,17 @@ const userDataSchema = new mongoose.Schema({
   },
   startDate: {
     type: Date,
-    required: true,
   },
   workLocation: {
     type: String,
-    required: true,
   },
   reportsTo: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Role",
   },
   refreshToken: String,
+  dateOfExit: Date,
 
-  // New fields added
   policies: {
     shift: { type: String, required: true },
     workSchedulePolicy: { type: String, required: true },
@@ -136,6 +128,10 @@ const userDataSchema = new mongoose.Schema({
     fatherName: { type: String },
     motherName: { type: String },
     maritalStatus: { type: String },
+  },
+  isActive: {
+    type: Boolean,
+    default: false,
   },
 });
 

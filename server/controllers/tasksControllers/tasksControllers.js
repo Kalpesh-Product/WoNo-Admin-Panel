@@ -236,6 +236,41 @@ const updateTask = async (req, res, next) => {
   }
 };
 
+const getAllTasks = async (req, res, next) => {
+  try {
+    const { company } = req;
+
+    const tasks = await Task.find({
+      company,
+    })
+      .populate({
+        path: "project",
+        select: "projectName department",
+        populate: {
+          path: "department",
+          select: "name",
+        },
+      })
+      .populate("assignedBy", "firstName lastName")
+      .populate("assignedTo", "firstName lastName")
+      .select("-company")
+      .lean();
+
+    const transformedTasks = tasks.map((task) => {
+      return {
+        ...task,
+        dueDate: formatDate(task.dueDate),
+        dueTime: task.dueTime ? formatTime(task.dueTime) : null,
+        assignedDate: formatDate(task.assignedDate),
+      };
+    });
+
+    return res.status(200).json(transformedTasks);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getMyTasks = async (req, res, next) => {
   try {
     const { user, company } = req;
@@ -303,7 +338,10 @@ const getMyTodayTasks = async (req, res, next) => {
     const transformedTasks = tasks.map((task) => {
       return {
         ...task,
-        dueDate: formatDate(task.dueDate),
+        task: task.taskName,
+        type: task.taskType,
+        dueTime: formatTime(task.dueTime),
+        dueDate: formatTime(task.dueDate),
         assignedDate: formatDate(task.assignedDate),
       };
     });
@@ -318,7 +356,7 @@ const getTeamMembersTasksProjects = async (req, res, next) => {
   try {
     const { company, departments } = req;
 
-    //Find team members
+    // Find team members
     const teamMembers = await User.find({
       departments: { $in: departments },
     });
@@ -330,7 +368,10 @@ const getTeamMembersTasksProjects = async (req, res, next) => {
         // Fetch tasks assigned to the team member
         const tasks = await Task.find({
           company,
-          assignedTo: { $in: [id] },
+          $and: [
+            { assignedTo: { $in: [id] } }, // User must be in assignedTo
+            { assignedBy: { $ne: id } }, // User must NOT be assignedBy
+          ],
         })
           .populate({
             path: "assignedTo",
@@ -365,25 +406,32 @@ const getTeamMembersTasksProjects = async (req, res, next) => {
               email: matchedUser.email,
               name: `${matchedUser.firstName} ${matchedUser.lastName}`,
               role:
-                matchedUser.role?.map((role) => role.roleTitle) ||
-                [] ||
-                "No Role", // Extract role title
+                Array.isArray(matchedUser.role) && matchedUser.role.length
+                  ? matchedUser.role.map((role) => role.roleTitle)
+                  : ["No Role"],
               departments:
-                matchedUser.departments?.map((dept) => dept.name) || [], // Extract department names
+                matchedUser.departments?.map((dept) => dept.name) || [],
               status: matchedUser.status || "Active",
             };
           }
         }
 
-        return {
-          ...userDetails,
-          tasksCount: tasks.length,
-          projectsCount: projects.length,
-        };
+        if (tasks.length > 0) {
+          return {
+            ...userDetails,
+            tasksCount: tasks.length,
+            projectsCount: projects.length || null,
+          };
+        }
+
+        return null; // Return null for users with no tasks
       })
     );
 
-    return res.status(200).json(teamMembersData.slice(1));
+    // Filter out null elements (users with 0 tasks)
+    const filteredData = teamMembersData.filter((member) => member !== null);
+
+    return res.status(200).json(filteredData);
   } catch (error) {
     next(error);
   }
@@ -415,6 +463,56 @@ const getAssignedTasks = async (req, res, next) => {
     return res.status(200).json(transformedTasks);
   } catch (error) {
     next(error);
+  }
+};
+
+const completeTasks = async (req, res, next) => {
+  const { company, user, ip } = req;
+  const logPath = "tasks/TaskLog";
+  const logAction = "Update Task Status";
+  const logSourceKey = "task";
+
+  try {
+    const { taskIds } = req.body;
+
+    if (!taskIds) {
+      throw new CustomError("Missing tasks", logPath, logAction, logSourceKey);
+    }
+
+    const taskList = await Task.updateMany(
+      { _id: { $in: taskIds }, company },
+      { status: "Completed" },
+      { new: true }
+    );
+
+    if (!taskList) {
+      throw new CustomError(
+        "Failed to update the task status",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    // Log the successful deletion
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Task status updated successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: taskList._id,
+      changes: { taskList: true },
+    });
+
+    return res
+      .status(200)
+      .json({ message: "Task status updated successfully" });
+  } catch (error) {
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
@@ -475,7 +573,9 @@ module.exports = {
   updateTask,
   getMyTasks,
   getMyTodayTasks,
+  getAllTasks,
   getTeamMembersTasksProjects,
   getAssignedTasks,
+  completeTasks,
   deleteTask,
 };
