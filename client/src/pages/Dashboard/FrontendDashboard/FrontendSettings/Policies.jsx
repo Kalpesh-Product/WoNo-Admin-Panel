@@ -1,20 +1,18 @@
 import { IoMdDownload } from "react-icons/io";
 import { MdUpload } from "react-icons/md";
 
-const BulkUpload = () => {
+const Policies = () => {
   const uploadItems = [
-    "Upload Budget",
-    "Upload Budget",
-    "Upload Budget",
-    "Upload Budget",
-    "Upload Budget",
-    "Upload Budget",
+    "Upload Policies",
+    "Upload Policies",
+    "Upload Policies",
+    "Upload Policies",
+    "Upload Policies",
+    "Upload Policies",
   ];
   return (
     <div className="p-4">
-      <h2 class="text-title font-pmedium text-primary pb-4">
-        Bulk Upload Data
-      </h2>
+      <h2 class="text-title font-pmedium text-primary pb-4">Upload Policies</h2>
 
       <div className="grid lg:grid-cols-3 md:grid-col-3 sm:grid-col-1">
         {uploadItems.map((index, item) => {
@@ -49,4 +47,4 @@ const BulkUpload = () => {
   );
 };
 
-export default BulkUpload;
+export default Policies;
