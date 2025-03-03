@@ -466,6 +466,56 @@ const getAssignedTasks = async (req, res, next) => {
   }
 };
 
+const completeTasks = async (req, res, next) => {
+  const { company, user, ip } = req;
+  const logPath = "tasks/TaskLog";
+  const logAction = "Update Task Status";
+  const logSourceKey = "task";
+
+  try {
+    const { taskIds } = req.body;
+
+    if (!taskIds) {
+      throw new CustomError("Missing tasks", logPath, logAction, logSourceKey);
+    }
+
+    const taskList = await Task.updateMany(
+      { _id: { $in: taskIds }, company },
+      { status: "Completed" },
+      { new: true }
+    );
+
+    if (!taskList) {
+      throw new CustomError(
+        "Failed to update the task status",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    // Log the successful deletion
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Task status updated successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: taskList._id,
+      changes: { taskList: true },
+    });
+
+    return res
+      .status(200)
+      .json({ message: "Task status updated successfully" });
+  } catch (error) {
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+  }
+};
+
 const deleteTask = async (req, res, next) => {
   const { company, user, ip } = req;
   const logPath = "tasks/TaskLog";
@@ -526,5 +576,6 @@ module.exports = {
   getAllTasks,
   getTeamMembersTasksProjects,
   getAssignedTasks,
+  completeTasks,
   deleteTask,
 };

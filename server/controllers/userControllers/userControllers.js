@@ -370,11 +370,11 @@ const fetchUser = async (req, res, next) => {
 
 const fetchSingleUser = async (req, res) => {
   try {
-    const { id } = req.params;
-    const user = await User.findOne({ empId: id })
+    const { empid } = req.params;
+    const user = await User.findOne({ empId: empid })
       .select("-password")
       .populate([
-        { path: "reportsTo", select: "firstName lastName" },
+        { path: "reportsTo" },
         { path: "departments", select: "name" },
         { path: "company", select: "name" },
         { path: "role", select: "roleTitle modulePermissions" },
@@ -386,7 +386,10 @@ const fetchSingleUser = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // **Transform Data to Match DefaultValues Structure**
+    const reportsTo = await User.find({
+      role: { $in: [user.reportsTo] },
+    }).select("firstName lastName");
+
     const formattedUser = {
       firstName: user.firstName || "",
       middleName: user.middleName || "",
@@ -397,15 +400,16 @@ const fetchSingleUser = async (req, res) => {
       mobilePhone: user.phone || "",
       startDate: user.startDate ? formatDate(user.startDate) : "",
       workLocation: user.workLocation || "",
-      employeeType: user.employeeType?.name || "", // Extract `name`
-      department: user.departments?.[0]?.name || "", // Handle array safely
-      reportsTo: user.reportsTo
-        ? `${user.reportsTo.firstName || ""} ${
-            user.reportsTo.lastName || ""
-          }`.trim()
-        : "",
+      employeeType: user.employeeType?.name || "",
+      department: user.departments?.[0]?.name || "",
+      reportsTo:
+        reportsTo.length > 0
+          ? reportsTo.map((user) =>
+              `${user.firstName || ""} ${user.lastName || ""}`.trim()
+            )
+          : "",
       jobTitle: user.designation || "",
-      jobDescription: "", // No direct mapping, you may adjust
+      jobDescription: "",
       shift: user.policies?.shift || "",
       workSchedulePolicy: user.policies?.workSchedulePolicy || "",
       attendanceSource: user.policies?.attendanceSource || "",
@@ -413,7 +417,7 @@ const fetchSingleUser = async (req, res) => {
       holidayPolicy: user.policies?.holidayPolicy || "",
       aadharID: user.panAadhaarDetails?.aadhaarId || "",
       pan: user.panAadhaarDetails?.pan || "",
-      pfAcNo: user.panAadhaarDetails?.pfAccountNumber || "",
+      pFAcNo: user.panAadhaarDetails?.pfAccountNumber || "",
       addressLine1: user.homeAddress?.addressLine1 || "",
       addressLine2: user.homeAddress?.addressLine2 || "",
       state: user.homeAddress?.state || "",
@@ -422,18 +426,17 @@ const fetchSingleUser = async (req, res) => {
       includeInPayroll: user.payrollInformation?.includeInPayroll
         ? "Yes"
         : "No",
-      payrollBatch: "", // No direct mapping
-      professionTaxExemption: user.payrollInformation?.professionTaxExemption
+      payrollBatch: "",
+      professionalTaxExemption: user.payrollInformation?.professionTaxExemption
         ? "Yes"
         : "No",
       includePF: user.payrollInformation?.includePF ? "Yes" : "No",
-      pfContributionRate: user.payrollInformation?.pfContributionRate || "",
+      pFContributionRate: user.payrollInformation?.pfContributionRate || "",
       employeePF: user.payrollInformation?.employeePF || "",
     };
 
     res.status(200).json(formattedUser);
   } catch (error) {
-    console.error("Error fetching user by ID: ", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -445,7 +448,7 @@ const updateSingleUser = async (req, res, next) => {
   const logSourceKey = "user";
 
   try {
-    const { id } = req.params;
+    const { empid } = req.params;
     const updateData = req.body;
 
     // Allowed top-level fields according to new schema
@@ -529,7 +532,7 @@ const updateSingleUser = async (req, res, next) => {
 
     // Perform the update operation
     const updatedUser = await User.findByIdAndUpdate(
-      id,
+      empid,
       { $set: filteredUpdateData },
       { new: true, runValidators: true }
     )

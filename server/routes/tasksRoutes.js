@@ -16,6 +16,7 @@ const {
   getTeamMembersTasksProjects,
   getAssignedTasks,
   getAllTasks,
+  completeTasks,
 } = require("../controllers/tasksControllers/tasksControllers");
 
 router.post("/create-project", createProject);
@@ -30,6 +31,7 @@ router.get("/get-team-tasks-projects", getTeamMembersTasksProjects);
 router.get("/get-today-tasks", getMyTodayTasks);
 router.get("/get-assigned-tasks", getAssignedTasks);
 router.patch("/update-task/:id", updateTask);
+router.patch("/complete-tasks/", completeTasks);
 router.patch("/delete-task/:id", deleteTask);
 
 module.exports = router;
