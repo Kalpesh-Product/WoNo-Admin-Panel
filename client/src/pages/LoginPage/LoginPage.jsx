@@ -48,7 +48,6 @@ const LoginPage = () => {
         };
       });
       toast.success("Successfully logged in");
-      navigate('/app/dashboard/frontend-dashboard');
     } catch (error) {
       toast.error(error.response?.data.message);
     }

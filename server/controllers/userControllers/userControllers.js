@@ -8,20 +8,26 @@ const { createLog } = require("../../utils/moduleLogs");
 const csvParser = require("csv-parser");
 const { Readable } = require("stream");
 const { formatDate } = require("../../utils/formatDateTime");
+const CustomError = require("../../utils/customErrorlogs");
 
 const createUser = async (req, res, next) => {
   const logPath = "hr/HrLog";
   const logAction = "Create User";
   const logSourceKey = "user";
-  const { user, ip, company } = req;
+  const { user } = req;
+  const company = req.company;
+  const ip = req.ip;
 
   try {
     const {
       empId,
-      name,
+      firstName,
+      middleName,
+      lastName,
       gender,
-      email,
+      dateOfBirth,
       phone,
+      email,
       role,
       companyId,
       departments,
@@ -31,23 +37,20 @@ const createUser = async (req, res, next) => {
     // Validate required fields
     if (
       !empId ||
-      !name ||
+      !firstName ||
+      !lastName ||
       !email ||
       !phone ||
       !companyId ||
       !employeeType ||
       !departments
     ) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Missing required fields",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(400).json({ message: "Missing required fields" });
     }
 
     // Validate departments: check for any invalid department IDs
@@ -55,18 +58,12 @@ const createUser = async (req, res, next) => {
       (id) => !mongoose.Types.ObjectId.isValid(id)
     );
     if (invalidDepartmentIds.length > 0) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Invalid department ID provided",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res
-        .status(400)
-        .json({ message: "Invalid department Id provided" });
     }
 
     const departmentExists = await Department.find({
@@ -75,16 +72,12 @@ const createUser = async (req, res, next) => {
       .lean()
       .exec();
     if (!departmentExists || departmentExists.length === 0) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Department not found",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(404).json({ message: "Department not found" });
     }
 
     // Check if company exists
@@ -92,50 +85,36 @@ const createUser = async (req, res, next) => {
       .lean()
       .exec();
     if (!companyExists) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Company not found",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(404).json({ message: "Company not found" });
     }
 
     // Check if the employee ID or email is already registered
     const existingUser = await User.findOne({
-      $or: [{ company, empId }, { email }],
+      $or: [{ company: company, empId }, { email }],
     }).exec();
     if (existingUser) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Employee ID or email already exists",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res
-        .status(409)
-        .json({ message: "Employee ID or email already exists" });
     }
 
     // Check role validity
     const roleValue = await Role.findOne({ _id: role }).lean().exec();
     if (!roleValue) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Invalid role provided",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(400).json({ message: "Invalid role provided" });
     }
 
     // Master Admin check: only one Master Admin allowed per company
@@ -149,21 +128,16 @@ const createUser = async (req, res, next) => {
         doesMasterAdminExist &&
         doesMasterAdminExist.company.toString() === companyId
       ) {
-        await createLog(
-          path,
-          action,
+        throw new CustomError(
           "A master admin already exists",
-          "Failed",
-          user,
-          ip,
-          company
+          logPath,
+          logAction,
+          logSourceKey
         );
-        return res
-          .status(400)
-          .json({ message: "A master admin already exists" });
       }
     }
 
+    // Hash the default password (note: use a more secure default in production)
     const defaultPassword = "123456";
     const hashedPassword = await bcrypt.hash(defaultPassword, 10);
 
@@ -185,17 +159,18 @@ const createUser = async (req, res, next) => {
 
     const savedUser = await newUser.save();
 
-    // Success log for user creation
-    await createLog(
-      path,
-      action,
-      "User created successfully",
-      "Success",
-      user,
-      ip,
-      company,
-      savedUser._id,
-      {
+    // Log the successful creation of the user
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "User created successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: savedUser._id,
+      changes: {
         empId: savedUser.empId,
         firstName: savedUser.firstName,
         lastName: savedUser.lastName,
@@ -203,22 +178,11 @@ const createUser = async (req, res, next) => {
         phone: savedUser.phone,
         role: savedUser.role,
         companyId: savedUser.company,
-      }
-    );
+      },
+    });
 
     return res.status(201).json({
       message: "User created successfully",
-      user: {
-        id: savedUser._id,
-        empId: savedUser.empId,
-        firstName: savedUser.firstName,
-        middleName: savedUser.middleName,
-        lastName: savedUser.lastName,
-        email: savedUser.email,
-        phone: savedUser.phone,
-        companyId: savedUser.company,
-        role: savedUser.role,
-      },
     });
   } catch (error) {
     next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
@@ -518,16 +482,12 @@ const updateSingleUser = async (req, res, next) => {
 
     // If there's nothing to update, throw error
     if (Object.keys(filteredUpdateData).length === 0) {
-      await createLog(
+      throw new CustomError(
+        "No valid fields to update",
         logPath,
         logAction,
-        "No valid fields to update",
-        "Failed",
-        user,
-        ip,
-        company
+        logSourceKey
       );
-      return res.status(400).json({ message: "No valid fields to update" });
     }
 
     // Perform the update operation
@@ -543,45 +503,28 @@ const updateSingleUser = async (req, res, next) => {
       .populate("role", "roleTitle modulePermissions");
 
     if (!updatedUser) {
-      await createLog(
-        logPath,
-        logAction,
-        "User not found",
-        "Failed",
-        user,
-        ip,
-        company
-      );
-      return res.status(404).json({ message: "User not found" });
+      throw new CustomError("User not found", logPath, logAction, logSourceKey);
     }
 
-    await createLog(
-      logPath,
-      logAction,
-      "User data updated successfully",
-      "Success",
-      user,
-      ip,
-      company,
-      updatedUser._id,
-      filteredUpdateData
-    );
+    // Log success for user update
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "User data updated successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: updatedUser._id,
+      changes: filteredUpdateData,
+    });
 
     return res.status(200).json({
       message: "User data updated successfully",
     });
   } catch (error) {
-    await createLog(
-      logPath,
-      logAction,
-      "Error updating user",
-      "Failed",
-      user,
-      ip,
-      company,
-      { error: error.message }
-    );
-    return res.status(500).json({ message: "Internal server error" });
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
@@ -656,6 +599,7 @@ const bulkInsertUsers = async (req, res, next) => {
             email: row["Company Email"],
             company: new mongoose.Types.ObjectId(companyId),
             password: hashedPassword,
+            isActive: Boolean(row["isActive"]) || false,
 
             departments: departmentObjectIds,
             role: roleObjectIds,
@@ -721,7 +665,7 @@ const bulkInsertUsers = async (req, res, next) => {
 
           newUsers.push(user);
         } catch (error) {
-          console.error("Error processing row:", row, error);
+          next(error);
         }
       })
       .on("end", async () => {

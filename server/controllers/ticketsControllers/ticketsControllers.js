@@ -12,6 +12,7 @@ const {
 const Company = require("../../models/hr/Company");
 const { createLog } = require("../../utils/moduleLogs");
 const CustomError = require("../../utils/customErrorlogs");
+const Ticket = require("../../models/tickets/Tickets");
 
 const raiseTicket = async (req, res, next) => {
   const logPath = "tickets/TicketLog";
@@ -631,6 +632,31 @@ const closeTicket = async (req, res, next) => {
   }
 };
 
+const fetchSingleUserTickets = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { company } = req;
+
+    const tickets = await Ticket.find({
+      company,
+      $or: [
+        { assignees: { $in: [new mongoose.Types.ObjectId(id)] } },
+        { accepted: new mongoose.Types.ObjectId(id) },
+        { raisedBy: new mongoose.Types.ObjectId(id) },
+      ],
+    });
+
+    if (!tickets?.length) {
+      return res.status(400).json({ message: "No tickets found" });
+    }
+
+    return res.status(200).json(tickets);
+  } catch (error) {
+    next(error);
+  }
+};
+
+//Fetch assigned, accepted, escalated, supported, closed tickets of the department
 const fetchFilteredTickets = async (req, res, next) => {
   try {
     const { user } = req;
@@ -702,4 +728,5 @@ module.exports = {
   escalateTicket,
   closeTicket,
   fetchFilteredTickets,
+  fetchSingleUserTickets,
 };

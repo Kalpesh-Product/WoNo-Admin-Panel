@@ -369,14 +369,60 @@ const bulkInsertLeaves = async (req, res, next) => {
     if (!file) {
       return res
         .status(400)
-        .json({ message: "Please provide a valid csv file" });
+        .json({ message: "Please provide a valid CSV file" });
     }
 
     const { company } = req;
-    const foundCompany = Company.findOne({ _id: company }).lean().exec();
+    const foundCompany = await Company.findById(company).lean();
     if (!foundCompany) {
       return res.status(400).json({ message: "No such company is registered" });
     }
+
+    const users = await UserData.find({ company }).lean();
+    const usersMap = new Map(users.map((user) => [user.empId, user._id]));
+
+    const leaves = [];
+    const stream = Readable.from(file.buffer.toString("utf-8")).pipe(
+      csvParser()
+    );
+
+    stream.on("data", (row) => {
+      const takenById = usersMap.get(row["takenBy(emp ID)"]);
+      const approvedById = row["approvedBy (Emp ID)"]
+        ? usersMap.get(row["approvedBy (Emp ID)"])
+        : null;
+      const rejectedById = row["rejectedBy (Emp ID)"]
+        ? usersMap.get(row["rejectedBy (Emp ID)"])
+        : null;
+
+      if (takenById) {
+        leaves.push({
+          company: company,
+          takenBy: takenById,
+          fromDate: new Date(row["fromDate"]),
+          toDate: new Date(row["toDate"]),
+          leaveType: row["leaveType"],
+          leavePeriod: row["leavePeriod"],
+          hours: Number(row["hours"]),
+          description: row["description"],
+          status: row["status"] || "Pending",
+          approvedBy: approvedById,
+          rejectedBy: rejectedById,
+        });
+      }
+    });
+
+    stream.on("end", async () => {
+      if (leaves.length > 0) {
+        await Leave.insertMany(leaves);
+        res.status(201).json({
+          message: "Leaves inserted successfully",
+          count: leaves.length,
+        });
+      } else {
+        res.status(400).json({ message: "No valid leave records found" });
+      }
+    });
   } catch (error) {
     next(error);
   }
@@ -389,4 +435,5 @@ module.exports = {
   fetchUserLeaves,
   approveLeave,
   rejectLeave,
+  bulkInsertLeaves,
 };

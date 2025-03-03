@@ -2,14 +2,13 @@ const mongoose = require("mongoose");
 
 const roleSchema = new mongoose.Schema({
   roleTitle: {
-    type: String, 
+    type: String,
     required: true,
   },
   roleID: {
-    type: String, 
-   },
+    type: String,
+  },
 });
-
 
 const Role = mongoose.model("Role", roleSchema);
 
