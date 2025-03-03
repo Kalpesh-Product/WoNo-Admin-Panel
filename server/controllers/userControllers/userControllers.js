@@ -482,16 +482,12 @@ const updateSingleUser = async (req, res, next) => {
 
     // If there's nothing to update, throw error
     if (Object.keys(filteredUpdateData).length === 0) {
-      await createLog(
+      throw new CustomError(
+        "No valid fields to update",
         logPath,
         logAction,
-        "No valid fields to update",
-        "Failed",
-        user,
-        ip,
-        company
+        logSourceKey
       );
-      return res.status(400).json({ message: "No valid fields to update" });
     }
 
     // Perform the update operation
@@ -507,45 +503,28 @@ const updateSingleUser = async (req, res, next) => {
       .populate("role", "roleTitle modulePermissions");
 
     if (!updatedUser) {
-      await createLog(
-        logPath,
-        logAction,
-        "User not found",
-        "Failed",
-        user,
-        ip,
-        company
-      );
-      return res.status(404).json({ message: "User not found" });
+      throw new CustomError("User not found", logPath, logAction, logSourceKey);
     }
 
-    await createLog(
-      logPath,
-      logAction,
-      "User data updated successfully",
-      "Success",
-      user,
-      ip,
-      company,
-      updatedUser._id,
-      filteredUpdateData
-    );
+    // Log success for user update
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "User data updated successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: updatedUser._id,
+      changes: filteredUpdateData,
+    });
 
     return res.status(200).json({
       message: "User data updated successfully",
     });
   } catch (error) {
-    await createLog(
-      logPath,
-      logAction,
-      "Error updating user",
-      "Failed",
-      user,
-      ip,
-      company,
-      { error: error.message }
-    );
-    return res.status(500).json({ message: "Internal server error" });
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
 
