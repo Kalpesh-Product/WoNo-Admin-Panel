@@ -14,7 +14,7 @@ const formatWithOrdinal = (date) => {
     day: "numeric",
     month: "short",
     year: "numeric",
-  }).format(new Date(date));
+  }).format(d);
 };
 
 // Function to add ordinal suffix (st, nd, rd, th)
