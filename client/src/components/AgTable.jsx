@@ -275,6 +275,11 @@ const AgTable = React.memo(
             onSelectionChanged={handleSelectionChanged}
             getRowStyle={getRowStyle}
             className="font-pregular"
+            // domLayout="autoHeight" //
+            rowBuffer={10} // ✅ Defines how many extra rows to render outside viewport
+            cacheBlockSize={paginationPageSize} // ✅ Controls how many rows to fetch per block
+            suppressRowVirtualization={false} // ✅ Ensures row virtualization is active
+            suppressColumnVirtualisation={false} // ✅ Ensures column virtualization is active
           />
         </div>
 
