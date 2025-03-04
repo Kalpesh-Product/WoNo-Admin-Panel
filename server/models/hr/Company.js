@@ -158,15 +158,19 @@ const companySchema = new mongoose.Schema({
   ],
   workLocations: [
     {
-      name: {
+      buildingName: {
         type: String,
       },
-      fullAddress: String,
-      unitNo: String,
+      floor: String,
       isActive: {
         type: Boolean,
         default: true,
       },
+      image: {
+        id: String,
+        url: String,
+      },
+      wing: String,
     },
   ],
   leaveTypes: [
