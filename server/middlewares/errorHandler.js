@@ -21,16 +21,20 @@ const errorHandler = async (err, req, res, next) => {
   const remarks = err.message;
 
   if (req.method !== "GET") {
-    await createLog({
-      path,
-      action,
-      remarks,
-      user,
-      ip,
-      company,
-      sourceKey,
-      sourceId,
-    });
+    try {
+      await createLog({
+        path,
+        action,
+        remarks,
+        user,
+        ip,
+        company,
+        sourceKey,
+        sourceId,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
   }
 
   res.status(statusCode).json({ message });
