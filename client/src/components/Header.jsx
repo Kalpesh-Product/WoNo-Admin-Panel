@@ -27,6 +27,7 @@ import { FaUserTie } from "react-icons/fa6";
 import { FiLogOut } from "react-icons/fi";
 
 const Header = () => {
+  const [isHovered, setIsHovered] = useState(false);
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
   const navigate = useNavigate();
   const { auth } = useAuth(); // Assuming signOut is a method from useAuth()
@@ -70,7 +71,8 @@ const Header = () => {
               />
               <button
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="p-2 text-gray-500 text-xl">
+                className="p-2 text-gray-500 text-xl"
+              >
                 {isSidebarOpen ? <GiHamburgerMenu /> : <IoIosArrowForward />}
               </button>
             </div>
@@ -111,9 +113,24 @@ const Header = () => {
               auth.user.firstName.charAt(0)
             )}
           </Avatar>
-          <div className="w-full">
+          <div
+            className="w-full relative"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
             <h1 className="text-xl font-semibold">{auth.user.firstName}</h1>
-            <span className="text-content">{auth.user.designation}</span>
+            <span className="text-content">
+              {auth.user.designation.split(" ").length > 3
+                ? auth.user.designation.split(" ").slice(0, 3).join(" ") + "..."
+                : auth.user.designation}
+            </span>
+            {isHovered ? (
+              <div className="motion-preset-slide-up-sm absolute top-14 right-0 bg-white border-default border-primary rounded-md p-4 w-96">
+                <span>{auth.user.designation}</span>
+              </div>
+            ) : (
+              ""
+            )}
           </div>
         </div>
       </div>
@@ -131,14 +148,16 @@ const Header = () => {
         transformOrigin={{
           vertical: "top",
           horizontal: "center",
-        }}>
+        }}
+      >
         <div className="p-4 w-48">
           <List>
             {/* Profile Option */}
             <ListItem
               button
               onClick={handleProfileClick}
-              className="hover:text-primary transition-all duration-100 text-gray-500">
+              className="hover:text-primary transition-all duration-100 text-gray-500"
+            >
               <ListItemIcon>
                 <FaUserTie className="text-gray-500" />
               </ListItemIcon>
@@ -151,7 +170,8 @@ const Header = () => {
             <ListItem
               button
               onClick={handleSignOut}
-              className="hover:text-red-600 transition-all duration-100 text-gray-500">
+              className="hover:text-red-600 transition-all duration-100 text-gray-500"
+            >
               <ListItemIcon>
                 <FiLogOut className="text-gray-500" />
               </ListItemIcon>
