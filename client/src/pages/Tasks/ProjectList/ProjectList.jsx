@@ -165,7 +165,7 @@ const ProjectList = () => {
       status: "",
     },
   });
-
+ 
   const { data: projectList, isLoading } = useQuery({
     queryKey: ["projectList"],
     queryFn: async () => {
@@ -200,9 +200,20 @@ const ProjectList = () => {
     },
   });
 
-  useEffect(() => {
-    console.log(projectList);
-  }, [projectList]);
+  const assignees = useQuery({
+    queryKey: ["assignees"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/users/assignees");
+        return response.data;
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
+
+
+  
 
   const onSubmit = (data) => {
     if (!data.title || !data.priority || !data.status) {
@@ -241,6 +252,7 @@ const ProjectList = () => {
     reset(); // Reset the form fields after submission
   };
 
+ 
   return (
     <>
       <div className="p-4">
@@ -351,7 +363,7 @@ const ProjectList = () => {
               <Autocomplete
                 {...field}
                 multiple
-                options={["Aiwinraj", "Sankalp", "Aaron", "Kalpesh", "Muskan"]} // Example list
+                options={assignees.isPending ? [] : assignees.data} // Example list
                 renderInput={(params) => (
                   <TextField
                     {...params}
