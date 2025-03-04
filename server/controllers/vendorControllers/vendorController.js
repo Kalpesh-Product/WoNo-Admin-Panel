@@ -54,15 +54,16 @@ const onboardVendor = async (req, res, next) => {
       );
     }
 
-    // Validate that the user's company and selectedDepartments allow vendor onboarding
     const companyDoc = await Company.findOne({
       _id: currentUser.company, 
       selectedDepartments: {
         $elemMatch: {
           department: departmentId, 
           $or: [
-            { admin: { $in: currentUser.role } }, // Check if any role of the user exists in the admin array
-            { admin: { $size: 0 } }, // Check if the admin array is empty
+            { admin: { $in: currentUser.role } },
+            { admin: { $exists: false } }, 
+            { admin: null }, 
+            { admin: "" }, 
           ],
         },
       },
