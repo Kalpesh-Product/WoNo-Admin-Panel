@@ -1,6 +1,9 @@
 const sharp = require("sharp");
 const mongoose = require("mongoose");
-const { handleFileUpload } = require("../../config/cloudinaryConfig");
+const {
+  handleFileUpload,
+  handleFileDelete,
+} = require("../../config/cloudinaryConfig");
 const Company = require("../../models/hr/Company");
 const {
   updateWorkLocationStatus,
@@ -119,8 +122,37 @@ const addCompanyLogo = async (req, res, next) => {
         .webp({ quality: 80 })
         .toBuffer();
 
+      const foundCompany = await Company.findOne({ _id: company })
+        .lean()
+        .exec();
+
+      if (foundCompany.companyLogo.logoId) {
+        const response = await handleFileDelete(
+          foundCompany.companyLogo.logoId
+        );
+        if (response?.result !== "ok") {
+          return res
+            .status(500)
+            .json({ message: "Failed to delete existing logo" });
+        }
+        await Company.findOneAndUpdate(
+          { _id: company },
+          {
+            $unset: {
+              "companyLogo.logoId": "",
+              "companyLogo.logoUrl": "",
+            },
+          }
+        )
+          .lean()
+          .exec();
+      }
+
       const base64Image = `data:image/webp;base64,${buffer.toString("base64")}`;
-      const uploadResult = await handleFileUpload(base64Image, "Company-logos");
+      const uploadResult = await handleFileUpload(
+        base64Image,
+        `${foundCompany.companyName}/logo`
+      );
 
       imageId = uploadResult.public_id;
       imageUrl = uploadResult.secure_url;
