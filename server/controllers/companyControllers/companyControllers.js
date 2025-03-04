@@ -115,7 +115,7 @@ const addCompanyLogo = async (req, res, next) => {
       const file = req.file;
 
       const buffer = await sharp(file.buffer)
-        .resize(800, 800, { fit: "contain" })
+        .resize(1262, 284, { fit: "contain" })
         .webp({ quality: 80 })
         .toBuffer();
 

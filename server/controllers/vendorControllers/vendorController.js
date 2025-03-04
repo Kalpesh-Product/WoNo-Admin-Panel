@@ -56,12 +56,12 @@ const onboardVendor = async (req, res, next) => {
 
     // Validate that the user's company and selectedDepartments allow vendor onboarding
     const companyDoc = await Company.findOne({
-      _id: currentUser.company, // Match the user's company
+      _id: currentUser.company, 
       selectedDepartments: {
         $elemMatch: {
-          department: departmentId, // Match the department ID
+          department: departmentId, 
           $or: [
-            { admin: new mongoose.Types.ObjectId(userId) }, // Check if userId exists in the admin array
+            { admin: { $in: currentUser.role } }, // Check if any role of the user exists in the admin array
             { admin: { $size: 0 } }, // Check if the admin array is empty
           ],
         },
@@ -209,8 +209,6 @@ const bulkInsertVendor = async (req, res, next) => {
         .status(400)
         .json({ message: "please provide a valid csv file" });
     }
-
-    
   } catch (error) {
     next(error);
   }
