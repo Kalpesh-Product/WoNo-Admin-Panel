@@ -418,7 +418,7 @@ const Attendance = () => {
       <MuiModal title={"Correction Request"} open={openModal} onClose={()=>{setOpenModal(false)}}>
           <div>
             <form>
-              <Controller name="targetedDay" control={con}/>
+              <Controller name="targetedDay" />
             </form>
           </div>
       </MuiModal>
