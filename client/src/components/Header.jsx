@@ -25,8 +25,10 @@ import { useNavigate } from "react-router-dom";
 import useLogout from "../hooks/useLogout";
 import { FaUserTie } from "react-icons/fa6";
 import { FiLogOut } from "react-icons/fi";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
 const Header = () => {
+  const axios = useAxiosPrivate()
   const [isHovered, setIsHovered] = useState(false);
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
   const navigate = useNavigate();
