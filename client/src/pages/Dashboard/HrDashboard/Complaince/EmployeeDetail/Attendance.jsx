@@ -9,6 +9,7 @@ import useAxiosPrivate from "../../../../../hooks/useAxiosPrivate";
 import { useLocation, useParams } from "react-router-dom";
 import MuiModal from '../../../../../components/MuiModal'
 import {Controller,useForm} from 'react-hook-form'
+import humanDate from "../../../../../utils/humanDateForamt";
 
 const Attendance = () => {
   const axios = useAxiosPrivate();
@@ -403,7 +404,7 @@ const Attendance = () => {
                 ]
               : attendance.map((record, index) => ({
                   id: index + 1,
-                  date: record.date,
+                  date: humanDate(record.date) ,
                   inTime: record.inTime,
                   outTime: record.outTime,
                   workHours: record.workHours,
