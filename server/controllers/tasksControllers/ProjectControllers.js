@@ -1,4 +1,5 @@
 const Department = require("../../models/Departments");
+const UserData = require("../../models/hr/UserData");
 const Project = require("../../models/tasks/Project");
 const Task = require("../../models/tasks/Task");
 const CustomError = require("../../utils/customErrorlogs");
@@ -134,30 +135,6 @@ const createProject = async (req, res, next) => {
     next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
 };
-
-// const getProjects = async (req, res, next) => {
-//   try {
-//     const { company } = req;
-
-//     const projects = await Project.find({ company })
-//       .populate("department", "name")
-//       .populate("assignedBy", "firstName lastName")
-//       .populate("assignedTo", "firstName lastName")
-//       .lean();
-
-//     const transformedProjects = projects.map((project) => {
-//       return {
-//         ...project,
-//         dueDate: formatDate(project.dueDate),
-//         assignedDate: formatDate(project.assignedDate),
-//       };
-//     });
-
-//     return res.status(200).json(transformedProjects);
-//   } catch (error) {
-//     next(error);
-//   }
-// };
 
 const getProjects = async (req, res, next) => {
   try {
