@@ -33,7 +33,7 @@ const onboardVendor = async (req, res, next) => {
     } = req.body;
 
     const currentUser = await User.findOne({ _id: userId })
-      .select("department company")
+      .select("departments company")
       .lean()
       .exec();
 
@@ -42,7 +42,7 @@ const onboardVendor = async (req, res, next) => {
     }
 
     // Check if the user is part of the given department
-    const isMember = currentUser.department.find(
+    const isMember = currentUser.departments.find(
       (dept) => dept._id.toString() === departmentId
     );
     if (!isMember) {
@@ -129,7 +129,7 @@ const fetchVendors = async (req, res, next) => {
 
     // Fetch user details along with role and department information
     const user = await User.findOne({ _id: userId })
-      .select("company department role")
+      .select("company departments role")
       .populate([{ path: "role", select: "roleTitle" }])
       .lean()
       .exec();
