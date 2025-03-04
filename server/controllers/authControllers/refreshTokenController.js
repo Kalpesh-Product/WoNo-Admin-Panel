@@ -27,6 +27,7 @@ const handleRefreshToken = async (req, res, next) => {
           },
         },
         { path: "role", select: "roleTitle" },
+        { path: "departments", select: "name" },
       ])
       .lean()
       .exec();

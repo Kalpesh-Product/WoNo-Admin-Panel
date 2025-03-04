@@ -163,7 +163,7 @@ const getTickets = async (req, res, next) => {
         status: "Pending",
         company: loggedInUser.company,
       }).populate([
-        { path: "raisedBy", select: "name" },
+        { path: "raisedBy", select: "firstName lastName" },
         { path: "raisedToDepartment", select: "name" },
       ]);
     } else {
@@ -179,7 +179,7 @@ const getTickets = async (req, res, next) => {
         status: "Pending",
       })
         .populate([
-          { path: "raisedBy", select: "name" },
+          { path: "raisedBy", select: "firstName lastName" },
           { path: "raisedToDepartment", select: "name" },
         ])
         .lean()

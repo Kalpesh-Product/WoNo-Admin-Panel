@@ -1,7 +1,7 @@
 import { IoMdDownload } from "react-icons/io";
 import { MdUpload } from "react-icons/md";
 
-const BulkUpload = () => {
+const BulkUploadSales = () => {
   const uploadItems = [
     "Upload Budget",
     "Upload Budget",
@@ -49,4 +49,4 @@ const BulkUpload = () => {
   );
 };
 
-export default BulkUpload;
+export default BulkUploadSales;

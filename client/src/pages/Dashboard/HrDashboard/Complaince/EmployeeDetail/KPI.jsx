@@ -47,6 +47,7 @@ const KPI = () => {
       <div>
         <AgTable
           search={true}
+          buttonTitle={"Add KPI"}
           searchColumn={"KPIs"}
           tableTitle={"Aiwin's KPI List"}
           data={rows}

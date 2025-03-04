@@ -148,6 +148,14 @@ import AdminstartionLayout from "../pages/Dashboard/AdminDashboard/Adminstartion
 import AdminDashboard from "../pages/Dashboard/AdminDashboard/AdminDashboard";
 import MaintainanceLayout from "../pages/Dashboard/MaintainanceDashboard/MaintainanceLayout";
 import MaintainanceDashboard from "../pages/Dashboard/MaintainanceDashboard/MaintainanceDashboard";
+import Sops from "../pages/Dashboard/FrontendDashboard/FrontendSettings/Sops";
+import Policies from "../pages/Dashboard/FrontendDashboard/FrontendSettings/Policies";
+import HrSops from "../pages/Dashboard/HrDashboard/HrSettings/HrSops";
+import HrPolicies from "../pages/Dashboard/HrDashboard/HrSettings/HrPolicies";
+import SalesSettings from "../pages/Dashboard/SalesDashboard/SalesSettings/SalesSettings";
+import SalesSops from "../pages/Dashboard/SalesDashboard/SalesSettings/SalesSops";
+import SalesPolicies from "../pages/Dashboard/SalesDashboard/SalesSettings/SalesPolicies";
+import BulkUploadSales from "../pages/Dashboard/SalesDashboard/SalesSettings/BulkUploadSales";
 
 export const routes = createBrowserRouter([
   {
@@ -212,6 +220,14 @@ export const routes = createBrowserRouter([
                             path: "bulk-upload",
                             element: <FrontendBulkUpload />,
                           },
+                          {
+                            path: "sops",
+                            element: <Sops />,
+                          },
+                          {
+                            path: "policies",
+                            element: <Policies />,
+                          },
                         ],
                       },
                       {
@@ -271,19 +287,19 @@ export const routes = createBrowserRouter([
                       {
                         path: "turnover",
                         element: <EarningsLayout />,
-                        children:[
+                        children: [
                           {
                             path: "actual-business",
                             element: <ActualBusinessRevenue />,
                           },
-    
+
                           {
                             path: "revenue-target",
                             element: <RevenueTarget />,
                           },
-                        ]
+                        ],
                       },
-                      
+
                       {
                         path: "unique-leads",
                         element: <UniqueLeads />,
@@ -397,13 +413,31 @@ export const routes = createBrowserRouter([
                           // },
                         ],
                       },
+                      // {
+                      //   path: "settings",
+                      //   element: <HrSettings />,
+                      //   children: [
+                      //     {
+                      //       path: "bulk-upload",
+                      //       element: <BulkUpload />,
+                      //     },
+                      //   ],
+                      // },
                       {
                         path: "settings",
-                        element: <HrSettings />,
+                        element: <SalesSettings />,
                         children: [
                           {
                             path: "bulk-upload",
-                            element: <BulkUpload />,
+                            element: <BulkUploadSales />,
+                          },
+                          {
+                            path: "sops",
+                            element: <SalesSops />,
+                          },
+                          {
+                            path: "policies",
+                            element: <SalesPolicies />,
                           },
                         ],
                       },
@@ -580,6 +614,14 @@ export const routes = createBrowserRouter([
                           {
                             path: "bulk-upload",
                             element: <BulkUpload />,
+                          },
+                          {
+                            path: "hr-sops",
+                            element: <HrSops />,
+                          },
+                          {
+                            path: "hr-policies",
+                            element: <HrPolicies />,
                           },
                         ],
                       },

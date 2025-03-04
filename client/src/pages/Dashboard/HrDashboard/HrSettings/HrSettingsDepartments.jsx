@@ -97,7 +97,6 @@ const HrSettingsDepartments = () => {
           search={true}
           searchColumn={"Department Name"}
           tableTitle={"Department List"}
-          buttonTitle={"Add Department"}
           data={rows}
           columns={departmentsColumn}
         />

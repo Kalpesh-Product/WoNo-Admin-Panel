@@ -2,28 +2,28 @@ import { Tab, Tabs } from "@mui/material";
 import React, { useEffect } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
-const HrFinance = () => {
+const SalesSettings = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
   // Map routes to tabs
   const tabs = [
-    { label: "Budget", path: "budget" },
-    { label: "Payment Schedule", path: "payment-schedule" },
-    { label: "Payroll", path: "payroll" },
+    { label: "Bulk Upload", path: "bulk-upload" },
+    { label: "SOPs", path: "sops" },
+    { label: "Policies", path: "policies" },
   ];
 
-  // Redirect to "view-employees" if the current path is "/hr-dashboard/compliances"
+  // Redirect to "bulk-upload" if the current path is "/sales-dashboard/settings"
   useEffect(() => {
-    if (location.pathname === "/app/dashboard/HR-dashboard/finance") {
-      navigate("/app/dashboard/HR-dashboard/finance/budget", {
+    if (location.pathname === "/app/dashboard/sales-dashboard/settings") {
+      navigate("/app/dashboard/sales-dashboard/settings/bulk-upload", {
         replace: true,
       });
     }
   }, [location, navigate]);
 
   // Determine whether to show the tabs
-  const showTabs = !location.pathname.includes("budget/");
+  const showTabs = !location.pathname.includes("bulk-upload/");
 
   // Determine active tab based on location
   const activeTab = tabs.findIndex((tab) =>
@@ -80,4 +80,4 @@ const HrFinance = () => {
   );
 };
 
-export default HrFinance;
+export default SalesSettings;

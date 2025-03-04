@@ -21,17 +21,17 @@ const LayerBarGraph = lazy(() =>
 const HrDashboard = () => {
   const axios = useAxiosPrivate();
 
-   const usersQuery = useQuery({
-      queryKey: ["users"],
-      queryFn: async () => {
-        try {
-          const response = await axios.get("/api/users/fetch-users");
-          return response.data
-        } catch (error) {
-          throw new Error(error.response.data.message);
-        }
-      },
-    });
+  const usersQuery = useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/users/fetch-users");
+        return response.data;
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
 
   const rawSeries = [
     {
@@ -498,10 +498,14 @@ const HrDashboard = () => {
   // Calculate total and gender-specific counts
   const totalUsers = usersQuery.isLoading ? [] : usersQuery.data.length;
 
-  const maleCount = usersQuery.isLoading ? [] : usersQuery.data.filter((user) => user.gender === "Male").length;
+  const maleCount = usersQuery.isLoading
+    ? []
+    : usersQuery.data.filter((user) => user.gender === "Male").length;
 
-  const femaleCount = usersQuery.isLoading ? [] : usersQuery.data.filter((user) => user.gender === "Female").length;
- 
+  const femaleCount = usersQuery.isLoading
+    ? []
+    : usersQuery.data.filter((user) => user.gender === "Female").length;
+
   const genderData = [
     {
       id: 0,
@@ -614,12 +618,16 @@ const HrDashboard = () => {
               <Skeleton variant="text" width={200} height={30} />
               <Skeleton variant="rectangular" width="100%" height={300} />
             </Box>
-          }>
-          <LayerBarGraph
-            title="Payroll Expense Graph"
-            data={data}
-            options={optionss}
-          />
+          }
+        >
+          <WidgetSection
+            layout={1}
+            border
+            padding
+            title={"Payroll Expense Graph"}
+          >
+            <LayerBarGraph data={data} options={optionss} />
+          </WidgetSection>
         </Suspense>,
       ],
     },
@@ -659,12 +667,14 @@ const HrDashboard = () => {
               <Skeleton variant="text" width={200} height={30} />
               <Skeleton variant="rectangular" width="100%" height={300} />
             </Box>
-          }>
-          <LayerBarGraph
-            title="Department Wise Tasks% Vs Achievements in %"
-            data={series}
-            options={options}
-          />
+          }
+        >
+          <WidgetSection layout={1} border padding title={"Department Wise Tasks% Vs Achievements in %"}>
+            <LayerBarGraph
+              data={series}
+              options={options}
+            />
+          </WidgetSection>
         </Suspense>,
       ],
     },
