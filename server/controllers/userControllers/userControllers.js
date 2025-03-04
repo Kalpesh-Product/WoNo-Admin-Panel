@@ -748,10 +748,44 @@ const bulkInsertUsers = async (req, res, next) => {
   }
 };
 
+const getAssignees = async (req, res, next) => {
+  try {
+    const { company, departments } = req;
+
+    const departmentIds = departments.map((dept) => dept._id);
+
+    const team = await User.find({
+      company,
+      departments: { $in: departmentIds },
+    })
+      .select("_id firstName lastName")
+      .populate({
+        path: "role",
+        select: "roleTitle",
+      });
+
+    if (!team?.length) {
+      return res.status(400).json({ message: "No assigness found" });
+    }
+
+    const assignees = team.filter((member) =>
+      member.role.some((role) => !role.roleTitle.endsWith("Admin"))
+    );
+
+    const transformAssignees = assignees.map(
+      (assignee) => `${assignee.firstName} ${assignee.lastName}`
+    );
+    return res.status(200).json(transformAssignees);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createUser,
   fetchUser,
   fetchSingleUser,
   updateSingleUser,
   bulkInsertUsers,
+  getAssignees,
 };

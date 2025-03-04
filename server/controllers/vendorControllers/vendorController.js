@@ -42,7 +42,7 @@ const onboardVendor = async (req, res, next) => {
     }
 
     // Check if the user is part of the given department
-    const isMember = currentUser.department.find(
+    const isMember = currentUser.departments.find(
       (dept) => dept._id.toString() === departmentId
     );
     if (!isMember) {
@@ -209,8 +209,6 @@ const bulkInsertVendor = async (req, res, next) => {
         .status(400)
         .json({ message: "please provide a valid csv file" });
     }
-
-    
   } catch (error) {
     next(error);
   }
