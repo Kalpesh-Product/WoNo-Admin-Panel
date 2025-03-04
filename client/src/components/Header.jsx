@@ -25,8 +25,11 @@ import { useNavigate } from "react-router-dom";
 import useLogout from "../hooks/useLogout";
 import { FaUserTie } from "react-icons/fa6";
 import { FiLogOut } from "react-icons/fi";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
+import { useQuery } from "@tanstack/react-query";
 
 const Header = () => {
+  const axios = useAxiosPrivate();
   const [isHovered, setIsHovered] = useState(false);
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
   const navigate = useNavigate();
@@ -35,6 +38,17 @@ const Header = () => {
 
   // State for Popover
   const [anchorEl, setAnchorEl] = useState(null);
+  const { data: companyLogo } = useQuery({
+    queryKey: ["companyLogo"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/company/get-company-logo");
+        return response.data;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+  });
 
   const handleAvatarClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -66,7 +80,7 @@ const Header = () => {
               <img
                 onClick={() => navigate("dashboard/frontend-dashboard")}
                 className="w-[70%] h-full object-contain cursor-pointer"
-                src={biznestLogo}
+                src={companyLogo?.logoUrl || biznestLogo}
                 alt="logo"
               />
               <button
