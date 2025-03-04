@@ -157,7 +157,7 @@ const companySchema = new mongoose.Schema({
       isActive: {
         type: Boolean,
         default: true,
-      },
+      }, //image id, image url
     },
   ],
   leaveTypes: [
