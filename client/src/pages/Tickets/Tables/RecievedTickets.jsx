@@ -74,7 +74,7 @@ const RecievedTickets = ({ title }) => {
     return tickets.map((ticket) => ({
        
       id: ticket._id,
-      raisedBy: ticket.raisedBy?.name || "Unknown",
+      raisedBy: ticket.raisedBy?.firstName || "Unknown",
       fromDepartment: ticket.raisedToDepartment.name || "N/A",
       ticketTitle: ticket?.ticket || "No Title",
       status: ticket.status || "Pending",

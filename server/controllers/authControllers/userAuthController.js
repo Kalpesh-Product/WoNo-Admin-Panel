@@ -28,6 +28,7 @@ const login = async (req, res, next) => {
             "companyName workLocations employeeTypes shifts policies agreements sops",
         },
         { path: "role", select: "roleTitle" },
+        { path: "departments", select: "name" },
       ])
       .lean()
       .exec();

@@ -17,11 +17,14 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DesktopDatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import PrimaryButton from "../../../components/PrimaryButton";
+import { useMutation } from "@tanstack/react-query";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
 const EditProject = () => {
   const { id } = useParams(); // Get project ID from URL
   const location = useLocation(); // Get project details from state
   const [openModal, setOpenModal] = useState(false);
+  const axios = useAxiosPrivate()
 
   const { control, handleSubmit, reset } = useForm({
     defaultValues: {
@@ -33,6 +36,7 @@ const EditProject = () => {
       priority: "",
     },
   });
+
 
   const onSubmit = (data) => {
     console.log("Task Data:", data);
