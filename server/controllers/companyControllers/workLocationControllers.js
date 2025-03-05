@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const { createLog } = require("../../utils/moduleLogs");
 const csvParser = require("csv-parser");
 const { Readable } = require("stream");
+const crypto = require("crypto");
 const CustomError = require("../../utils/customErrorlogs");
 const {
   handleFileUpload,
@@ -14,12 +15,12 @@ const addWorkLocation = async (req, res, next) => {
   const logAction = "Add Work Location";
   const logSourceKey = "companyData";
   const { user, ip, company } = req;
-  const { workLocation } = req.body;
+  const { buildingName, floor, wing } = req.body;
 
   try {
-    if (!company || !workLocation) {
+    if (!company || !buildingName) {
       throw new CustomError(
-        "All fields are required",
+        "Company and Building Name are required",
         logPath,
         logAction,
         logSourceKey
@@ -35,9 +36,19 @@ const addWorkLocation = async (req, res, next) => {
       );
     }
 
+    const newWorkLocation = {
+      id: crypto.randomUUID(),
+      buildingName,
+      floor: floor || "",
+      wing: wing || "",
+      isActive: true,
+      occupiedImage: { id: "", url: "" },
+      clearImage: { id: "", url: "" },
+    };
+
     const updatedCompany = await Company.findByIdAndUpdate(
-      { _id: company },
-      { $push: { workLocations: { name: workLocation } } },
+      company,
+      { $push: { workLocations: newWorkLocation } },
       { new: true }
     );
 
@@ -56,17 +67,18 @@ const addWorkLocation = async (req, res, next) => {
       action: logAction,
       remarks: "Work location added successfully",
       status: "Success",
-      user: user,
-      ip: ip,
-      company: company,
+      user,
+      ip,
+      company,
       sourceKey: logSourceKey,
       sourceId: updatedCompany._id,
-      changes: { workLocation },
+      changes: { workLocation: newWorkLocation },
     });
 
-    return res
-      .status(200)
-      .json({ message: "Work location added successfully" });
+    return res.status(200).json({
+      message: "Work location added successfully",
+      workLocation: newWorkLocation,
+    });
   } catch (error) {
     next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
   }
@@ -153,12 +165,15 @@ const bulkInsertWorkLocations = async (req, res, next) => {
     stream
       .pipe(csvParser())
       .on("data", (row) => {
-        if (row["Building Name"] && row["Full Address"] && row["Unit No"]) {
+        if (row["Building Name"] && row["Floor"] && row["Wing"]) {
           workLocations.push({
-            name: row["Building Name"],
-            fullAddress: row["Full Address"],
-            unitNo: row["Unit No"],
+            id: crypto.randomUUID(), 
+            buildingName: row["Building Name"],
+            fullAddress: row["Floor"],
+            unitNo: row["Wing"],
             isActive: true,
+            occupiedImage: { id: "", url: "" },
+            clearImage: { id: "", url: "" },
           });
         }
       })

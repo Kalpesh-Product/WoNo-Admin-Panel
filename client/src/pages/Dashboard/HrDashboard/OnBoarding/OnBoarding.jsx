@@ -11,7 +11,7 @@ const OnBoarding = () => {
   // Define available tabs (before filtering)
   const allTabs = [
     { label: "Employee Onboarding", path: "employee-onboarding" },
-    { label: "View Employees", path: "view-employees" },
+    { label: "View Employee", path: "view-employees" },
   ];
 
   // Extract permitted submodules for "Employee"

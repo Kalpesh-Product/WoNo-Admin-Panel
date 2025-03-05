@@ -69,9 +69,9 @@ const AccessProfile = () => {
             <span className="text-title flex items-center gap-3">
               {user.name}{" "}
               <Chip
-                label={user.status}
+                label={user.status ? 'Active' : 'InActive'}
                 sx={{
-                  backgroundColor: user.status === "Active" ? "green" : "grey",
+                  backgroundColor: user.status  ? "green" : "grey",
                   color: "white",
                 }}
               />
@@ -99,13 +99,13 @@ const AccessProfile = () => {
 
       {/* Permissions UI */}
       <div className="mt-6">
-        <h2 className="text-xl font-semibold">User Permissions</h2>
+        <h2 className="text-title font-pmedium">User Permissions</h2>
         <div className="grid grid-cols-3 gap-4 mt-4">
           {accessProfile.map((department) => (
-            <Card
+            <div
               key={department.departmentId}
-              className={`cursor-pointer shadow-md ${
-                selectedDepartment?.departmentId === department.departmentId ? "border border-blue-500" : ""
+              className={`cursor-pointer rounded-md shadow-md ${
+                selectedDepartment?.departmentId === department.departmentId ? "border-default border-primary" : ""
               }`}
               onClick={() =>
                 setSelectedDepartment((prev) =>
@@ -113,10 +113,10 @@ const AccessProfile = () => {
                 )
               }
             >
-              <CardContent>
-                <Typography variant="h6">{department.departmentName}</Typography>
-              </CardContent>
-            </Card>
+              <div className="p-4">
+                <span className="text-subtitle">{department.departmentName}</span>
+              </div>
+            </div>
           ))}
         </div>
 

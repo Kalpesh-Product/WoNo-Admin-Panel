@@ -40,7 +40,7 @@ const PermissionsTable = ({ modules, onPermissionChange }) => {
         {permissions.map((module, moduleIndex) => (
           <div key={module.name}>
             {/* Module Name */}
-            <h2 className="text-lg font-bold mb-2">{module.name}</h2>
+            <span className="text-subtitle font-pregular mb-2">{module.name}</span>
 
             {/* Table for Submodules */}
             <TableContainer style={{height:400, overflowY:'scroll'}} component={Paper} className="mb-4 ">

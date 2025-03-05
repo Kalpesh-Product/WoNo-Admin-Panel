@@ -6,14 +6,13 @@ import PrimaryButton from "./PrimaryButton";
 import { useNavigate } from "react-router-dom";
 
 const AccessTree = () => {
-  const [selectedUser, setSelectedUser] = useState(null); // Track selected user
-  const [history, setHistory] = useState([]); // Stack to track previous selections
+  const [selectedUsers, setSelectedUsers] = useState([]); // Stack to track selected users
   const axios = useAxiosPrivate();
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("selected user : ", selectedUser);
-  }, [selectedUser]);
+    console.log("Selected Users Stack: ", selectedUsers);
+  }, [selectedUsers]);
 
   // Fetch hierarchy data from API
   const fetchHierarchy = async () => {
@@ -35,23 +34,15 @@ const AccessTree = () => {
     queryFn: fetchHierarchy,
   });
 
-  // Handle selecting a user
+  // Handle selecting a user (adds to stack)
   const handleSelectUser = (user) => {
     if (!user.subordinates.length) return; // Prevent selecting users with no subordinates
-
-    setHistory((prev) => [...prev, selectedUser]); // Push current selection to history
-    setSelectedUser(user); // Set new selected user
+    setSelectedUsers((prev) => [...prev, user]); // Add to stack
   };
 
-  // Handle going back to the previous user
+  // Handle going back (removes from stack)
   const handleBack = () => {
-    if (history.length === 0) {
-      setSelectedUser(null); // If no history, reset to default
-      return;
-    }
-    const previousUser = history.pop(); // Get the last selected user
-    setSelectedUser(previousUser); // Set as selected
-    setHistory([...history]); // Update history state
+    setSelectedUsers((prev) => prev.slice(0, -1)); // Remove last user from stack
   };
 
   if (isPending)
@@ -62,64 +53,63 @@ const AccessTree = () => {
     );
 
   return (
-    <div className="flex flex-col items-center  p-6 pt-10 min-h-screen">
-      {/* Higher-up card */}
+    <div className="flex flex-col items-center p-6 pt-10 min-h-screen">
+      {/* Root Hierarchy (Top Level) */}
       <HierarchyCard
         user={hierarchy}
         handleSelectUser={handleSelectUser}
-        selectedUser={selectedUser}
+        isTopLevel={true}
       />
 
-      {/* Subordinates Section (separate div) */}
-
-      {selectedUser && selectedUser.subordinates.length > 0 && (
-        <>
-          <div className="w-full flex">
-            <div className="w-full h-16 border-r-default border-borderGray"></div>
-            <div className="w-full"></div>
-          </div>
-          <div className="w-full p-4 border-t-default border-borderGray rounded-lg">
-            <div className="flex items-center">
+      {/* Render each level separately */}
+      {selectedUsers.map((user, index) => (
+        <div
+          key={user.empId}
+          className="w-full mt-6 p-4 border-t border-gray-300 rounded-lg"
+        >
+          <div className="flex items-center mb-10">
+            {index === selectedUsers.length - 1 && ( // Only show back button on last level
               <div className="w-[10%]">
                 <PrimaryButton title={"Back"} handleSubmit={handleBack} />
               </div>
-              <div className="w-full text-center">
-                <span className="w-full text-subtitle font-pmedium mr-8">
-                  Subordinates of {selectedUser.name}
-                </span>
-              </div>
-            </div>
-            <div className="grid grid-cols-4 gap-10 mt-6">
-              {selectedUser.subordinates.map((subordinate) => (
-                <HierarchyCard
-                  key={subordinate.empId}
-                  user={subordinate}
-                  handleSelectUser={handleSelectUser}
-                  selectedUser={selectedUser}
-                />
-              ))}
+            )}
+            <div className="w-full text-center">
+              <span className="text-subtitle font-semibold mr-20">
+                Subordinates of {user.name}
+              </span>
             </div>
           </div>
-        </>
-      )}
+
+          <div className="grid grid-cols-4 gap-6 mt-4">
+            {user.subordinates.map((subordinate) => (
+              <HierarchyCard
+                key={subordinate.empId}
+                user={subordinate}
+                handleSelectUser={handleSelectUser}
+              />
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
 
-const HierarchyCard = ({ user, handleSelectUser }) => {
+const HierarchyCard = ({ user, handleSelectUser, isTopLevel }) => {
   const navigate = useNavigate();
+
   return (
     <div
-      className={`bg-white flex flex-col shadow-primary border-primary border-default rounded-lg p-4 pt-0 px-0  text-center cursor-pointer relative w-60 transition `}
+      className={`bg-white flex flex-col shadow-md border border-gray-300 rounded-lg p-4 pt-0 px-0 text-center cursor-pointer relative w-60 transition ${
+        isTopLevel ? "border-2 border-primary" : ""
+      }`}
     >
       <div className="w-full flex flex-col justify-center">
         <div className="absolute -top-7 left-[6rem] border-default border-primary rounded-full w-12 h-12 bg-red-50"></div>
       </div>
       <div
-        onClick={() => {
-          navigate("permissions", { state: { user } });
-        }}
-        className="bg-primary text-white p-2 pt-4"
+        onClick={() => navigate("permissions", { state: { user } })}
+        className="bg-primary text-white p-2 pt-4 rounded-t-md"
       >
         <span className="text-subtitle font-semibold">{user.name}</span>
       </div>
@@ -128,8 +118,6 @@ const HierarchyCard = ({ user, handleSelectUser }) => {
           ? user.designation.slice(0, 20) + "..."
           : user.designation}
       </span>
-
-      {/* <span className="text-content">{user.workLocation}</span> */}
       <span className="text-small text-primary">{user.email}</span>
 
       {/* Show subordinates count if applicable */}
