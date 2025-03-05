@@ -130,6 +130,7 @@ const addCompanyLogo = async (req, res, next) => {
         const response = await handleFileDelete(
           foundCompany.companyLogo.logoId
         );
+
         if (response?.result !== "ok") {
           return res
             .status(500)

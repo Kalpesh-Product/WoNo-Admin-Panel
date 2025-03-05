@@ -39,12 +39,12 @@ const handleDocumentUpload = async (buffer, path, originalFilename) => {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
-        resource_type: "raw", 
+        resource_type: "raw",
         folder: path,
-        public_id: originalFilename, 
+        public_id: originalFilename,
         use_filename: true,
         unique_filename: false,
-        format: undefined, 
+        format: undefined,
       },
       (error, result) => {
         if (error) {
