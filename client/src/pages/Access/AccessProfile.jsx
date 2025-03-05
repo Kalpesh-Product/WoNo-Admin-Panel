@@ -16,8 +16,6 @@ const AccessProfile = () => {
     // You can send this to an API to update permissions in the backend
   };
 
-  
-
   const fetchUserPermissions = async () => {
     if (!user?._id) return null;
     try {
@@ -106,8 +104,14 @@ const AccessProfile = () => {
           {accessProfile.map((department) => (
             <Card
               key={department.departmentId}
-              className="cursor-pointer shadow-md"
-              onClick={() => setSelectedDepartment(department)}
+              className={`cursor-pointer shadow-md ${
+                selectedDepartment?.departmentId === department.departmentId ? "border border-blue-500" : ""
+              }`}
+              onClick={() =>
+                setSelectedDepartment((prev) =>
+                  prev?.departmentId === department.departmentId ? prev : department
+                )
+              }
             >
               <CardContent>
                 <Typography variant="h6">{department.departmentName}</Typography>
@@ -122,7 +126,11 @@ const AccessProfile = () => {
             <h3 className="text-lg font-semibold">
               {selectedDepartment.departmentName} Permissions
             </h3>
-            <PermissionsTable modules={selectedDepartment.modules} onPermissionChange={handlePermissionUpdate} />
+            <PermissionsTable
+              key={selectedDepartment.departmentId} // ✅ Forces re-render when department changes
+              modules={selectedDepartment.modules}
+              onPermissionChange={handlePermissionUpdate}
+            />
           </div>
         )}
       </div>

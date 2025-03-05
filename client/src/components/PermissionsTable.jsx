@@ -17,11 +17,14 @@ const PermissionsTable = ({ modules, onPermissionChange }) => {
   const handleCheckboxChange = (moduleIndex, submoduleIndex, action) => {
     const updatedPermissions = [...permissions];
 
-    const submodule = updatedPermissions[moduleIndex].submodules[submoduleIndex];
+    const submodule =
+      updatedPermissions[moduleIndex].submodules[submoduleIndex];
 
     if (submodule.grantedActions.includes(action)) {
       // Remove action if already granted
-      submodule.grantedActions = submodule.grantedActions.filter((act) => act !== action);
+      submodule.grantedActions = submodule.grantedActions.filter(
+        (act) => act !== action
+      );
     } else {
       // Add action if not granted
       submodule.grantedActions.push(action);
@@ -32,38 +35,66 @@ const PermissionsTable = ({ modules, onPermissionChange }) => {
   };
 
   return (
-    <TableContainer component={Paper} className="mt-4">
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell><strong>Submodule</strong></TableCell>
-            <TableCell><strong>Read</strong></TableCell>
-            <TableCell><strong>Write</strong></TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {permissions.map((module, moduleIndex) =>
-            module.submodules.map((submodule, submoduleIndex) => (
-              <TableRow key={submodule.submoduleName}>
-                <TableCell>{submodule.submoduleName}</TableCell>
-                <TableCell>
-                  <Checkbox
-                    checked={submodule.grantedActions.includes("View")}
-                    onChange={() => handleCheckboxChange(moduleIndex, submoduleIndex, "View")}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Checkbox
-                    checked={submodule.grantedActions.includes("Edit")}
-                    onChange={() => handleCheckboxChange(moduleIndex, submoduleIndex, "Edit")}
-                  />
-                </TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <div className="mt-4 space-y-6">
+      <div className="grid grid-cols-2 gap-4">
+        {permissions.map((module, moduleIndex) => (
+          <div key={module.name}>
+            {/* Module Name */}
+            <h2 className="text-lg font-bold mb-2">{module.name}</h2>
+
+            {/* Table for Submodules */}
+            <TableContainer style={{height:400, overflowY:'scroll'}} component={Paper} className="mb-4 ">
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>
+                      <strong>Submodule</strong>
+                    </TableCell>
+                    <TableCell>
+                      <strong>Read</strong>
+                    </TableCell>
+                    <TableCell>
+                      <strong>Write</strong>
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {module.submodules.map((submodule, submoduleIndex) => (
+                    <TableRow key={submodule.submoduleName}>
+                      <TableCell>{submodule.submoduleName}</TableCell>
+                      <TableCell>
+                        <Checkbox
+                          checked={submodule.grantedActions.includes("View")}
+                          onChange={() =>
+                            handleCheckboxChange(
+                              moduleIndex,
+                              submoduleIndex,
+                              "View"
+                            )
+                          }
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Checkbox
+                          checked={submodule.grantedActions.includes("Edit")}
+                          onChange={() =>
+                            handleCheckboxChange(
+                              moduleIndex,
+                              submoduleIndex,
+                              "Edit"
+                            )
+                          }
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };
 
