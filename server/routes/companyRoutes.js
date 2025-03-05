@@ -1,5 +1,4 @@
 const router = require("express").Router();
-const verifyJwt = require("../middlewares/verifyJwt");
 const upload = require("../config/multerConfig");
 
 const {
@@ -56,13 +55,13 @@ router.post("/add-shift", addShift);
 
 router.post(
   "/upload-company-document",
-  verifyJwt,
+
   upload.single("document"),
   uploadCompanyDocument
 );
 router.post(
   "/add-department-document/:departmentId",
-  verifyJwt,
+
   upload.single("department-document"),
   uploadDepartmentDocument
 );
@@ -72,6 +71,6 @@ router.post(
   upload.single("locationImage"),
   uploadCompanyLocationImage
 );
-router.get("/get-company-documents/:type", verifyJwt, getCompanyDocuments);
+router.get("/get-company-documents/:type", getCompanyDocuments);
 
 module.exports = router;
