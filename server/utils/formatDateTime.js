@@ -10,16 +10,11 @@ const formatWithOrdinal = (date) => {
 
   const d = new Date(date);
 
-  // Extract day, month, and year using Intl
-  const day = d.getDate();
-  const month = new Intl.DateTimeFormat("en-GB", {
-    month: "long",
-  }).format(d);
-  const year = new Intl.DateTimeFormat("en-GB", {
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "short",
     year: "numeric",
   }).format(d);
-
-  return `${getOrdinalSuffix(day)} ${month}, ${year}`;
 };
 
 // Function to add ordinal suffix (st, nd, rd, th)

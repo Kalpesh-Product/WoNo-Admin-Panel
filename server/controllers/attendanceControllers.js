@@ -1,7 +1,7 @@
 const Attendance = require("../models/hr/Attendance");
 const UserData = require("../models/hr/UserData");
 const mongoose = require("mongoose");
-const { formatDate, formatTime } = require("../utils/formatDateTime");
+const { formatDate, formatTime, formatWithOrdinal } = require("../utils/formatDateTime");
 const { createLog } = require("../utils/moduleLogs");
 const CustomError = require("../utils/customErrorlogs");
 const { Readable } = require("stream");
@@ -428,7 +428,7 @@ const getAttendance = async (req, res, next) => {
       const workMins = totalMins > breakMins ? totalMins - breakMins : 0;
 
       return {
-        date: formatDate(attendance.inTime) || "N/A",
+        date: formatWithOrdinal(attendance.inTime) || "N/A",
         inTime: formatTime(attendance.inTime) || "N/A",
         outTime: formatTime(attendance.outTime) || "N/A",
         workHours: (workMins / 60).toFixed(2),

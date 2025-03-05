@@ -5,7 +5,7 @@ const CustomError = require("../../utils/customErrorlogs");
 
 const userPermissions = async (req, res, next) => {
   try {
-    const { userId } = req.params;
+    const { id } = req.params;
     const companyId = req.company;
 
     const company = await Company.findById(companyId).populate(
@@ -19,7 +19,7 @@ const userPermissions = async (req, res, next) => {
 
     // Step 2: Fetch user's granted permissions
     const userPermissions = await Permissions.findOne({
-      user: userId,
+      user: id,
       company: companyId,
     });
 
@@ -31,10 +31,10 @@ const userPermissions = async (req, res, next) => {
         grantedPermissionsMap[deptId] = {};
 
         deptPerm.modules.forEach((mod) => {
-          grantedPermissionsMap[deptId][mod.name] = {};
+          grantedPermissionsMap[deptId][mod.moduleName] = {};
 
           mod.submodules.forEach((sub) => {
-            grantedPermissionsMap[deptId][mod.name][sub.submoduleName] =
+            grantedPermissionsMap[deptId][mod.moduleName][sub.submoduleName] =
               sub.actions;
           });
         });
@@ -208,11 +208,11 @@ const grantUserPermissions = async (req, res, next) => {
     // Step 6: Find or Add Module Entry
     let moduleIndex = userPermission.deptWisePermissions[
       deptIndex
-    ].modules.findIndex((mod) => mod.name === moduleName);
+    ].modules.findIndex((mod) => mod.name.trim() === moduleName.trim());
 
     if (moduleIndex === -1) {
       userPermission.deptWisePermissions[deptIndex].modules.push({
-        name: moduleName,
+        moduleName,
         submodules: [],
       });
       moduleIndex =
@@ -246,7 +246,7 @@ const grantUserPermissions = async (req, res, next) => {
     // Step 8: Save Updated Permissions
     await userPermission.save();
 
-    return res
+    res
       .status(200)
       .json({ message: "Permissions granted successfully", userPermission });
   } catch (error) {
