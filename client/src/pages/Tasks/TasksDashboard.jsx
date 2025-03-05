@@ -29,26 +29,26 @@ import useAuth from "../../hooks/useAuth";
 
 const TasksDashboard = () => {
   const axios = useAxiosPrivate();
-  const {auth} = useAuth()
+  const { auth } = useAuth();
 
-  const allTasksQuery= useQuery({
+  const allTasksQuery = useQuery({
     queryKey: ["allTasks"],
     queryFn: async () => {
       try {
         const response = await axios.get("/api/tasks/get-all-tasks");
-        return response.data
+        return response.data;
       } catch (error) {
         throw new Error(error.response.data.message);
       }
     },
-  });          
- 
+  });
+
   const allProjectsQuery = useQuery({
     queryKey: ["allProjectsQuery"],
     queryFn: async () => {
       try {
         const response = await axios.get("/api/tasks/get-projects");
-        return response.data
+        return response.data;
       } catch (error) {
         throw new Error(error.response.data.message);
       }
@@ -60,7 +60,7 @@ const TasksDashboard = () => {
     queryFn: async () => {
       try {
         const response = await axios.get("/api/tasks/get-today-tasks");
-        return response.data
+        return response.data;
       } catch (error) {
         throw new Error(error.response.data.message);
       }
@@ -72,31 +72,41 @@ const TasksDashboard = () => {
     queryFn: async () => {
       try {
         const response = await axios.get("/api/meetings/get-meetings");
-        return response.data
+        return response.data;
       } catch (error) {
         throw new Error(error.response.data.message);
       }
     },
   });
 
-  
-  const completedTasks =  allTasksQuery.isLoading ? 0 : allTasksQuery.data.filter((task)=>task.status === 'Completed').length
- 
-  const pendingTasks =  allTasksQuery.isLoading ? 0 : allTasksQuery.data.length - completedTasks
- 
-  const projectsAssignedByMe =  allProjectsQuery.isLoading ? 0 : allProjectsQuery.data?.filter((project)=>{
-    return project.assignedBy === auth.user._id
-  }).length
+  const completedTasks = allTasksQuery.isLoading
+    ? 0
+    : allTasksQuery.data.filter((task) => task.status === "Completed").length;
 
-  const projectsAssignedToMe = allProjectsQuery.isLoading? 0: allProjectsQuery?.data.filter((project)=>{
-    return  auth.user.firstName in project.assignees
-  }).length
+  const pendingTasks = allTasksQuery.isLoading
+    ? 0
+    : allTasksQuery.data.length - completedTasks;
+
+  const projectsAssignedByMe = allProjectsQuery.isLoading
+    ? 0
+    : allProjectsQuery.data?.filter((project) => {
+        return project.assignedBy === auth.user._id;
+      }).length;
+
+  const projectsAssignedToMe = allProjectsQuery.isLoading
+    ? 0
+    : allProjectsQuery?.data.filter((project) => {
+        return auth.user.firstName in project.assignees;
+      }).length;
 
   // Data for Overall Pending v/s Assigned Tasks
-  const completedPercentagePie =
-  allTasksQuery.isLoading ? 0 : (completedTasks / allTasksQuery.data.length) * 100  
-  const pendingPercentagePie = allTasksQuery.isLoading ? 0 : (pendingTasks / allTasksQuery.data.length) * 100 
-  
+  const completedPercentagePie = allTasksQuery.isLoading
+    ? 0
+    : (completedTasks / allTasksQuery.data.length) * 100;
+  const pendingPercentagePie = allTasksQuery.isLoading
+    ? 0
+    : (pendingTasks / allTasksQuery.data.length) * 100;
+
   const tasksPieChartData = [
     { label: "Completed", value: completedPercentagePie },
     { label: "Pending", value: pendingPercentagePie },
@@ -111,20 +121,20 @@ const TasksDashboard = () => {
 
       const department = task.project.department.name;
       const isPending = task.status === "Pending";
-  
+
       if (!acc[department]) {
         acc[department] = { total: 0, pending: 0 };
       }
-  
+
       acc[department].total += 1;
       if (isPending) acc[department].pending += 1;
 
       return acc;
     }, {});
-  
+
     return Object.entries(departmentMap).map(([department, data]) => ({
       label: department,
-      value: (data.pending / data.total) * 100,  
+      value: (data.pending / data.total) * 100,
     }));
   };
   
@@ -169,8 +179,7 @@ const TasksDashboard = () => {
         <WidgetSection
           layout={1}
           border
-          title={"Overall Average Tasks Completion"}
-        >
+          title={"Overall Average Tasks Completion"}>
           <BarGraph
             height={400}
             data={tasksMonthlyData}
@@ -187,14 +196,22 @@ const TasksDashboard = () => {
           title={"Project List"}
           icon={<RiPagesLine />}
         />,
-        <Card route={"my-tasklist"} title={"My Task List"} icon={<RiPagesLine />} />,
+        <Card
+          route={"my-tasklist"}
+          title={"My Task List"}
+          icon={<RiPagesLine />}
+        />,
         <Card
           route={"team-members"}
           title={"Team Members"}
           icon={<MdFormatListBulleted />}
         />,
         <Card route={""} title={"Mix Bag"} icon={<MdFormatListBulleted />} />,
-        <Card route={"/app/tasks/reports"} title={"Reports"} icon={<CgProfile />} />,
+        <Card
+          route={"/app/tasks/reports"}
+          title={"Reports"}
+          icon={<CgProfile />}
+        />,
         <Card
           route={""}
           title={"Settings"}
@@ -205,8 +222,16 @@ const TasksDashboard = () => {
     {
       layout: 3,
       widgets: [
-        <DataCard title={"Total"} data={allTasksQuery.isLoading ? 0 : allTasksQuery.data.length } description={"Tasks"} />,
-        <DataCard title={"Total"} data={pendingTasks} description={"Pending Tasks"} />,
+        <DataCard
+          title={"Total"}
+          data={allTasksQuery.isLoading ? 0 : allTasksQuery.data.length}
+          description={"Tasks"}
+        />,
+        <DataCard
+          title={"Total"}
+          data={pendingTasks}
+          description={"Pending Tasks"}
+        />,
         <DataCard
           title={"Total"}
           data={completedTasks}
@@ -217,7 +242,11 @@ const TasksDashboard = () => {
     {
       layout: 3,
       widgets: [
-        <DataCard title={"Total"} data={allProjectsQuery.isLoading ? 0: allProjectsQuery.data.length } description={"My Projects"} />,
+        <DataCard
+          title={"Total"}
+          data={allProjectsQuery.isLoading ? 0 : allProjectsQuery.data.length}
+          description={"My Projects"}
+        />,
         <DataCard
           title={"Total"}
           data={projectsAssignedToMe}
@@ -236,14 +265,16 @@ const TasksDashboard = () => {
         <WidgetSection
           layout={1}
           title={"Overall Pending v/s Assigned Tasks"}
-          border
-        >
+          border>
           <PieChartMui
             data={tasksPieChartData}
             options={tasksPieChartOptions}
           />
         </WidgetSection>,
-        <WidgetSection layout={1} title={"Department-wise Pending Tasks"} border>
+        <WidgetSection
+          layout={1}
+          title={"Department-wise Pending Tasks"}
+          border>
           <PieChartMui
             data={departmentPendingStats}
             options={departmentPieChartOptions}
@@ -258,7 +289,7 @@ const TasksDashboard = () => {
           <MuiTable
             Title="My Tasks Today"
             columns={myTasksColumns}
-            rows={false ? [] : taskList || []} 
+            rows={false ? [] : taskList || []}
             rowKey="id"
             rowsToDisplay={10}
             scroll={true}
@@ -281,7 +312,7 @@ const TasksDashboard = () => {
       widgets: [
         <WidgetSection layout={1} padding>
           <MuiTable
-          Title={"Recently Added tasks"}
+            Title={"Recently Added tasks"}
             columns={recentlyAddedTasksCol}
             rows={recentlyAddedTasksData}
             rowKey="id"

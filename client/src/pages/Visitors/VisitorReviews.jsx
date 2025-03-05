@@ -11,7 +11,7 @@ import TextField from "@mui/material/TextField";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 
-const Reviews = () => {
+const VisitorReviews = () => {
   const axios = useAxiosPrivate();
   const [openSidebar, setOpenSidebar] = useState(false);
   const [reviewData, setReviewData] = useState({});
@@ -246,4 +246,4 @@ const Reviews = () => {
   );
 };
 
-export default Reviews;
+export default VisitorReviews;

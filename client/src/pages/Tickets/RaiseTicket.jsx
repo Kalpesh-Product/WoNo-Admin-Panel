@@ -167,8 +167,7 @@ const RaiseTicket = () => {
             <InputLabel>Department</InputLabel>
             <Select
               label="Department"
-              onChange={(e) => handleDepartmentSelect(e.target.value)}
-            >
+              onChange={(e) => handleDepartmentSelect(e.target.value)}>
               <MenuItem value="">Select Department</MenuItem>
               {deptLoading ? (
                 <CircularProgress color="black" />
@@ -176,8 +175,7 @@ const RaiseTicket = () => {
                 departments?.map((dept) => (
                   <MenuItem
                     key={dept.department._id}
-                    value={dept.department._id}
-                  >
+                    value={dept.department._id}>
                     {dept.department.name}
                   </MenuItem>
                 ))
@@ -189,8 +187,7 @@ const RaiseTicket = () => {
             <InputLabel>Ticket Title</InputLabel>
             <Select
               label="Ticket Title"
-              onChange={(e) => handleChange("ticketTitle", e.target.value)}
-            >
+              onChange={(e) => handleChange("ticketTitle", e.target.value)}>
               <MenuItem value="">Select Ticket Title</MenuItem>
               {ticketIssues.length > 0 ? (
                 ticketIssues.map((issue) => (

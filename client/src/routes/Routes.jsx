@@ -162,6 +162,15 @@ import HrCommonLeaves from "../pages/HR/HrCommonLeaves";
 import HrCommonAgreements from "../pages/HR/HrCommonAgreements";
 import HrCommonPayslips from "../pages/HR/HrCommonPayslips";
 import Unauthorized from "../pages/Unauthorized";
+import VisitorLayout from "../pages/Visitors/VisitorLayout";
+import VisitorDashboard from "../pages/Visitors/VisitorDashboard";
+import AddVisitor from "../pages/Visitors/Forms/AddVisitor";
+import ManageVisitors from "../pages/Visitors/ManageVisitors";
+import VisitorTeamMembers from "../pages/Visitors/VisitorTeamMembers";
+import VisitorReports from "../pages/Visitors/VisitorReports";
+import VisitorReviews from "../pages/Visitors/VisitorReviews";
+import VisitorSettings from "../pages/Visitors/VisitorSettings/VisitorSettings";
+import VisitorBulkUpload from "../pages/Visitors/VisitorSettings/VisitorBulkUpload";
 
 export const routes = createBrowserRouter([
   {
@@ -901,6 +910,7 @@ export const routes = createBrowserRouter([
                       },
                     ],
                   },
+
                   {
                     path: "calendar",
                     element: <MeetingCalendar />,
@@ -934,6 +944,47 @@ export const routes = createBrowserRouter([
                       {
                         path: "bulk-upload",
                         element: <AssetsBulkUpload />,
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                path: "visitors", // Parent path
+                element: <VisitorLayout />, // Parent component for Visitors
+                children: [
+                  {
+                    path: "", // Default route for /app/visitors
+                    element: <VisitorDashboard />,
+                    index: true,
+                  },
+                  {
+                    path: "add-visitor", // Page with form to Add a new Visitor
+                    element: <AddVisitor />,
+                  },
+                  {
+                    path: "manage-visitors", // Page with table showing a list of all visitors
+                    element: <ManageVisitors />,
+                  },
+                  {
+                    path: "team-members", // Page with table showing a list of all the team members(receptionists)
+                    element: <VisitorTeamMembers />,
+                  },
+                  {
+                    path: "reports", // Page with table showing a list of all the visitor reports
+                    element: <VisitorReports />,
+                  },
+                  {
+                    path: "reviews", // Page with table showing a list of all the visitor reviews
+                    element: <VisitorReviews />,
+                  },
+                  {
+                    path: "settings",
+                    element: <VisitorSettings />,
+                    children: [
+                      {
+                        path: "bulk-upload",
+                        element: <VisitorBulkUpload />,
                       },
                     ],
                   },

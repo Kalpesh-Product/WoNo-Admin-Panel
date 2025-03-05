@@ -1,14 +1,14 @@
 import { IoMdDownload } from "react-icons/io";
 import { MdUpload } from "react-icons/md";
 
-const BulkUpload = () => {
+const VisitorBulkUpload = () => {
   const uploadItems = [
-    "Upload Assets",
-    "Upload Assets",
-    "Upload Assets",
-    "Upload Assets",
-    "Upload Assets",
-    "Upload Assets",
+    "Upload Visitors",
+    "Upload Visitors",
+    "Upload Visitors",
+    "Upload Visitors",
+    "Upload Visitors",
+    "Upload Visitors",
   ];
   return (
     <>
@@ -49,4 +49,4 @@ const BulkUpload = () => {
   );
 };
 
-export default BulkUpload;
+export default VisitorBulkUpload;
