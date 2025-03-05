@@ -1,6 +1,6 @@
 const router = require("express").Router();
-const upload = require("../config/multerConfig");
 const verifyJwt = require("../middlewares/verifyJwt");
+const upload = require("../config/multerConfig");
 
 const {
   addCompany,
@@ -29,6 +29,7 @@ const {
 const {
   addWorkLocation,
   bulkInsertWorkLocations,
+  uploadCompanyLocationImage,
 } = require("../controllers/companyControllers/workLocationControllers");
 const {
   createDepartment,
@@ -64,6 +65,12 @@ router.post(
   verifyJwt,
   upload.single("department-document"),
   uploadDepartmentDocument
+);
+
+router.post(
+  "/upload-location-image",
+  upload.single("locationImage"),
+  uploadCompanyLocationImage
 );
 router.get("/get-company-documents/:type", verifyJwt, getCompanyDocuments);
 

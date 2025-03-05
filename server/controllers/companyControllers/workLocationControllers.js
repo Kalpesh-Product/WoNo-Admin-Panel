@@ -4,6 +4,10 @@ const { createLog } = require("../../utils/moduleLogs");
 const csvParser = require("csv-parser");
 const { Readable } = require("stream");
 const CustomError = require("../../utils/customErrorlogs");
+const {
+  handleFileUpload,
+  handleFileDelete,
+} = require("../../config/cloudinaryConfig");
 
 const addWorkLocation = async (req, res, next) => {
   const logPath = "hr/HrLog";
@@ -68,6 +72,64 @@ const addWorkLocation = async (req, res, next) => {
   }
 };
 
+const uploadCompanyLocationImage = async (req, res, next) => {
+  try {
+    const { locationId, imageType } = req.body;
+    const file = req.file; // Multer stores a single file in req.file
+    const companyId = req.company;
+
+    if (!file) {
+      return res.status(400).json({ message: "No image provided" });
+    }
+
+    if (!locationId || !companyId || !imageType) {
+      return res.status(400).json({
+        message: "Company ID, Location ID, and Image Type are required",
+      });
+    }
+
+    if (!["occupiedImage", "clearImage"].includes(imageType)) {
+      return res.status(400).json({ message: "Invalid image type" });
+    }
+
+    // Find the company
+    const company = await Company.findOne({ companyId });
+    if (!company) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+
+    // Find the work location
+    const workLocation = company.workLocations.find(
+      (loc) => loc.id === locationId
+    );
+    if (!workLocation) {
+      return res.status(404).json({ message: "Work location not found" });
+    }
+
+    // Delete the existing image if it exists
+    if (workLocation[imageType] && workLocation[imageType].id) {
+      await handleFileDelete(workLocation[imageType].id);
+    }
+
+    const folderPath = `${company.companyName}/work-locations/${workLocation.buildingName}/${workLocation.wing}/${workLocation.floor}`;
+    const uploadResult = await handleFileUpload(file.path, folderPath);
+
+    // Update the specific image type in the work location
+    workLocation[imageType] = {
+      id: uploadResult.public_id,
+      url: uploadResult.secure_url,
+    };
+    await company.save();
+
+    res.json({
+      message: "Image uploaded and work location updated successfully",
+      workLocation: { [imageType]: workLocation[imageType] },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const bulkInsertWorkLocations = async (req, res, next) => {
   try {
     const companyId = req.userData.company;
@@ -129,4 +191,8 @@ const bulkInsertWorkLocations = async (req, res, next) => {
   }
 };
 
-module.exports = { addWorkLocation, bulkInsertWorkLocations };
+module.exports = {
+  addWorkLocation,
+  bulkInsertWorkLocations,
+  uploadCompanyLocationImage,
+};
