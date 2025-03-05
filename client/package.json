@@ -20,6 +20,7 @@
     "ag-grid-react": "^32.3.3",
     "apexcharts": "^4.3.0",
     "axios": "^1.7.9",
+    "country-state-city": "^3.2.1",
     "cra-template": "1.2.0",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",

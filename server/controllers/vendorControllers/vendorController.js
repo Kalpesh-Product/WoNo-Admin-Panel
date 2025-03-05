@@ -33,7 +33,7 @@ const onboardVendor = async (req, res, next) => {
     } = req.body;
 
     const currentUser = await User.findOne({ _id: userId })
-      .select("department company")
+      .select("departments company")
       .lean()
       .exec();
 
@@ -42,7 +42,7 @@ const onboardVendor = async (req, res, next) => {
     }
 
     // Check if the user is part of the given department
-    const isMember = currentUser.department.find(
+    const isMember = currentUser.departments.find(
       (dept) => dept._id.toString() === departmentId
     );
     if (!isMember) {
@@ -54,15 +54,16 @@ const onboardVendor = async (req, res, next) => {
       );
     }
 
-    // Validate that the user's company and selectedDepartments allow vendor onboarding
     const companyDoc = await Company.findOne({
-      _id: currentUser.company, // Match the user's company
+      _id: currentUser.company, 
       selectedDepartments: {
         $elemMatch: {
-          department: departmentId, // Match the department ID
+          department: departmentId, 
           $or: [
-            { admin: new mongoose.Types.ObjectId(userId) }, // Check if userId exists in the admin array
-            { admin: { $size: 0 } }, // Check if the admin array is empty
+            { admin: { $in: currentUser.role } },
+            { admin: { $exists: false } }, 
+            { admin: null }, 
+            { admin: "" }, 
           ],
         },
       },
@@ -129,7 +130,7 @@ const fetchVendors = async (req, res, next) => {
 
     // Fetch user details along with role and department information
     const user = await User.findOne({ _id: userId })
-      .select("company department role")
+      .select("company departments role")
       .populate([{ path: "role", select: "roleTitle" }])
       .lean()
       .exec();
@@ -209,8 +210,6 @@ const bulkInsertVendor = async (req, res, next) => {
         .status(400)
         .json({ message: "please provide a valid csv file" });
     }
-
-    
   } catch (error) {
     next(error);
   }

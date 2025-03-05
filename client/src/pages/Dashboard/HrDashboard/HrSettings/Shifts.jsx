@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import AgTable from "../../../../components/AgTable";
 import { Chip, TextField } from "@mui/material";
 import useAxiosPrivate from "../../../../hooks/useAxiosPrivate";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
 import MuiModal from "../../../../components/MuiModal";
 import PrimaryButton from "../../../../components/PrimaryButton";
@@ -13,6 +13,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 const Shifts = () => {
   const axios = useAxiosPrivate();
+  const queryClient = useQueryClient()
   const [openModal, setOpenModal] = useState(false);
   const { handleSubmit, control, reset } = useForm({
     defaultValues: {
@@ -22,44 +23,45 @@ const Shifts = () => {
     },
   });
 
-  const {mutate, isPending} = useMutation({
-    mutationFn: async (data)=>{
-      const response = await axios.post('/api/company/add-shift',{
+  const { mutate, isPending } = useMutation({
+    mutationFn: async (data) => {
+      const response = await axios.post("/api/company/add-shift", {
         shiftName: data.shiftName,
         startTime: data.startTime,
         endTime: data.endTime,
-      })
+      });
 
-      return response.data
+      return response.data;
     },
     onSuccess: function (data) {
-      toast.success(data.message)
+      toast.success(data.message);
+      queryClient.invalidateQueries({queryKey:["shifts"]})
+      setOpenModal(false);
+      reset();
     },
-    onError:function (data){
-      toast.error(data.message)
-    }
-  })
+    onError: function (data) {
+      toast.error(data.message);
+    },
+  });
 
   const onSubmit = (data) => {
-    console.log(data);
-    mutate(data)
-    setOpenModal(false);
-    toast.success("New Shift Added");
-    reset()
+    mutate(data);
   };
+
+  const fetchShifts = async()=>{
+    try {
+      const response = await axios.get(
+        "/api/company/get-company-data/?field=shifts"
+      );
+      return response.data.shifts;
+    } catch (error) {
+      throw new Error(error.response.data.message);
+    }
+  }
 
   const { data: shifts = [] } = useQuery({
     queryKey: ["shifts"],
-    queryFn: async () => {
-      try {
-        const response = await axios.get(
-          "/api/company/get-company-data/?field=shifts"
-        );
-        return response.data.shifts;
-      } catch (error) {
-        throw new Error(error.response.data.message);
-      }
-    },
+    queryFn:  fetchShifts,
   });
 
   const departmentsColumn = [
@@ -125,7 +127,7 @@ const Shifts = () => {
       />
 
       <div>
-        <MuiModal open={openModal} onClose={() => setOpenModal(false)}>
+        <MuiModal title={"Add Shift"} open={openModal} onClose={() => setOpenModal(false)}>
           <div>
             <form
               onSubmit={handleSubmit(onSubmit)}
@@ -183,7 +185,12 @@ const Shifts = () => {
                   title={"Cancel"}
                   handleSubmit={() => setOpenModal(false)}
                 />
-                <PrimaryButton title={"Add Shift"} type={"submit"} />
+                <PrimaryButton
+                  title="Add Shift"
+                  type="submit"
+                  isLoading={isPending}
+                  disabled={isPending}
+                />
               </div>
             </form>
           </div>

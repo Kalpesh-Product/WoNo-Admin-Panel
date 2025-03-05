@@ -156,6 +156,11 @@ import SalesSettings from "../pages/Dashboard/SalesDashboard/SalesSettings/Sales
 import SalesSops from "../pages/Dashboard/SalesDashboard/SalesSettings/SalesSops";
 import SalesPolicies from "../pages/Dashboard/SalesDashboard/SalesSettings/SalesPolicies";
 import BulkUploadSales from "../pages/Dashboard/SalesDashboard/SalesSettings/BulkUploadSales";
+import HrCommonLayout from "../pages/HR/HrCommonLayout";
+import HrCommonAttendance from "../pages/HR/HrCommonAttendance";
+import HrCommonLeaves from "../pages/HR/HrCommonLeaves";
+import HrCommonAgreements from "../pages/HR/HrCommonAgreements";
+import HrCommonPayslips from "../pages/HR/HrCommonPayslips";
 
 export const routes = createBrowserRouter([
   {
@@ -661,6 +666,28 @@ export const routes = createBrowserRouter([
               {
                 path: "test",
                 element: <TestPage />,
+              },
+              {
+                path: "HR",
+                element: <HrCommonLayout />,
+                children: [
+                  {
+                    path: "attendance",
+                    element: <HrCommonAttendance />,
+                  },
+                  {
+                    path: "leaves",
+                    element: <HrCommonLeaves />,
+                  },
+                  {
+                    path: "agreements",
+                    element: <HrCommonAgreements />,
+                  },
+                  {
+                    path: "payslips",
+                    element: <HrCommonPayslips />,
+                  },
+                ],
               },
 
               {
