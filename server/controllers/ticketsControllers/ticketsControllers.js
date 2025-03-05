@@ -644,7 +644,10 @@ const fetchSingleUserTickets = async (req, res, next) => {
         { accepted: new mongoose.Types.ObjectId(id) },
         { raisedBy: new mongoose.Types.ObjectId(id) },
       ],
-    });
+    }).populate([
+      { path: "raisedBy", select: "firstName lastName" },
+      { path: "raisedToDepartment", select: "name" },
+    ]);
 
     if (!tickets?.length) {
       return res.status(400).json({ message: "No tickets found" });

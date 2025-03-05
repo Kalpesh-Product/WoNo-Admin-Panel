@@ -1,5 +1,5 @@
 const addLog = async (path, data) => {
-  const Model = require(`../models/${path}`);
+  const Model = require(`../models/${path}`); //log model for the controller you're storing logs for
   const doc = await Model.create(data);
   return doc;
 };

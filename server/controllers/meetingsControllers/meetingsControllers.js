@@ -9,11 +9,14 @@ const {
   formatDuration,
 } = require("../../utils/formatDateTime");
 const Department = require("../../models/Departments");
-const MeetingLog = require("../../models/meetings/MeetingLog");
 const { createLog } = require("../../utils/moduleLogs");
 const CustomError = require("../../utils/customErrorlogs");
 
 const addMeetings = async (req, res, next) => {
+  const logPath = "meetings/MeetingLog";
+  const logAction = "Book Meeting";
+  const logSourceKey = "meeting";
+
   try {
     const {
       meetingType,
@@ -34,11 +37,6 @@ const addMeetings = async (req, res, next) => {
     const user = req.user;
     const ip = req.ip;
 
-    // Define log-related variables
-    const logPath = "meetings/MeetingLog";
-    const logAction = "Book Meeting";
-    const logSourceKey = "meeting";
-
     if (
       !meetingType ||
       !startDate ||
@@ -50,6 +48,7 @@ const addMeetings = async (req, res, next) => {
     ) {
       throw new CustomError(
         "Missing required fields",
+        400,
         logPath,
         logAction,
         logSourceKey
@@ -236,11 +235,17 @@ const addMeetings = async (req, res, next) => {
       changes: data,
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       message: "Meeting added successfully",
     });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, 500, logPath, logAction, logSourceKey)
+      );
+    }
   }
 };
 

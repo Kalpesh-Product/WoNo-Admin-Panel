@@ -1,7 +1,9 @@
 const Permissions = require("../../models/Permissions");
 const masterPermissions = require("../../config/masterPermissions");
 const Company = require("../../models/hr/Company");
+const CustomError = require("../../utils/customErrorlogs");
 const UserData = require("../../models/hr/UserData");
+const { createLog } = require("../../utils/moduleLogs");
 
 const userPermissions = async (req, res, next) => {
   try {
@@ -110,9 +112,8 @@ const userPermissions = async (req, res, next) => {
 
 const grantUserPermissions = async (req, res, next) => {
   try {
-    const { userId, permissions } = req.body; 
+    const { userId, permissions } = req.body;
     const companyId = req.company;
-
 
     if (
       !userId ||
@@ -264,4 +265,148 @@ const grantUserPermissions = async (req, res, next) => {
   }
 };
 
-module.exports = { userPermissions, grantUserPermissions };
+const revokeUserPermissions = async (req, res, next) => {
+  const logPath = "AccessLog";
+  const logAction = "Revoke User Permissions";
+  const logSourceKey = "permissions";
+
+  try {
+    const { userId, permissionsToRevoke } = req.body;
+    const companyId = req.company;
+
+    if (
+      !userId ||
+      !Array.isArray(permissionsToRevoke) ||
+      permissionsToRevoke.length === 0
+    ) {
+      throw new CustomError(
+        "Invalid request data",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    let userPermission = await Permissions.findOne({
+      user: userId,
+      company: companyId,
+    });
+    if (!userPermission) {
+      throw new CustomError(
+        "User permissions not found",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    for (const { departmentId, modules } of permissionsToRevoke) {
+      let deptIndex = userPermission.deptWisePermissions.findIndex(
+        (dept) => dept.department.toString() === departmentId
+      );
+      if (deptIndex === -1) continue;
+
+      if (!modules || modules.length === 0) {
+        userPermission.deptWisePermissions.splice(deptIndex, 1);
+        continue;
+      }
+
+      for (const { moduleName, submodules } of modules) {
+        let moduleIndex = userPermission.deptWisePermissions[
+          deptIndex
+        ].modules.findIndex((mod) => mod.moduleName === moduleName);
+        if (moduleIndex === -1) continue;
+
+        if (!submodules || submodules.length === 0) {
+          userPermission.deptWisePermissions[deptIndex].modules.splice(
+            moduleIndex,
+            1
+          );
+          continue;
+        }
+
+        for (const { submoduleName, actions } of submodules) {
+          let submoduleIndex = userPermission.deptWisePermissions[
+            deptIndex
+          ].modules[moduleIndex].submodules.findIndex(
+            (sub) => sub.submoduleName === submoduleName
+          );
+          if (submoduleIndex === -1) continue;
+
+          let existingActions =
+            userPermission.deptWisePermissions[deptIndex].modules[moduleIndex]
+              .submodules[submoduleIndex].actions;
+          let updatedActions = existingActions.filter(
+            (action) => !actions.includes(action)
+          );
+
+          if (updatedActions.length === 0) {
+            userPermission.deptWisePermissions[deptIndex].modules[
+              moduleIndex
+            ].submodules.splice(submoduleIndex, 1);
+          } else {
+            userPermission.deptWisePermissions[deptIndex].modules[
+              moduleIndex
+            ].submodules[submoduleIndex].actions = updatedActions;
+          }
+        }
+
+        if (
+          userPermission.deptWisePermissions[deptIndex].modules[moduleIndex]
+            .submodules.length === 0
+        ) {
+          userPermission.deptWisePermissions[deptIndex].modules.splice(
+            moduleIndex,
+            1
+          );
+        }
+      }
+
+      if (userPermission.deptWisePermissions[deptIndex].modules.length === 0) {
+        userPermission.deptWisePermissions.splice(deptIndex, 1);
+      }
+    }
+
+    await userPermission.save();
+
+    const updatedPermissions = userPermission.deptWisePermissions.map(
+      (dept) => ({
+        departmentId: dept.department,
+        modules: dept.modules.map((mod) => ({
+          name: mod.moduleName,
+          submodules: mod.submodules.map((sub) => ({
+            submoduleName: sub.submoduleName,
+            actions: sub.actions,
+          })),
+        })),
+      })
+    );
+
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Permissions revoked successfully",
+      status: "Success",
+      user: req.user,
+      ip: req.ip,
+      company: companyId,
+      sourceKey: logSourceKey,
+      sourceId: userPermission._id,
+      changes: { userId, revokedPermissions: permissionsToRevoke },
+    });
+
+    return res.status(200).json({
+      message: "Permissions revoked successfully",
+      userId,
+      updatedPermissions,
+    });
+  } catch (error) {
+    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+  }
+};
+
+module.exports = {
+  userPermissions,
+  grantUserPermissions,
+  revokeUserPermissions,
+};
