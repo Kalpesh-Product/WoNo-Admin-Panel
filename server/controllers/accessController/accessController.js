@@ -1,10 +1,11 @@
 const Permissions = require("../../models/Permissions");
 const masterPermissions = require("../../config/masterPermissions");
 const Company = require("../../models/hr/Company");
+const UserData = require("../../models/hr/UserData");
 
 const userPermissions = async (req, res, next) => {
   try {
-    const { userId } = req.params;
+    const { id } = req.params;
     const companyId = req.company;
 
     const company = await Company.findById(companyId).populate(
@@ -18,7 +19,7 @@ const userPermissions = async (req, res, next) => {
 
     // Step 2: Fetch user's granted permissions
     const userPermissions = await Permissions.findOne({
-      user: userId,
+      user: id,
       company: companyId,
     });
 
@@ -30,10 +31,10 @@ const userPermissions = async (req, res, next) => {
         grantedPermissionsMap[deptId] = {};
 
         deptPerm.modules.forEach((mod) => {
-          grantedPermissionsMap[deptId][mod.name] = {};
+          grantedPermissionsMap[deptId][mod.moduleName] = {};
 
           mod.submodules.forEach((sub) => {
-            grantedPermissionsMap[deptId][mod.name][sub.submoduleName] =
+            grantedPermissionsMap[deptId][mod.moduleName][sub.submoduleName] =
               sub.actions;
           });
         });
@@ -84,7 +85,6 @@ const userPermissions = async (req, res, next) => {
       }
     });
 
-    // 🔥 Fix: If user has no permissions, still return all available ones
     if (!userPermissions) {
       permissionResponse = masterPermissions
         .filter((dept) => selectedDepartments.includes(dept.departmentId))
@@ -96,7 +96,7 @@ const userPermissions = async (req, res, next) => {
             submodules: mod.submodules.map((sub) => ({
               submoduleName: sub.submoduleName,
               grantedActions: [],
-              availableActions: sub.actions, // 🔥 All actions are available
+              availableActions: sub.actions,
             })),
           })),
         }));
@@ -114,6 +114,10 @@ const grantUserPermissions = async (req, res, next) => {
       req.body;
 
     const companyId = req.company;
+    const foundUser = await UserData.findOne({ _id: userId })
+      .select("permissions")
+      .lean()
+      .exec();
 
     // Step 1: Validate Inputs
     if (
@@ -207,11 +211,11 @@ const grantUserPermissions = async (req, res, next) => {
     // Step 6: Find or Add Module Entry
     let moduleIndex = userPermission.deptWisePermissions[
       deptIndex
-    ].modules.findIndex((mod) => mod.name === moduleName);
+    ].modules.findIndex((mod) => mod.name.trim() === moduleName.trim());
 
     if (moduleIndex === -1) {
       userPermission.deptWisePermissions[deptIndex].modules.push({
-        name: moduleName,
+        moduleName,
         submodules: [],
       });
       moduleIndex =
@@ -243,9 +247,17 @@ const grantUserPermissions = async (req, res, next) => {
     }
 
     // Step 8: Save Updated Permissions
-    await userPermission.save();
+    const updatedUserPermission = await userPermission.save();
+    if (!foundUser.permissions) {
+      await UserData.findOneAndUpdate(
+        { _id: userId },
+        {
+          permissions: updatedUserPermission._id,
+        }
+      );
+    }
 
-    return res
+    res
       .status(200)
       .json({ message: "Permissions granted successfully", userPermission });
   } catch (error) {

@@ -161,6 +161,7 @@ import HrCommonAttendance from "../pages/HR/HrCommonAttendance";
 import HrCommonLeaves from "../pages/HR/HrCommonLeaves";
 import HrCommonAgreements from "../pages/HR/HrCommonAgreements";
 import HrCommonPayslips from "../pages/HR/HrCommonPayslips";
+import Unauthorized from "../pages/Unauthorized";
 
 export const routes = createBrowserRouter([
   {
@@ -941,6 +942,11 @@ export const routes = createBrowserRouter([
             ],
           },
         ],
+        
+      },
+      {
+        path: "unauthorized",
+        element: <Unauthorized />,
       },
     ],
   },

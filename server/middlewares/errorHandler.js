@@ -20,25 +20,7 @@ const errorHandler = async (err, req, res, next) => {
   const sourceId = null;
   const remarks = err.message;
 
-  if (req.method !== "GET") {
-    try {
-      await createLog({
-        path,
-        action,
-        remarks,
-        user,
-        ip,
-        company,
-        sourceKey,
-        sourceId,
-      });
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  }
-
-  res.status(statusCode).json({ message });
-  next();
+ return res.status(500).json(err)
 };
 
 module.exports = errorHandler;

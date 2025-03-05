@@ -60,7 +60,6 @@ const Header = () => {
 
   const handleSignOut = async () => {
     await logout();
-    navigate("/"); // Navigate to the login page after sign-out
   };
 
   const handleProfileClick = () => {

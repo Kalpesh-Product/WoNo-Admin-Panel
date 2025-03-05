@@ -12,7 +12,8 @@ import PayRollExpenseGraph from "../../../components/HrDashboardGraph/PayRollExp
 import MuiTable from "../../../components/Tables/MuiTable";
 import PieChartMui from "../../../components/graphs/PieChartMui";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import useAuth from "../../../hooks/useAuth";
 
 const LayerBarGraph = lazy(() =>
   import("../../../components/graphs/LayerBarGraph")
@@ -20,6 +21,21 @@ const LayerBarGraph = lazy(() =>
 
 const HrDashboard = () => {
   const axios = useAxiosPrivate();
+  const { auth } = useAuth();
+  console.log(auth.user.permissions)
+  const accessibleModules = new Set();
+
+  auth.user.permissions?.deptWisePermissions?.forEach((department) => {
+    department.modules.forEach((module) => {
+      const hasViewPermission = module.submodules.some((submodule) =>
+        submodule.actions.includes("View")
+      );
+
+      if (hasViewPermission) {
+        accessibleModules.add(module.moduleName);
+      }
+    });
+  });
 
   const usersQuery = useQuery({
     queryKey: ["users"],
@@ -332,39 +348,6 @@ const HrDashboard = () => {
     { id: "start", label: "Date", align: "left" },
   ];
 
-  const rows = [
-    {
-      SrNo: "1",
-      name: "Muskan Dodmani",
-      date: "25 Jan, 2025",
-    },
-    {
-      SrNo: "2",
-      name: "Anushri",
-      date: "26 Mar, 2025",
-    },
-    {
-      SrNo: "3",
-      name: "Allen Silvera",
-      date: "11 sept, 2025",
-    },
-    {
-      SrNo: "4",
-      name: "aiwinraj",
-      date: "10 oct, 2025",
-    },
-    {
-      SrNo: "5",
-      name: "Kalpesh Naik",
-      date: "28 oct, 2025",
-    },
-    {
-      SrNo: "6",
-      name: "Sankalp Kalangutkar",
-      date: "31 Dec, 2025",
-    },
-  ];
-
   const { data: birthdays = [], isLoading } = useQuery({
     queryKey: ["birthdays"],
     queryFn: async () => {
@@ -381,34 +364,6 @@ const HrDashboard = () => {
     { id: "id", label: "Sr No", align: "left" },
     { id: "title", label: "Holiday/Event", align: "center" },
     { id: "start", label: "Date", align: "left" },
-  ];
-
-  const rows2 = [
-    {
-      SrNo: "1",
-      holiday_event: "Indian Navy Day",
-      date: "12 Oct,2025",
-    },
-    {
-      SrNo: "2",
-      holiday_event: "Republic Day Celebration",
-      date: "24 Jan,2025",
-    },
-    {
-      SrNo: "3",
-      holiday_event: "Maha Shiv Ratri",
-      date: "10 Mar,2025",
-    },
-    {
-      SrNo: "4",
-      holiday_event: "Holi",
-      date: "14 Mar,2025",
-    },
-    {
-      SrNo: "5",
-      holiday_event: "Independance Day",
-      date: "15 Aug,2025",
-    },
   ];
 
   const { data: holidayEvents = [] } = useQuery({
@@ -480,19 +435,6 @@ const HrDashboard = () => {
       department: "Tech",
       "Performance (%)": "45",
     },
-  ];
-
-  const users = [
-    { name: "John", gender: "Male" },
-    { name: "Alice", gender: "Female" },
-    { name: "Bob", gender: "Male" },
-    { name: "Eve", gender: "Female" },
-    { name: "Charlie", gender: "Male" },
-    { name: "Charlie", gender: "Male" },
-    { name: "Diana", gender: "Female" },
-    { name: "Diana", gender: "Female" },
-    { name: "Mark", gender: "Male" },
-    { name: "James", gender: "Male" },
   ];
 
   // Calculate total and gender-specific counts
@@ -634,17 +576,17 @@ const HrDashboard = () => {
     {
       layout: 6,
       widgets: [
-        <Card icon={<CgWebsite />} title="Employee" route={"employee"} />,
-        <Card icon={<LuHardDriveUpload />} title="Company" route={"company"} />,
-        <Card icon={<SiCashapp />} title="Finance" route={"finance"} />,
-        <Card icon={<CgWebsite />} title="Mix Bag" route={"#"} />,
-        <Card icon={<SiGoogleadsense />} title="Data" route={"data"} />,
-        <Card
-          icon={<MdMiscellaneousServices />}
-          title="Settings"
-          route={"settings"}
-        />,
-      ],
+        { icon: <CgWebsite />, title: "Employee", route: "employee" },
+        { icon: <LuHardDriveUpload />, title: "Company", route: "company" },
+        { icon: <SiCashapp />, title: "Finance", route: "finance" },
+        { icon: <CgWebsite />, title: "Mix Bag", route: "#" },
+        { icon: <SiGoogleadsense />, title: "Data", route: "data" },
+        { icon: <MdMiscellaneousServices />, title: "Settings", route: "settings" },
+      ]
+        .filter((widget) => accessibleModules.has(widget.title)) // ✅ Filter widgets
+        .map((widget, index) => (
+          <Card key={index} icon={widget.icon} title={widget.title} route={widget.route} />
+        )), // ✅ Convert objects into JSX elements
     },
     {
       layout: 3,
@@ -669,11 +611,13 @@ const HrDashboard = () => {
             </Box>
           }
         >
-          <WidgetSection layout={1} border padding title={"Department Wise Tasks% Vs Achievements in %"}>
-            <LayerBarGraph
-              data={series}
-              options={options}
-            />
+          <WidgetSection
+            layout={1}
+            border
+            padding
+            title={"Department Wise Tasks% Vs Achievements in %"}
+          >
+            <LayerBarGraph data={series} options={options} />
           </WidgetSection>
         </Suspense>,
       ],
