@@ -28,6 +28,7 @@ const buildHierarchy = (users) => {
       workLocation: user.workLocation,
       roles: user.role.map((r) => r.roleTitle), // Multiple roles
       reportsTo: user.reportsTo ? user.reportsTo.roleTitle : null,
+      status: user.isActive,
       subordinates: [],
     });
   });

@@ -165,12 +165,15 @@ const bulkInsertWorkLocations = async (req, res, next) => {
     stream
       .pipe(csvParser())
       .on("data", (row) => {
-        if (row["Building Name"] && row["Full Address"] && row["Unit No"]) {
+        if (row["Building Name"] && row["Floor"] && row["Wing"]) {
           workLocations.push({
-            name: row["Building Name"],
-            fullAddress: row["Full Address"],
-            unitNo: row["Unit No"],
+            id: crypto.randomUUID(), 
+            buildingName: row["Building Name"],
+            fullAddress: row["Floor"],
+            unitNo: row["Wing"],
             isActive: true,
+            occupiedImage: { id: "", url: "" },
+            clearImage: { id: "", url: "" },
           });
         }
       })
