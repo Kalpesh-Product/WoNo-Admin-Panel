@@ -19,7 +19,7 @@ const handleRefreshToken = async (req, res, next) => {
         {
           path: "company",
           select:
-            "companyName selectedDepartments workLocations employeeTypes shifts policies agreements sops",
+            "companyName selectedDepartments workLocations employeeTypes shifts policies agreements sops permissions",
           populate: {
             path: "selectedDepartments.department",
             select: "name",
@@ -28,6 +28,7 @@ const handleRefreshToken = async (req, res, next) => {
         },
         { path: "role", select: "roleTitle" },
         { path: "departments", select: "name" },
+        { path: "permissions" },
       ])
       .lean()
       .exec();
