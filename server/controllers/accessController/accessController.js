@@ -1,6 +1,7 @@
 const Permissions = require("../../models/Permissions");
 const masterPermissions = require("../../config/masterPermissions");
 const Company = require("../../models/hr/Company");
+const UserData = require("../../models/hr/UserData");
 
 const userPermissions = async (req, res, next) => {
   try {
@@ -84,7 +85,6 @@ const userPermissions = async (req, res, next) => {
       }
     });
 
-    // 🔥 Fix: If user has no permissions, still return all available ones
     if (!userPermissions) {
       permissionResponse = masterPermissions
         .filter((dept) => selectedDepartments.includes(dept.departmentId))
@@ -96,7 +96,7 @@ const userPermissions = async (req, res, next) => {
             submodules: mod.submodules.map((sub) => ({
               submoduleName: sub.submoduleName,
               grantedActions: [],
-              availableActions: sub.actions, // 🔥 All actions are available
+              availableActions: sub.actions,
             })),
           })),
         }));
@@ -114,6 +114,10 @@ const grantUserPermissions = async (req, res, next) => {
       req.body;
 
     const companyId = req.company;
+    const foundUser = await UserData.findOne({ _id: userId })
+      .select("permissions")
+      .lean()
+      .exec();
 
     // Step 1: Validate Inputs
     if (
@@ -243,7 +247,15 @@ const grantUserPermissions = async (req, res, next) => {
     }
 
     // Step 8: Save Updated Permissions
-    await userPermission.save();
+    const updatedUserPermission = await userPermission.save();
+    if (!foundUser.permissions) {
+      await UserData.findOneAndUpdate(
+        { _id: userId },
+        {
+          permissions: updatedUserPermission._id,
+        }
+      );
+    }
 
     res
       .status(200)
