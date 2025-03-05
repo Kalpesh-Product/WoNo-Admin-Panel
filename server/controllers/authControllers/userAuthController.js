@@ -19,7 +19,7 @@ const login = async (req, res, next) => {
 
     const userExists = await User.findOne({ email })
       .select(
-        "firstName lastName role email empId password designation company departments"
+        "firstName lastName role email empId password designation company departments permissions"
       )
       .populate([
         {
@@ -29,6 +29,7 @@ const login = async (req, res, next) => {
         },
         { path: "role", select: "roleTitle" },
         { path: "departments", select: "name" },
+        { path: "permissions" },
       ])
       .lean()
       .exec();
