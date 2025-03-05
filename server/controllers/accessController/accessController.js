@@ -255,9 +255,9 @@ const grantUserPermissions = async (req, res, next) => {
 };
 
 const revokeUserPermissions = async (req, res, next) => {
-  const logPath = "permissions/PermissionLogs";
+  const logPath = "AccessLog";
   const logAction = "Revoke User Permissions";
-  const logSourceKey = "permission";
+  const logSourceKey = "permissions";
 
   try {
     const { userId, departmentId, moduleName, submoduleName, actions } =
@@ -267,7 +267,6 @@ const revokeUserPermissions = async (req, res, next) => {
     // Step 1: Validate Inputs
     if (
       !userId ||
-      !companyId ||
       !departmentId ||
       !moduleName ||
       !submoduleName ||
