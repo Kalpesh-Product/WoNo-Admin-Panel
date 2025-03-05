@@ -3,6 +3,7 @@ const masterPermissions = require("../../config/masterPermissions");
 const Company = require("../../models/hr/Company");
 const CustomError = require("../../utils/customErrorlogs");
 const UserData = require("../../models/hr/UserData");
+const { createLog } = require("../../utils/moduleLogs");
 
 const userPermissions = async (req, res, next) => {
   try {
@@ -323,7 +324,7 @@ const revokeUserPermissions = async (req, res, next) => {
     // Step 4: Find Module Entry
     let moduleIndex = userPermission.deptWisePermissions[
       deptIndex
-    ].modules.findIndex((mod) => mod.name === moduleName);
+    ].modules.findIndex((mod) => mod.moduleName === moduleName);
     if (moduleIndex === -1) {
       throw new CustomError(
         "Module not found in user permissions",
@@ -394,6 +395,7 @@ const revokeUserPermissions = async (req, res, next) => {
       sourceKey: logSourceKey,
       sourceId: userPermission._id,
       changes: {
+        employee: userId,
         revokedActions: actions,
         moduleName,
         submoduleName,

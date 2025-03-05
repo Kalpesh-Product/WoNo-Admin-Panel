@@ -7,6 +7,6 @@ const {
 
 router.get("/user-permissions/:id", userPermissions);
 router.post("/grant-permissions", grantUserPermissions);
-router.post("/revoke-permissions", revokeUserPermissions);
+router.patch("/revoke-permissions", revokeUserPermissions);
 
 module.exports = router;
