@@ -137,7 +137,7 @@ const Header = () => {
                 ? auth.user.designation.split(" ").slice(0, 3).join(" ") + "..."
                 : auth.user.designation}
             </span>
-            {isHovered ? (
+            {isHovered && auth.user.designation.split(" ").length > 1 ? (
               <div className="motion-preset-slide-up-sm absolute top-14 right-0 bg-white border-default border-primary rounded-md p-4 w-96">
                 <span>{auth.user.designation}</span>
               </div>

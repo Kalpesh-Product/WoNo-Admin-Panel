@@ -26,15 +26,6 @@ const AccessTree = () => {
     }
   };
 
-  const fetchUserPermissions = async (id) => {
-    try {
-      const response = await axios.get(`/api/company/user-permissions/${id}`);
-      return response.data;
-    } catch (error) {
-      throw new Error(error);
-    }
-  };
-
   const {
     data: hierarchy,
     isPending,
@@ -50,7 +41,6 @@ const AccessTree = () => {
 
     setHistory((prev) => [...prev, selectedUser]); // Push current selection to history
     setSelectedUser(user); // Set new selected user
-    navigate("permissions", { state: { user } });
   };
 
   // Handle going back to the previous user
@@ -117,15 +107,20 @@ const AccessTree = () => {
 };
 
 const HierarchyCard = ({ user, handleSelectUser }) => {
+  const navigate = useNavigate();
   return (
     <div
       className={`bg-white flex flex-col shadow-primary border-primary border-default rounded-lg p-4 pt-0 px-0  text-center cursor-pointer relative w-60 transition `}
-      onClick={() => handleSelectUser(user)} // Select user
     >
       <div className="w-full flex flex-col justify-center">
         <div className="absolute -top-7 left-[6rem] border-default border-primary rounded-full w-12 h-12 bg-red-50"></div>
       </div>
-      <div className="bg-primary text-white p-2 pt-4">
+      <div
+        onClick={() => {
+          navigate("permissions", { state: { user } });
+        }}
+        className="bg-primary text-white p-2 pt-4"
+      >
         <span className="text-subtitle font-semibold">{user.name}</span>
       </div>
       <span className="text-content mt-2">
@@ -134,12 +129,15 @@ const HierarchyCard = ({ user, handleSelectUser }) => {
           : user.designation}
       </span>
 
-      <span className="text-content">{user.workLocation}</span>
+      {/* <span className="text-content">{user.workLocation}</span> */}
       <span className="text-small text-primary">{user.email}</span>
 
       {/* Show subordinates count if applicable */}
       {user.subordinates && user.subordinates.length > 0 && (
-        <p className="mt-2 text-xs text-gray-500">
+        <p
+          onClick={() => handleSelectUser(user)}
+          className="mt-2 text-xs text-gray-500 hover:underline"
+        >
           {user.subordinates.length} Subordinate
           {user.subordinates.length > 1 ? "s" : ""}
         </p>
