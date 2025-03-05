@@ -265,151 +265,6 @@ const grantUserPermissions = async (req, res, next) => {
   }
 };
 
-// const revokeUserPermissions = async (req, res, next) => {
-//   const logPath = "AccessLog";
-//   const logAction = "Revoke User Permissions";
-//   const logSourceKey = "permissions";
-
-//   try {
-//     const { userId, departmentId, moduleName, submoduleName, actions } =
-//       req.body;
-//     const companyId = req.company;
-
-//     // Step 1: Validate Inputs
-//     if (
-//       !userId ||
-//       !departmentId ||
-//       !moduleName ||
-//       !submoduleName ||
-//       !actions ||
-//       !Array.isArray(actions)
-//     ) {
-//       throw new CustomError(
-//         "Invalid request data",
-//         logPath,
-//         logAction,
-//         logSourceKey
-//       );
-//     }
-
-//     // Step 2: Find User's Permission Entry
-//     let userPermission = await Permissions.findOne({
-//       user: userId,
-//       company: companyId,
-//     });
-//     if (!userPermission) {
-//       throw new CustomError(
-//         "User permissions not found",
-//         logPath,
-//         logAction,
-//         logSourceKey
-//       );
-//     }
-
-//     // Step 3: Find Department Entry
-//     let deptIndex = userPermission.deptWisePermissions.findIndex(
-//       (dept) => dept.department.toString() === departmentId
-//     );
-//     if (deptIndex === -1) {
-//       throw new CustomError(
-//         "Department not found in user permissions",
-//         logPath,
-//         logAction,
-//         logSourceKey
-//       );
-//     }
-
-//     // Step 4: Find Module Entry
-//     let moduleIndex = userPermission.deptWisePermissions[
-//       deptIndex
-//     ].modules.findIndex((mod) => mod.moduleName === moduleName);
-//     if (moduleIndex === -1) {
-//       throw new CustomError(
-//         "Module not found in user permissions",
-//         logPath,
-//         logAction,
-//         logSourceKey
-//       );
-//     }
-
-//     // Step 5: Find Submodule Entry
-//     let submoduleIndex = userPermission.deptWisePermissions[deptIndex].modules[
-//       moduleIndex
-//     ].submodules.findIndex((sub) => sub.submoduleName === submoduleName);
-//     if (submoduleIndex === -1) {
-//       throw new CustomError(
-//         "Submodule not found in user permissions",
-//         logPath,
-//         logAction,
-//         logSourceKey
-//       );
-//     }
-
-//     // Step 6: Remove specified actions
-//     let existingActions =
-//       userPermission.deptWisePermissions[deptIndex].modules[moduleIndex]
-//         .submodules[submoduleIndex].actions;
-//     let updatedActions = existingActions.filter(
-//       (action) => !actions.includes(action)
-//     );
-
-//     if (updatedActions.length === 0) {
-//       // Remove the entire submodule if no actions remain
-//       userPermission.deptWisePermissions[deptIndex].modules[
-//         moduleIndex
-//       ].submodules.splice(submoduleIndex, 1);
-//     } else {
-//       userPermission.deptWisePermissions[deptIndex].modules[
-//         moduleIndex
-//       ].submodules[submoduleIndex].actions = updatedActions;
-//     }
-
-//     // Step 7: Clean up empty structures
-//     if (
-//       userPermission.deptWisePermissions[deptIndex].modules[moduleIndex]
-//         .submodules.length === 0
-//     ) {
-//       userPermission.deptWisePermissions[deptIndex].modules.splice(
-//         moduleIndex,
-//         1
-//       );
-//     }
-//     if (userPermission.deptWisePermissions[deptIndex].modules.length === 0) {
-//       userPermission.deptWisePermissions.splice(deptIndex, 1);
-//     }
-
-//     // Step 8: Save updated permissions
-//     await userPermission.save();
-
-//     // Log the successful revocation
-//     await createLog({
-//       path: logPath,
-//       action: logAction,
-//       remarks: "Permissions revoked successfully",
-//       status: "Success",
-//       user: req.user,
-//       ip: req.ip,
-//       company: companyId,
-//       sourceKey: logSourceKey,
-//       sourceId: userPermission._id,
-//       changes: {
-//         employee: userId,
-//         revokedActions: actions,
-//         moduleName,
-//         submoduleName,
-//         departmentId,
-//       },
-//     });
-
-//     return res.status(200).json({
-//       message: "Permissions revoked successfully",
-//       userPermission,
-//     });
-//   } catch (error) {
-//     next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
-//   }
-// };
-
 const revokeUserPermissions = async (req, res, next) => {
   const logPath = "AccessLog";
   const logAction = "Revoke User Permissions";
@@ -445,11 +300,7 @@ const revokeUserPermissions = async (req, res, next) => {
       );
     }
 
-    for (const {
-      departmentId,
-      departmentName,
-      modules,
-    } of permissionsToRevoke) {
+    for (const { departmentId, modules } of permissionsToRevoke) {
       let deptIndex = userPermission.deptWisePermissions.findIndex(
         (dept) => dept.department.toString() === departmentId
       );
@@ -460,7 +311,7 @@ const revokeUserPermissions = async (req, res, next) => {
         continue;
       }
 
-      for (const { name: moduleName, submodules } of modules) {
+      for (const { moduleName, submodules } of modules) {
         let moduleIndex = userPermission.deptWisePermissions[
           deptIndex
         ].modules.findIndex((mod) => mod.moduleName === moduleName);
@@ -521,7 +372,6 @@ const revokeUserPermissions = async (req, res, next) => {
     const updatedPermissions = userPermission.deptWisePermissions.map(
       (dept) => ({
         departmentId: dept.department,
-        departmentName: dept.departmentName,
         modules: dept.modules.map((mod) => ({
           name: mod.moduleName,
           submodules: mod.submodules.map((sub) => ({

@@ -7,40 +7,43 @@
 const { createLog } = require("../utils/moduleLogs");
 
 const errorHandler = async (err, req, res, next) => {
-  err.stack;
+  try {
+    const { user, ip, company } = req;
 
-  const { user, ip, company } = req;
+    const statusCode = err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+    const path = err.path || req.originalUrl || "";
+    const action = err.action || req.originalUrl || "Unknown API Error";
+    const sourceKey = err.sourceKey || "";
+    const sourceId = null;
+    const remarks = err.message;
 
-  const statusCode = err.statusCode || 400;
-  const message = err.message || "Internal Server Error";
-
-  const path = err.path || "system/ErrorLogs";
-  const action = err.action || req.originalUrl || "Unknown API Error";
-  const sourceKey = err.sourceKey || "sourceKey";
-  const sourceId = null;
-  const remarks = err.message;
-
-  if (req.method !== "GET") {
-    try {
-      await createLog({
-        path,
-        action,
-        remarks,
-        user,
-        ip,
-        company,
-        sourceKey,
-        sourceId,
-      });
-    } catch (error) {
-      return res
-        .status(statusCode)
-        .json({ message: "Add logs to the controller", error });
+    if (req.method !== "GET") {
+      try {
+        await createLog({
+          path,
+          action,
+          remarks,
+          user,
+          ip,
+          company,
+          sourceKey,
+          sourceId,
+        });
+      } catch (logError) {
+        return res
+          .status(500)
+          .json({ message: "Logging failed", error: logError });
+      }
     }
-  }
 
-  res.status(statusCode).json({ message });
-  next();
+    return res.status(statusCode).json({ message, path });
+  } catch (criticalError) {
+    return res.status(500).json({
+      message: "Critical error in error handler",
+      error: criticalError,
+    });
+  }
 };
 
 module.exports = errorHandler;
