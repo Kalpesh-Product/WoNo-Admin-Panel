@@ -34,7 +34,7 @@ const errorHandler = async (err, req, res, next) => {
       });
     } catch (error) {
       return res
-        .status(500)
+        .status(statusCode)
         .json({ message: "Add logs to the controller", error });
     }
   }
