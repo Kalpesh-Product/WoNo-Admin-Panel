@@ -107,6 +107,8 @@ const TasksDashboard = () => {
   const calculatePendingTasks = (tasks) => {
     // Group tasks by department
     const departmentMap = tasks.reduce((acc, task) => {
+      
+
       const department = task.project.department.name;
       const isPending = task.status === "Pending";
   
@@ -126,7 +128,7 @@ const TasksDashboard = () => {
     }));
   };
   
-  const tasks = allTasksQuery.data ? allTasksQuery.data : []
+  const tasks = allTasksQuery.isLoading ? [] : allTasksQuery.data
   
   const departmentPendingStats = calculatePendingTasks(tasks);
 
@@ -152,7 +154,10 @@ const TasksDashboard = () => {
       id: index + 1,
       meeting: meeting.subject,
       location: meeting.roomName,
-      participants: meeting.participants?.length > 0 ? meeting.participants.map((participant)=> participant.email) : [],
+      participants: meeting?.participants?.length > 0 ? meeting.participants.map((participant)=> ({
+        name: participant.email,
+        avatar: "https://ui-avatars.com/api/?name=Alice+Johnson&background=random"
+      })) : [],
       time: meeting.startTime
     }
   }) : []
