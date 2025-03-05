@@ -4,30 +4,64 @@ import AgTable from "../../../../../components/AgTable";
 import { toast } from "sonner";
 import BarGraph from "../../../../../components/graphs/BarGraph";
 import DataCard from "../../../../../components/DataCard";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import useAxiosPrivate from "../../../../../hooks/useAxiosPrivate";
 import { useLocation, useParams } from "react-router-dom";
-import MuiModal from '../../../../../components/MuiModal'
-import {Controller,useForm} from 'react-hook-form'
+import MuiModal from "../../../../../components/MuiModal";
+import { Controller, useForm } from "react-hook-form";
 import humanDate from "../../../../../utils/humanDateForamt";
+import {
+  DatePicker,
+  LocalizationProvider,
+  TimePicker,
+} from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
+import SecondaryButton from "../../../../../components/SecondaryButton";
+import PrimaryButton from "../../../../../components/PrimaryButton";
+import { TextField } from "@mui/material";
 
 const Attendance = () => {
   const axios = useAxiosPrivate();
-  const [openModal,setOpenModal] = useState(false)
+  const queryClient = useQueryClient();
+  const { control, reset, handleSubmit } = useForm({
+    defaultValues: {
+      targetedDay: null,
+      inTime: null,
+      outTime: null,
+    },
+  });
+  const [openModal, setOpenModal] = useState(false);
   const { id } = useParams();
   const name = localStorage.getItem("employeeName") || "Employee";
 
+  const fetchAttendance = async () => {
+    try {
+      const response = await axios.get(`/api/attendance/get-attendance/${id}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response.data.message);
+    }
+  };
+
   const { data: attendance, isLoading } = useQuery({
     queryKey: ["attendance"],
-    queryFn: async () => {
-      try {
-        const response = await axios.get(
-          `/api/attendance/get-attendance/${id}`
-        );
-        return response.data;
-      } catch (error) {
-        throw new Error(error.response.data.message);
-      }
+    queryFn: fetchAttendance,
+  });
+
+  const { mutate: correctionPost, isPending: correctionPending } = useMutation({
+    mutationFn: async (data) => {
+      const response = axios.post("/api/attendance/correct-attendance", data);
+      return response.data;
+    },
+    onSuccess: function (data) {
+      setOpenModal(false);
+      toast.success(data.message);
+      queryClient.invalidateQueries({ queryKey: ["attendance"] });
+      reset();
+    },
+    onError: function (data) {
+      toast.error(data.message);
     },
   });
   const attendanceColumns = [
@@ -365,6 +399,11 @@ const Attendance = () => {
     },
   };
 
+  const onSubmit = (data) => {
+    console.log(data);
+    correctionPost(data);
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <div>
@@ -385,7 +424,9 @@ const Attendance = () => {
           key={isLoading ? 1 : attendance.length}
           tableTitle={`${name}'s Attendance Table`}
           buttonTitle={"Correction Request"}
-          handleClick={()=>{}}
+          handleClick={() => {
+            setOpenModal(true);
+          }}
           search={true}
           searchColumn={"Date"}
           data={
@@ -404,7 +445,7 @@ const Attendance = () => {
                 ]
               : attendance.map((record, index) => ({
                   id: index + 1,
-                  date: humanDate(record.date) ,
+                  date: humanDate(record.date),
                   inTime: record.inTime,
                   outTime: record.outTime,
                   workHours: record.workHours,
@@ -416,12 +457,80 @@ const Attendance = () => {
           columns={attendanceColumns}
         />
       </div>
-      <MuiModal title={"Correction Request"} open={openModal} onClose={()=>{setOpenModal(false)}}>
-          <div>
-            <form>
-              <Controller name="targetedDay" />
-            </form>
-          </div>
+      <MuiModal
+        title={"Correction Request"}
+        open={openModal}
+        onClose={() => {
+          setOpenModal(false);
+        }}
+      >
+        <div>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-4"
+          >
+            <Controller
+              name="targetedDay"
+              control={control}
+              render={({ field }) => (
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    {...field}
+                    label={"Select Date"}
+                    format="DD-MM-YYYY"
+                    value={field.value ? dayjs(field.value) : null}
+                    onChange={(date) => {
+                      field.onChange(date ? date.toISOString() : null);
+                    }}
+                  />
+                </LocalizationProvider>
+              )}
+            />
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <Controller
+                name="inTime"
+                control={control}
+                render={({ field }) => (
+                  <TimePicker
+                    {...field}
+                    label={"Select In-Time"}
+                    slotProps={{ textField: { size: "small" } }}
+                    render={(params) => <TextField {...params} fullWidth />}
+                  />
+                )}
+              />
+            </LocalizationProvider>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <Controller
+                name="outTime"
+                control={control}
+                render={({ field }) => (
+                  <TimePicker
+                    {...field}
+                    label={"Select Out-Time"}
+                    slotProps={{ textField: { size: "small" } }}
+                    render={(params) => <TextField {...params} fullWidth />}
+                  />
+                )}
+              />
+            </LocalizationProvider>
+
+            <div className="flex items-center justify-center gap-4">
+              <SecondaryButton
+                title={"Cancel"}
+                handleSubmit={() => {
+                  setOpenModal(false);
+                }}
+              />
+              <PrimaryButton
+                title={"Submit"}
+                type={"submit"}
+                isLoading={correctionPending}
+                disabled={correctionPending}
+              />
+            </div>
+          </form>
+        </div>
       </MuiModal>
     </div>
   );

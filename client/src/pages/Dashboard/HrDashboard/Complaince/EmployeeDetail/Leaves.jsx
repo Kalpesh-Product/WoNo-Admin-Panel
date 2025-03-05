@@ -32,59 +32,6 @@ const Leaves = () => {
     { field: "status", headerName: "Status" },
   ];
 
-  const rows = [
-    {
-      id: 1,
-      fromDate: "2025-01-01",
-      toDate: "2025-01-02",
-      leaveType: "Annual Leave",
-      leavePeriod: "Full Day",
-      hours: 8,
-      description: "New Year Vacation",
-      status: "Approved",
-    },
-    {
-      id: 2,
-      fromDate: "2025-02-14",
-      toDate: "2025-02-14",
-      leaveType: "Sick Leave",
-      leavePeriod: "Half Day",
-      hours: 4,
-      description: "Fever",
-      status: "Approved",
-    },
-    {
-      id: 3,
-      fromDate: "2025-03-08",
-      toDate: "2025-03-08",
-      leaveType: "Casual Leave",
-      leavePeriod: "Full Day",
-      hours: 8,
-      description: "Personal Work",
-      status: "Approved",
-    },
-    {
-      id: 4,
-      fromDate: "2025-04-10",
-      toDate: "2025-04-12",
-      leaveType: "Annual Leave",
-      leavePeriod: "3 Days",
-      hours: 24,
-      description: "Family Vacation",
-      status: "Approved",
-    },
-    {
-      id: 5,
-      fromDate: "2025-05-01",
-      toDate: "2025-05-01",
-      leaveType: "Compensatory Off",
-      leavePeriod: "Full Day",
-      hours: 8,
-      description: "Overtime Compensation",
-      status: "Approved",
-    },
-  ];
-
   const leavesData = {
     user: "Aiwin",
     allocated: 12,

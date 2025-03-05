@@ -1,10 +1,10 @@
 import React from "react";
-import AgTable from "../../../../../components/AgTable";
-import useAxiosPrivate from "../../../../../hooks/useAxiosPrivate";
+import AgTable from "../../components/AgTable";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { useQuery } from "@tanstack/react-query";
 import { Chip } from "@mui/material";
 
-const Agreements = () => {
+const HrCommonAgreements = () => {
   const axios = useAxiosPrivate()
   const agreementColumn = [
     { field: "name", headerName: "Agreement Name", flex:1 },
@@ -56,8 +56,7 @@ const Agreements = () => {
         <AgTable
         key={agreements.length}
           search={true}
-          searchColumn={"Agreement Name"}
-          tableTitle={"Aiwin's Agreement List"}
+          tableTitle={"Agreement List"}
           buttonTitle={"Add Agreement"}
           data={[
             ...agreements.map((agreement, index) => ({
@@ -73,4 +72,4 @@ const Agreements = () => {
   );
 };
 
-export default Agreements;
+export default HrCommonAgreements;
