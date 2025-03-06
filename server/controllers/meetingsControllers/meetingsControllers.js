@@ -248,6 +248,56 @@ const addMeetings = async (req, res, next) => {
   }
 };
 
+const getAvaliableUsers = async (req, res, next) => {
+  try {
+    const { startTime, endTime } = req.body;
+    if (!startTime || !endTime) {
+      return res.status(400).json({ message: "Please provide a valid date" });
+    }
+
+    if (
+      isNaN(new Date(startTime).getTime()) ||
+      isNaN(new Date(endTime).getTime())
+    ) {
+      return res.status(400).json({ message: "Please provide a valid date" });
+    }
+
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+
+    const meetings = await Meeting.find({
+      company: req.company,
+      $and: [{ startDate: { $lte: end } }, { endDate: { $gte: start } }],
+    })
+      .select("bookedBy internalParticipants")
+      .lean()
+      .exec();
+
+    const unavailableUserIds = new Set();
+    meetings.forEach((meeting) => {
+      if (meeting.bookedBy) unavailableUserIds.add(meeting.bookedBy.toString());
+      if (meeting.internalParticipants) {
+        meeting.internalParticipants.forEach((userId) =>
+          unavailableUserIds.add(userId.toString())
+        );
+      }
+    });
+
+    // Fetch all users and filter out unavailable ones
+    const availableUsers = await UserData.find({
+      company: req.company,
+      _id: { $nin: Array.from(unavailableUserIds) }, // Exclude unavailable users
+    })
+      .select("_id firstName lastName email")
+      .lean()
+      .exec();
+
+    res.status(200).json(availableUsers);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getMeetings = async (req, res, next) => {
   try {
     const { user, company } = req;

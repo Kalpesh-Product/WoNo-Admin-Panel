@@ -214,7 +214,7 @@ const fetchUser = async (req, res, next) => {
           { path: "role", select: "roleTitle modulePermissions" },
         ]);
 
-      res.status(200).json(users);
+     return res.status(200).json(users);
     }
 
     const users = await User.find({ company })
@@ -232,8 +232,7 @@ const fetchUser = async (req, res, next) => {
     }
     res.status(200).json(users);
   } catch (error) {
-    "Error fetching users : ", error;
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 };
 
