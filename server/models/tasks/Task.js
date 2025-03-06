@@ -38,7 +38,6 @@ const taskSchema = new mongoose.Schema({
   dueTime: {
     type: Date,
     default: null,
-    // match: /^([0-1]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/,
   },
   status: {
     type: String,
@@ -47,11 +46,17 @@ const taskSchema = new mongoose.Schema({
   },
   priority: {
     type: String,
-    required: true,
+    default: "Medium",
+    enum: ["High", "Medium", "Low"],
   },
   taskType: {
     type: String,
     enum: ["Daily", "Monthly", "Additional"],
+    required: true,
+  },
+  taskTag: {
+    type: String,
+    enum: ["KRA", "KPI"],
     required: true,
   },
   isDeleted: {
