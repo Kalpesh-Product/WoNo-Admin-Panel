@@ -46,7 +46,7 @@ async function filterAcceptTickets(userId, loggedInUser) {
   }
 
   const acceptedTickets = await Ticket.find({
-    accepted: userId,
+    acceptedBy: userId,
     status: "In Progress",
   })
     .populate([

@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const UserData = require("../../../models/hr/UserData");
 const CustomError = require("../../../utils/customErrorlogs");
 const { createLog } = require("../../../utils/moduleLogs");
@@ -27,16 +28,7 @@ const addEmployeeLeaves = async (req, res, next) => {
       );
     }
 
-    if (!mongoose.Types.ObjectId.isValid(employeeId)) {
-      throw new CustomError(
-        "Invalid employee ID provided",
-        logPath,
-        logAction,
-        logSourceKey
-      );
-    }
-
-    const employee = await UserData.findById({ empId: employeeId })
+    const employee = await UserData.findOne({ empId: employeeId })
       .lean()
       .exec();
 

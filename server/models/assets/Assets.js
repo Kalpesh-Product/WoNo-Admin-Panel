@@ -27,7 +27,7 @@ const assetsSchema = new mongoose.Schema({
   },
   price: {
     type: Number,
-    reqired: true,
+    required: true,
   },
   warranty: {
     type: Number,
