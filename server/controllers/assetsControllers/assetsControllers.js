@@ -283,7 +283,13 @@ const addAsset = async (req, res, next) => {
       asset: newAsset,
     });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 

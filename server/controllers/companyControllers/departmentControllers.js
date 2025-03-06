@@ -66,7 +66,13 @@ const createDepartment = async (req, res, next) => {
 
     return res.status(201).json({ message: "New department created" });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
@@ -145,7 +151,13 @@ const assignAdmin = async (req, res, next) => {
       department: updatedDepartment,
     });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 

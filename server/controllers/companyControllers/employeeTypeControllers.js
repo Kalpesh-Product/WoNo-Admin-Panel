@@ -65,7 +65,13 @@ const addEmployeeType = async (req, res, next) => {
       .status(200)
       .json({ message: "Employee type added successfully" });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 

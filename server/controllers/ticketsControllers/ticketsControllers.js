@@ -122,7 +122,13 @@ const raiseTicket = async (req, res, next) => {
 
     return res.status(201).json({ message: "Ticket raised successfully" });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
@@ -305,7 +311,13 @@ const acceptTicket = async (req, res, next) => {
 
     return res.status(200).json({ message: "Ticket accepted successfully" });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
@@ -427,7 +439,13 @@ const assignTicket = async (req, res, next) => {
 
     return res.status(200).json({ message: "Ticket assigned successfully" });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
@@ -534,7 +552,13 @@ const escalateTicket = async (req, res, next) => {
 
     return res.status(200).json({ message: "Ticket escalated successfully" });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
@@ -628,7 +652,13 @@ const closeTicket = async (req, res, next) => {
 
     return res.status(200).json({ message: "Ticket closed successfully" });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 

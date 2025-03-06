@@ -103,7 +103,13 @@ const assignAsset = async (req, res, next) => {
       assignEntry,
     });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
@@ -197,7 +203,13 @@ const processAssetRequest = async (req, res, next) => {
       message: `Asset assignment request ${action.toLowerCase()} successfully.`,
     });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
@@ -274,7 +286,13 @@ const revokeAsset = async (req, res, next) => {
       .status(200)
       .json({ message: "Asset successfully revoked from user." });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
