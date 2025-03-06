@@ -3,6 +3,7 @@ import AgTable from "../../components/AgTable";
 import PrimaryButton from "../../components/PrimaryButton";
 import { Chip, CircularProgress } from "@mui/material";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
 
 import {
   TextField,
@@ -26,8 +27,6 @@ const RaiseTicket = () => {
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [ticketIssues, setTicketIssues] = useState([]); // State for ticket issues
   const [deptLoading, setDeptLoading] = useState(false);
-  const [ticketsLoading, setTicketsLoading] = useState(false);
-  const [tickets, setTickets] = useState([]);
   const axios = useAxiosPrivate();
 
   // Fetch departments and ticket issues in the same useEffect
@@ -63,38 +62,26 @@ const RaiseTicket = () => {
     mutationFn: async (data) => {},
   });
 
-  // Reusable function to fetch tickets
-  const getTickets = async () => {
-    try {
-      setTicketsLoading(true);
-      const response = await axios.get("/api/tickets/get-tickets");
-      const filteredTickets = response.data.filter(
-        (ticket) => !ticket.accepted
-      );
-      setTickets(filteredTickets);
-    } catch (error) {
-      return null;
-    }
-  };
-
-  // Initial data fetch when the component mounts
-  const { data: ticketsData = [], isPending: ticketsPendng } = useQuery({
-    queryKey: ["ticketsData"],
-    queryFn: getTickets,
+  const { data: tickets, isPending: ticketsLoading } = useQuery({
+    queryKey: ["my tickets"],
+    queryFn: async function () {
+      const response = await axios.get("/api/tickets?flag=raisedTodayByMe");
+      return response.data;
+    },
   });
 
   const transformTicketsData = (tickets) => {
     return tickets.map((ticket) => ({
       id: ticket._id,
       raisedBy: ticket.raisedBy?.firstName || "Unknown",
-      fromDepartment: ticket.raisedToDepartment.name || "N/A",
+      toDepartment: ticket.raisedToDepartment.name || "N/A",
       ticketTitle: ticket.ticket || "No Title",
       status: ticket.status || "Pending",
     }));
   };
 
   // Example usage
-  const rows = transformTicketsData(ticketsData);
+  const rows = ticketsLoading ? [] : transformTicketsData(tickets);
 
   const handleChange = (field, value) => {
     setDetails((prev) => ({ ...prev, [field]: value }));
@@ -102,7 +89,7 @@ const RaiseTicket = () => {
 
   const recievedTicketsColumns = [
     { field: "raisedBy", headerName: "Raised By" },
-    { field: "fromDepartment", headerName: "From Department" },
+    { field: "toDepartment", headerName: "To Department" },
     { field: "ticketTitle", headerName: "Ticket Title", flex: 1 },
 
     {
@@ -195,36 +182,27 @@ const RaiseTicket = () => {
           Raise A Ticket
         </h3>
         <div className="grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 gap-4">
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <Controller
-              name="department"
-              control={control}
-              render={({ field }) => (
-                <>
-                  <InputLabel>Department</InputLabel>
-                  <Select {...field} label="Department">
-                    <MenuItem value="">Select Department</MenuItem>
-                    {deptLoading ? (
-                      <CircularProgress color="black" />
-                    ) : (
-                      departments?.map((dept) => (
-                        <MenuItem
-                          key={dept.department._id}
-                          value={dept.department._id}
-                        >
-                          {dept.department.name}
-                        </MenuItem>
-                      ))
-                    )}
-                  </Select>
-                </>
+          <FormControl size="small" fullWidth>
+            <InputLabel>Department</InputLabel>
+            <Select
+              label="Department"
+              onChange={(e) => handleDepartmentSelect(e.target.value)}
+            >
+              <MenuItem value="something">Select Department</MenuItem>
+              {deptLoading ? (
+                <CircularProgress color="black" />
+              ) : (
+                departments?.map((dept) => (
+                  <MenuItem
+                    key={dept.department._id}
+                    value={dept.department._id}
+                  >
+                    {dept.department.name}
+                  </MenuItem>
+                ))
               )}
-            />
-
-            <Controller
-             />
-          </form>
-          <FormControl size="small" fullWidth></FormControl>
+            </Select>
+          </FormControl>
 
           <FormControl size="small" fullWidth>
             <InputLabel>Ticket Title</InputLabel>
@@ -278,7 +256,7 @@ const RaiseTicket = () => {
       </div>
       <div className="rounded-md bg-white p-4 border-2 ">
         <div className="flex flex-row justify-between mb-4">
-          <div className="text-[20px]">Tickets Raised Today</div>
+          <div className="text-[20px]">My today&apos;s tickets</div>
         </div>
         <div className=" w-full">
           {ticketsLoading ? (

@@ -8,6 +8,8 @@ const {
   filterSupportTickets,
   filterEscalatedTickets,
   filterAssignedTickets,
+  filterMyTickets,
+  filterTodayTickets,
 } = require("../../utils/filterTickets");
 const Company = require("../../models/hr/Company");
 const { createLog } = require("../../utils/moduleLogs");
@@ -155,8 +157,10 @@ const getTickets = async (req, res, next) => {
 
     let matchingTickets;
 
-    if (loggedInUser.role.roleTitle === "Master-Admin") {
-      // Master-Admin can view all pending tickets in the company
+    if (
+      loggedInUser.role.roleTitle === "Master Admin" ||
+      loggedInUser.role.roleTitle === "Master Admin"
+    ) {
       matchingTickets = await Tickets.find({
         accepted: { $exists: false },
         raisedBy: { $ne: loggedInUser._id },
@@ -179,7 +183,15 @@ const getTickets = async (req, res, next) => {
         status: "Pending",
       })
         .populate([
-          { path: "raisedBy", select: "firstName lastName" },
+          {
+            path: "raisedBy",
+            select: "firstName lastName departments",
+            populate: {
+              path: "departments",
+              select: "name",
+              model: "Department",
+            },
+          },
           { path: "raisedToDepartment", select: "name" },
         ])
         .lean()
@@ -664,7 +676,7 @@ const fetchFilteredTickets = async (req, res, next) => {
   try {
     const { user } = req;
 
-    const { flag } = req.params;
+    const { flag } = req.query;
 
     const loggedInUser = await User.findOne({ _id: user })
       .select("-refreshToken -password")
@@ -713,6 +725,14 @@ const fetchFilteredTickets = async (req, res, next) => {
           loggedInUser
         );
         break;
+      case "raisedByMe":
+        filteredTickets = await filterMyTickets(loggedInUser);
+        break;
+
+      case "raisedTodayByMe":
+        filteredTickets = await filterTodayTickets(loggedInUser);
+        break;
+
       default:
         return res.sendStatus(404);
     }

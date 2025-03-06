@@ -67,15 +67,14 @@ const RecievedTickets = ({ title }) => {
     ("I am Clicked");
     setOpen(true);
   };
-  
 
   const transformTicketsData = (tickets) => {
     let Srno = 0;
     return tickets.map((ticket) => ({
-       
       id: ticket._id,
       raisedBy: ticket.raisedBy?.firstName || "Unknown",
-      fromDepartment: ticket.raisedToDepartment.name || "N/A",
+      fromDepartment:
+        ticket.raisedBy.departments.map((dept) => dept.name) || "N/A",
       ticketTitle: ticket?.ticket || "No Title",
       status: ticket.status || "Pending",
     }));
@@ -95,7 +94,6 @@ const RecievedTickets = ({ title }) => {
   ];
 
   const recievedTicketsColumns = [
-    
     { field: "raisedBy", headerName: "Raised By" },
     { field: "fromDepartment", headerName: "From Department" },
     { field: "ticketTitle", headerName: "Ticket Title", flex: 1 },

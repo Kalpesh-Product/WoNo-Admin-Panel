@@ -31,6 +31,6 @@ router.post("/escalate-ticket", escalateTicket);
 router.post("/close-ticket", closeTicket);
 router.post("/support-ticket", supportTicket);
 router.get("/support-tickets", getSupportedTickets);
-router.get("/filtered-tickets/:flag", fetchFilteredTickets);
+router.get("/", fetchFilteredTickets);
 
 module.exports = router;

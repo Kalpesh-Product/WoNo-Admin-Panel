@@ -1,12 +1,10 @@
 const router = require("express").Router();
 const {
   userPermissions,
-  grantUserPermissions,
-  revokeUserPermissions,
+  modifyUserPermissions,
 } = require("../controllers/accessController/accessController");
 
 router.get("/user-permissions/:id", userPermissions);
-router.post("/grant-permissions", grantUserPermissions);
-router.patch("/revoke-permissions", revokeUserPermissions);
+router.post("/modify-permissions", modifyUserPermissions);
 
 module.exports = router;
