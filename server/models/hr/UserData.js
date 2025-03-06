@@ -40,6 +40,10 @@ const userDataSchema = new mongoose.Schema({
     },
   ],
   password: String,
+  profilePicture: {
+    id: String,
+    url: String,
+  },
   role: [
     {
       type: mongoose.Schema.Types.ObjectId,

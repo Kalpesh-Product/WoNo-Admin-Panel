@@ -160,10 +160,44 @@ async function filterEscalatedTickets(userDepartments, loggedInUser) {
   return escalatedTickets;
 }
 
+async function filterMyTickets(loggedInUser) {
+  const myTickets = await Ticket.find({ raisedBy: loggedInUser._id })
+    .populate([
+      { path: "raisedBy", select: "firstName lastName" },
+      { path: "raisedToDepartment", select: "name" },
+    ])
+    .lean()
+    .exec();
+  return myTickets;
+}
+
+async function filterTodayTickets(loggedInUser) {
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = new Date();
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const todayTickets = await Ticket.find({
+    raisedBy: loggedInUser._id,
+    createdAt: { $gte: startOfDay, $lte: endOfDay },
+  })
+    .populate([
+      { path: "raisedBy", select: "firstName lastName" },
+      { path: "raisedToDepartment", select: "name" },
+    ])
+    .lean()
+    .exec();
+
+  return todayTickets;
+}
+
 module.exports = {
   filterCloseTickets,
   filterAcceptTickets,
   filterSupportTickets,
   filterEscalatedTickets,
   filterAssignedTickets,
+  filterMyTickets,
+  filterTodayTickets,
 };

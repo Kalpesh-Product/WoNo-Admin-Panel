@@ -158,6 +158,7 @@ const companySchema = new mongoose.Schema({
   ],
   workLocations: [
     {
+      id: String,
       buildingName: {
         type: String,
       },
@@ -166,7 +167,11 @@ const companySchema = new mongoose.Schema({
         type: Boolean,
         default: true,
       },
-      image: {
+      occupiedImage: {
+        id: String,
+        url: String,
+      },
+      clearImage: {
         id: String,
         url: String,
       },

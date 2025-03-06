@@ -3,19 +3,24 @@ const mongoose = require("mongoose");
 const { createLog } = require("../../utils/moduleLogs");
 const csvParser = require("csv-parser");
 const { Readable } = require("stream");
+const crypto = require("crypto");
 const CustomError = require("../../utils/customErrorlogs");
+const {
+  handleFileUpload,
+  handleFileDelete,
+} = require("../../config/cloudinaryConfig");
 
 const addWorkLocation = async (req, res, next) => {
   const logPath = "hr/HrLog";
   const logAction = "Add Work Location";
   const logSourceKey = "companyData";
   const { user, ip, company } = req;
-  const { workLocation } = req.body;
+  const { buildingName, floor, wing } = req.body;
 
   try {
-    if (!company || !workLocation) {
+    if (!company || !buildingName) {
       throw new CustomError(
-        "All fields are required",
+        "Company and Building Name are required",
         logPath,
         logAction,
         logSourceKey
@@ -31,9 +36,19 @@ const addWorkLocation = async (req, res, next) => {
       );
     }
 
+    const newWorkLocation = {
+      id: crypto.randomUUID(),
+      buildingName,
+      floor: floor || "",
+      wing: wing || "",
+      isActive: true,
+      occupiedImage: { id: "", url: "" },
+      clearImage: { id: "", url: "" },
+    };
+
     const updatedCompany = await Company.findByIdAndUpdate(
-      { _id: company },
-      { $push: { workLocations: { name: workLocation } } },
+      company,
+      { $push: { workLocations: newWorkLocation } },
       { new: true }
     );
 
@@ -46,23 +61,23 @@ const addWorkLocation = async (req, res, next) => {
       );
     }
 
-    // Log the successful addition of the work location
     await createLog({
       path: logPath,
       action: logAction,
       remarks: "Work location added successfully",
       status: "Success",
-      user: user,
-      ip: ip,
-      company: company,
+      user,
+      ip,
+      company,
       sourceKey: logSourceKey,
       sourceId: updatedCompany._id,
-      changes: { workLocation },
+      changes: { workLocation: newWorkLocation },
     });
 
-    return res
-      .status(200)
-      .json({ message: "Work location added successfully" });
+    return res.status(200).json({
+      message: "Work location added successfully",
+      workLocation: newWorkLocation,
+    });
   } catch (error) {
     if (error instanceof CustomError) {
       next(error);
@@ -71,6 +86,64 @@ const addWorkLocation = async (req, res, next) => {
         new CustomError(error.message, logPath, logAction, logSourceKey, 500)
       );
     }
+  }
+};
+
+const uploadCompanyLocationImage = async (req, res, next) => {
+  try {
+    const { locationId, imageType } = req.body;
+    const file = req.file; // Multer stores a single file in req.file
+    const companyId = req.company;
+
+    if (!file) {
+      return res.status(400).json({ message: "No image provided" });
+    }
+
+    if (!locationId || !companyId || !imageType) {
+      return res.status(400).json({
+        message: "Company ID, Location ID, and Image Type are required",
+      });
+    }
+
+    if (!["occupiedImage", "clearImage"].includes(imageType)) {
+      return res.status(400).json({ message: "Invalid image type" });
+    }
+
+    // Find the company
+    const company = await Company.findOne({ companyId });
+    if (!company) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+
+    // Find the work location
+    const workLocation = company.workLocations.find(
+      (loc) => loc.id === locationId
+    );
+    if (!workLocation) {
+      return res.status(404).json({ message: "Work location not found" });
+    }
+
+    // Delete the existing image if it exists
+    if (workLocation[imageType] && workLocation[imageType].id) {
+      await handleFileDelete(workLocation[imageType].id);
+    }
+
+    const folderPath = `${company.companyName}/work-locations/${workLocation.buildingName}/${workLocation.wing}/${workLocation.floor}`;
+    const uploadResult = await handleFileUpload(file.path, folderPath);
+
+    // Update the specific image type in the work location
+    workLocation[imageType] = {
+      id: uploadResult.public_id,
+      url: uploadResult.secure_url,
+    };
+    await company.save();
+
+    res.json({
+      message: "Image uploaded and work location updated successfully",
+      workLocation: { [imageType]: workLocation[imageType] },
+    });
+  } catch (error) {
+    next(error);
   }
 };
 
@@ -97,12 +170,15 @@ const bulkInsertWorkLocations = async (req, res, next) => {
     stream
       .pipe(csvParser())
       .on("data", (row) => {
-        if (row["Building Name"] && row["Full Address"] && row["Unit No"]) {
+        if (row["Building Name"] && row["Floor"] && row["Wing"]) {
           workLocations.push({
-            name: row["Building Name"],
-            fullAddress: row["Full Address"],
-            unitNo: row["Unit No"],
+            id: crypto.randomUUID(), 
+            buildingName: row["Building Name"],
+            fullAddress: row["Floor"],
+            unitNo: row["Wing"],
             isActive: true,
+            occupiedImage: { id: "", url: "" },
+            clearImage: { id: "", url: "" },
           });
         }
       })
@@ -135,4 +211,8 @@ const bulkInsertWorkLocations = async (req, res, next) => {
   }
 };
 
-module.exports = { addWorkLocation, bulkInsertWorkLocations };
+module.exports = {
+  addWorkLocation,
+  bulkInsertWorkLocations,
+  uploadCompanyLocationImage,
+};
