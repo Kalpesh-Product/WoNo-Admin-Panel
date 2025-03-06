@@ -32,11 +32,6 @@ const Sidebar = () => {
       route: "meetings",
     },
     {
-      name: "HR",
-      icon: <TbReportSearch />,
-      route: "HR",
-    },
-    {
       name: "Assets",
       icon: <TbReportSearch />,
       route: "assets",
@@ -66,7 +61,6 @@ const Sidebar = () => {
       icon: <IoMdNotifications />,
       route: "notifications",
     },
-    // { name: "Profile", icon: <CgProfile />, route: "/profile" },
   ];
 
   const defaultModules = [
@@ -133,7 +127,9 @@ const Sidebar = () => {
     setExpandedModule((prev) => (prev === index ? null : index));
   };
 
-  const isActive = (path) => location.pathname.includes(path);
+  const isActive = (path) => location.pathname.startsWith(`/app/${path}`);
+
+
 
   return (
     <div className={`flex flex-col px-2  bg-gray`}>
@@ -265,7 +261,7 @@ const Sidebar = () => {
                 navigate("profile");
               }}
               className={`flex hover:text-primary transition-all duration-100 text-gray-500 ${
-                isActive("/profile")
+                isActive("profile")
                   ? "text-primary bg-gray-200 rounded-md"
                   : "text-gray-500"
               } ${
@@ -273,11 +269,11 @@ const Sidebar = () => {
               } items-center cursor-pointer `}>
               <div
                 className={`flex justify-center items-center w-9 h-9 ${
-                  isActive("/profile") ? "bg-primary text-white rounded-md" : ""
+                  isActive("profile") ? "bg-primary text-white rounded-md" : ""
                 } text-sm`}>
                 <FaUserTie />
               </div>
-              {isSidebarOpen && <span className="pl-5 text-sm">Profiles</span>}
+              {isSidebarOpen && <span className="pl-5 text-sm">Profile</span>}
             </div>
           </div>
         </div>

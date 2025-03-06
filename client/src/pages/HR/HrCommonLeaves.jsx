@@ -48,9 +48,7 @@ const HrCommonLeaves = () => {
               tableTitle={`Leaves Table`}
               paginationPageSize={20}
               buttonTitle={"Correction Request"}
-              //   handleClick={() => {
-              //     setOpenModal(true);
-              //   }}
+              tableHeight={300}
               search={true}
               data={
                 isLoading

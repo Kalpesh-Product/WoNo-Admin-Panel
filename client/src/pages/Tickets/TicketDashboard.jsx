@@ -13,7 +13,11 @@ const TicketDashboard = () => {
   const ticketWidgets = [
     {
       layout: 1,
-      widgets: [<AreaGraph />],
+      widgets: [
+        <WidgetSection layout={1} border padding title={"Annual Tickets Raised"}>
+          <AreaGraph />
+        </WidgetSection>,
+      ],
     },
     {
       layout: 5,
@@ -48,28 +52,40 @@ const TicketDashboard = () => {
     {
       layout: 2,
       widgets: [
-        <DonutChart
+        <WidgetSection
+          layout={1}
+          padding
+          border
           title={"Total Tickets (Last Month)"}
-          series={[49, 21, 30]}
-          labels={["High", "Medium", "Low"]}
-          colors={["#ff4d4d", "#ffc107", "#28a745"]}
-          centerLabel={"Tickets"}
-        />,
-        <DonutChart
+        >
+          <DonutChart
+            series={[49, 21, 30]}
+            labels={["High", "Medium", "Low"]}
+            colors={["#ff4d4d", "#ffc107", "#28a745"]}
+            centerLabel={"Tickets"}
+          />
+        </WidgetSection>,
+        <WidgetSection
+          layout={1}
+          padding
+          border
           title={"Department Tickets (Last Month)"}
-          series={[30, 44, 50]}
-          labels={["IT", "Maintainance", "Admin"]}
-          colors={["#86D1DE", "#67B6DB", "#00CDD1"]}
-          centerLabel={"Tickets"}
-        />,
+        >
+          <DonutChart
+            series={[30, 44, 50]}
+            labels={["IT", "Maintainance", "Admin"]}
+            colors={["#86D1DE", "#67B6DB", "#00CDD1"]}
+            centerLabel={"Tickets"}
+          />
+        </WidgetSection>,
       ],
     },
     {
       layout: 2,
       widgets: [
-        <div className="border-default border-borderGray  rounded-md">
+        <div className="  rounded-md">
           <div className="">
-            <WidgetSection layout={2} title={"Basic Priority Dashboard"}>
+            <WidgetSection layout={2} border title={"Basic Priority Dashboard"}>
               <Card
                 title={"MT. AV. Performance"}
                 bgcolor={"#60A5F9"}
@@ -107,15 +123,33 @@ const TicketDashboard = () => {
         </div>,
 
         <div className=" rounded-md flex flex-col gap-4">
-          <div className="border-default border-borderGray rounded-md">
-            <WidgetSection layout={3} title={"Department Tickets List"}>
-              <Card title={"Open Tickets"} titleColor={"#1E3D73"} data={"200"} fontColor={"red"} fontFamily={"Poppins-Bold"} />
-              <Card title={"Closed Tickets"} titleColor={"#1E3D73"} data={"75"} fontColor={"#52CE71"} fontFamily={"Poppins-Bold"} />
-              <Card title={"Pending Tickets"} titleColor={"#1E3D73"} data={"100"} fontColor={"#FFBF42"} fontFamily={"Poppins-Bold"} />
+          <div className=" rounded-md">
+            <WidgetSection layout={3} border title={"Department Tickets List"}>
+              <Card
+                title={"Open Tickets"}
+                titleColor={"#1E3D73"}
+                data={"200"}
+                fontColor={"red"}
+                fontFamily={"Poppins-Bold"}
+              />
+              <Card
+                title={"Closed Tickets"}
+                titleColor={"#1E3D73"}
+                data={"75"}
+                fontColor={"#52CE71"}
+                fontFamily={"Poppins-Bold"}
+              />
+              <Card
+                title={"Pending Tickets"}
+                titleColor={"#1E3D73"}
+                data={"100"}
+                fontColor={"#FFBF42"}
+                fontFamily={"Poppins-Bold"}
+              />
             </WidgetSection>
           </div>
-          <div className="border-default border-borderGray rounded-md">
-            <WidgetSection layout={3} title={"Personal Tickets List"}>
+          <div className="rounded-md">
+            <WidgetSection layout={3} border title={"Personal Tickets List"}>
               <Card
                 title={"Accepted Tickets"}
                 data={"106"}

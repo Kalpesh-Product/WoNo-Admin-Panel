@@ -55,7 +55,7 @@ const TasksDashboard = () => {
     },
   });
 
-  const { data: taskList, isLoading } = useQuery({
+  const { data: taskList, isLoading : isTaskListLoading } = useQuery({
     queryKey: ["taskList"],
     queryFn: async () => {
       try {
@@ -289,7 +289,7 @@ const TasksDashboard = () => {
           <MuiTable
             Title="My Tasks Today"
             columns={myTasksColumns}
-            rows={false ? [] : taskList || []}
+            rows={isTaskListLoading ? [] : taskList || []}
             rowKey="id"
             rowsToDisplay={10}
             scroll={true}

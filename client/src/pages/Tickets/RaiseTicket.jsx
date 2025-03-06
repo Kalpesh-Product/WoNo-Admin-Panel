@@ -12,6 +12,8 @@ import {
   MenuItem,
 } from "@mui/material";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { Controller, useForm } from "react-hook-form";
 
 const RaiseTicket = () => {
   const [details, setDetails] = useState({
@@ -48,6 +50,19 @@ const RaiseTicket = () => {
     fetchData();
   }, [axios]);
 
+  const { handleSubmit, reset, control } = useForm({
+    defaultValues: {
+      department: "",
+      ticketTitle: "",
+      otherReason: "",
+      message: "",
+    },
+  });
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: async (data) => {},
+  });
+
   // Reusable function to fetch tickets
   const getTickets = async () => {
     try {
@@ -59,15 +74,14 @@ const RaiseTicket = () => {
       setTickets(filteredTickets);
     } catch (error) {
       return null;
-    } finally {
-      setTicketsLoading(false);
     }
   };
 
   // Initial data fetch when the component mounts
-  useEffect(() => {
-    getTickets();
-  }, []);
+  const { data: ticketsData = [], isPending: ticketsPendng } = useQuery({
+    queryKey: ["ticketsData"],
+    queryFn: getTickets,
+  });
 
   const transformTicketsData = (tickets) => {
     return tickets.map((ticket) => ({
@@ -80,7 +94,7 @@ const RaiseTicket = () => {
   };
 
   // Example usage
-  const rows = transformTicketsData(tickets);
+  const rows = transformTicketsData(ticketsData);
 
   const handleChange = (field, value) => {
     setDetails((prev) => ({ ...prev, [field]: value }));
@@ -122,8 +136,26 @@ const RaiseTicket = () => {
     },
   ];
 
-  const submitData = async (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
+
+    // Validation checks
+    if (!selectedDepartment) {
+      toast.error("Please select a department.");
+      return;
+    }
+    if (!details.ticketTitle) {
+      toast.error("Please select a ticket title.");
+      return;
+    }
+    if (details.ticketTitle === "Others" && !details.otherReason) {
+      toast.error("Please specify the reason for 'Others'.");
+      return;
+    }
+    if (!details.message.trim()) {
+      toast.error("Message cannot be empty.");
+      return;
+    }
     try {
       const response = await axios.post("/api/tickets/raise-ticket", {
         departmentId: selectedDepartment,
@@ -163,31 +195,44 @@ const RaiseTicket = () => {
           Raise A Ticket
         </h3>
         <div className="grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 gap-4">
-          <FormControl size="small" fullWidth>
-            <InputLabel>Department</InputLabel>
-            <Select
-              label="Department"
-              onChange={(e) => handleDepartmentSelect(e.target.value)}>
-              <MenuItem value="">Select Department</MenuItem>
-              {deptLoading ? (
-                <CircularProgress color="black" />
-              ) : (
-                departments?.map((dept) => (
-                  <MenuItem
-                    key={dept.department._id}
-                    value={dept.department._id}>
-                    {dept.department.name}
-                  </MenuItem>
-                ))
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <Controller
+              name="department"
+              control={control}
+              render={({ field }) => (
+                <>
+                  <InputLabel>Department</InputLabel>
+                  <Select {...field} label="Department">
+                    <MenuItem value="">Select Department</MenuItem>
+                    {deptLoading ? (
+                      <CircularProgress color="black" />
+                    ) : (
+                      departments?.map((dept) => (
+                        <MenuItem
+                          key={dept.department._id}
+                          value={dept.department._id}
+                        >
+                          {dept.department.name}
+                        </MenuItem>
+                      ))
+                    )}
+                  </Select>
+                </>
               )}
-            </Select>
-          </FormControl>
+            />
+
+            <Controller
+             />
+          </form>
+          <FormControl size="small" fullWidth></FormControl>
 
           <FormControl size="small" fullWidth>
             <InputLabel>Ticket Title</InputLabel>
             <Select
               label="Ticket Title"
-              onChange={(e) => handleChange("ticketTitle", e.target.value)}>
+              onChange={(e) => handleChange("ticketTitle", e.target.value)}
+              error={!details.ticketTitle}
+            >
               <MenuItem value="">Select Ticket Title</MenuItem>
               {ticketIssues.length > 0 ? (
                 ticketIssues.map((issue) => (
@@ -210,6 +255,7 @@ const RaiseTicket = () => {
               value={details.otherReason}
               onChange={(e) => handleChange("otherReason", e.target.value)}
               multiline
+              error={!details.otherReason}
               maxRows={4}
               fullWidth
             />
@@ -218,24 +264,16 @@ const RaiseTicket = () => {
         <div className="grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 gap-4 mt-4">
           <TextField
             size="small"
-            //   disabled={!isEditable}
             label="Message"
             value={details.message}
+            error={!details.message}
             onChange={(e) => handleChange("message", e.target.value)}
             fullWidth
           />
-          <TextField
-            size="small"
-            //   disabled={!isEditable}
-
-            type="file"
-            //   value={formData.motherName || ""}
-            //   onChange={(e) => handleChange("motherName", e.target.value)}
-            fullWidth
-          />
+          <TextField size="small" type="file" fullWidth />
         </div>
         <div className="flex align-middle mt-5 mb-5 items-center justify-center">
-          <PrimaryButton title="Submit" handleSubmit={submitData} />
+          <PrimaryButton title="Submit"/>
         </div>
       </div>
       <div className="rounded-md bg-white p-4 border-2 ">

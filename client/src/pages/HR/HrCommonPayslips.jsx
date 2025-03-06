@@ -40,6 +40,7 @@ const HrCommonPayslips = () => {
         <AgTable
         key={rows.length}
           search={true}
+          tableHeight={300}
           searchColumn={"payslips"}
           tableTitle={"Payslips"}
           data={rows}

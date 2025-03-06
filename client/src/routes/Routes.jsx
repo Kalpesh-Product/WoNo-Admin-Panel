@@ -171,6 +171,13 @@ import VisitorReports from "../pages/Visitors/VisitorReports";
 import VisitorReviews from "../pages/Visitors/VisitorReviews";
 import VisitorSettings from "../pages/Visitors/VisitorSettings/VisitorSettings";
 import VisitorBulkUpload from "../pages/Visitors/VisitorSettings/VisitorBulkUpload";
+import ProfileLayout from "../pages/Profile/ProfileLayout";
+import MyProfile from "../pages/Profile/MyProfile";
+import ChangePassword from "../pages/Profile/ChangePassword";
+import AccessGrant from "../pages/Profile/AccessGrant";
+import MyAssets from "../pages/Profile/MyAssets";
+import MeetingRoomCredits from "../pages/Profile/MeetingRoomCredits";
+import TicketsHistory from "../pages/Profile/TicketsHistory";
 
 export const routes = createBrowserRouter([
   {
@@ -671,34 +678,61 @@ export const routes = createBrowserRouter([
               },
               {
                 path: "profile",
-                element: <Profile />,
+                element: <ProfileLayout />,
+                children:[
+                  {
+                    path:'my-profile',
+                    element:<MyProfile/>
+                  },
+                  {
+                    path:'change-password',
+                    element:<ChangePassword/>
+                  },
+                  {
+                    path:'access-grant',
+                    element:<AccessGrant/>
+                  },
+                  {
+                    path: "HR",
+                    element: <HrCommonLayout />,
+                    children: [
+                      {
+                        path: "attendance",
+                        element: <HrCommonAttendance />,
+                      },
+                      {
+                        path: "leaves",
+                        element: <HrCommonLeaves />,
+                      },
+                      {
+                        path: "agreements",
+                        element: <HrCommonAgreements />,
+                      },
+                      {
+                        path: "payslips",
+                        element: <HrCommonPayslips />,
+                      },
+                    ],
+                  },
+                  {
+                    path:'my-assets',
+                    element:<MyAssets/>
+                  },
+                  {
+                    path:'my-meetings',
+                    element:<MeetingRoomCredits/>
+                  },
+                  {
+                    path:'tickets-history',
+                    element:<TicketsHistory/>
+                  },
+                ]
               },
               {
                 path: "test",
                 element: <TestPage />,
               },
-              {
-                path: "HR",
-                element: <HrCommonLayout />,
-                children: [
-                  {
-                    path: "attendance",
-                    element: <HrCommonAttendance />,
-                  },
-                  {
-                    path: "leaves",
-                    element: <HrCommonLeaves />,
-                  },
-                  {
-                    path: "agreements",
-                    element: <HrCommonAgreements />,
-                  },
-                  {
-                    path: "payslips",
-                    element: <HrCommonPayslips />,
-                  },
-                ],
-              },
+       
 
               {
                 path: "tickets", // Parent path

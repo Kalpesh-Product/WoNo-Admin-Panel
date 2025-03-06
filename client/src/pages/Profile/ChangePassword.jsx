@@ -82,7 +82,7 @@ const ChangePassword = ({ pageTitle }) => {
     <div>
       {/* Header */}
       <div className="flex items-center justify-between pb-4">
-        <span className="text-title font-pmedium text-primary">{pageTitle}</span>
+        <span className="text-title font-pmedium text-primary">Change password</span>
       </div>
 
       {/* Current Password Field */}
