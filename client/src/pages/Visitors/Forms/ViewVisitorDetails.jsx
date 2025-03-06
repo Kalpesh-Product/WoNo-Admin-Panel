@@ -16,7 +16,7 @@ import MuiModal from "../../../components/MuiModal";
 import PrimaryButton from "../../../components/PrimaryButton";
 import SecondaryButton from "../../../components/SecondaryButton";
 
-const AssetModal = ({
+const ViewVisitorDetails = ({
   mode = "add", // 'add', 'view', or 'edit'
   isOpen,
   onClose,
@@ -37,7 +37,7 @@ const AssetModal = ({
   // Predefined lists
   const departments = ["IT", "HR", "Administration", "Finance"];
   const categories = ["Laptop", "Projector", "Printer", "Scanner"];
-  const locations = ["Office A", "Office B", "Warehouse"];
+  const locations = ["Walk In", "Scheduled", "Meeting Booking"];
 
   // Watch form values for dynamic calculations
   const watchedImage = watch("assetImage");
@@ -98,15 +98,15 @@ const AssetModal = ({
         mode === "add"
           ? "Add Asset"
           : mode === "view"
-          ? "Asset Details"
-          : "Edit Asset"
+          ? "Visitor Details"
+          : "Edit Visitor"
       }>
       {mode !== "view" ? (
         <form
           onSubmit={handleSubmit(handleFormSubmit)}
           className="flex flex-col items-center gap-4">
           {/* Image Upload Section */}
-          <Controller
+          {/* <Controller
             name="assetImage"
             control={control}
             rules={{ required: "Asset image is required" }}
@@ -126,9 +126,7 @@ const AssetModal = ({
                     backgroundSize: "contain",
                     backgroundPosition: "center",
                     backgroundRepeat: "no-repeat",
-                    // backgroundColor: assetData?.assetImage
-                    //   ? "#f0f0f0"
-                    //   : "transparent",
+                 
                   }}>
                   <Button
                     variant="outlined"
@@ -175,12 +173,12 @@ const AssetModal = ({
                 )}
               </div>
             )}
-          />
+          /> */}
 
           {/* Department & Category */}
           <div className="flex gap-4 w-full">
             <FormControl className="w-1/2" error={!!errors.department}>
-              <InputLabel>Department</InputLabel>
+              <InputLabel>Name</InputLabel>
               <Controller
                 name="department"
                 control={control}
@@ -200,14 +198,14 @@ const AssetModal = ({
             </FormControl>
 
             <FormControl className="w-1/2" error={!!errors.category}>
-              <InputLabel>Category</InputLabel>
+              <InputLabel>Email</InputLabel>
               <Controller
                 name="category"
                 control={control}
                 defaultValue=""
                 rules={{ required: "Category is required" }}
                 render={({ field }) => (
-                  <Select {...field} label="Category">
+                  <Select {...field} label="Email">
                     {categories.map((category) => (
                       <MenuItem key={category} value={category}>
                         {category}
@@ -230,7 +228,7 @@ const AssetModal = ({
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label="Brand Name"
+                  label="Phone No"
                   className="w-1/2"
                   error={!!errors.brand}
                   helperText={errors.brand?.message}
@@ -246,7 +244,7 @@ const AssetModal = ({
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label="Model Name"
+                  label="Address"
                   className="w-1/2"
                   error={!!errors.modelName}
                   helperText={errors.modelName?.message}
@@ -265,11 +263,12 @@ const AssetModal = ({
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label="Quantity"
-                  type="number"
+                  label="To Meet"
+                  type="text"
                   className="w-1/2"
                   error={!!errors.quantity}
                   helperText={errors.quantity?.message}
+                  value="Abrar Shaikh"
                 />
               )}
             />
@@ -282,11 +281,12 @@ const AssetModal = ({
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label="Price"
-                  type="number"
+                  label="Purpose"
+                  type="text"
                   className="w-1/2"
                   error={!!errors.price}
                   helperText={errors.price?.message}
+                  value="Investor Meeting"
                 />
               )}
             />
@@ -301,11 +301,10 @@ const AssetModal = ({
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label="Total Price"
-                  type="number"
+                  label="Check In"
+                  type="text"
                   className="w-1/2"
-                  disabled
-                  value={totalPrice}
+                  value="09:30 AM"
                 />
               )}
             />
@@ -318,17 +317,18 @@ const AssetModal = ({
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label="Vendor Name"
+                  label="Check Out"
                   className="w-1/2"
                   error={!!errors.vendorName}
                   helperText={errors.vendorName?.message}
+                  value=""
                 />
               )}
             />
           </div>
 
           {/* Purchase Date & Warranty */}
-          <div className="flex gap-4 w-full">
+          {/* <div className="flex gap-4 w-full">
             <div className="w-1/2">
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <Controller
@@ -369,19 +369,19 @@ const AssetModal = ({
                 />
               )}
             />
-          </div>
+          </div> */}
 
           {/* Location */}
           <div className="w-full">
             <FormControl className="w-[48.6%]" error={!!errors.location}>
-              <InputLabel>Select Location</InputLabel>
+              <InputLabel>Visitor Category</InputLabel>
               <Controller
                 name="location"
                 control={control}
                 defaultValue=""
                 rules={{ required: "Location is required" }}
                 render={({ field }) => (
-                  <Select {...field} label="Select Location">
+                  <Select {...field} label="Visitor Category">
                     {locations.map((location) => (
                       <MenuItem key={location} value={location}>
                         {location}
@@ -411,7 +411,7 @@ const AssetModal = ({
       ) : (
         <>
           <div className="grid grid-cols-2 gap-8 px-6 pb-6">
-            {assetData?.assetImage && (
+            {/* {assetData?.assetImage && (
               <div className="col-span-2 flex justify-center border-2 rounded-md border-gray-300 p-2">
                 <img
                   src={assetData.assetImage}
@@ -419,72 +419,66 @@ const AssetModal = ({
                   className="w-4/5 h-48 object-contain"
                 />
               </div>
-            )}
+            )} */}
             <div className="flex items-center justify-between">
-              <span className="text-content">Department</span>
-              <span className="text-content text-gray-500">
-                {assetData?.department}
-              </span>
+              <span className="text-content">Name</span>
+              <span className="text-content text-gray-500">John Doe</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-content">Category</span>
+              <span className="text-content">Email</span>
               <span className="text-content text-gray-500">
                 {assetData?.category}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-content">Brand</span>
+              <span className="text-content">Phone No</span>
               <span className="text-content text-gray-500">
                 {assetData?.brand}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-content">Model Name</span>
-              <span className="text-content text-gray-500">
-                {assetData?.modelName}
-              </span>
+              <span className="text-content">Address</span>
+              <span className="text-content text-gray-500">Margao</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-content">Quantity</span>
+              <span className="text-content">To Meet</span>
               <span className="text-content text-gray-500">
                 {assetData?.quantity}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-content">Price</span>
+              <span className="text-content">Purpose</span>
               <span className="text-content text-gray-500">
                 {assetData?.price}
               </span>
             </div>
-            <div className="flex items-center justify-between">
+            {/* <div className="flex items-center justify-between">
               <span className="text-content">Total Price</span>
               <span className="text-content text-gray-500">
                 {assetData?.quantity * assetData?.price}
               </span>
-            </div>
-            <div className="flex items-center justify-between">
+            </div> */}
+            {/* <div className="flex items-center justify-between">
               <span className="text-content">Vendor Name</span>
               <span className="text-content text-gray-500">
                 {assetData?.vendorName}
               </span>
-            </div>
+            </div> */}
             <div className="flex items-center justify-between">
-              <span className="text-content">Purchase Date</span>
+              <span className="text-content">Check In</span>
               <span className="text-content text-gray-500">
                 {assetData?.purchaseDate}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-content">Warranty</span>
+              <span className="text-content">Check Out</span>
               <span className="text-content text-gray-500">
                 {assetData?.warranty}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-content">Location</span>
-              <span className="text-content text-gray-500">
-                {assetData?.location}
-              </span>
+              <span className="text-content">Visitor Category</span>
+              <span className="text-content text-gray-500">Walk In</span>
             </div>
           </div>
           <div className="w-full flex justify-center">
@@ -501,4 +495,4 @@ const AssetModal = ({
   );
 };
 
-export default AssetModal;
+export default ViewVisitorDetails;

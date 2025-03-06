@@ -13,9 +13,30 @@ import PieChartMui from "../../components/graphs/PieChartMui";
 import HeatMap from "../../components/graphs/HeatMap";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import {
+  assetAvailabilityData,
+  assetAvailabilityOptions,
+  assetCategoriesData,
+  departmentPieData,
+  departmentPieOptions,
+  recentAssetsColumns,
+  recentAssetsData,
+} from "../Assets/AssetsData/Data";
 
 const VisitorDashboard = () => {
   const axios = useAxiosPrivate();
+
+  const usersQuery = useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/users/fetch-users");
+        return response.data;
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
 
   // Fetch internal meetings
   const { data: meetingsInternal = [] } = useQuery({
@@ -579,6 +600,115 @@ const VisitorDashboard = () => {
     },
   };
 
+  const columns3 = [
+    { id: "ranks", label: "Rank", align: "left" },
+    { id: "employeeName", label: "Employee name", align: "left" },
+    { id: "department", label: "Department", align: "center" },
+    { id: "Performance (%)", label: "Performance (%)", align: "center" },
+  ];
+
+  const rows3 = [
+    {
+      ranks: "1",
+      employeeName: "Aiwin",
+      department: "Tech",
+      "Performance (%)": "97",
+    },
+    {
+      ranks: "2",
+      employeeName: "Allen Silvera",
+      department: "Tech",
+      "Performance (%)": "90",
+    },
+    {
+      ranks: 3,
+      employeeName: "Sankalp Kalangutkar",
+      department: "Tech",
+      "Performance (%)": "80",
+    },
+    {
+      ranks: 3,
+      employeeName: "Sankalp Kalangutkar",
+      department: "Tech",
+      "Performance (%)": "80",
+    },
+    {
+      ranks: 3,
+      employeeName: "Sankalp Kalangutkar",
+      department: "Tech",
+      "Performance (%)": "80",
+    },
+  ];
+
+  // Calculate total and gender-specific counts
+  const totalUsers = usersQuery.isLoading ? [] : usersQuery.data.length;
+
+  const maleCount = usersQuery.isLoading
+    ? []
+    : usersQuery.data.filter((user) => user.gender === "Male").length;
+
+  const femaleCount = usersQuery.isLoading
+    ? []
+    : usersQuery.data.filter((user) => user.gender === "Female").length;
+
+  const genderData = [
+    {
+      id: 0,
+      value: ((maleCount / totalUsers) * 100).toFixed(2),
+      actualCount: maleCount,
+      label: "Male",
+      color: "#0056B3",
+    },
+    {
+      id: 1,
+      value: ((femaleCount / totalUsers) * 100).toFixed(2),
+      actualCount: femaleCount,
+      label: "Female",
+      color: "#FD507E",
+    },
+  ];
+
+  const genderPieChart = {
+    chart: {
+      type: "pie",
+    },
+    labels: ["Male", "Female"], // Labels for the pie slices
+    colors: ["#0056B3", "#FD507E"], // Pass colors as an array
+    dataLabels: {
+      enabled: true,
+      position: "center",
+      style: {
+        fontSize: "14px", // Adjust the font size of the labels
+        fontWeight: "bold",
+      },
+      dropShadow: {
+        enabled: true,
+        top: 1,
+        left: 1,
+        blur: 1,
+        color: "#000",
+        opacity: 0.45,
+      },
+      formatter: function (val) {
+        return `${val.toFixed(0)}%`; // Show percentage value in the center
+      },
+    },
+    tooltip: {
+      enabled: true,
+      custom: function ({ series, seriesIndex }) {
+        const item = genderData[seriesIndex]; // Use genderData to fetch the correct item
+        return `
+          <div style="padding: 5px; font-size: 12px;">
+            ${item.label}: ${item.actualCount} employees
+          </div>`;
+      },
+    },
+    legend: {
+      position: "right",
+      horizontalAlign: "center",
+    },
+  };
+
   const meetingsWidgets = [
     {
       layout: 1,
@@ -650,37 +780,20 @@ const VisitorDashboard = () => {
     {
       layout: 3,
       widgets: [
-        <DataCard title={"Total"} data={"20"} description={"Hours Booked"} />,
         <DataCard
-          title={"Average"}
-          data={"1.2Hrs"}
-          description={"Hours Booked"}
+          title={"Total"}
+          data={"400"}
+          description={"Walk In Visits"}
         />,
         <DataCard
           title={"Total"}
-          data={"135"}
-          description={"Hours Cancelled"}
+          data={"200"}
+          description={"Scheduled Visits"}
         />,
-      ],
-    },
-    {
-      layout: 2,
-      widgets: [
-        <MuiTable
-          Title={"Internal Ongoing Meeting Hourly"}
-          // rows={meetingInternalRows}
-          rows={meetingsInternal}
-          columns={meetingColumns}
-          rowsToDisplay={5}
-          scroll={true}
-        />,
-        <MuiTable
-          Title={"External Ongoing Meeting Hourly"}
-          // rows={meetingExternalRows}
-          rows={meetingsExternal}
-          columns={meetingColumns}
-          rowsToDisplay={5}
-          scroll={true}
+        <DataCard
+          title={"Total"}
+          data={"15"}
+          description={"Meeting Booking"}
         />,
       ],
     },
@@ -689,19 +802,17 @@ const VisitorDashboard = () => {
       widgets: [
         <WidgetSection
           layout={1}
-          border
-          title={"External Guests Visited"}
-          padding>
-          <BarGraph data={externalGuestsData} options={externalGuestsOptions} />
+          title={"Visitor Categories This Month"}
+          border>
+          <DonutChart {...assetCategoriesData} />
         </WidgetSection>,
         <WidgetSection
           layout={1}
-          border
-          title={"Average Occupancy Of Rooms in %"}
-          padding>
-          <BarGraph
-            data={averageOccupancySeries}
-            options={averageOccupancyOptions}
+          title={"Checked In v/s Checked Out Visitors Today"}
+          border>
+          <PieChartMui
+            data={assetAvailabilityData}
+            options={assetAvailabilityOptions}
           />
         </WidgetSection>,
       ],
@@ -709,27 +820,49 @@ const VisitorDashboard = () => {
     {
       layout: 2,
       widgets: [
-        <WidgetSection layout={1} title={"Busy time during the week"} border>
-          <HeatMap data={heatmapData} options={heatmapOptions} height={400} />
-        </WidgetSection>,
-        <WidgetSection layout={1} title={"Meeting Duration Breakdown"} border>
-          <PieChartMui
-            data={meetingPieData}
-            options={meetingPieOptions}
-            height={400}
-          />
-        </WidgetSection>,
+        <MuiTable
+          Title="Visitors Expected Today"
+          columns={columns3}
+          rows={rows3}
+        />,
+        <MuiTable
+          Title="Pending Visits Today"
+          columns={columns3}
+          rows={rows3}
+        />,
       ],
     },
     {
       layout: 2,
       widgets: [
-        <WidgetSection layout={1} title={"Room Availability Status"} border>
+        <WidgetSection title={"Visitor Gender Data"} border>
           <PieChartMui
-            data={RoomPieData}
-            options={RoomOptions}
-            customLegend={CustomLegend}
-            width={300}
+            percent={true} // Enable percentage display
+            title={"Visitor Gender Data"}
+            data={genderData} // Pass processed data
+            options={genderPieChart}
+          />
+        </WidgetSection>,
+        <WidgetSection layout={1} title={"Department Wise Visits"} border>
+          <PieChartMui
+            data={departmentPieData}
+            options={departmentPieOptions}
+          />
+        </WidgetSection>,
+      ],
+    },
+    {
+      layout: 1,
+      widgets: [
+        <WidgetSection layout={1} padding>
+          <MuiTable
+            Title="Visitors Today"
+            columns={recentAssetsColumns}
+            rows={recentAssetsData}
+            rowKey="id"
+            rowsToDisplay={10}
+            scroll={true}
+            className="h-full"
           />
         </WidgetSection>,
       ],
