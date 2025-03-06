@@ -2,6 +2,9 @@ const Tickets = require("../../models/tickets/Tickets");
 const User = require("../../models/hr/UserData");
 const mongoose = require("mongoose");
 const Department = require("../../models/Departments");
+const NewTicketIssue = require("../../models/tickets/NewTicketIssue");
+const { handleFileUpload } = require("../../config/cloudinaryConfig");
+const sharp = require("sharp");
 const {
   filterCloseTickets,
   filterAcceptTickets,
@@ -21,6 +24,7 @@ const raiseTicket = async (req, res, next) => {
   const logAction = "Raise Ticket";
   const logSourceKey = "ticket";
   const { departmentId, issueId, newIssue, description } = req.body;
+  const image = req.file; // Get the uploaded file
   const { user, ip, company } = req;
 
   try {
@@ -47,7 +51,7 @@ const raiseTicket = async (req, res, next) => {
     }
 
     const foundCompany = await Company.findOne({ _id: company })
-      .select("selectedDepartments")
+      .select("selectedDepartments companyName")
       .lean()
       .exec();
 
@@ -70,6 +74,39 @@ const raiseTicket = async (req, res, next) => {
         logAction,
         logSourceKey
       );
+    }
+
+    const foundDepartment = await Department.findOne({
+      _id: department._id,
+    }).select("name");
+
+    // **Handle optional file upload**
+    let imageDetails = null;
+    if (image) {
+      try {
+        const buffer = await sharp(image.buffer)
+          .resize(1200, 800, { fit: "cover" })
+          .webp({ quality: 80 })
+          .toBuffer();
+        const base64Image = `data:image/webp;base64,${buffer.toString(
+          "base64"
+        )}`;
+        const uploadedImage = await handleFileUpload(
+          base64Image,
+          `${foundCompany.companyName}/tickets/${foundDepartment.name}`
+        );
+        imageDetails = {
+          id: uploadedImage.public_id,
+          url: uploadedImage.secure_url,
+        };
+      } catch (uploadError) {
+        throw new CustomError(
+          "Error uploading image",
+          logPath,
+          logAction,
+          logSourceKey
+        );
+      }
     }
 
     let foundIssue;
@@ -96,15 +133,36 @@ const raiseTicket = async (req, res, next) => {
       }
     }
 
-    // Determine the ticket title based on the found issue or newIssue provided
-    const ticketTitle = foundIssue ? foundIssue.title : newIssue;
+    // Handle "Other" ticket issue case
+    let ticketTitle;
+    if (foundIssue && foundIssue.title === "Other") {
+      if (!newIssue || typeof newIssue !== "string" || !newIssue.trim()) {
+        throw new CustomError(
+          "You must specify a title for the 'Other' issue",
+          logPath,
+          logAction,
+          logSourceKey
+        );
+      }
+      ticketTitle = newIssue;
+      const newTicketIssue = new NewTicketIssue({
+        company: req.company,
+        departmentId,
+        issueTitle: newIssue,
+        status: "Pending",
+      });
+      await newTicketIssue.save();
+    } else {
+      ticketTitle = foundIssue ? foundIssue.title : newIssue;
+    }
 
-    const newTicket = new Tickets({
+    const newTicket = new Ticket({
       ticket: ticketTitle,
       description,
       raisedToDepartment: departmentId,
       raisedBy: user,
       company: company,
+      image: imageDetails, // Store image only if uploaded
     });
 
     const savedTicket = await newTicket.save();

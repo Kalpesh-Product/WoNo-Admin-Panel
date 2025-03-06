@@ -250,7 +250,7 @@ const addMeetings = async (req, res, next) => {
 
 const getAvaliableUsers = async (req, res, next) => {
   try {
-    const { startTime, endTime } = req.body;
+    const { startTime, endTime } = req.query;
     if (!startTime || !endTime) {
       return res.status(400).json({ message: "Please provide a valid date" });
     }
@@ -811,4 +811,5 @@ module.exports = {
   deleteHousekeepingTask,
   getMeetingsByTypes,
   cancelMeeting,
+  getAvaliableUsers,
 };
