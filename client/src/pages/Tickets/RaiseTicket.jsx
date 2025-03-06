@@ -113,8 +113,7 @@ const RaiseTicket = () => {
     try {
       const response = await axios.post("/api/tickets/raise-ticket", {
         departmentId: selectedDepartment,
-        issueId: details.ticketTitle? details.issueId : null,
-        newIssue: details.otherReason? details.otherReason : null,
+        issueId: details.ticketTitle,
         description: details.message,
       });
       toast.success(response.data.message);
@@ -140,7 +139,14 @@ const RaiseTicket = () => {
     const selectedDept = departments.find(
       (dept) => dept.department._id === deptId
     );
+
     setTicketIssues(selectedDept?.ticketIssues || []);
+  };
+
+  const getOtherTicketId = () => {
+    // Find the "Other" issue from the selected department
+    const otherTicket = ticketIssues.find((issue) => issue.title === "Other");
+    return otherTicket ? otherTicket._id : null;
   };
 
   return (
@@ -188,12 +194,11 @@ const RaiseTicket = () => {
               ) : (
                 <MenuItem disabled>No Issues Available</MenuItem>
               )}
-              <MenuItem value="Others">Others</MenuItem>
             </Select>
           </FormControl>
         </div>
         <div className="mt-4">
-          {details.ticketTitle === "Others" && (
+          {details.ticketTitle === getOtherTicketId() && (
             <TextField
               size="small"
               label="Please specify the reason"
@@ -205,6 +210,7 @@ const RaiseTicket = () => {
             />
           )}
         </div>
+
         <div className="grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 gap-4 mt-4">
           <TextField
             size="small"
