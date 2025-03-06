@@ -8,8 +8,12 @@ const {
   getAssignees,
 } = require("../controllers/userControllers/userControllers");
 const upload = require("../config/multerConfig");
+const {
+  addEmployeeLeaves,
+} = require("../controllers/userControllers/leaveSettings/leaveSettingsController");
 
 router.post("/create-user", createUser);
+router.patch("/employee-leaves", addEmployeeLeaves);
 router.get("/fetch-users", fetchUser);
 router.get("/assignees", getAssignees);
 router.get("/fetch-single-user/:empid", fetchSingleUser);

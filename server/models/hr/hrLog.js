@@ -22,9 +22,13 @@ const hrLogSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Attendance",
     },
-    leave: {
+    companyLeave: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Leave",
+    },
+    employeeLeave: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "UserData",
     },
     budget: {
       type: mongoose.Schema.Types.ObjectId,

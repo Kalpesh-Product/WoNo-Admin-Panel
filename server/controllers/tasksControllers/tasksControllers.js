@@ -23,15 +23,16 @@ const createTasks = async (req, res, next) => {
       dueDate,
       dueTime,
       taskType,
+      taskTag,
     } = req.body;
 
     if (
       !taskName ||
+      !taskType ||
+      !taskTag ||
       !description ||
       !projectId ||
       !status ||
-      !priority ||
-      !assignees ||
       !dueDate
     ) {
       throw new CustomError(
@@ -78,14 +79,18 @@ const createTasks = async (req, res, next) => {
     }
 
     // Validate all assignees
-    const existingUsers = await validateUsers(assignees);
-    if (existingUsers.length !== assignees.length) {
-      throw new CustomError(
-        "One or more assignees are invalid or do not exist",
-        logPath,
-        logAction,
-        logSourceKey
-      );
+
+    let existingUsers = [];
+    if (Array.isArray(assignees)) {
+      existingUsers = await validateUsers(assignees);
+      if (existingUsers.length !== assignees.length) {
+        throw new CustomError(
+          "One or more assignees are invalid or do not exist",
+          logPath,
+          logAction,
+          logSourceKey
+        );
+      }
     }
 
     const newTask = new Task({
@@ -93,13 +98,14 @@ const createTasks = async (req, res, next) => {
       description,
       project: projectId,
       status,
-      priority,
-      assignedTo: assignees,
+      priority: priority ? priority : "Medium",
+      assignedTo: existingUsers,
       assignedBy: user,
       assignedDate,
       dueDate: parsedDueDate,
       dueTime: dueTime ? parsedDueTime : null,
       taskType,
+      taskTag,
       company,
     });
 
@@ -122,7 +128,7 @@ const createTasks = async (req, res, next) => {
         projectId,
         status,
         priority,
-        assignees,
+        assignees: existingUsers,
         dueDate,
         dueTime,
         taskType,
@@ -131,7 +137,13 @@ const createTasks = async (req, res, next) => {
 
     return res.status(201).json({ message: "Task added successfully" });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
@@ -232,7 +244,13 @@ const updateTask = async (req, res, next) => {
       .status(200)
       .json({ message: "Task updated successfully", task: updatedTask });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
@@ -526,7 +544,13 @@ const completeTasks = async (req, res, next) => {
       message: "Task status updated successfully",
     });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
@@ -578,7 +602,13 @@ const deleteTask = async (req, res, next) => {
 
     return res.status(200).json({ message: "Task deleted successfully" });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 

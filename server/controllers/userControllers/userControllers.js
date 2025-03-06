@@ -185,7 +185,13 @@ const createUser = async (req, res, next) => {
       message: "User created successfully",
     });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
@@ -202,7 +208,7 @@ const fetchUser = async (req, res, next) => {
       })
         .select("-password")
         .populate([
-          // { path: "reportsTo", select: "name email" },
+          { path: "reportsTo", select: "name email" },
           { path: "departments", select: "name" },
           { path: "company", select: "name" },
           { path: "role", select: "roleTitle modulePermissions" },
@@ -214,7 +220,7 @@ const fetchUser = async (req, res, next) => {
     const users = await User.find({ company })
       .select("-password")
       .populate([
-        // { path: "reportsTo", select: "name email" },
+        { path: "reportsTo", select: "name email" },
         { path: "departments", select: "name" },
         { path: "company", select: "name" },
         { path: "role", select: "roleTitle modulePermissions" },
@@ -524,7 +530,13 @@ const updateSingleUser = async (req, res, next) => {
       message: "User data updated successfully",
     });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 

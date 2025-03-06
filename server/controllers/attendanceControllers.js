@@ -1,7 +1,11 @@
 const Attendance = require("../models/hr/Attendance");
 const UserData = require("../models/hr/UserData");
 const mongoose = require("mongoose");
-const { formatDate, formatTime, formatWithOrdinal } = require("../utils/formatDateTime");
+const {
+  formatDate,
+  formatTime,
+  formatWithOrdinal,
+} = require("../utils/formatDateTime");
 const { createLog } = require("../utils/moduleLogs");
 const CustomError = require("../utils/customErrorlogs");
 const { Readable } = require("stream");
@@ -89,7 +93,13 @@ const clockIn = async (req, res, next) => {
 
     return res.status(201).json({ message: "You clocked in" });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
@@ -165,7 +175,13 @@ const clockOut = async (req, res, next) => {
 
     return res.status(200).json({ message: "You clocked out" });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
@@ -258,7 +274,13 @@ const startBreak = async (req, res, next) => {
 
     return res.status(200).json({ message: "Break started" });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
@@ -340,7 +362,13 @@ const endBreak = async (req, res, next) => {
 
     return res.status(200).json({ message: "Break ended" });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
@@ -524,7 +552,13 @@ const correctAttendance = async (req, res, next) => {
 
     return res.status(200).json({ message: "Attendance corrected" });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 

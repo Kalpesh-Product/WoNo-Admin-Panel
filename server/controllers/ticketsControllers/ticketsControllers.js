@@ -82,7 +82,8 @@ const raiseTicket = async (req, res, next) => {
           logSourceKey
         );
       }
-      foundIssue = department.ticketIssues.find(
+
+      foundIssue = department?.ticketIssues?.find(
         (ticketIssue) => ticketIssue._id.toString() === issueId
       );
       if (!foundIssue) {
@@ -124,7 +125,13 @@ const raiseTicket = async (req, res, next) => {
 
     return res.status(201).json({ message: "Ticket raised successfully" });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
@@ -162,7 +169,7 @@ const getTickets = async (req, res, next) => {
       loggedInUser.role.roleTitle === "Master Admin"
     ) {
       matchingTickets = await Tickets.find({
-        accepted: { $exists: false },
+        acceptedBy: { $exists: false },
         raisedBy: { $ne: loggedInUser._id },
         status: "Pending",
         company: loggedInUser.company,
@@ -177,7 +184,7 @@ const getTickets = async (req, res, next) => {
           { raisedToDepartment: { $in: userDepartments } },
           { escalatedTo: { $in: userDepartments } },
         ],
-        accepted: { $exists: false },
+        acceptedBy: { $exists: false },
         raisedBy: { $ne: loggedInUser._id },
         company: loggedInUser.company,
         status: "Pending",
@@ -230,10 +237,9 @@ const acceptTicket = async (req, res, next) => {
   const logAction = "Accept Ticket";
   const logSourceKey = "ticket";
   const { user, company, ip } = req;
+  const { ticketId } = req.params;
 
   try {
-    const { ticketId } = req.body;
-
     if (!ticketId) {
       throw new CustomError(
         "Ticket ID is required",
@@ -271,25 +277,25 @@ const acceptTicket = async (req, res, next) => {
     }
 
     // Check if the ticket's raised department is among the user's departments
-    const userDepartments = foundUser.departments.map((dept) =>
-      dept.toString()
-    );
-    const ticketInDepartment = userDepartments.some(
-      (deptId) => foundTicket.raisedToDepartment.toString() === deptId
-    );
-    if (!ticketInDepartment) {
-      throw new CustomError(
-        "User does not have permission to accept this ticket",
-        logPath,
-        logAction,
-        logSourceKey
-      );
-    }
+    // const userDepartments = foundUser.departments.map((dept) =>
+    //   dept.toString()
+    // );
+    // const ticketInDepartment = userDepartments.some(
+    //   (deptId) => foundTicket.raisedToDepartment.toString() === deptId
+    // );
+    // if (!ticketInDepartment) {
+    //   throw new CustomError(
+    //     "User does not have permission to accept this ticket",
+    //     logPath,
+    //     logAction,
+    //     logSourceKey
+    //   );
+    // }
 
     // Update the ticket by marking it as accepted and setting status to "In Progress"
     const updatedTicket = await Tickets.findByIdAndUpdate(
       ticketId,
-      { accepted: user, status: "In Progress" },
+      { acceptedBy: user, status: "In Progress", $unset: { rejectedBy: 1 } },
       { new: true }
     );
     if (!updatedTicket) {
@@ -317,7 +323,92 @@ const acceptTicket = async (req, res, next) => {
 
     return res.status(200).json({ message: "Ticket accepted successfully" });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
+  }
+};
+
+const rejectTicket = async (req, res, next) => {
+  const logPath = "tickets/TicketLog";
+  const logAction = "Reject Ticket";
+  const logSourceKey = "ticket";
+  const { user, company, ip } = req;
+
+  try {
+    const { id: ticketId } = req.params;
+
+    if (!ticketId) {
+      throw new CustomError(
+        "Ticket ID is required",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(ticketId)) {
+      throw new CustomError(
+        "Invalid ticket ID provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    const foundTicket = await Tickets.findOne({ _id: ticketId }).lean().exec();
+    if (!foundTicket) {
+      throw new CustomError(
+        "Ticket not found",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    // Update the ticket by marking it as accepted and setting status to "In Progress"
+    const updatedTicket = await Tickets.findByIdAndUpdate(
+      ticketId,
+      { rejectedBy: user, status: "Closed", $unset: { acceptedBy: 1 } },
+      { new: true }
+    );
+
+    if (!updatedTicket) {
+      throw new CustomError(
+        "Failed to reject ticket",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    // Log the successful ticket acceptance
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Ticket rejected successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: updatedTicket._id,
+      changes: { rejectedBy: user, status: "Closed" },
+    });
+
+    return res.status(200).json({ message: "Ticket rejected successfully" });
+  } catch (error) {
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
@@ -439,7 +530,13 @@ const assignTicket = async (req, res, next) => {
 
     return res.status(200).json({ message: "Ticket assigned successfully" });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
@@ -546,7 +643,13 @@ const escalateTicket = async (req, res, next) => {
 
     return res.status(200).json({ message: "Ticket escalated successfully" });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
@@ -640,7 +743,13 @@ const closeTicket = async (req, res, next) => {
 
     return res.status(200).json({ message: "Ticket closed successfully" });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
@@ -653,7 +762,7 @@ const fetchSingleUserTickets = async (req, res, next) => {
       company,
       $or: [
         { assignees: { $in: [new mongoose.Types.ObjectId(id)] } },
-        { accepted: new mongoose.Types.ObjectId(id) },
+        { acceptedBy: new mongoose.Types.ObjectId(id) },
         { raisedBy: new mongoose.Types.ObjectId(id) },
       ],
     }).populate([
@@ -671,7 +780,8 @@ const fetchSingleUserTickets = async (req, res, next) => {
   }
 };
 
-//Fetch assigned, accepted, escalated, supported, closed tickets of the department
+// Fetch assigned, accepted, escalated, supported, closed tickets of the department
+
 const fetchFilteredTickets = async (req, res, next) => {
   try {
     const { user } = req;
@@ -747,6 +857,7 @@ module.exports = {
   raiseTicket,
   getTickets,
   acceptTicket,
+  rejectTicket,
   assignTicket,
   escalateTicket,
   closeTicket,

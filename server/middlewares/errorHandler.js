@@ -9,12 +9,11 @@ const { createLog } = require("../utils/moduleLogs");
 const errorHandler = async (err, req, res, next) => {
   try {
     const { user, ip, company } = req;
-
     const statusCode = err.statusCode || 500;
     const message = err.message || "Internal Server Error";
-    const path = err.path || req.originalUrl || "";
+    const path = err.path || req.originalUrl || "system/ErrorLogs";
     const action = err.action || req.originalUrl || "Unknown API Error";
-    const sourceKey = err.sourceKey || "";
+    const sourceKey = err.sourceKey || "sourceKey";
     const sourceId = null;
     const remarks = err.message;
 
@@ -37,7 +36,7 @@ const errorHandler = async (err, req, res, next) => {
       }
     }
 
-    return res.status(statusCode).json({ message, path });
+    return res.status(statusCode).json({ message });
   } catch (criticalError) {
     return res.status(500).json({
       message: "Critical error in error handler",

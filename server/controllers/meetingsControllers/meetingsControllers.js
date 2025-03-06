@@ -48,7 +48,6 @@ const addMeetings = async (req, res, next) => {
     ) {
       throw new CustomError(
         "Missing required fields",
-        400,
         logPath,
         logAction,
         logSourceKey
@@ -243,7 +242,7 @@ const addMeetings = async (req, res, next) => {
       next(error);
     } else {
       next(
-        new CustomError(error.message, 500, logPath, logAction, logSourceKey)
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
       );
     }
   }
@@ -439,7 +438,13 @@ const addHousekeepingTask = async (req, res, next) => {
       .status(200)
       .json({ message: "Housekeeping tasks added successfully" });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
@@ -504,7 +509,13 @@ const deleteHousekeepingTask = async (req, res, next) => {
       message: "Housekeeping task deleted successfully",
     });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 

@@ -15,9 +15,9 @@ const uploadCompanyDocument = async (req, res, next) => {
   const ip = req.ip;
   const company = req.company;
 
-    if (!file) {
-      return res.status(400).json({ message: "No file uploaded" });
-    }
+  if (!file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
 
   try {
     if (!["template", "sop", "policy", "agreement"].includes(type)) {
@@ -108,7 +108,13 @@ const uploadCompanyDocument = async (req, res, next) => {
       .status(200)
       .json({ message: `${type.toUpperCase()} uploaded successfully` });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
@@ -283,7 +289,13 @@ const uploadDepartmentDocument = async (req, res, next) => {
       } department`,
     });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 

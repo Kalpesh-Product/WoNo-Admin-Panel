@@ -3,7 +3,7 @@ const UserData = require("../../models/hr/UserData");
 const Project = require("../../models/tasks/Project");
 const Task = require("../../models/tasks/Task");
 const CustomError = require("../../utils/customErrorlogs");
-const { formatDate, formatWithOrdinal } = require("../../utils/formatDateTime");
+const { formatWithOrdinal } = require("../../utils/formatDateTime");
 const { createLog } = require("../../utils/moduleLogs");
 const validateUsers = require("../../utils/validateUsers");
 
@@ -132,7 +132,13 @@ const createProject = async (req, res, next) => {
 
     return res.status(201).json({ message: "Project added successfully" });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
@@ -342,7 +348,13 @@ const updateProject = async (req, res, next) => {
       project: updatedProject,
     });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
@@ -393,7 +405,13 @@ const deleteProject = async (req, res, next) => {
 
     return res.status(200).json({ message: "Project deleted successfully" });
   } catch (error) {
-    next(new CustomError(error.message, 500, logPath, logAction, logSourceKey));
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
