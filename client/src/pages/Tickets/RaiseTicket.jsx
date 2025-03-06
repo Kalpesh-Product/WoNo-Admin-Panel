@@ -127,7 +127,8 @@ const RaiseTicket = () => {
     try {
       const response = await axios.post("/api/tickets/raise-ticket", {
         departmentId: selectedDepartment,
-        issueId: details.ticketTitle,
+        issueId: details.ticketTitle? details.issueId : null,
+        newIssue: details.otherReason? details.otherReason : null,
         description: details.message,
       });
       toast.success(response.data.message);

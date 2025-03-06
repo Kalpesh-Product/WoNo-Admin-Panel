@@ -80,7 +80,8 @@ const raiseTicket = async (req, res, next) => {
           logSourceKey
         );
       }
-      foundIssue = department.ticketIssues.find(
+
+      foundIssue = department?.ticketIssues?.find(
         (ticketIssue) => ticketIssue._id.toString() === issueId
       );
       if (!foundIssue) {
@@ -773,7 +774,7 @@ const fetchFilteredTickets = async (req, res, next) => {
   try {
     const { user } = req;
 
-    const { flag } = req.params;
+    const { flag } = req.query;
 
     const loggedInUser = await User.findOne({ _id: user })
       .select("-refreshToken -password")

@@ -3,7 +3,7 @@ const UserData = require("../../models/hr/UserData");
 const Project = require("../../models/tasks/Project");
 const Task = require("../../models/tasks/Task");
 const CustomError = require("../../utils/customErrorlogs");
-const { formatDate, formatWithOrdinal } = require("../../utils/formatDateTime");
+const { formatWithOrdinal } = require("../../utils/formatDateTime");
 const { createLog } = require("../../utils/moduleLogs");
 const validateUsers = require("../../utils/validateUsers");
 
