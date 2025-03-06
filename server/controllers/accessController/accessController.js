@@ -108,18 +108,12 @@ const userPermissions = async (req, res, next) => {
   }
 };
 
-const grantUserPermissions = async (req, res, next) => {
+const modifyUserPermissions = async (req, res, next) => {
   try {
-    const { userId, permissions } = req.body; 
+    const { userId, permissions } = req.body;
     const companyId = req.company;
 
-
-    if (
-      !userId ||
-      !companyId ||
-      !Array.isArray(permissions) ||
-      permissions.length === 0
-    ) {
+    if (!userId || !companyId || !Array.isArray(permissions)) {
       return res.status(400).json({ error: "Invalid request data" });
     }
 
@@ -129,7 +123,7 @@ const grantUserPermissions = async (req, res, next) => {
       .exec();
     if (!foundUser) return res.status(404).json({ error: "User not found" });
 
-    // Step 2: Fetch Company & Validate Departments
+    // Fetch Company & Validate Departments
     const company = await Company.findById(companyId).populate(
       "selectedDepartments"
     );
@@ -139,7 +133,7 @@ const grantUserPermissions = async (req, res, next) => {
       company.selectedDepartments.map((dept) => dept.department.toString())
     );
 
-    // Step 3: Fetch Existing User Permissions or Create New Entry
+    // Fetch Existing Permissions or Create a New Entry
     let userPermission = await Permissions.findOne({
       user: userId,
       company: companyId,
@@ -152,30 +146,34 @@ const grantUserPermissions = async (req, res, next) => {
       });
     }
 
-    // Step 4: Process Each Permission Request
+    // Create a map for quick lookup of existing permissions
+    const existingPermissions = new Map();
+    for (const dept of userPermission.deptWisePermissions) {
+      existingPermissions.set(dept.department.toString(), dept);
+    }
+
+    const updatedDeptWisePermissions = [];
+
+    // Process Each Permission
     for (const { departmentId, modules } of permissions) {
       if (!selectedDepartments.has(departmentId) || !Array.isArray(modules)) {
         return res.status(400).json({ error: "Invalid permission data" });
       }
 
-      // Find or Add Department Entry
-      let deptIndex = userPermission.deptWisePermissions.findIndex(
-        (dept) => dept.department.toString() === departmentId
-      );
-      if (deptIndex === -1) {
-        userPermission.deptWisePermissions.push({
-          department: departmentId,
-          modules: [],
-        });
-        deptIndex = userPermission.deptWisePermissions.length - 1;
-      }
+      // Fetch or initialize department permissions
+      let deptPermissions = existingPermissions.get(departmentId) || {
+        department: departmentId,
+        modules: [],
+      };
+
+      const updatedModules = [];
 
       for (const { moduleName, submodules } of modules) {
         if (!moduleName || !Array.isArray(submodules)) {
           return res.status(400).json({ error: "Invalid module data" });
         }
 
-        // Validate module and submodules against master permissions
+        // Validate module against master permissions
         const departmentPermissions = masterPermissions.find(
           (dept) => dept.departmentId === departmentId
         );
@@ -190,25 +188,14 @@ const grantUserPermissions = async (req, res, next) => {
         if (!modulePermissions)
           return res.status(400).json({ error: "Invalid module" });
 
-        let moduleIndex = userPermission.deptWisePermissions[
-          deptIndex
-        ].modules.findIndex(
-          (mod) => mod.moduleName.trim() === moduleName.trim()
-        );
-        if (moduleIndex === -1) {
-          userPermission.deptWisePermissions[deptIndex].modules.push({
-            moduleName,
-            submodules: [],
-          });
-          moduleIndex =
-            userPermission.deptWisePermissions[deptIndex].modules.length - 1;
-        }
+        const updatedSubmodules = [];
 
         for (const { submoduleName, actions } of submodules) {
           if (!submoduleName || !Array.isArray(actions)) {
             return res.status(400).json({ error: "Invalid submodule data" });
           }
 
+          // Validate submodule and actions
           const submodulePermissions = modulePermissions.submodules.find(
             (sub) => sub.submoduleName?.trim() === submoduleName?.trim()
           );
@@ -216,39 +203,34 @@ const grantUserPermissions = async (req, res, next) => {
             return res.status(400).json({ error: "Invalid submodule" });
 
           const validActions = submodulePermissions.actions;
-          const invalidActions = actions.filter(
-            (action) => !validActions.includes(action)
+          const filteredActions = actions.filter((action) =>
+            validActions.includes(action)
           );
-          if (invalidActions.length > 0) {
-            return res
-              .status(400)
-              .json({ error: `Invalid actions: ${invalidActions.join(", ")}` });
-          }
 
-          let submoduleIndex = userPermission.deptWisePermissions[
-            deptIndex
-          ].modules[moduleIndex].submodules.findIndex(
-            (sub) => sub.submoduleName === submoduleName
-          );
-          if (submoduleIndex === -1) {
-            userPermission.deptWisePermissions[deptIndex].modules[
-              moduleIndex
-            ].submodules.push({ submoduleName, actions });
-          } else {
-            let existingActions =
-              userPermission.deptWisePermissions[deptIndex].modules[moduleIndex]
-                .submodules[submoduleIndex].actions;
-            let newActions = [...new Set([...existingActions, ...actions])]; // Ensure no duplicates
-            userPermission.deptWisePermissions[deptIndex].modules[
-              moduleIndex
-            ].submodules[submoduleIndex].actions = newActions;
+          // Only add submodules with at least one valid action
+          if (filteredActions.length > 0) {
+            updatedSubmodules.push({ submoduleName, actions: filteredActions });
           }
         }
+
+        // Only add modules with at least one valid submodule
+        if (updatedSubmodules.length > 0) {
+          updatedModules.push({ moduleName, submodules: updatedSubmodules });
+        }
+      }
+
+      // Only add departments with at least one valid module
+      if (updatedModules.length > 0) {
+        deptPermissions.modules = updatedModules;
+        updatedDeptWisePermissions.push(deptPermissions);
       }
     }
 
-    // Step 5: Save Updated Permissions
+    // Update user permissions
+    userPermission.deptWisePermissions = updatedDeptWisePermissions;
     const updatedUserPermission = await userPermission.save();
+
+    // If user has no existing permission reference, update it
     if (!foundUser.permissions) {
       await UserData.findOneAndUpdate(
         { _id: userId },
@@ -258,10 +240,10 @@ const grantUserPermissions = async (req, res, next) => {
 
     res
       .status(200)
-      .json({ message: "Permissions granted successfully", userPermission });
+      .json({ message: "Permissions updated successfully", userPermission });
   } catch (error) {
     next(error);
   }
 };
 
-module.exports = { userPermissions, grantUserPermissions };
+module.exports = { userPermissions, modifyUserPermissions };

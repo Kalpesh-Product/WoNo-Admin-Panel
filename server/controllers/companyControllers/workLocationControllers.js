@@ -61,7 +61,6 @@ const addWorkLocation = async (req, res, next) => {
       );
     }
 
-    // Log the successful addition of the work location
     await createLog({
       path: logPath,
       action: logAction,
