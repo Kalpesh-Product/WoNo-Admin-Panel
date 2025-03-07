@@ -1,5 +1,6 @@
 const SupportTicket = require("../models/tickets/supportTickets");
 const Ticket = require("../models/tickets/Tickets");
+const Company = require("../models/hr/Company");
 
 async function filterCloseTickets(userDepartments, loggedInUser) {
   if (loggedInUser.role.roleTitle === "Master-Admin") {
@@ -171,7 +172,7 @@ async function filterMyTickets(loggedInUser) {
   return myTickets;
 }
 
-async function filterTodayTickets(loggedInUser) {
+async function filterTodayTickets(loggedInUser, company) {
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
 
@@ -182,12 +183,20 @@ async function filterTodayTickets(loggedInUser) {
     raisedBy: loggedInUser._id,
     createdAt: { $gte: startOfDay, $lte: endOfDay },
   })
+    .select("raisedBy raisedToDepartment status")
     .populate([
       { path: "raisedBy", select: "firstName lastName" },
       { path: "raisedToDepartment", select: "name" },
     ])
     .lean()
     .exec();
+
+  const foundCompany = await Company.findOne({ _id: company })
+    .select("selectedDepartments")
+    .lean()
+    .exec();
+
+  
 
   return todayTickets;
 }
