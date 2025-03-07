@@ -229,11 +229,11 @@ const physicalDigitalOptions = {
 
 // -----------------------Department Pie Data Start--------------------
 const departmentWiseAssets = [
-  { label: "IT", value: 1200 },
-  { label: "Finance", value: 900 },
-  { label: "HR", value: 700 },
-  { label: "Operations", value: 1100 },
-  { label: "Marketing", value: 1100 },
+  { label: "IT", value: 120 },
+  { label: "Tech", value: 90 },
+  { label: "HR", value: 70 },
+  { label: "Sales", value: 110 },
+  { label: "Admin", value: 110 },
 ];
 
 const totalDepartmentAssets = departmentWiseAssets.reduce(
@@ -241,17 +241,17 @@ const totalDepartmentAssets = departmentWiseAssets.reduce(
   0
 );
 
-const departmentPieData = departmentWiseAssets.map((dept) => ({
+const departmentPieDataVX = departmentWiseAssets.map((dept) => ({
   label: `${dept.label} Department`,
   value: ((dept.value / totalDepartmentAssets) * 100).toFixed(1),
   count: dept.value,
 }));
 
-const departmentPieOptions = {
+const departmentPieOptionsVX = {
   chart: {
     fontFamily: "Poppins-Regular",
   },
-  labels: departmentPieData.map((item) => item.label),
+  labels: departmentPieDataVX.map((item) => item.label),
   legend: { show: true },
   dataLabels: {
     enabled: true,
@@ -260,8 +260,8 @@ const departmentPieOptions = {
   tooltip: {
     y: {
       formatter: (val, { seriesIndex }) => {
-        const count = departmentPieData[seriesIndex].count;
-        return `${count} assets (${val}%)`;
+        const count = departmentPieDataVX[seriesIndex].count;
+        return `${count} visitors (${val}%)`;
       },
     },
   },
@@ -281,101 +281,101 @@ const assetCategoriesDataV = {
 
 // -----------------------Asset categories Donut Data End--------------------
 // -----------------------Recently Added Assets Start--------------------
-const recentAssetsColumns = [
-  { id: "id", label: "ID" },
-  { id: "department", label: "Department" },
-  { id: "assetNumber", label: "Asset Number" },
-  { id: "category", label: "Category" },
-  { id: "brand", label: "Brand" },
-  { id: "price", label: "Price", align: "right" },
-  { id: "quantity", label: "Quantity", align: "right" },
-  { id: "purchaseDate", label: "Purchase Date" },
-  { id: "warranty", label: "Warranty (Months)" },
-  {
-    id: "actions",
-    label: "Actions",
-    align: "center",
-    renderCell: () => <PrimaryButton title={"Details"} />,
-  },
+const recentAssetsColumnsVX = [
+  { id: "id", label: "Sr No" },
+  { id: "department", label: "Name" },
+  { id: "assetNumber", label: "Address" },
+  { id: "category", label: "Email" },
+  { id: "brand", label: "Phone No" },
+  { id: "price", label: "Purpose", align: "right" },
+  { id: "quantity", label: "To Meet", align: "right" },
+  { id: "purchaseDate", label: "Check In" },
+  { id: "warranty", label: "Checkout" },
+  //   {
+  //     id: "actions",
+  //     label: "Actions",
+  //     align: "center",
+  //     renderCell: () => <PrimaryButton title={"View"} />,
+  //   },
 ];
 
-const recentAssetsData = [
+const recentAssetsDataVX = [
   {
     id: 1,
-    department: "HR",
-    assetNumber: "L0001",
-    category: "Laptop",
-    brand: "Lenovo",
-    price: "₹55,000",
-    quantity: 2,
-    purchaseDate: "02/01/2025",
-    warranty: 12,
+    department: "John Doe",
+    assetNumber: "Mapusa",
+    category: "johndoe@gmail.com",
+    brand: "9876543201",
+    price: "Investor meeting",
+    quantity: "Abrar Shaikh",
+    purchaseDate: "09:00 AM",
+    warranty: "06:00 PM",
   },
   {
     id: 2,
-    department: "IT",
-    assetNumber: "P0002",
-    category: "Printer",
-    brand: "HP",
-    price: "₹15,000",
-    quantity: 1,
-    purchaseDate: "15/02/2025",
-    warranty: 24,
+    department: "John Doe",
+    assetNumber: "Mapusa",
+    category: "johndoe@gmail.com",
+    brand: "9876543201",
+    price: "Investor meeting",
+    quantity: "Abrar Shaikh",
+    purchaseDate: "09:00 AM",
+    warranty: "06:00 PM",
   },
   {
     id: 3,
-    department: "Finance",
-    assetNumber: "C0003",
-    category: "Chair",
-    brand: "Godrej",
-    price: "₹5,000",
-    quantity: 4,
-    purchaseDate: "10/03/2025",
-    warranty: 36,
+    department: "John Doe",
+    assetNumber: "Mapusa",
+    category: "johndoe@gmail.com",
+    brand: "9876543201",
+    price: "Investor meeting",
+    quantity: "Abrar Shaikh",
+    purchaseDate: "09:00 AM",
+    warranty: "06:00 PM",
   },
   {
     id: 4,
-    department: "Marketing",
-    assetNumber: "B0004",
-    category: "Bottle",
-    brand: "Milton",
-    price: "₹700",
-    quantity: 10,
-    purchaseDate: "20/04/2025",
-    warranty: 12,
+    department: "John Doe",
+    assetNumber: "Mapusa",
+    category: "johndoe@gmail.com",
+    brand: "9876543201",
+    price: "Investor meeting",
+    quantity: "Abrar Shaikh",
+    purchaseDate: "09:00 AM",
+    warranty: "06:00 PM",
   },
   {
     id: 5,
-    department: "HR",
-    assetNumber: "M0005",
-    category: "Marker",
-    brand: "Camlin",
-    price: "₹50",
-    quantity: 25,
-    purchaseDate: "05/05/2025",
-    warranty: 6,
+    department: "John Doe",
+    assetNumber: "Mapusa",
+    category: "johndoe@gmail.com",
+    brand: "9876543201",
+    price: "Investor meeting",
+    quantity: "Abrar Shaikh",
+    purchaseDate: "09:00 AM",
+    warranty: "06:00 PM",
   },
   {
     id: 6,
-    department: "Admin",
-    assetNumber: "D0006",
-    category: "Desk",
-    brand: "IKEA",
-    price: "₹12,000",
-    quantity: 3,
-    purchaseDate: "12/06/2025",
-    warranty: 24,
+    department: "John Doe",
+    assetNumber: "Mapusa",
+    category: "johndoe@gmail.com",
+    brand: "9876543201",
+    price: "Investor meeting",
+    quantity: "Abrar Shaikh",
+    purchaseDate: "09:00 AM",
+    warranty: "06:00 PM",
   },
   {
     id: 7,
-    department: "Operations",
-    assetNumber: "S0007",
-    category: "Scanner",
-    brand: "Canon",
-    price: "₹18,000",
-    quantity: 1,
-    purchaseDate: "25/07/2025",
-    warranty: 18,
+    department: "John Doe",
+    assetNumber: "Mapusa",
+    category: "johndoe@gmail.com",
+    brand: "9876543201",
+    price: "Investor meeting",
+    quantity: "Abrar Shaikh",
+    purchaseDate: "09:00 AM",
+    warranty: "06:00 PM",
   },
 ];
 // -----------------------Recently Added Assets End--------------------
@@ -387,9 +387,9 @@ export {
   assetAvailabilityOptionsV,
   physicalDigitalOptions,
   physicalDigitalPieData,
-  departmentPieData,
-  departmentPieOptions,
+  departmentPieDataVX,
+  departmentPieOptionsVX,
   assetCategoriesDataV,
-  recentAssetsColumns,
-  recentAssetsData,
+  recentAssetsColumnsVX,
+  recentAssetsDataVX,
 };

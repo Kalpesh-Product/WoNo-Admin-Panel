@@ -25,6 +25,10 @@ import {
   assetAvailabilityDataV,
   assetAvailabilityOptionsV,
   assetCategoriesDataV,
+  departmentPieDataVX,
+  departmentPieOptionsVX,
+  recentAssetsColumnsVX,
+  recentAssetsDataVX,
 } from "./VisitorsData/VisitorsData";
 
 const VisitorDashboard = () => {
@@ -605,42 +609,42 @@ const VisitorDashboard = () => {
   };
 
   const columns3 = [
-    { id: "ranks", label: "Rank", align: "left" },
-    { id: "employeeName", label: "Employee name", align: "left" },
-    { id: "department", label: "Department", align: "center" },
-    { id: "Performance (%)", label: "Performance (%)", align: "center" },
+    { id: "ranks", label: "Sr No", align: "left" },
+    { id: "employeeName", label: "Visitor", align: "left" },
+    { id: "department", label: "To Meet", align: "center" },
+    { id: "Performance (%)", label: "Time", align: "center" },
   ];
 
   const rows3 = [
     {
       ranks: "1",
-      employeeName: "Aiwin",
-      department: "Tech",
-      "Performance (%)": "97",
+      employeeName: "John Doe",
+      department: "Abrar Shaikh",
+      "Performance (%)": "10:00 AM",
     },
     {
       ranks: "2",
-      employeeName: "Allen Silvera",
-      department: "Tech",
-      "Performance (%)": "90",
+      employeeName: "Aman Gupta",
+      department: "Abrar Shaikh",
+      "Performance (%)": "09:45 AM",
     },
     {
       ranks: 3,
-      employeeName: "Sankalp Kalangutkar",
-      department: "Tech",
-      "Performance (%)": "80",
+      employeeName: "Jeff Bezos",
+      department: "Abrar Shaikh",
+      "Performance (%)": "10:00 AM",
     },
     {
-      ranks: 3,
-      employeeName: "Sankalp Kalangutkar",
-      department: "Tech",
-      "Performance (%)": "80",
+      ranks: 4,
+      employeeName: "Elon Musk",
+      department: "Abrar Shaikh",
+      "Performance (%)": "09:45 AM",
     },
     {
-      ranks: 3,
-      employeeName: "Sankalp Kalangutkar",
-      department: "Tech",
-      "Performance (%)": "80",
+      ranks: 5,
+      employeeName: "Satya Nadela",
+      department: "Abrar Shaikh",
+      "Performance (%)": "10:00 AM",
     },
   ];
 
@@ -703,7 +707,7 @@ const VisitorDashboard = () => {
         const item = genderData[seriesIndex]; // Use genderData to fetch the correct item
         return `
           <div style="padding: 5px; font-size: 12px;">
-            ${item.label}: ${item.actualCount} employees
+            ${item.label}: ${item.actualCount} visitors
           </div>`;
       },
     },
@@ -849,8 +853,8 @@ const VisitorDashboard = () => {
         </WidgetSection>,
         <WidgetSection layout={1} title={"Department Wise Visits"} border>
           <PieChartMui
-            data={departmentPieData}
-            options={departmentPieOptions}
+            data={departmentPieDataVX}
+            options={departmentPieOptionsVX}
           />
         </WidgetSection>,
       ],
@@ -861,8 +865,8 @@ const VisitorDashboard = () => {
         <WidgetSection layout={1} padding>
           <MuiTable
             Title="Visitors Today"
-            columns={recentAssetsColumns}
-            rows={recentAssetsData}
+            columns={recentAssetsColumnsVX}
+            rows={recentAssetsDataVX}
             rowKey="id"
             rowsToDisplay={10}
             scroll={true}
