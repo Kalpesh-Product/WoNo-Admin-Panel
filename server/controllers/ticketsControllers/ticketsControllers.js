@@ -147,6 +147,7 @@ const raiseTicket = async (req, res, next) => {
       ticketTitle = newIssue;
       const newTicketIssue = new NewTicketIssue({
         company: req.company,
+        raisedBy: user,
         departmentId,
         issueTitle: newIssue,
         status: "Pending",

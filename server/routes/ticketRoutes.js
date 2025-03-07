@@ -17,13 +17,17 @@ const {
 } = require("../controllers/ticketsControllers/supportTicketsController");
 const {
   addTicketIssue,
-  getTicketIssue,
+  getTicketIssues,
+  rejectTicketIssue,
+  getNewTicketIssues,
 } = require("../controllers/ticketsControllers/ticketIssueController");
 
 const router = require("express").Router();
 
 router.post("/add-ticket-issue", addTicketIssue);
-router.get("/get-ticket-issue/:department", getTicketIssue);
+router.get("/ticket-issues/:department", getTicketIssues);
+router.get("/new-ticket-issues/:department", getNewTicketIssues);
+router.delete("/reject-ticket-issue/:id", rejectTicketIssue);
 router.get("/get-tickets", getTickets);
 router.get("/:id", fetchSingleUserTickets);
 router.post("/raise-ticket", upload.single("issue"), raiseTicket);
