@@ -37,6 +37,12 @@ const AssetModal = ({
   // Predefined lists
   const departments = ["IT", "HR", "Administration", "Finance"];
   const categories = ["Laptop", "Projector", "Printer", "Scanner"];
+  const vendors = [
+    "Sumo Payroll",
+    "Plumbing Company",
+    "John Doe",
+    "Grocery Company",
+  ];
   const locations = ["Office A", "Office B", "Warehouse"];
 
   // Watch form values for dynamic calculations
@@ -112,7 +118,7 @@ const AssetModal = ({
             rules={{ required: "Asset image is required" }}
             render={({ field }) => (
               <div
-                className={`w-4/5 flex justify-center border-2 rounded-md p-2 relative ${
+                className={`w-full flex justify-center border-2 rounded-md p-2 relative ${
                   errors.assetImage ? "border-red-500" : "border-gray-300"
                 } `}>
                 <div
@@ -187,7 +193,7 @@ const AssetModal = ({
                 defaultValue=""
                 rules={{ required: "Department is required" }}
                 render={({ field }) => (
-                  <Select {...field} label="Department">
+                  <Select {...field} label="Department" size="small">
                     {departments.map((dept) => (
                       <MenuItem key={dept} value={dept}>
                         {dept}
@@ -207,7 +213,7 @@ const AssetModal = ({
                 defaultValue=""
                 rules={{ required: "Category is required" }}
                 render={({ field }) => (
-                  <Select {...field} label="Category">
+                  <Select {...field} label="Category" size="small">
                     {categories.map((category) => (
                       <MenuItem key={category} value={category}>
                         {category}
@@ -229,6 +235,7 @@ const AssetModal = ({
               rules={{ required: "Brand is required" }}
               render={({ field }) => (
                 <TextField
+                  size="small"
                   {...field}
                   label="Brand Name"
                   className="w-1/2"
@@ -245,6 +252,7 @@ const AssetModal = ({
               rules={{ required: "Model Name is required" }}
               render={({ field }) => (
                 <TextField
+                  size="small"
                   {...field}
                   label="Model Name"
                   className="w-1/2"
@@ -264,6 +272,7 @@ const AssetModal = ({
               rules={{ required: "Quantity is required" }}
               render={({ field }) => (
                 <TextField
+                  size="small"
                   {...field}
                   label="Quantity"
                   type="number"
@@ -281,6 +290,7 @@ const AssetModal = ({
               rules={{ required: "Price is required" }}
               render={({ field }) => (
                 <TextField
+                  size="small"
                   {...field}
                   label="Price"
                   type="number"
@@ -300,6 +310,7 @@ const AssetModal = ({
               defaultValue={totalPrice}
               render={({ field }) => (
                 <TextField
+                  size="small"
                   {...field}
                   label="Total Price"
                   type="number"
@@ -310,13 +321,14 @@ const AssetModal = ({
               )}
             />
 
-            <Controller
+            {/* <Controller
               name="vendorName"
               control={control}
               defaultValue=""
               rules={{ required: "Vendor Name is required" }}
               render={({ field }) => (
                 <TextField
+                  size="small"
                   {...field}
                   label="Vendor Name"
                   className="w-1/2"
@@ -324,7 +336,27 @@ const AssetModal = ({
                   helperText={errors.vendorName?.message}
                 />
               )}
-            />
+            /> */}
+
+            <FormControl className="w-1/2" error={!!errors.vendor}>
+              <InputLabel>Vendor Name</InputLabel>
+              <Controller
+                name="vendorName"
+                control={control}
+                defaultValue=""
+                rules={{ required: "Vendor Name is required" }}
+                render={({ field }) => (
+                  <Select {...field} label="Vendor Name" size="small">
+                    {vendors.map((vendor) => (
+                      <MenuItem key={vendor} value={vendor}>
+                        {vendor}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                )}
+              />
+              <FormHelperText>{errors.vendor?.message}</FormHelperText>
+            </FormControl>
           </div>
 
           {/* Purchase Date & Warranty */}
@@ -342,6 +374,7 @@ const AssetModal = ({
                       label="Purchase Date"
                       slotProps={{
                         textField: {
+                          size: "small",
                           error: !!errors.purchaseDate,
                           helperText: errors?.purchaseDate?.message,
                         },
@@ -360,6 +393,7 @@ const AssetModal = ({
               rules={{ required: "Warranty is required" }}
               render={({ field }) => (
                 <TextField
+                  size="small"
                   {...field}
                   label="Warranty (Months)"
                   type="number"
@@ -372,8 +406,9 @@ const AssetModal = ({
           </div>
 
           {/* Location */}
-          <div className="w-full">
-            <FormControl className="w-[48.6%]" error={!!errors.location}>
+          <div className="flex gap-4 w-full">
+            {/* <FormControl className="w-[48.6%]" error={!!errors.location}> */}
+            <FormControl className="w-1/2" error={!!errors.location}>
               <InputLabel>Select Location</InputLabel>
               <Controller
                 name="location"
@@ -381,7 +416,7 @@ const AssetModal = ({
                 defaultValue=""
                 rules={{ required: "Location is required" }}
                 render={({ field }) => (
-                  <Select {...field} label="Select Location">
+                  <Select {...field} label="Select Location" size="small">
                     {locations.map((location) => (
                       <MenuItem key={location} value={location}>
                         {location}
@@ -390,6 +425,26 @@ const AssetModal = ({
                   </Select>
                 )}
               />
+            </FormControl>
+
+            <FormControl className="w-1/2" error={!!errors.category}>
+              <InputLabel>Sub Category</InputLabel>
+              <Controller
+                name="subCategory"
+                control={control}
+                defaultValue=""
+                rules={{ required: "Sub Category is required" }}
+                render={({ field }) => (
+                  <Select {...field} label="Sub Category" size="small">
+                    {categories.map((category) => (
+                      <MenuItem key={category} value={category}>
+                        {category}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                )}
+              />
+              <FormHelperText>{errors.category?.message}</FormHelperText>
             </FormControl>
           </div>
 
