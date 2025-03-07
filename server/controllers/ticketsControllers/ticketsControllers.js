@@ -78,7 +78,7 @@ const raiseTicket = async (req, res, next) => {
     }
 
     const foundDepartment = await Department.findOne({
-      _id: department.department
+      _id: department.department,
     }).select("name");
 
     // **Handle optional file upload**
@@ -164,10 +164,12 @@ const raiseTicket = async (req, res, next) => {
       raisedToDepartment: departmentId,
       raisedBy: user,
       company: company,
-      image: {
-        id:imageDetails.id,
-        url: imageDetails.url,
-      }, // Store image only if uploaded
+      image: imageDetails
+        ? {
+            id: imageDetails.id,
+            url: imageDetails.url,
+          }
+        : null, // Store image only if uploaded
     });
 
     const savedTicket = await newTicket.save();

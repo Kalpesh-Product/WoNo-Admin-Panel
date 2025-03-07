@@ -31,8 +31,27 @@ const RecievedTickets = ({ title }) => {
   const { mutate: acceptMutate } = useMutation({
     mutationKey: ["accept-ticket"],
     mutationFn: async (ticket) => {
-      console.log("ticket is : ", ticket)
-      const response = await axios.post(`/api/tickets/accept-ticket/${ticket.id}`);
+      console.log("ticket is : ", ticket);
+      const response = await axios.post(
+        `/api/tickets/accept-ticket/${ticket.id}`
+      );
+
+      return response.data.message;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["tickets"] });
+      toast.success(data);
+    },
+    onError: (error) => {
+      toast.error(error.response.data.message);
+    },
+  });
+  const { mutate: rejectMutate, isPending : rejectPending } = useMutation({
+    mutationKey: ["reject-ticket"],
+    mutationFn: async (ticket) => {
+      const response = await axios.post(
+        `/api/tickets/reject-ticket/${ticket.id}`
+      );
 
       return response.data.message;
     },
@@ -69,7 +88,6 @@ const RecievedTickets = ({ title }) => {
   };
 
   const transformTicketsData = (tickets) => {
-    let Srno = 0;
     return tickets.map((ticket) => ({
       id: ticket._id,
       raisedBy: ticket.raisedBy?.firstName || "Unknown",
@@ -137,6 +155,7 @@ const RecievedTickets = ({ title }) => {
             menuItems={[
               { label: "Accept", onClick: () => acceptMutate(params.data) },
               { label: "Assign", onClick: openModal },
+              { label: "Reject", onClick: ()=> rejectMutate(params.data) },
             ]}
           />
         </>
@@ -158,6 +177,7 @@ const RecievedTickets = ({ title }) => {
           <AgTable
             key={rows.length}
             data={rows}
+            tableHeight={350}
             columns={recievedTicketsColumns}
           />
         )}

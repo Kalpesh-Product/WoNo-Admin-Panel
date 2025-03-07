@@ -19,6 +19,7 @@ import { Controller, useForm } from "react-hook-form";
 import { LuImageUp, LuImageUpscale } from "react-icons/lu";
 import { MdDelete } from "react-icons/md";
 import MuiModal from "../../components/MuiModal";
+import { queryClient } from "../..";
 
 const RaiseTicket = () => {
   const [selectedDepartment, setSelectedDepartment] = useState(null);
@@ -58,7 +59,7 @@ const RaiseTicket = () => {
       ticketTitle: "",
       newIssue: "",
       message: "",
-      issue:null
+      issue: null,
     },
     mode: "onSubmit",
   });
@@ -67,40 +68,44 @@ const RaiseTicket = () => {
 
   const { mutate: raiseTicket, isPending: pendingRaise } = useMutation({
     mutationFn: async (data) => {
-      try {
-        const formData = new FormData();
+      const formData = new FormData();
 
-        formData.append("departmentId", data.department);
-        formData.append("issueId", data.ticketTitle);
-        formData.append("description", data.message);
-        if (data.newIssue) {
-          formData.append("newIssue", data.newIssue);
-        }
-  
-        // Append image if exists
-        if (data.image) {
-          formData.append("issue", data.image); // Key name should match backend expectations
-        }
-
-        const response = await axios.post("/api/tickets/raise-ticket", formData, {
-          headers:{
-            "Content-Type" : 'multipart/form-data'
-          }
-        })
-        toast.success(response.data.message);
-      } catch (error) {
-        toast.error(error.response?.data?.message || "Something went wrong");
+      formData.append("departmentId", data.department);
+      formData.append("issueId", data.ticketTitle);
+      formData.append("description", data.message);
+      if (data.newIssue) {
+        formData.append("newIssue", data.newIssue);
       }
+
+      // Append image if exists
+      if (data.image) {
+        formData.append("issue", data.image); // Key name should match backend expectations
+      }
+
+      const response = await axios.post("/api/tickets/raise-ticket", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      return response.data;
+    },
+    onSuccess: function (data) {
+      toast.success(data.message);
+      queryClient.invalidateQueries({ queryKey: ["my-tickets"] });
+      reset();
+    },
+    onError: function (data) {
+      toast.error(data.message || "Something went wrong");
     },
   });
 
   const onSubmit = (data) => {
     raiseTicket(data);
-    reset();
   };
 
   const { data: tickets, isPending: ticketsLoading } = useQuery({
-    queryKey: ["my tickets"],
+    queryKey: ["my-tickets"],
     queryFn: async function () {
       const response = await axios.get("/api/tickets?flag=raisedTodayByMe");
       return response.data;
@@ -125,6 +130,7 @@ const RaiseTicket = () => {
   };
 
   const recievedTicketsColumns = [
+    { field: "id", headerName: "id", sort: "desc" },
     { field: "raisedBy", headerName: "Raised By" },
     { field: "raisedTo", headerName: "To Department" },
     { field: "ticketTitle", headerName: "Ticket Title", flex: 1 },
@@ -389,17 +395,18 @@ const RaiseTicket = () => {
             <AgTable
               key={tickets.length}
               search
-              data={[...tickets.map((ticket, index)=>({
-                id : index +1,
-                raisedBy : ticket.raisedBy.firstName,
-                raisedTo: ticket.raisedToDepartment.name,
-                ticketTitle : ticket.ticket,
-                status : ticket.status
-              }))]}
+              data={[
+                ...tickets.map((ticket, index) => ({
+                  id: index + 1,
+                  raisedBy: ticket.raisedBy.firstName,
+                  raisedTo: ticket.raisedToDepartment.name,
+                  ticketTitle: ticket.ticket,
+                  status: ticket.status,
+                })),
+              ]}
               columns={recievedTicketsColumns}
               paginationPageSize={10}
             />
-     
           )}
         </div>
       </div>
