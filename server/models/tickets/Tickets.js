@@ -23,6 +23,10 @@ const ticketsSchema = new mongoose.Schema(
       enum: ["Pending", "In Progress", "Closed"],
       default: "Pending",
     },
+
+    specifiedReason: {
+      type: String,
+    },
     escalatedTo: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -47,6 +51,10 @@ const ticketsSchema = new mongoose.Schema(
     company: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Company",
+    },
+    image: {
+      id: String,
+      url: String,
     },
   },
   { timestamps: true }
