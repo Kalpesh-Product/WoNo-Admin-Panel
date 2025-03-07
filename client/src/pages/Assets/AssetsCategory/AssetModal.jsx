@@ -32,7 +32,16 @@ const AssetModal = ({
     watch,
     reset,
     setValue,
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      department: "",
+      name: "",
+      description: "",
+      image: null,
+      category: "",
+      status: "",
+    },
+  });
 
   // Predefined lists
   const departments = ["IT", "HR", "Administration", "Finance"];
@@ -108,9 +117,8 @@ const AssetModal = ({
           : "Edit Asset"
       }>
       {mode !== "view" ? (
-        <form
-          onSubmit={handleSubmit(handleFormSubmit)}
-          className="flex flex-col items-center gap-4">
+        <form onSubmit={handleSubmit(handleFormSubmit)}>
+          <div className="grid grid-cols-2 gap-4"></div>
           {/* Image Upload Section */}
           <Controller
             name="assetImage"
@@ -184,50 +192,47 @@ const AssetModal = ({
           />
 
           {/* Department & Category */}
-          <div className="flex gap-4 w-full">
-            <FormControl className="w-1/2" error={!!errors.department}>
-              <InputLabel>Department</InputLabel>
-              <Controller
-                name="department"
-                control={control}
-                defaultValue=""
-                rules={{ required: "Department is required" }}
-                render={({ field }) => (
-                  <Select {...field} label="Department" size="small">
-                    {departments.map((dept) => (
-                      <MenuItem key={dept} value={dept}>
-                        {dept}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                )}
-              />
-              <FormHelperText>{errors.department?.message}</FormHelperText>
-            </FormControl>
+          <div className="">
+            <Controller
+              name="department"
+              control={control}
+              rules={{ required: "Department is required" }}
+              render={({ field }) => (
+                <TextField
+                  error={!!errors.department}
+                  helperText={errors.department?.message}
+                  {...field}
+                  select
+                  label="Department"
+                  size="small">
+                  {departments.map((dept) => (
+                    <MenuItem key={dept} value={dept}>
+                      {dept}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              )}
+            />
 
-            <FormControl className="w-1/2" error={!!errors.category}>
-              <InputLabel>Category</InputLabel>
-              <Controller
-                name="category"
-                control={control}
-                defaultValue=""
-                rules={{ required: "Category is required" }}
-                render={({ field }) => (
-                  <Select {...field} label="Category" size="small">
-                    {categories.map((category) => (
-                      <MenuItem key={category} value={category}>
-                        {category}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                )}
-              />
-              <FormHelperText>{errors.category?.message}</FormHelperText>
-            </FormControl>
+            <Controller
+              name="category"
+              control={control}
+              defaultValue=""
+              rules={{ required: "Category is required" }}
+              render={({ field }) => (
+                <Select {...field} label="Category" size="small">
+                  {categories.map((category) => (
+                    <MenuItem key={category} value={category}>
+                      {category}
+                    </MenuItem>
+                  ))}
+                </Select>
+              )}
+            />
           </div>
 
           {/* Brand & Model Name */}
-          <div className="flex gap-4 w-full">
+          <div className="">
             <Controller
               name="brand"
               control={control}
@@ -264,7 +269,7 @@ const AssetModal = ({
           </div>
 
           {/* Quantity & Price */}
-          <div className="flex gap-4 w-full">
+          <div className="">
             <Controller
               name="quantity"
               control={control}
@@ -303,7 +308,7 @@ const AssetModal = ({
           </div>
 
           {/* Total Price & Vendor Name */}
-          <div className="flex gap-4 w-full">
+          <div className="">
             <Controller
               name="totalPrice"
               control={control}
@@ -360,7 +365,7 @@ const AssetModal = ({
           </div>
 
           {/* Purchase Date & Warranty */}
-          <div className="flex gap-4 w-full">
+          <div className="">
             <div className="w-1/2">
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <Controller
@@ -406,7 +411,7 @@ const AssetModal = ({
           </div>
 
           {/* Location */}
-          <div className="flex gap-4 w-full">
+          <div className="">
             {/* <FormControl className="w-[48.6%]" error={!!errors.location}> */}
             <FormControl className="w-1/2" error={!!errors.location}>
               <InputLabel>Select Location</InputLabel>
