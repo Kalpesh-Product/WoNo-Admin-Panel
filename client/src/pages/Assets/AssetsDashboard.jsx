@@ -109,8 +109,7 @@ const AssetsDashboard = () => {
         <WidgetSection
           layout={1}
           title={"Assigned v/s Unassigned Assets"}
-          border
-        >
+          border>
           <PieChartMui
             data={assetAvailabilityData}
             options={assetAvailabilityOptions}

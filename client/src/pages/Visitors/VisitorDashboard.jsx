@@ -15,13 +15,17 @@ import { useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import {
   assetAvailabilityData,
-  assetAvailabilityOptions,
   assetCategoriesData,
   departmentPieData,
   departmentPieOptions,
   recentAssetsColumns,
   recentAssetsData,
 } from "../Assets/AssetsData/Data";
+import {
+  assetAvailabilityDataV,
+  assetAvailabilityOptionsV,
+  assetCategoriesDataV,
+} from "./VisitorsData/VisitorsData";
 
 const VisitorDashboard = () => {
   const axios = useAxiosPrivate();
@@ -804,15 +808,15 @@ const VisitorDashboard = () => {
           layout={1}
           title={"Visitor Categories This Month"}
           border>
-          <DonutChart {...assetCategoriesData} />
+          <DonutChart {...assetCategoriesDataV} />
         </WidgetSection>,
         <WidgetSection
           layout={1}
           title={"Checked In v/s Checked Out Visitors Today"}
           border>
           <PieChartMui
-            data={assetAvailabilityData}
-            options={assetAvailabilityOptions}
+            data={assetAvailabilityDataV}
+            options={assetAvailabilityOptionsV}
           />
         </WidgetSection>,
       ],
