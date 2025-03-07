@@ -22,7 +22,7 @@ const PrimaryButton = ({
       onClick={handleSubmit}
     >
       {isLoading && <CircularProgress size={16} color="inherit" />} {/* Spinner */}
-      <span>{title}</span>
+      <span>{isLoading ? `${title}ing` : title}</span>
     </button>
   );
 };

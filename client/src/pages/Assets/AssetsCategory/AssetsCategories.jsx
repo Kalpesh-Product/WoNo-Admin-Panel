@@ -198,7 +198,6 @@ const AssetsCategories = () => {
           <PrimaryButton
             title="Submit"
             disabled={isPending}
-            handleSubmit={handleSubmit(handleAddCategory)}
           />
         </form>
       </MuiModal>

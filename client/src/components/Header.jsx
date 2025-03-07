@@ -10,7 +10,6 @@ import {
   ListItemText,
   Divider,
   useMediaQuery,
-  IconButton,
 } from "@mui/material";
 import {
   IoIosArrowForward,
@@ -18,23 +17,24 @@ import {
   IoMdNotificationsOutline,
 } from "react-icons/io";
 import { MdOutlineMailOutline } from "react-icons/md";
+import { useSidebar } from "../context/SideBarContext";
+import biznestLogo from "../assets/biznest/biznest_logo.jpg";
 import { GiHamburgerMenu } from "react-icons/gi";
+import Abrar from "../assets/abrar.jpeg";
+import useAuth from "../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import useLogout from "../hooks/useLogout";
 import { FaUserTie } from "react-icons/fa6";
 import { FiLogOut } from "react-icons/fi";
-import { useSidebar } from "../context/SideBarContext";
-import { useNavigate } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
-import useLogout from "../hooks/useLogout";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import { useQuery } from "@tanstack/react-query";
-import biznestLogo from "../assets/biznest/biznest_logo.jpg";
-import Abrar from "../assets/abrar.jpeg";
 
 const Header = () => {
   const axios = useAxiosPrivate();
+  const [isHovered, setIsHovered] = useState(false);
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
   const navigate = useNavigate();
-  const { auth } = useAuth();
+  const { auth } = useAuth(); // Assuming signOut is a method from useAuth()
   const logout = useLogout();
   const isMobile = useMediaQuery("(max-width: 768px)");
 
@@ -75,137 +75,138 @@ const Header = () => {
   return (
     <>
       <div className="flex w-full justify-between gap-x-10 items-center p-2">
-        {!isMobile && (
-          <div className="w-48 flex items-center gap-16 h-full pl-4">
-            <img
-              onClick={() => navigate("dashboard/frontend-dashboard")}
-              className="w-[100%] h-full object-contain cursor-pointer"
-              src={companyLogo?.logoUrl || biznestLogo}
-              alt="logo"
-            />
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 text-gray-500 text-xl"
-            >
-              {isSidebarOpen ? <GiHamburgerMenu /> : <IoIosArrowForward />}
-            </button>
-          </div>
-        )}
-
-        {!isMobile && (
-          <div className="w-full flex items-center pl-20">
-            <TextField
-              fullWidth
-              size="small"
-              type="search"
-              placeholder="Type here to search..."
-              variant="standard"
-              slotProps={{
-                input: {
-                  disableUnderline: true,
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <IoIosSearch size={20} />
-                    </InputAdornment>
-                  ),
-                },
-              }}
-            />
-          </div>
-        )}
-
-        {!isMobile && (
-          <div className="flex w-full justify-end gap-4">
-            <button className="bg-[#1E3D73] p-2 text-white rounded-md">
-              <IoMdNotificationsOutline />
-            </button>
-            <button className="bg-[#1E3D73] p-2 text-white rounded-md">
-              <MdOutlineMailOutline />
-            </button>
-          </div>
-        )}
-
-        {isMobile && (
-          <div className="w-1">
-
-          </div>
-        )}  
-
-        {/* Avatar Section */}
-        <div className="flex items-center">
-          <IconButton onClick={handleAvatarClick}>
-            <Avatar className="cursor-pointer">
-              {auth.user.name === "Abrar Shaikh" ? (
-                <img src={Abrar} alt="" />
-              ) : (
-                auth.user.firstName.charAt(0)
+        <div>
+          <div>
+            <div className={`w-48 flex items-center gap-16 h-full pl-4`}>
+              <img
+                onClick={() => navigate("dashboard/frontend-dashboard")}
+                className="w-[70%] h-full object-contain cursor-pointer"
+                src={companyLogo?.logoUrl || biznestLogo}
+                alt="logo"
+              />
+              {!isMobile && (
+                <button
+                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                  className="p-2 text-gray-500 text-xl"
+                >
+                  {isSidebarOpen ? <GiHamburgerMenu /> : <IoIosArrowForward />}
+                </button>
               )}
-            </Avatar>
-          </IconButton>
+            </div>
+          </div>
         </div>
-      </div>
-
-      {/* Popover for Mobile View */}
-      {isMobile && (
-        <Popover
-          id={id}
-          open={open}
-          anchorEl={anchorEl}
-          onClose={handlePopoverClose}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "right",
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}
-        >
-          <div className="p-4 w-64">
-            <List>
-              <ListItem>
-                <TextField
-                  fullWidth
-                  size="small"
-                  type="search"
-                  placeholder="Search..."
-                  variant="standard"
-                  InputProps={{
+        {!isMobile && (
+          <>
+            <div className="w-full flex items-center pl-20">
+              <TextField
+                fullWidth
+                size="small"
+                type="search"
+                placeholder="Type here to search..."
+                variant="standard"
+                slotProps={{
+                  input: {
                     disableUnderline: true,
                     startAdornment: (
                       <InputAdornment position="start">
                         <IoIosSearch size={20} />
                       </InputAdornment>
                     ),
-                  }}
-                />
-              </ListItem>
-              <Divider />
-              <ListItem button className="hover:text-primary transition-all">
-                <IoMdNotificationsOutline className="mr-2" />
-                <ListItemText primary="Notifications" />
-              </ListItem>
-              <ListItem button className="hover:text-primary transition-all">
-                <MdOutlineMailOutline className="mr-2" />
-                <ListItemText primary="Messages" />
-              </ListItem>
-              <Divider />
-              <ListItem button onClick={handleProfileClick}>
-                <ListItemIcon>
-                  <FaUserTie />
-                </ListItemIcon>
-                <ListItemText primary="Profile" />
-              </ListItem>
-              <ListItem button onClick={handleSignOut} className="hover:text-red-600">
-                <ListItemIcon>
-                  <FiLogOut />
-                </ListItemIcon>
-                <ListItemText primary="Sign Out" />
-              </ListItem>
-            </List>
+                  },
+                }}
+              />
+            </div>
+
+            <div className="flex w-full justify-end gap-4">
+              <button className="bg-[#1E3D73] p-2 text-white rounded-md">
+                <IoMdNotificationsOutline />
+              </button>
+              <button className="bg-[#1E3D73] p-2 text-white rounded-md">
+                <MdOutlineMailOutline />
+              </button>
+            </div>
+          </>
+        )}
+        <div className="flex items-center gap-4 w-[40%]">
+          <Avatar onClick={handleAvatarClick} className="cursor-pointer">
+            {auth.user.name === "Abrar Shaikh" ? (
+              <img src={Abrar} alt="" />
+            ) : (
+              auth.user.firstName.charAt(0)
+            )}
+          </Avatar>
+          <div
+            className="w-full relative"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            {!isMobile && (
+              <>
+                <h1 className="text-xl font-semibold">{auth.user.firstName}</h1>
+                <span className="text-content">
+                  {auth.user.designation.split(" ").length > 3
+                    ? auth.user.designation.split(" ").slice(0, 3).join(" ") +
+                      "..."
+                    : auth.user.designation}
+                </span>
+                {isHovered && auth.user.designation.split(" ").length > 1 ? (
+                  <div className="motion-preset-slide-up-sm absolute top-14 right-0 bg-white border-default border-primary rounded-md p-4 w-96">
+                    <span>{auth.user.designation}</span>
+                  </div>
+                ) : (
+                  ""
+                )}
+              </>
+            )}
           </div>
-        </Popover>
-      )}
+        </div>
+      </div>
+
+      {/* Popover Component */}
+      <Popover
+        id={id}
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handlePopoverClose}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "center",
+        }}
+      >
+        <div className="p-4 w-48">
+          <List>
+            {/* Profile Option */}
+            <ListItem
+              button
+              onClick={handleProfileClick}
+              className="hover:text-primary transition-all duration-100 text-gray-500"
+            >
+              <ListItemIcon>
+                <FaUserTie className="text-gray-500" />
+              </ListItemIcon>
+              <ListItemText primary="Profile" />
+            </ListItem>
+
+            <Divider />
+
+            {/* Sign Out Option */}
+            <ListItem
+              button
+              onClick={handleSignOut}
+              className="hover:text-red-600 transition-all duration-100 text-gray-500"
+            >
+              <ListItemIcon>
+                <FiLogOut className="text-gray-500" />
+              </ListItemIcon>
+              <ListItemText primary="Sign Out" />
+            </ListItem>
+          </List>
+        </div>
+      </Popover>
     </>
   );
 };
