@@ -295,7 +295,7 @@ const acceptTicket = async (req, res, next) => {
   const logPath = "tickets/TicketLog";
   const logAction = "Accept Ticket";
   const logSourceKey = "ticket";
-  const { user, company, ip } = req;
+  const { user, company, ip, departments } = req;
   const { ticketId } = req.params;
 
   try {
@@ -317,14 +317,6 @@ const acceptTicket = async (req, res, next) => {
       );
     }
 
-    const foundUser = await User.findOne({ _id: user })
-      .select("-refreshToken -password")
-      .lean()
-      .exec();
-    if (!foundUser) {
-      throw new CustomError("User not found", logPath, logAction, logSourceKey);
-    }
-
     const foundTicket = await Tickets.findOne({ _id: ticketId }).lean().exec();
     if (!foundTicket) {
       throw new CustomError(
@@ -336,20 +328,19 @@ const acceptTicket = async (req, res, next) => {
     }
 
     // Check if the ticket's raised department is among the user's departments
-    // const userDepartments = foundUser.departments.map((dept) =>
-    //   dept.toString()
-    // );
-    // const ticketInDepartment = userDepartments.some(
-    //   (deptId) => foundTicket.raisedToDepartment.toString() === deptId
-    // );
-    // if (!ticketInDepartment) {
-    //   throw new CustomError(
-    //     "User does not have permission to accept this ticket",
-    //     logPath,
-    //     logAction,
-    //     logSourceKey
-    //   );
-    // }
+    const userDepartments = departments.map((dept) => dept._id.toString());
+
+    const ticketInDepartment = userDepartments.some(
+      (deptId) => foundTicket.raisedToDepartment.toString() === deptId
+    );
+    if (!ticketInDepartment) {
+      throw new CustomError(
+        "User does not have permission to accept this ticket",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
 
     // Update the ticket by marking it as accepted and setting status to "In Progress"
     const updatedTicket = await Tickets.findByIdAndUpdate(
@@ -812,7 +803,7 @@ const closeTicket = async (req, res, next) => {
   }
 };
 
-const fetchSingleUserTickets = async (req, res, next) => {
+const getSingleUserTickets = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { company } = req;
@@ -921,5 +912,5 @@ module.exports = {
   escalateTicket,
   closeTicket,
   fetchFilteredTickets,
-  fetchSingleUserTickets,
+  getSingleUserTickets,
 };

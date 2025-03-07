@@ -6,8 +6,8 @@ const {
   escalateTicket,
   getTickets,
   fetchFilteredTickets,
-  fetchSingleUserTickets,
   rejectTicket,
+  getSingleUserTickets,
 } = require("../controllers/ticketsControllers/ticketsControllers");
 const upload = require("../config/multerConfig");
 
@@ -29,7 +29,7 @@ router.get("/ticket-issues/:department", getTicketIssues);
 router.get("/new-ticket-issues/:department", getNewTicketIssues);
 router.delete("/reject-ticket-issue/:id", rejectTicketIssue);
 router.get("/get-tickets", getTickets);
-router.get("/:id", fetchSingleUserTickets);
+router.get("/:id", getSingleUserTickets);
 router.post("/raise-ticket", upload.single("issue"), raiseTicket);
 router.post("/accept-ticket/:id", acceptTicket);
 router.post("/reject-ticket/:id", rejectTicket);
