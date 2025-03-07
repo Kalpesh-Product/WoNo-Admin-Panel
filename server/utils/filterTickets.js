@@ -179,11 +179,12 @@ async function filterTodayTickets(loggedInUser, company) {
   const endOfDay = new Date();
   endOfDay.setHours(23, 59, 59, 999);
 
+  // Fetch today's tickets for the logged-in user
   const todayTickets = await Ticket.find({
     raisedBy: loggedInUser._id,
     createdAt: { $gte: startOfDay, $lte: endOfDay },
   })
-    .select("raisedBy raisedToDepartment status")
+    .select("raisedBy raisedToDepartment status ticket")
     .populate([
       { path: "raisedBy", select: "firstName lastName" },
       { path: "raisedToDepartment", select: "name" },
@@ -191,15 +192,50 @@ async function filterTodayTickets(loggedInUser, company) {
     .lean()
     .exec();
 
+  // Fetch the company's selected departments with ticket issues
   const foundCompany = await Company.findOne({ _id: company })
     .select("selectedDepartments")
     .lean()
     .exec();
 
-  
+  if (!foundCompany) {
+    throw new Error("Company not found");
+  }
 
-  return todayTickets;
+  // Extract the ticket priority from the company's selected departments
+  const updatedTickets = todayTickets.map((ticket) => {
+    const department = foundCompany.selectedDepartments.find(
+      (dept) => dept.department.toString() === ticket.raisedToDepartment?._id.toString()
+    );
+
+    let priority = "Low"; // Default priority
+
+    if (department) {
+      const issue = department.ticketIssues.find(
+        (issue) => issue.title === ticket.ticket
+      );
+
+      priority = issue?.priority || "Low";
+    }
+
+    // If the issue is not found, check for "Other" and assign its priority
+    if (!priority || priority === "Low") {
+      const otherIssue = foundCompany.selectedDepartments
+        .flatMap((dept) => dept.ticketIssues)
+        .find((issue) => issue.title === "Other");
+
+      priority = otherIssue?.priority || "Low";
+    }
+
+    return {
+      ...ticket,
+      priority,
+    };
+  });
+
+  return updatedTickets;
 }
+
 
 module.exports = {
   filterCloseTickets,

@@ -7,7 +7,7 @@ const emailTemplates = require("../../utils/emailTemplates");
 
 const login = async (req, res, next) => {
   try {
-    console.log("login X");
+
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const { email, password } = req.body;
 
