@@ -18,6 +18,7 @@ const Company = require("../../models/hr/Company");
 const { createLog } = require("../../utils/moduleLogs");
 const CustomError = require("../../utils/customErrorlogs");
 const Ticket = require("../../models/tickets/Tickets");
+const validateUsers = require("../../utils/validateUsers");
 
 const raiseTicket = async (req, res, next) => {
   const logPath = "tickets/TicketLog";
@@ -466,44 +467,35 @@ const assignTicket = async (req, res, next) => {
   const logPath = "tickets/TicketLog";
   const logAction = "Assign Ticket";
   const logSourceKey = "ticket";
-  const { user, company, ip } = req;
+  const { user, company, ip, departments } = req;
 
   try {
-    const { ticketId, assignee } = req.body;
+    const { ticketId } = req.params;
+    const { assignees } = req.body;
 
-    if (!ticketId || !assignee) {
+    if (!ticketId) {
       throw new CustomError(
-        "Ticket ID and assignee are required",
+        "Ticket ID and assignees are required",
         logPath,
         logAction,
         logSourceKey
       );
     }
 
-    if (!mongoose.Types.ObjectId.isValid(assignee)) {
+    if (!Array.isArray(assignees)) {
       throw new CustomError(
-        "Invalid assignee ID provided",
+        "Assignees are required",
         logPath,
         logAction,
         logSourceKey
       );
     }
 
-    const foundUser = await User.findOne({ _id: user })
-      .select("-refreshToken -password")
-      .lean()
-      .exec();
-    if (!foundUser) {
-      throw new CustomError("User not found", logPath, logAction, logSourceKey);
-    }
+    const validAssignees = validateUsers(assignees);
 
-    const foundAssignee = await User.findOne({ _id: assignee })
-      .select("-refreshToken -password")
-      .lean()
-      .exec();
-    if (!foundAssignee) {
+    if (!validAssignees) {
       throw new CustomError(
-        "Assignee not found",
+        "Invalid one or many assignee IDs",
         logPath,
         logAction,
         logSourceKey
@@ -530,9 +522,7 @@ const assignTicket = async (req, res, next) => {
     }
 
     // Check if the ticket's raised department is among the user's departments
-    const userDepartments = foundUser.departments.map((dept) =>
-      dept.toString()
-    );
+    const userDepartments = departments.map((dept) => dept._id.toString());
     const ticketInDepartment = userDepartments.some(
       (deptId) => foundTicket.raisedToDepartment.toString() === deptId
     );
@@ -545,10 +535,10 @@ const assignTicket = async (req, res, next) => {
       );
     }
 
-    // Update the ticket by adding the assignee and setting status to "In Progress"
+    // Update the ticket by adding the assignees and setting status to "In Progress"
     const updatedTicket = await Tickets.findOneAndUpdate(
       { _id: ticketId },
-      { $addToSet: { assignees: assignee }, status: "In Progress" },
+      { $addToSet: { assignees: assignees }, status: "In Progress" },
       { new: true }
     );
     if (!updatedTicket) {
@@ -572,7 +562,7 @@ const assignTicket = async (req, res, next) => {
       sourceKey: logSourceKey,
       sourceId: updatedTicket._id,
       changes: {
-        assignedTo: assignee,
+        assignedTo: assignees,
         assignedBy: user,
         status: "In Progress",
       },
