@@ -390,9 +390,6 @@ const VisitorDashboard = () => {
   );
 
   const BookingMonths = [
-    "Jan",
-    "Feb",
-    "Mar",
     "Apr",
     "May",
     "Jun",
@@ -402,6 +399,9 @@ const VisitorDashboard = () => {
     "Oct",
     "Nov",
     "Dec",
+    "Jan",
+    "Feb",
+    "Mar",
   ];
 
   // Example booked hours data per month
@@ -427,24 +427,24 @@ const VisitorDashboard = () => {
     y: (actualBookedHoursPerMonth[month] / totalBookableHours) * 100,
   }));
 
-  const averageBookingSeries = [{ name: "Booking Utilization", data }];
+  const averageBookingSeries = [{ name: "Total Visitors", data }];
 
   const averageBookingOptions = {
     chart: { type: "bar", fontFamily: "Poppins-Regular" },
     xaxis: { categories: BookingMonths },
     yaxis: {
       max: 100,
-      title: { text: "Utilization (%)" },
+      title: { text: "Visitors" },
       labels: {
         formatter: function (value) {
-          return Math.round(value) + "%"; // Removes decimals
+          return Math.round(value) + ""; // Removes decimals
         },
       },
     },
     dataLabels: {
       enabled: true,
       formatter: function (val) {
-        return Math.round(val) + "%"; // Display percentage without decimals
+        return Math.round(val) + ""; // Display percentage without decimals
       },
       style: {
         fontSize: "11px",
