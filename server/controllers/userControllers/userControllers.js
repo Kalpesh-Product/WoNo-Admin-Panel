@@ -411,7 +411,7 @@ const updateProfile = async (req, res, next) => {
       }
 
       const buffer = await sharp(newProfilePicture.buffer)
-        .resize(400, 400, { fit: "cover" }) // 400x400 square profile picture
+        .resize(400, 400, { fit: "cover" }) 
         .webp({ quality: 80 })
         .toBuffer();
 
