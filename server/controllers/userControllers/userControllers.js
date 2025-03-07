@@ -393,10 +393,20 @@ const updateProfile = async (req, res, next) => {
         try {
           const response = await handleFileDelete(foundUser.profilePicture.id);
           if (response.result !== "ok") {
-            throw new Error("Failed to delete old profile picture");
+            throw new CustomError(
+              "Failed to delete old profile picture",
+              logPath,
+              logAction,
+              logSourceKey
+            );
           }
         } catch (error) {
-          throw new Error("Error deleting old profile picture: " + error.message);
+          throw new CustomError(
+            "Error deleting old profile picture: " + error.message,
+            logPath,
+            logAction,
+            logSourceKey
+          );
         }
       }
 
@@ -405,7 +415,9 @@ const updateProfile = async (req, res, next) => {
         .webp({ quality: 80 })
         .toBuffer();
 
-      const foundCompany = await Company.findOne({ _id: company }).lean().exec();
+      const foundCompany = await Company.findOne({ _id: company })
+        .lean()
+        .exec();
 
       const base64Image = `data:image/webp;base64,${buffer.toString("base64")}`;
       const uploadResult = await handleFileUpload(
@@ -414,7 +426,12 @@ const updateProfile = async (req, res, next) => {
       );
 
       if (!uploadResult.public_id) {
-        return res.status(500).json({ message: "Unable to upload profile picture" });
+        throw new CustomError(
+          "Unable to upload profile picture",
+          logPath,
+          logAction,
+          logSourceKey
+        );
       }
 
       profilePictureUpdate = {
@@ -427,7 +444,12 @@ const updateProfile = async (req, res, next) => {
     }
 
     if (Object.keys(filteredUpdateData).length === 0) {
-      throw new CustomError("No valid fields to update", logPath, logAction, logSourceKey);
+      throw new CustomError(
+        "No valid fields to update",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const updatedUser = await User.findByIdAndUpdate(
@@ -461,11 +483,12 @@ const updateProfile = async (req, res, next) => {
     if (error instanceof CustomError) {
       next(error);
     } else {
-      next(new CustomError(error.message, logPath, logAction, logSourceKey, 500));
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
     }
   }
 };
-
 
 const bulkInsertUsers = async (req, res, next) => {
   const logPath = "hr/HrLog";
