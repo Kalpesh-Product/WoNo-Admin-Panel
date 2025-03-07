@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import PrimaryButton from "../../../components/PrimaryButton";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "../../../index";
+import ThreeDotMenu from "../../../components/ThreeDotMenu";
 
 const RecievedTickets = ({ title }) => {
   const [open, setOpen] = useState(false);
@@ -30,9 +31,8 @@ const RecievedTickets = ({ title }) => {
   const { mutate: acceptMutate } = useMutation({
     mutationKey: ["accept-ticket"],
     mutationFn: async (ticket) => {
-      const response = await axios.post("/api/tickets/accept-ticket", {
-        ticketId: ticket.id,
-      });
+      console.log("ticket is : ", ticket)
+      const response = await axios.post(`/api/tickets/accept-ticket/${ticket.id}`);
 
       return response.data.message;
     },
@@ -132,34 +132,13 @@ const RecievedTickets = ({ title }) => {
       headerName: "Actions",
       cellRenderer: (params) => (
         <>
-          <div className="p-2 mb-2 flex gap-2">
-            <button
-              onClick={() => acceptMutate(params.data)}
-              style={{
-                backgroundColor: "red",
-                color: "white",
-                border: "none",
-                padding: "0.1rem 0.5rem",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              Accept
-            </button>
-            <button
-              style={{
-                backgroundColor: "red",
-                color: "white",
-                border: "none",
-                padding: "0.1rem 0.5rem",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-              onClick={openModal}
-            >
-              Assign
-            </button>
-          </div>
+          <ThreeDotMenu
+            rowId={params.data.id}
+            menuItems={[
+              { label: "Accept", onClick: () => acceptMutate(params.data) },
+              { label: "Assign", onClick: openModal },
+            ]}
+          />
         </>
       ),
     },

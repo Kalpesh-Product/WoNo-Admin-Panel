@@ -26,7 +26,7 @@ router.get("/get-ticket-issue/:department", getTicketIssue);
 router.get("/get-tickets", getTickets);
 router.get("/:id", fetchSingleUserTickets);
 router.post("/raise-ticket", raiseTicket);
-router.post("/accept-ticket/:id", acceptTicket);
+router.post("/accept-ticket/:ticketId", acceptTicket);
 router.post("/reject-ticket/:id", rejectTicket);
 router.post("/assign-ticket", assignTicket);
 router.post("/escalate-ticket", escalateTicket);

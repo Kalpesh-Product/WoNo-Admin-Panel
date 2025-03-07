@@ -3,7 +3,7 @@ import AgTable from "../../components/AgTable";
 import PrimaryButton from "../../components/PrimaryButton";
 import { Chip, CircularProgress } from "@mui/material";
 import { toast } from "sonner";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 
 import {
   TextField,
@@ -13,7 +13,6 @@ import {
   MenuItem,
 } from "@mui/material";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
-import { useMutation, useQuery } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
 
 const RaiseTicket = () => {
@@ -252,7 +251,7 @@ const RaiseTicket = () => {
           <TextField size="small" type="file" fullWidth />
         </div>
         <div className="flex align-middle mt-5 mb-5 items-center justify-center">
-          <PrimaryButton title="Submit"/>
+          <PrimaryButton title="Submit" handleSubmit={onSubmit}/>
         </div>
       </div>
       <div className="rounded-md bg-white p-4 border-2 ">
