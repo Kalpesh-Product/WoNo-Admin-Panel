@@ -4,6 +4,7 @@ import PrimaryButton from "../../components/PrimaryButton";
 import AssetModal from "../Assets/AssetsCategory/AssetModal";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import ViewVisitorDetails from "./Forms/ViewVisitorDetails";
 
 const ManageVisitors = () => {
   const axios = useAxiosPrivate();
@@ -13,7 +14,7 @@ const ManageVisitors = () => {
 
   const assetColumns = [
     { field: "id", headerName: "Name" },
-    { field: "department", headerName: "Address" },
+    { field: "address", headerName: "Address" },
     // { field: "assetNumber", headerName: "Asset Number" },
     { field: "category", headerName: "Email" },
     { field: "brand", headerName: "Phone No" },
@@ -48,7 +49,7 @@ const ManageVisitors = () => {
   const assets = [
     {
       id: "John Doe",
-      department: "Margao",
+      address: "Margao",
       assetNumber: "A1001",
       category: "email@gmail.com",
       brand: "9876543201",
@@ -65,7 +66,7 @@ const ManageVisitors = () => {
     },
     {
       id: "Jane Doe",
-      department: "Margao",
+      address: "Margao",
       assetNumber: "A1001",
       category: "email@gmail.com",
       brand: "9876543201",
@@ -82,7 +83,7 @@ const ManageVisitors = () => {
     },
     // {
     //   id: 3,
-    //   department: "IT",
+    //   address: "IT",
     //   assetNumber: "A1003",
     //   category: "Laptop",
     //   brand: "Apple",
@@ -96,7 +97,7 @@ const ManageVisitors = () => {
     // },
     // {
     //   id: 4,
-    //   department: "IT",
+    //   address: "IT",
     //   assetNumber: "A1004",
     //   category: "Laptop",
     //   brand: "Lenovo",
@@ -110,7 +111,7 @@ const ManageVisitors = () => {
     // },
     // {
     //   id: 5,
-    //   department: "IT",
+    //   address: "IT",
     //   assetNumber: "A1005",
     //   category: "Laptop",
     //   brand: "Acer",
@@ -124,7 +125,7 @@ const ManageVisitors = () => {
     // },
     // {
     //   id: 6,
-    //   department: "IT",
+    //   address: "IT",
     //   assetNumber: "A1006",
     //   category: "Laptop",
     //   brand: "Asus",
@@ -138,7 +139,7 @@ const ManageVisitors = () => {
     // },
     // {
     //   id: 7,
-    //   department: "HR",
+    //   address: "HR",
     //   assetNumber: "A1007",
     //   category: "Projector",
     //   brand: "Epson",
@@ -152,7 +153,7 @@ const ManageVisitors = () => {
     // },
     // {
     //   id: 8,
-    //   department: "Administration",
+    //   address: "Administration",
     //   assetNumber: "A1008",
     //   category: "Printer",
     //   brand: "HP",
@@ -166,7 +167,7 @@ const ManageVisitors = () => {
     // },
     // {
     //   id: 9,
-    //   department: "Finance",
+    //   address: "Finance",
     //   assetNumber: "A1009",
     //   category: "Scanner",
     //   brand: "Canon",
@@ -220,8 +221,8 @@ const ManageVisitors = () => {
         // buttonTitle={"Add Asset"}
         data={[
           ...assets.map((asset, index) => ({
-            id: index + 1,
-            department: asset.department,
+            id: asset.id,
+            address: asset.address,
             category: asset.category,
             brand: asset.brand,
             price: asset.price,
@@ -235,7 +236,7 @@ const ManageVisitors = () => {
         handleClick={handleAddAsset}
       />
 
-      <AssetModal
+      <ViewVisitorDetails
         mode={modalMode}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
