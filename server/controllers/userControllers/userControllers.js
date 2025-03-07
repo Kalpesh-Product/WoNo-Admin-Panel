@@ -9,6 +9,11 @@ const csvParser = require("csv-parser");
 const { Readable } = require("stream");
 const { formatDate } = require("../../utils/formatDateTime");
 const CustomError = require("../../utils/customErrorlogs");
+const {
+  handleFileUpload,
+  handleFileDelete,
+} = require("../../config/cloudinaryConfig");
+const sharp = require("sharp");
 
 const createUser = async (req, res, next) => {
   const logPath = "hr/HrLog";
@@ -29,10 +34,21 @@ const createUser = async (req, res, next) => {
       phone,
       email,
       role,
-      companyId,
       departments,
       employeeType,
+      designation,
+      startDate,
+      workLocation,
+      reportsTo,
+      policies,
+      homeAddress,
+      bankInformation,
+      panAadhaarDetails,
+      payrollInformation,
+      familyInformation,
     } = req.body;
+
+    const companyId = req.company;
 
     // Validate required fields
     if (
@@ -43,7 +59,10 @@ const createUser = async (req, res, next) => {
       !phone ||
       !companyId ||
       !employeeType ||
-      !departments
+      !departments ||
+      !designation ||
+      !startDate ||
+      !workLocation
     ) {
       throw new CustomError(
         "Missing required fields",
@@ -118,16 +137,14 @@ const createUser = async (req, res, next) => {
     }
 
     // Master Admin check: only one Master Admin allowed per company
-    if (roleValue.roleTitle === "Master Admin") {
+    if (roleValue.roleID === "ROLE_MASTER_ADMIN") {
       const doesMasterAdminExist = await User.findOne({
         role: { $in: [roleValue._id] },
+        company: companyId,
       })
         .lean()
         .exec();
-      if (
-        doesMasterAdminExist &&
-        doesMasterAdminExist.company.toString() === companyId
-      ) {
+      if (doesMasterAdminExist) {
         throw new CustomError(
           "A master admin already exists",
           logPath,
@@ -137,7 +154,7 @@ const createUser = async (req, res, next) => {
       }
     }
 
-    // Hash the default password (note: use a more secure default in production)
+    // Hash the default password
     const defaultPassword = "123456";
     const hashedPassword = await bcrypt.hash(defaultPassword, 10);
 
@@ -155,6 +172,17 @@ const createUser = async (req, res, next) => {
       password: hashedPassword,
       departments,
       employeeType,
+      designation,
+      startDate,
+      workLocation,
+      reportsTo,
+      policies,
+      homeAddress,
+      bankInformation,
+      panAadhaarDetails,
+      payrollInformation,
+      familyInformation,
+      isActive: true,
     });
 
     const savedUser = await newUser.save();
@@ -178,12 +206,13 @@ const createUser = async (req, res, next) => {
         phone: savedUser.phone,
         role: savedUser.role,
         companyId: savedUser.company,
+        designation: savedUser.designation,
+        startDate: savedUser.startDate,
+        workLocation: savedUser.workLocation,
       },
     });
 
-    return res.status(201).json({
-      message: "User created successfully",
-    });
+    return res.status(201).json({ message: "User created successfully" });
   } catch (error) {
     if (error instanceof CustomError) {
       next(error);
@@ -214,7 +243,7 @@ const fetchUser = async (req, res, next) => {
           { path: "role", select: "roleTitle modulePermissions" },
         ]);
 
-     return res.status(200).json(users);
+      return res.status(200).json(users);
     }
 
     const users = await User.find({ company })
@@ -257,82 +286,6 @@ const fetchUser = async (req, res, next) => {
 //     res.status(200).json(user);
 //   } catch (error) {
 //     console.error("Error fetching user by ID: ", error);
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-
-// const updateSingleUser = async (req, res) => {
-//   try {
-//     const { id } = req.params; // Extract user ID from request parameters
-//     const updateData = req.body; // Data to update comes from the request body
-
-//     // Define a whitelist of updatable fields, including nested objects
-//     const allowedFields = [
-//       "name",
-//       "gender",
-//       "fatherName",
-//       "motherName",
-//       "kycDetails.aadhaar",
-//       "kycDetails.pan",
-//       "bankDetails.bankName",
-//       "bankDetails.accountNumber",
-//       "bankDetails.ifsc",
-//     ];
-
-//     // Filter the updateData to include only allowed fields
-//     const filteredUpdateData = {};
-
-//     Object.keys(updateData).forEach((key) => {
-//       if (allowedFields.includes(key)) {
-//         // Direct field
-//         filteredUpdateData[key] = updateData[key];
-//       } else {
-//         // Check for nested fields
-//         const nestedFieldMatch = allowedFields.find((field) =>
-//           field.startsWith(`${key}.`)
-//         );
-//         if (nestedFieldMatch && typeof updateData[key] === "object") {
-//           // If a nested field matches, process its properties
-//           const nestedFieldPrefix = `${key}.`;
-//           filteredUpdateData[key] = Object.keys(updateData[key]).reduce(
-//             (nestedObj, nestedKey) => {
-//               if (allowedFields.includes(`${nestedFieldPrefix}${nestedKey}`)) {
-//                 nestedObj[nestedKey] = updateData[key][nestedKey];
-//               }
-//               return nestedObj;
-//             },
-//             {}
-//           );
-//         }
-//       }
-//     });
-
-//     if (Object.keys(filteredUpdateData).length === 0) {
-//       return res.status(400).json({ message: "No valid fields to update" });
-//     }
-
-//     // Perform the update operation
-//     const updatedUser = await User.findByIdAndUpdate(
-//       id,
-//       { $set: filteredUpdateData }, // Use `$set` to update specific fields
-//       { new: true, runValidators: true } // Return the updated document and enforce validation
-//     )
-//       .select("-password") // Exclude the password field
-//       .populate("reportsTo", "name email")
-//       .populate("departments", "name")
-//       .populate("company", "name")
-//       .populate("role", "roleTitle modulePermissions");
-
-//     if (!updatedUser) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-
-//     res.status(200).json({
-//       message: "User data updated successfully",
-//       user: updatedUser,
-//     });
-//   } catch (error) {
-//     console.error("Error updating user: ", error);
 //     res.status(500).json({ error: error.message });
 //   }
 // };
@@ -410,108 +363,83 @@ const fetchSingleUser = async (req, res) => {
   }
 };
 
-const updateSingleUser = async (req, res, next) => {
-  const { user, ip, company } = req;
-  const logPath = "hr/HrLog";
-  const logAction = "Update User";
-  const logSourceKey = "user";
-
+const updateProfile = async (req, res, next) => {
   try {
-    const { empid } = req.params;
-    const updateData = req.body;
+    const { user, ip, company } = req;
+    const logPath = "hr/HrLog";
+    const logAction = "Update User";
+    const logSourceKey = "user";
 
-    // Allowed top-level fields according to new schema
-    const allowedFields = ["firstName", "middleName", "lastName", "gender"];
+    const userId = req.user;
+    const updateData = req.body;
+    const newProfilePicture = req.file;
+
+    // Allowed top-level fields
+    const allowedFields = ["firstName", "middleName", "lastName", "phone"];
     const filteredUpdateData = {};
 
-    // Process top-level allowed fields
     allowedFields.forEach((field) => {
       if (updateData[field] !== undefined) {
-        filteredUpdateData[field] = updateData[field];
+        filteredUpdateData[field] = updateData[field].trim();
       }
     });
 
-    // Process nested fields for familyInformation (fatherName, motherName)
-    if (
-      updateData.familyInformation &&
-      typeof updateData.familyInformation === "object"
-    ) {
-      const allowedFamilyFields = ["fatherName", "motherName"];
-      filteredUpdateData.familyInformation = {};
-      allowedFamilyFields.forEach((field) => {
-        if (updateData.familyInformation[field] !== undefined) {
-          filteredUpdateData.familyInformation[field] =
-            updateData.familyInformation[field];
-        }
-      });
-      if (Object.keys(filteredUpdateData.familyInformation).length === 0) {
-        delete filteredUpdateData.familyInformation;
-      }
-    }
+    let profilePictureUpdate = null;
 
-    // Process nested fields for panAadhaarDetails (aadhaarId, pan)
-    if (
-      updateData.panAadhaarDetails &&
-      typeof updateData.panAadhaarDetails === "object"
-    ) {
-      const allowedPanFields = ["aadhaarId", "pan"];
-      filteredUpdateData.panAadhaarDetails = {};
-      allowedPanFields.forEach((field) => {
-        if (updateData.panAadhaarDetails[field] !== undefined) {
-          filteredUpdateData.panAadhaarDetails[field] =
-            updateData.panAadhaarDetails[field];
-        }
-      });
-      if (Object.keys(filteredUpdateData.panAadhaarDetails).length === 0) {
-        delete filteredUpdateData.panAadhaarDetails;
-      }
-    }
+    if (newProfilePicture) {
+      const foundUser = await User.findOne({ _id: userId }).lean().exec();
 
-    // Process nested fields for bankInformation (bankName, accountNumber, bankIFSC)
-    if (
-      updateData.bankInformation &&
-      typeof updateData.bankInformation === "object"
-    ) {
-      const allowedBankFields = ["bankName", "accountNumber", "bankIFSC"];
-      filteredUpdateData.bankInformation = {};
-      allowedBankFields.forEach((field) => {
-        if (updateData.bankInformation[field] !== undefined) {
-          filteredUpdateData.bankInformation[field] =
-            updateData.bankInformation[field];
+      if (foundUser?.profilePicture?.id) {
+        try {
+          const response = await handleFileDelete(foundUser.profilePicture.id);
+          if (response.result !== "ok") {
+            throw new Error("Failed to delete old profile picture");
+          }
+        } catch (error) {
+          throw new Error("Error deleting old profile picture: " + error.message);
         }
-      });
-      if (Object.keys(filteredUpdateData.bankInformation).length === 0) {
-        delete filteredUpdateData.bankInformation;
       }
-    }
 
-    // If there's nothing to update, throw error
-    if (Object.keys(filteredUpdateData).length === 0) {
-      throw new CustomError(
-        "No valid fields to update",
-        logPath,
-        logAction,
-        logSourceKey
+      const buffer = await sharp(newProfilePicture.buffer)
+        .resize(400, 400, { fit: "cover" }) // 400x400 square profile picture
+        .webp({ quality: 80 })
+        .toBuffer();
+
+      const foundCompany = await Company.findOne({ _id: company }).lean().exec();
+
+      const base64Image = `data:image/webp;base64,${buffer.toString("base64")}`;
+      const uploadResult = await handleFileUpload(
+        base64Image,
+        `${foundCompany.companyName}/users/${foundUser.empId}-${foundUser.firstName}_${foundUser.lastName}/profile-picture`
       );
+
+      if (!uploadResult.public_id) {
+        return res.status(500).json({ message: "Unable to upload profile picture" });
+      }
+
+      profilePictureUpdate = {
+        id: uploadResult.public_id,
+        url: uploadResult.secure_url,
+      };
+
+      // Add to update payload
+      filteredUpdateData.profilePicture = profilePictureUpdate;
     }
 
-    // Perform the update operation
+    if (Object.keys(filteredUpdateData).length === 0) {
+      throw new CustomError("No valid fields to update", logPath, logAction, logSourceKey);
+    }
+
     const updatedUser = await User.findByIdAndUpdate(
-      empid,
+      userId,
       { $set: filteredUpdateData },
       { new: true, runValidators: true }
-    )
-      .select("-password")
-      .populate("reportsTo", "firstName lastName email")
-      .populate("departments", "name")
-      .populate("company", "name")
-      .populate("role", "roleTitle modulePermissions");
+    ).select("-password");
 
     if (!updatedUser) {
       throw new CustomError("User not found", logPath, logAction, logSourceKey);
     }
 
-    // Log success for user update
     await createLog({
       path: logPath,
       action: logAction,
@@ -527,17 +455,17 @@ const updateSingleUser = async (req, res, next) => {
 
     return res.status(200).json({
       message: "User data updated successfully",
+      profilePicture: profilePictureUpdate || updatedUser.profilePicture,
     });
   } catch (error) {
     if (error instanceof CustomError) {
       next(error);
     } else {
-      next(
-        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
-      );
+      next(new CustomError(error.message, logPath, logAction, logSourceKey, 500));
     }
   }
 };
+
 
 const bulkInsertUsers = async (req, res, next) => {
   const logPath = "hr/HrLog";
@@ -796,7 +724,7 @@ module.exports = {
   createUser,
   fetchUser,
   fetchSingleUser,
-  updateSingleUser,
+  updateProfile,
   bulkInsertUsers,
   getAssignees,
 };

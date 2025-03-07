@@ -3,7 +3,7 @@ const {
   createUser,
   fetchUser,
   fetchSingleUser,
-  updateSingleUser,
+  updateProfile,
   bulkInsertUsers,
   getAssignees,
 } = require("../controllers/userControllers/userControllers");
@@ -17,7 +17,7 @@ router.patch("/employee-leaves", addEmployeeLeaves);
 router.get("/fetch-users", fetchUser);
 router.get("/assignees", getAssignees);
 router.get("/fetch-single-user/:empid", fetchSingleUser);
-router.patch("/update-single-user/:empid", updateSingleUser);
+router.patch("/update-single-user/:empid", updateProfile);
 router.post("/bulk-insert-users", upload.single("users"), bulkInsertUsers);
 
 module.exports = router;
