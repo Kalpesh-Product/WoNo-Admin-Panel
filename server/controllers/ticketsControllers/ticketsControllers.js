@@ -81,7 +81,7 @@ const raiseTicket = async (req, res, next) => {
       _id: department.department,
     }).select("name");
 
-    // **Handle optional file upload**
+    // *Handle optional file upload*
     let imageDetails = null;
     if (image) {
       try {
@@ -905,7 +905,7 @@ const fetchFilteredTickets = async (req, res, next) => {
         break;
 
       case "raisedTodayByMe":
-        filteredTickets = await filterTodayTickets(loggedInUser);
+        filteredTickets = await filterTodayTickets(loggedInUser, req.company);
         break;
 
       default:
