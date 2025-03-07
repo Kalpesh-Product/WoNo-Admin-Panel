@@ -460,6 +460,7 @@ const VisitorDashboard = () => {
         columnWidth: "40%",
       },
     },
+    colors: ["#1E3D73"], // Black color for bars
     // annotations: {
     //   yaxis: [
     //     {
