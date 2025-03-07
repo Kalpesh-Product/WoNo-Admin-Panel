@@ -24,10 +24,10 @@ const LoginPage = () => {
   useEffect(() => {
     if (auth.accessToken) {
       navigate('/app/dashboard/frontend-dashboard')
-    } else {
-      refresh();
+    }else{
+      refresh()
     }
-  }, [auth]);
+  }, [auth.accessToken]);
 
   // Validation function
   const handleLogin = async (e) => {

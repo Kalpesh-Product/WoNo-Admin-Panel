@@ -94,7 +94,7 @@ const BookMeetings = () => {
         onSubmit={handleSubmit(onSubmit)}
         className="flex flex-col items-center"
       >
-        <div className="flex justify-center gap-4 mb-10 px-20 w-full">
+        <div className="grid grid-cols-1 px-0 place-items-center sm:grid-cols-1 md:grid-cols-2 md:px-0 sm:px-0 justify-center gap-4 mb-10 w-full">
           {/* Location Dropdown */}
           <FormControl className="w-1/2">
             <InputLabel>Select Location</InputLabel>
@@ -106,7 +106,7 @@ const BookMeetings = () => {
                   new Map(workLocations.map((loc) => [loc.name, loc])).values()
                 );
                 return(
-                <Select {...field} label="Select Location">
+                <Select {...field} label="Select Location" fullWidth>
                   <MenuItem value="" disabled>Select Location</MenuItem>
                   {locationsLoading ? (
                     <MenuItem disabled>
@@ -135,6 +135,7 @@ const BookMeetings = () => {
               render={({ field }) => (
                 <Select
                   {...field}
+                  fullWidth
                   label="Select Meeting Room"
                   disabled={!selectedLocation || meetingRoomsLoading}
                   value={

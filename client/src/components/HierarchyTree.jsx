@@ -174,7 +174,7 @@ const HierarchyTree = ({height}) => {
   const navigate = useNavigate(); // Initialize useNavigate once
 
   return (
-    <div className="w-full">
+    <div className="w-full p-4">
       <div
         className={`${
           isSidebarOpen ? "w-[78vw]" : "w-[85vw]"

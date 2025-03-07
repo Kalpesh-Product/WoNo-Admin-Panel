@@ -34,7 +34,6 @@ import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import { toast } from "sonner";
 import useAuth from "../../../hooks/useAuth";
 
-
 const intialProjects = [
   {
     id: 1,
@@ -165,7 +164,7 @@ const ProjectList = () => {
       status: "",
     },
   });
- 
+
   const { data: projectList, isLoading } = useQuery({
     queryKey: ["projectList"],
     queryFn: async () => {
@@ -178,12 +177,12 @@ const ProjectList = () => {
     },
   });
 
-  const { mutate : handleAddProject, isPending : isAddProject } = useMutation({
+  const { mutate: handleAddProject, isPending: isAddProject } = useMutation({
     mutationFn: async (data) => {
       const response = await axios.post(`/api/tasks/create-tasks`, {
         projectName: data.title,
         description: data.description,
-        department:data.department,
+        department: data.department,
         assignees: data.assignees,
         assignedDate: data.assignedDate,
         dueDate: data.dueDate,
@@ -212,9 +211,6 @@ const ProjectList = () => {
     },
   });
 
-
-  
-
   const onSubmit = (data) => {
     if (!data.title || !data.priority || !data.status) {
       alert("Please fill in required fields!");
@@ -231,28 +227,25 @@ const ProjectList = () => {
       return acc;
     }, {});
 
-    
-
     const formattedProject = {
       ...data,
-      priority:data.priority,
-      description:data.description,
-      department : data.department,
-      status:data.status,
-      projectName:data.title,
+      priority: data.priority,
+      description: data.description,
+      department: data.department,
+      status: data.status,
+      projectName: data.title,
       assignedDate: data.assignedDate,
       dueDate: data.dueDate,
       deadline: data.deadline,
       assignees: assigneesObject, // Assign transformed assignees object
     };
-    handleAddProject(formattedProject)
+    handleAddProject(formattedProject);
 
     setProjects([...projects, formattedProject]); // Update projects list
     setOpenModal(false);
     reset(); // Reset the form fields after submission
   };
 
- 
   return (
     <>
       <div className="p-4">
@@ -287,7 +280,6 @@ const ProjectList = () => {
           <GridView projects={projectList} isLoading={isLoading} />
         ) : (
           <TableView projects={projectList} isLoading={isLoading} />
-          
         )}
       </div>
       <MuiModal
@@ -296,6 +288,48 @@ const ProjectList = () => {
         title={"Add Project"}
       >
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <Controller
+            name="department"
+            control={control}
+            defaultValue={
+              auth.user.departments.length === 1
+                ? auth.user.departments[0]._id
+                : ""
+            }
+            render={({ field }) => (
+              <Select
+                {...field}
+                fullWidth
+                size="small"
+                displayEmpty
+                disabled={auth.user.departments.length === 1}
+                onChange={(event) => field.onChange(event.target.value)} // Ensure value updates
+                value={field.value} // Explicitly set value
+              >
+                {auth.user.departments.length === 1
+                  ? [
+                      // Wrap in an array instead of Fragment
+                      <MenuItem
+                        key={auth.user.departments[0]._id}
+                        value={auth.user.departments[0]._id}
+                      >
+                        {auth.user.departments[0].name}
+                      </MenuItem>,
+                    ]
+                  : [
+                      <MenuItem key="default" value="">
+                        Select Department
+                      </MenuItem>,
+                      ...auth.user.departments.map((department) => (
+                        <MenuItem key={department._id} value={department._id}>
+                          {department.name}
+                        </MenuItem>
+                      )),
+                    ]}
+              </Select>
+            )}
+          />
+
           {/* Project Name */}
           <Controller
             name="title"
@@ -333,27 +367,6 @@ const ProjectList = () => {
               />
             )}
           />
-
-          {/* Department */}
-          {auth.user.departments.length > 1 ? (
-            <Controller
-            name="department"
-            control={control}
-            render={({field})=>(
-              <Select {...field} fullWidth displayEmpty size="small">
-                <MenuItem value="" disabled>
-                  Select Department
-                </MenuItem>
-                {auth.user.departments.map((department) => (
-                  <MenuItem key={department._id} value={department._id}>
-                    {department.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            )}
-            />
-          ) : ''}
-       
 
           {/* Assignees */}
           <Controller
@@ -411,7 +424,6 @@ const ProjectList = () => {
                 />
               )}
             />
-            
           </LocalizationProvider>
 
           {/* Priority Dropdown */}
@@ -581,14 +593,13 @@ const ProjectCard = ({ project }) => {
 // Dropdown Menu for Actions
 const ProjectMenu = ({ project }) => {
   const navigate = useNavigate();
-  const axios = useAxiosPrivate()
+  const axios = useAxiosPrivate();
   const passProjectId = useMutation({
     mutationFn: async () => {
       return axios.patch(`/api/tasks/update-project/${project.id}`);
     },
     onSuccess: () => {
       console.log("Project updated");
-  
     },
     onError: (error) => {
       console.log(error.response?.data?.message || "Failed to fetch project");

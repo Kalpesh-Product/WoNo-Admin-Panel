@@ -9,6 +9,7 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
+  useMediaQuery,
 } from "@mui/material";
 import {
   IoIosArrowForward,
@@ -35,6 +36,7 @@ const Header = () => {
   const navigate = useNavigate();
   const { auth } = useAuth(); // Assuming signOut is a method from useAuth()
   const logout = useLogout();
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   // State for Popover
   const [anchorEl, setAnchorEl] = useState(null);
@@ -60,7 +62,6 @@ const Header = () => {
 
   const handleSignOut = async () => {
     await logout();
-    navigate("/"); // Navigate to the login page after sign-out
   };
 
   const handleProfileClick = () => {
@@ -83,42 +84,49 @@ const Header = () => {
                 src={companyLogo?.logoUrl || biznestLogo}
                 alt="logo"
               />
-              <button
-                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="p-2 text-gray-500 text-xl"
-              >
-                {isSidebarOpen ? <GiHamburgerMenu /> : <IoIosArrowForward />}
-              </button>
+              {!isMobile && (
+                <button
+                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                  className="p-2 text-gray-500 text-xl"
+                >
+                  {isSidebarOpen ? <GiHamburgerMenu /> : <IoIosArrowForward />}
+                </button>
+              )}
             </div>
           </div>
         </div>
-        <div className="w-full flex items-center pl-20">
-          <TextField
-            fullWidth
-            size="small"
-            type="search"
-            placeholder="Type here to search..."
-            variant="standard"
-            slotProps={{
-              input: {
-                disableUnderline: true,
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <IoIosSearch size={20} />
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
-        </div>
-        <div className="flex w-full justify-end gap-4">
-          <button className="bg-[#1E3D73] p-2 text-white rounded-md">
-            <IoMdNotificationsOutline />
-          </button>
-          <button className="bg-[#1E3D73] p-2 text-white rounded-md">
-            <MdOutlineMailOutline />
-          </button>
-        </div>
+        {!isMobile && (
+          <>
+            <div className="w-full flex items-center pl-20">
+              <TextField
+                fullWidth
+                size="small"
+                type="search"
+                placeholder="Type here to search..."
+                variant="standard"
+                slotProps={{
+                  input: {
+                    disableUnderline: true,
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <IoIosSearch size={20} />
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+              />
+            </div>
+
+            <div className="flex w-full justify-end gap-4">
+              <button className="bg-[#1E3D73] p-2 text-white rounded-md">
+                <IoMdNotificationsOutline />
+              </button>
+              <button className="bg-[#1E3D73] p-2 text-white rounded-md">
+                <MdOutlineMailOutline />
+              </button>
+            </div>
+          </>
+        )}
         <div className="flex items-center gap-4 w-[40%]">
           <Avatar onClick={handleAvatarClick} className="cursor-pointer">
             {auth.user.name === "Abrar Shaikh" ? (
@@ -132,18 +140,23 @@ const Header = () => {
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <h1 className="text-xl font-semibold">{auth.user.firstName}</h1>
-            <span className="text-content">
-              {auth.user.designation.split(" ").length > 3
-                ? auth.user.designation.split(" ").slice(0, 3).join(" ") + "..."
-                : auth.user.designation}
-            </span>
-            {isHovered ? (
-              <div className="motion-preset-slide-up-sm absolute top-14 right-0 bg-white border-default border-primary rounded-md p-4 w-96">
-                <span>{auth.user.designation}</span>
-              </div>
-            ) : (
-              ""
+            {!isMobile && (
+              <>
+                <h1 className="text-xl font-semibold">{auth.user.firstName}</h1>
+                <span className="text-content">
+                  {auth.user.designation.split(" ").length > 3
+                    ? auth.user.designation.split(" ").slice(0, 3).join(" ") +
+                      "..."
+                    : auth.user.designation}
+                </span>
+                {isHovered && auth.user.designation.split(" ").length > 1 ? (
+                  <div className="motion-preset-slide-up-sm absolute top-14 right-0 bg-white border-default border-primary rounded-md p-4 w-96">
+                    <span>{auth.user.designation}</span>
+                  </div>
+                ) : (
+                  ""
+                )}
+              </>
             )}
           </div>
         </div>

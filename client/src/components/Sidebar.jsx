@@ -13,7 +13,6 @@ import { RiAdminFill } from "react-icons/ri";
 import { TbCashRegister } from "react-icons/tb";
 import { FaUserTie } from "react-icons/fa6";
 
-
 const Sidebar = () => {
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
   const navigate = useNavigate();
@@ -43,6 +42,11 @@ const Sidebar = () => {
       route: "tasks",
     },
     {
+      name: "Visitors",
+      icon: <TbReportSearch />,
+      route: "visitors",
+    },
+    {
       name: "Reports",
       icon: <TbReportSearch />,
       route: "#",
@@ -51,14 +55,12 @@ const Sidebar = () => {
     { name: "Calendar", icon: <FaRegCalendarAlt />, route: "calendar" },
     { name: "Chat", icon: <HiOutlineChatAlt2 />, route: "chat" },
     { name: "Access", icon: <SiAuthelia />, route: "access" },
-   
 
     {
       name: "Notifications",
       icon: <IoMdNotifications />,
       route: "notifications",
     },
-    // { name: "Profile", icon: <CgProfile />, route: "/profile" },
   ];
 
   const defaultModules = [
@@ -89,18 +91,18 @@ const Sidebar = () => {
           id: 5,
           title: "Sales Dashboard",
           icon: <TbCashRegister />,
-          route: "/app/dashboard/sales-dashboard"
+          route: "/app/dashboard/sales-dashboard",
         },
         {
           id: 6,
           title: "Admin Dashboard",
-          route:'/app/dashboard/admin-dashboard',
+          route: "/app/dashboard/admin-dashboard",
           icon: <TbCashRegister />,
         },
         {
           id: 7,
           title: "Maintainance Dashboard",
-          route:'/app/dashboard/maintainance-dashboard',
+          route: "/app/dashboard/maintainance-dashboard",
           icon: <TbCashRegister />,
         },
         {
@@ -125,24 +127,22 @@ const Sidebar = () => {
     setExpandedModule((prev) => (prev === index ? null : index));
   };
 
-  const isActive = (path) => location.pathname.includes(path);
+  const isActive = (path) => location.pathname.startsWith(`/app/${path}`);
+
+
 
   return (
-    <div
-      className={`flex flex-col px-2  bg-gray`}
-    >
+    <div className={`flex flex-col px-2  bg-gray`}>
       <div
         className={`${
           isSidebarOpen ? "w-60" : "w-16"
-        } bg-white  text-black flex flex-shrink-0 h-[90vh] hideScrollBar overflow-y-auto transition-all duration-100 z-[1]`}
-      >
+        } bg-white  text-black flex flex-shrink-0 h-[90vh] hideScrollBar overflow-y-auto transition-all duration-100 z-[1]`}>
         <div className="flex relative w-full">
           <div className="p-0 flex flex-col gap-2 w-full">
             <div
               className={`rounded-md ${
                 expandedModule === 0 ? "bg-gray-200" : "bg-white"
-              }`}
-            >
+              }`}>
               {defaultModules.map((module, index) => (
                 <div key={index} className="">
                   <div
@@ -162,16 +162,14 @@ const Sidebar = () => {
                     }`}
                     onClick={() => {
                       module.submenus && toggleModule(index);
-                    }}
-                  >
+                    }}>
                     <div className="flex justify-start items-center">
                       <div
                         className={`flex items-center justify-center text-sm h-9 w-9 ${
                           expandedModule === 0
                             ? "bg-primary text-white rounded-md"
                             : ""
-                        }`}
-                      >
+                        }`}>
                         {module.icon}
                       </div>
                       {isSidebarOpen && (
@@ -182,8 +180,7 @@ const Sidebar = () => {
                       <span
                         className={`transition-transform duration-300 ease-in-out ${
                           expandedModule === index ? "rotate-180" : "rotate-0"
-                        }`}
-                      >
+                        }`}>
                         {expandedModule === index ? (
                           <FaChevronUp />
                         ) : (
@@ -195,8 +192,7 @@ const Sidebar = () => {
                   <div
                     className={`overflow-hidden transition-[max-height] duration-300 ease-in-out ${
                       expandedModule === index ? "max-h-[500px]" : "max-h-0"
-                    }`}
-                  >
+                    }`}>
                     {module.submenus && (
                       <div>
                         {module.submenus.map((submenu, idx) => (
@@ -207,20 +203,17 @@ const Sidebar = () => {
                                 ? "text-[#1E3D73]"
                                 : "text-gray-500"
                             }  py-3`}
-                            onClick={() => navigate(submenu.route)}
-                          >
+                            onClick={() => navigate(submenu.route)}>
                             <div
                               className={`flex items-center ${
                                 isSidebarOpen
                                   ? "justify-start"
                                   : "justify-center"
-                              }`}
-                            >
+                              }`}>
                               <div
                                 className={`flex justify-center  items-center w-8 ${
                                   isSidebarOpen ? "text-sm" : "text-sm"
-                                }`}
-                              >
+                                }`}>
                                 {submenu.icon}
                               </div>
                               {isSidebarOpen && (
@@ -248,15 +241,13 @@ const Sidebar = () => {
                     : "text-gray-500"
                 } flex ${
                   isSidebarOpen ? "" : "justify-center"
-                } items-center py-0 `}
-              >
+                } items-center py-0 `}>
                 <div
                   className={`flex justify-center items-center w-9 h-9 ${
                     isActive(item.route)
                       ? "bg-primary text-white rounded-md"
                       : ""
-                  } text-sm`}
-                >
+                  } text-sm`}>
                   {item.icon}
                 </div>
                 {isSidebarOpen && (
@@ -270,21 +261,19 @@ const Sidebar = () => {
                 navigate("profile");
               }}
               className={`flex hover:text-primary transition-all duration-100 text-gray-500 ${
-                isActive("/profile")
+                isActive("profile")
                   ? "text-primary bg-gray-200 rounded-md"
                   : "text-gray-500"
               } ${
                 isSidebarOpen ? "pl-[0rem]" : "justify-center"
-              } items-center cursor-pointer `}
-            >
+              } items-center cursor-pointer `}>
               <div
                 className={`flex justify-center items-center w-9 h-9 ${
-                  isActive("/profile") ? "bg-primary text-white rounded-md" : ""
-                } text-sm`}
-              >
+                  isActive("profile") ? "bg-primary text-white rounded-md" : ""
+                } text-sm`}>
                 <FaUserTie />
               </div>
-              {isSidebarOpen && <span className="pl-5 text-sm">Profiles</span>}
+              {isSidebarOpen && <span className="pl-5 text-sm">Profile</span>}
             </div>
           </div>
         </div>

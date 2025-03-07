@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
 const ListOfAssets = () => {
-  const axios = useAxiosPrivate()
+  const axios = useAxiosPrivate();
   const [modalMode, setModalMode] = useState("add");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState(null);
@@ -218,17 +218,23 @@ const ListOfAssets = () => {
         searchColumn={"Asset Number"}
         tableTitle={"List of Assets"}
         buttonTitle={"Add Asset"}
-        data={[...assetsList.map((asset,index) => ({
-          id : index +1,
-          department : asset.department.name,
-          category : asset.name,
-          brand : asset.brand,
-          price : asset.price,
-          quantity : asset.quantity,
-          purchaseDate : new Intl.DateTimeFormat("en-GB",{day:"numeric",month:"short",year:"numeric"}).format(new Date(asset.purchaseDate)),
-          warranty : asset.warranty,
-          vendorName : asset.vendor.name
-        }))]}
+        data={[
+          ...assetsList.map((asset, index) => ({
+            id: index + 1,
+            department: asset.department.name,
+            category: asset.name,
+            brand: asset.brand,
+            price: asset.price,
+            quantity: asset.quantity,
+            purchaseDate: new Intl.DateTimeFormat("en-GB", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            }).format(new Date(asset.purchaseDate)),
+            warranty: asset.warranty,
+            vendorName: asset.vendor.name,
+          })),
+        ]}
         columns={assetColumns}
         handleClick={handleAddAsset}
       />

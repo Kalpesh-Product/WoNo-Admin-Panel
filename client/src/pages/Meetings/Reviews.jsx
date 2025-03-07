@@ -10,10 +10,9 @@ import PrimaryButton from "../../components/PrimaryButton";
 import TextField from "@mui/material/TextField";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
- 
 
 const Reviews = () => {
-  const axios = useAxiosPrivate()
+  const axios = useAxiosPrivate();
   const [openSidebar, setOpenSidebar] = useState(false);
   const [reviewData, setReviewData] = useState({});
 
@@ -22,7 +21,7 @@ const Reviews = () => {
     queryFn: async () => {
       try {
         const response = await axios.get("/api/meetings/get-reviews");
-        return response.data
+        return response.data;
       } catch (error) {
         throw new Error(error.response.data.message);
       }
@@ -86,7 +85,6 @@ const Reviews = () => {
           }
         };
 
-        
         //         const {mutate}=useMutation({
         //           mutationFn:async(data)=>{
         //             const response= await axios.post("/api/meetings/add-reply");
@@ -110,8 +108,7 @@ const Reviews = () => {
                 params.value === "Reply Review" ? (
                   <div
                     className="flex flex-row items-center justify-center gap-2"
-                    onClick={handleClick}
-                  >
+                    onClick={handleClick}>
                     <PiArrowBendLeftDownBold />
                     {params.value}
                   </div>
@@ -170,7 +167,8 @@ const Reviews = () => {
     },
   ];
 
-  const averageRatings = reviews.reduce((acc,curr)=> acc + curr.rate,0) / reviews.length
+  const averageRatings =
+    reviews.reduce((acc, curr) => acc + curr.rate, 0) / reviews.length;
 
   // const averageRatings = rating
 
@@ -178,8 +176,16 @@ const Reviews = () => {
     <>
       <div>
         <WidgetSection layout={3}>
-          <DataCard data={reviews.length} title="Total" description="Reviews Count" />
-          <DataCard data={`${averageRatings} ⭐`} title="Average" description=" Ratings" />
+          <DataCard
+            data={reviews.length}
+            title="Total"
+            description="Reviews Count"
+          />
+          <DataCard
+            data={`${averageRatings} ⭐`}
+            title="Average"
+            description=" Ratings"
+          />
           <DataCard data="10.0k" title="Total" description="Reviews Count" />
         </WidgetSection>
 
@@ -188,17 +194,19 @@ const Reviews = () => {
             search={true}
             searchColumn={"Policies"}
             data={[
-              ...reviews.map((review,index) => (
-                {
-                  id: index + 1,
-                  srno: index + 1,
-      nameofreview: review.reviewerName,
-      date: new Intl.DateTimeFormat("en-GB",{day:"numeric",month:"long",year:"numeric"}).format(new Date(review.meeting.startDate)),
-      rate: review.rate,
-      Reviews: review.review,
-      action: review?.reply ? "Replied" : "Reply Review",
-                }
-              ))
+              ...reviews.map((review, index) => ({
+                id: index + 1,
+                srno: index + 1,
+                nameofreview: review.reviewerName,
+                date: new Intl.DateTimeFormat("en-GB", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                }).format(new Date(review.meeting.startDate)),
+                rate: review.rate,
+                Reviews: review.review,
+                action: review?.reply ? "Replied" : "Reply Review",
+              })),
             ]}
             columns={departmentsColumn}
           />
@@ -206,8 +214,7 @@ const Reviews = () => {
         <MuiAside
           open={openSidebar}
           onClose={() => setOpenSidebar(false)}
-          title={"Reviews"}
-        >
+          title={"Reviews"}>
           <div className="p-2">
             <h1 className="font-pmedium text-subtitle">
               {reviewData.reviewerName}
@@ -231,8 +238,7 @@ const Reviews = () => {
             <PrimaryButton
               title={"Submit"}
               handleSubmit={() => setOpenSidebar(false)}
-              externalStyles={"mt-10"}
-            ></PrimaryButton>
+              externalStyles={"mt-10"}></PrimaryButton>
           </div>
         </MuiAside>
       </div>
