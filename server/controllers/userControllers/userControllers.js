@@ -737,7 +737,7 @@ const getAssignees = async (req, res, next) => {
     const transformAssignees = assignees.map(
       (assignee) => `${assignee.firstName} ${assignee.lastName}`
     );
-    return res.status(200).json(transformAssignees);
+    return res.status(200).json(assignees);
   } catch (error) {
     next(error);
   }

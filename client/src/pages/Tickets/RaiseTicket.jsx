@@ -134,7 +134,35 @@ const RaiseTicket = () => {
     { field: "raisedBy", headerName: "Raised By" },
     { field: "raisedTo", headerName: "To Department" },
     { field: "ticketTitle", headerName: "Ticket Title", flex: 1 },
+    { field: "description", headerName: "Description", flex: 1 },
 
+    {
+      field: "priority",
+      headerName: "Priority",
+      cellRenderer: (params) => {
+        const statusColorMap = {
+          High: { backgroundColor: "#FFC5C5", color: "#8B0000" }, // Light red bg, dark red font
+          Medium: { backgroundColor: "#FFECC5", color: "#CC8400" }, // Light orange bg, dark orange font
+          Low: { backgroundColor: "#ADD8E6", color: "#00008B" }, // Light blue bg, dark blue font
+        };
+
+        const { backgroundColor, color } = statusColorMap[params.value] || {
+          backgroundColor: "gray",
+          color: "white",
+        };
+        return (
+          <>
+            <Chip
+              label={params.value}
+              style={{
+                backgroundColor,
+                color,
+              }}
+            />
+          </>
+        );
+      },
+    },
     {
       field: "status",
       headerName: "Status",
@@ -400,8 +428,10 @@ const RaiseTicket = () => {
                   id: index + 1,
                   raisedBy: ticket.raisedBy.firstName,
                   raisedTo: ticket.raisedToDepartment.name,
+                  description: ticket.description,
                   ticketTitle: ticket.ticket,
                   status: ticket.status,
+                  priority: ticket.priority,
                 })),
               ]}
               columns={recievedTicketsColumns}

@@ -484,47 +484,29 @@ const assignTicket = async (req, res, next) => {
   const { user, company, ip } = req;
 
   try {
-    const { ticketId, assignee } = req.body;
+    let { ticketId, assignee } = req.body;
+    const assigneesArray = Array.isArray(assignee) ? assignee : [assignee]; // ✅ Ensure assignee is always an array
 
-    if (!ticketId || !assignee) {
+    if (!ticketId || !assignee || assigneesArray.length === 0) {
       throw new CustomError(
-        "Ticket ID and assignee are required",
+        "Ticket ID and at least one assignee are required",
         logPath,
         logAction,
         logSourceKey
       );
     }
 
-    if (!mongoose.Types.ObjectId.isValid(assignee)) {
+    // ✅ Validate all assignee IDs
+    if (!assigneesArray.every(id => mongoose.Types.ObjectId.isValid(id))) {
       throw new CustomError(
-        "Invalid assignee ID provided",
+        "Invalid assignee ID(s) provided",
         logPath,
         logAction,
         logSourceKey
       );
     }
 
-    const foundUser = await User.findOne({ _id: user })
-      .select("-refreshToken -password")
-      .lean()
-      .exec();
-    if (!foundUser) {
-      throw new CustomError("User not found", logPath, logAction, logSourceKey);
-    }
-
-    const foundAssignee = await User.findOne({ _id: assignee })
-      .select("-refreshToken -password")
-      .lean()
-      .exec();
-    if (!foundAssignee) {
-      throw new CustomError(
-        "Assignee not found",
-        logPath,
-        logAction,
-        logSourceKey
-      );
-    }
-
+    // ✅ Validate ticketId
     if (!mongoose.Types.ObjectId.isValid(ticketId)) {
       throw new CustomError(
         "Invalid ticket ID provided",
@@ -534,6 +516,30 @@ const assignTicket = async (req, res, next) => {
       );
     }
 
+    // ✅ Find the user
+    const foundUser = await User.findOne({ _id: user })
+      .select("-refreshToken -password")
+      .lean()
+      .exec();
+    if (!foundUser) {
+      throw new CustomError("User not found", logPath, logAction, logSourceKey);
+    }
+
+    // ✅ Find all assignees
+    const foundAssignees = await User.find({ _id: { $in: assigneesArray } })
+      .select("-refreshToken -password")
+      .lean()
+      .exec();
+    if (foundAssignees.length !== assigneesArray.length) {
+      throw new CustomError(
+        "One or more assignees not found",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    // ✅ Find the ticket
     const foundTicket = await Tickets.findOne({ _id: ticketId }).lean().exec();
     if (!foundTicket) {
       throw new CustomError(
@@ -544,13 +550,9 @@ const assignTicket = async (req, res, next) => {
       );
     }
 
-    // Check if the ticket's raised department is among the user's departments
-    const userDepartments = foundUser.departments.map((dept) =>
-      dept.toString()
-    );
-    const ticketInDepartment = userDepartments.some(
-      (deptId) => foundTicket.raisedToDepartment.toString() === deptId
-    );
+    // ✅ Check if the ticket belongs to user's department
+    const userDepartments = foundUser.departments.map((dept) => dept.toString());
+    const ticketInDepartment = userDepartments.includes(foundTicket.raisedToDepartment.toString());
     if (!ticketInDepartment) {
       throw new CustomError(
         "User does not have permission to assign this ticket",
@@ -560,12 +562,13 @@ const assignTicket = async (req, res, next) => {
       );
     }
 
-    // Update the ticket by adding the assignee and setting status to "In Progress"
+    // ✅ Update the ticket by adding multiple assignees and setting status to "In Progress"
     const updatedTicket = await Tickets.findOneAndUpdate(
       { _id: ticketId },
-      { $addToSet: { assignees: assignee }, status: "In Progress" },
+      { $addToSet: { assignees: { $each: assigneesArray } }, status: "In Progress" },
       { new: true }
     );
+
     if (!updatedTicket) {
       throw new CustomError(
         "Failed to assign ticket",
@@ -575,7 +578,7 @@ const assignTicket = async (req, res, next) => {
       );
     }
 
-    // Log the successful ticket assignment
+    // ✅ Log the successful ticket assignment
     await createLog({
       path: logPath,
       action: logAction,
@@ -587,7 +590,7 @@ const assignTicket = async (req, res, next) => {
       sourceKey: logSourceKey,
       sourceId: updatedTicket._id,
       changes: {
-        assignedTo: assignee,
+        assignedTo: assigneesArray,
         assignedBy: user,
         status: "In Progress",
       },
@@ -595,15 +598,13 @@ const assignTicket = async (req, res, next) => {
 
     return res.status(200).json({ message: "Ticket assigned successfully" });
   } catch (error) {
-    if (error instanceof CustomError) {
-      next(error);
-    } else {
-      next(
-        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
-      );
-    }
+    next(error instanceof CustomError
+      ? error
+      : new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+    );
   }
 };
+
 
 const escalateTicket = async (req, res, next) => {
   const logPath = "tickets/TicketLog";

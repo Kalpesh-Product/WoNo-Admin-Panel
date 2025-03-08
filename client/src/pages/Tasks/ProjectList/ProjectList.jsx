@@ -376,7 +376,7 @@ const ProjectList = () => {
               <Autocomplete
                 {...field}
                 multiple
-                options={assignees.isPending ? [] : assignees.data} // Example list
+                options={assignees.isPending ? [] : assignees.data.map((user)=>user.firstName)} // Example list
                 renderInput={(params) => (
                   <TextField
                     {...params}

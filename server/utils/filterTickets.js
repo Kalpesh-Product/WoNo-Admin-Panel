@@ -7,10 +7,14 @@ async function filterCloseTickets(userDepartments, loggedInUser) {
     const tickets = await Ticket.find({
       status: "Closed",
       raisedBy: { $ne: loggedInUser._id },
-    }).populate([
-      { path: "raisedBy", select: "firstName lastName" },
-      { path: "raisedToDepartment", select: "name" },
-    ]);
+    })
+      .select("raisedBy raisedToDepartment status ticket description")
+      .populate([
+        { path: "raisedBy", select: "firstName lastName" },
+        { path: "raisedToDepartment", select: "name" },
+      ])
+      .lean()
+      .exec();
 
     return tickets;
   }
@@ -21,6 +25,7 @@ async function filterCloseTickets(userDepartments, loggedInUser) {
       { raisedToDepartment: { $in: userDepartments } },
     ],
   })
+    .select("raisedBy raisedToDepartment status ticket description")
     .populate([
       { path: "raisedBy", select: "firstName lastName" },
       { path: "raisedToDepartment", select: "name" },
@@ -38,10 +43,14 @@ async function filterAcceptTickets(userId, loggedInUser) {
         { status: "In Progress" },
         { raisedBy: { $ne: loggedInUser._id } },
       ],
-    }).populate([
-      { path: "raisedBy", select: "firstName lastName" },
-      { path: "raisedToDepartment", select: "name" },
-    ]);
+    })
+      .select("raisedBy raisedToDepartment status ticket description")
+      .populate([
+        { path: "raisedBy", select: "firstName lastName" },
+        { path: "raisedToDepartment", select: "name" },
+      ])
+      .lean()
+      .exec();
 
     return tickets;
   }
@@ -50,6 +59,7 @@ async function filterAcceptTickets(userId, loggedInUser) {
     acceptedBy: userId,
     status: "In Progress",
   })
+    .select("raisedBy raisedToDepartment status ticket description")
     .populate([
       { path: "raisedBy", select: "firstName lastName" },
       { path: "raisedToDepartment", select: "name" },
@@ -64,10 +74,14 @@ async function filterAssignedTickets(userDepartments, loggedInUser) {
   if (loggedInUser.role.roleTitle === "Master-Admin") {
     const tickets = await Ticket.find({
       assignees: { $exists: true, $ne: [] },
-    }).populate([
-      { path: "raisedBy", select: "firstName lastName" },
-      { path: "raisedToDepartment", select: "name" },
-    ]);
+    })
+      .select("raisedBy raisedToDepartment status ticket description")
+      .populate([
+        { path: "raisedBy", select: "firstName lastName" },
+        { path: "raisedToDepartment", select: "name" },
+      ])
+      .lean()
+      .exec();
 
     return tickets;
   }
@@ -78,6 +92,7 @@ async function filterAssignedTickets(userDepartments, loggedInUser) {
       { raisedToDepartment: { $in: userDepartments } },
     ],
   })
+    .select("raisedBy raisedToDepartment status ticket description")
     .populate([
       { path: "raisedBy", select: "firstName lastName" },
       { path: "raisedToDepartment", select: "name" },
@@ -140,10 +155,14 @@ async function filterEscalatedTickets(userDepartments, loggedInUser) {
   if (loggedInUser.role.roleTitle === "Master-Admin") {
     const tickets = await Ticket.find({
       escalatedTo: { $exists: true, $ne: [] },
-    }).populate([
-      { path: "raisedBy", select: "firstName lastName" },
-      { path: "raisedToDepartment", select: "name" },
-    ]);
+    })
+      .select("raisedBy raisedToDepartment status ticket description")
+      .populate([
+        { path: "raisedBy", select: "firstName lastName" },
+        { path: "raisedToDepartment", select: "name" },
+      ])
+      .lean()
+      .exec();
 
     return tickets;
   }
@@ -151,6 +170,7 @@ async function filterEscalatedTickets(userDepartments, loggedInUser) {
   const escalatedTickets = await Ticket.find({
     escalatedTo: { $in: userDepartments },
   })
+    .select("raisedBy raisedToDepartment status ticket description")
     .populate([
       { path: "raisedBy", select: "firstName lastName" },
       { path: "raisedToDepartment", select: "name" },
@@ -163,6 +183,7 @@ async function filterEscalatedTickets(userDepartments, loggedInUser) {
 
 async function filterMyTickets(loggedInUser) {
   const myTickets = await Ticket.find({ raisedBy: loggedInUser._id })
+    .select("raisedBy raisedToDepartment status ticket description")
     .populate([
       { path: "raisedBy", select: "firstName lastName" },
       { path: "raisedToDepartment", select: "name" },
@@ -205,7 +226,8 @@ async function filterTodayTickets(loggedInUser, company) {
   // Extract the ticket priority from the company's selected departments
   const updatedTickets = todayTickets.map((ticket) => {
     const department = foundCompany.selectedDepartments.find(
-      (dept) => dept.department.toString() === ticket.raisedToDepartment?._id.toString()
+      (dept) =>
+        dept.department.toString() === ticket.raisedToDepartment?._id.toString()
     );
 
     let priority = "Low"; // Default priority
@@ -235,7 +257,6 @@ async function filterTodayTickets(loggedInUser, company) {
 
   return updatedTickets;
 }
-
 
 module.exports = {
   filterCloseTickets,
