@@ -22,7 +22,7 @@ const LayerBarGraph = lazy(() =>
 const HrDashboard = () => {
   const axios = useAxiosPrivate();
   const { auth } = useAuth();
-  console.log(auth.user.permissions)
+  console.log(auth.user.permissions);
   const accessibleModules = new Set();
 
   auth.user.permissions?.deptWisePermissions?.forEach((department) => {
@@ -560,14 +560,12 @@ const HrDashboard = () => {
               <Skeleton variant="text" width={200} height={30} />
               <Skeleton variant="rectangular" width="100%" height={300} />
             </Box>
-          }
-        >
+          }>
           <WidgetSection
             layout={1}
             border
             padding
-            title={"Payroll Expense Graph"}
-          >
+            title={"Payroll Expense Graph"}>
             <LayerBarGraph data={data} options={optionss} />
           </WidgetSection>
         </Suspense>,
@@ -581,11 +579,20 @@ const HrDashboard = () => {
         { icon: <SiCashapp />, title: "Finance", route: "finance" },
         { icon: <CgWebsite />, title: "Mix Bag", route: "#" },
         { icon: <SiGoogleadsense />, title: "Data", route: "data" },
-        { icon: <MdMiscellaneousServices />, title: "Settings", route: "settings" },
+        {
+          icon: <MdMiscellaneousServices />,
+          title: "Settings",
+          route: "settings",
+        },
       ]
         .filter((widget) => accessibleModules.has(widget.title)) // ✅ Filter widgets
         .map((widget, index) => (
-          <Card key={index} icon={widget.icon} title={widget.title} route={widget.route} />
+          <Card
+            key={index}
+            icon={widget.icon}
+            title={widget.title}
+            route={widget.route}
+          />
         )), // ✅ Convert objects into JSX elements
     },
     {
@@ -609,14 +616,12 @@ const HrDashboard = () => {
               <Skeleton variant="text" width={200} height={30} />
               <Skeleton variant="rectangular" width="100%" height={300} />
             </Box>
-          }
-        >
+          }>
           <WidgetSection
             layout={1}
             border
             padding
-            title={"Department Wise Tasks% Vs Achievements in %"}
-          >
+            title={"Department Wise Tasks% Vs Achievements in %"}>
             <LayerBarGraph data={series} options={options} />
           </WidgetSection>
         </Suspense>,
