@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const SupportTicket = require("../models/tickets/supportTickets");
 const Ticket = require("../models/tickets/Tickets");
+const Company = require("../models/hr/Company");
 
 function generateQuery(queryMapping, roles) {
   const roleHierarchy = ["Master-Admin", "Super-Admin", "Admin", "Employee"]; // For users with multiple roles, use query of higher entity
@@ -24,6 +25,7 @@ async function fetchTickets(query) {
         { path: "raisedToDepartment", select: "name" },
         { path: "escalatedTo", select: "name" },
       ])
+      .select("raisedBy raisedToDepartment status ticket description")
       .lean()
       .exec();
 
@@ -115,7 +117,7 @@ async function filterAcceptedTickets(user, roles, userDepartments) {
   return fetchTickets(query);
 }
 
-async function filterAssignedTickets(roles, userDepartments) {
+async function filterAssignedTickets(user, roles, userDepartments) {
   const queryMapping = {
     "Master-Admin": {
       $and: [
@@ -241,43 +243,80 @@ async function filterCloseTickets(user, roles, userDepartments) {
 }
 
 async function filterMyTickets(user) {
-  try {
-    const myTickets = await Ticket.find({ raisedBy: user })
-      .populate([
-        { path: "raisedBy", select: "firstName lastName" },
-        { path: "raisedToDepartment", select: "name" },
-      ])
-      .lean()
-      .exec();
-    return myTickets;
-  } catch (error) {
-    return [];
-  }
+  const myTickets = await Ticket.find({ raisedBy: user })
+    .select("raisedBy raisedToDepartment status ticket description")
+    .populate([
+      { path: "raisedBy", select: "firstName lastName" },
+      { path: "raisedToDepartment", select: "name" },
+    ])
+    .lean()
+    .exec();
+  return myTickets;
 }
 
-async function filterTodayTickets(user) {
-  try {
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
+async function filterTodayTickets(user, company) {
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
 
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
+  const endOfDay = new Date();
+  endOfDay.setHours(23, 59, 59, 999);
 
-    const todayTickets = await Ticket.find({
-      raisedBy: user,
-      createdAt: { $gte: startOfDay, $lte: endOfDay },
-    })
-      .populate([
-        { path: "raisedBy", select: "firstName lastName" },
-        { path: "raisedToDepartment", select: "name" },
-      ])
-      .lean()
-      .exec();
+  // Fetch today's tickets for the logged-in user
+  const todayTickets = await Ticket.find({
+    raisedBy: user,
+    createdAt: { $gte: startOfDay, $lte: endOfDay },
+  })
+    .select("raisedBy raisedToDepartment status ticket description")
+    .populate([
+      { path: "raisedBy", select: "firstName lastName" },
+      { path: "raisedToDepartment", select: "name" },
+    ])
+    .lean()
+    .exec();
 
-    return todayTickets;
-  } catch (error) {
-    return [];
+  // Fetch the company's selected departments with ticket issues
+  const foundCompany = await Company.findOne({ _id: company })
+    .select("selectedDepartments")
+    .lean()
+    .exec();
+
+  if (!foundCompany) {
+    throw new Error("Company not found");
   }
+
+  // Extract the ticket priority from the company's selected departments
+  const updatedTickets = todayTickets.map((ticket) => {
+    const department = foundCompany.selectedDepartments.find(
+      (dept) =>
+        dept.department.toString() === ticket.raisedToDepartment?._id.toString()
+    );
+
+    let priority = "Low"; // Default priority
+
+    if (department) {
+      const issue = department.ticketIssues.find(
+        (issue) => issue.title === ticket.ticket
+      );
+
+      priority = issue?.priority || "Low";
+    }
+
+    // If the issue is not found, check for "Other" and assign its priority
+    if (!priority || priority === "Low") {
+      const otherIssue = foundCompany.selectedDepartments
+        .flatMap((dept) => dept.ticketIssues)
+        .find((issue) => issue.title === "Other");
+
+      priority = otherIssue?.priority || "Low";
+    }
+
+    return {
+      ...ticket,
+      priority,
+    };
+  });
+
+  return updatedTickets;
 }
 
 module.exports = {

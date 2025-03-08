@@ -825,7 +825,7 @@ const getSingleUserTickets = async (req, res, next) => {
 
 const fetchFilteredTickets = async (req, res, next) => {
   try {
-    const { user, roles, departments } = req;
+    const { user, roles, departments, company } = req;
 
     const { flag } = req.params;
 
@@ -848,7 +848,11 @@ const fetchFilteredTickets = async (req, res, next) => {
         );
         break;
       case "assign":
-        filteredTickets = await filterAssignedTickets(roles, userDepartments);
+        filteredTickets = await filterAssignedTickets(
+          user,
+          roles,
+          userDepartments
+        );
         break;
       case "support":
         filteredTickets = await filterSupportTickets(
@@ -868,18 +872,19 @@ const fetchFilteredTickets = async (req, res, next) => {
         );
         break;
       case "raisedByMe":
-        filteredTickets = await filterMyTickets(roles);
+        filteredTickets = await filterMyTickets(user);
         break;
 
       case "raisedTodayByMe":
-        filteredTickets = await filterTodayTickets(roles);
+        filteredTickets = await filterTodayTickets(user, company);
         break;
 
       default:
-        return res.sendStatus(404);
+        return res
+          .status(404)
+          .json({ message: "Provided a valid flag to fetch tickets" });
     }
 
-    console.log("length:", filteredTickets.length);
     return res.status(200).json(filteredTickets);
   } catch (error) {
     next(error);
