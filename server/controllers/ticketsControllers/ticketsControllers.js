@@ -7,12 +7,13 @@ const { handleFileUpload } = require("../../config/cloudinaryConfig");
 const sharp = require("sharp");
 const {
   filterCloseTickets,
-  filterAcceptTickets,
+  filterAcceptedTickets,
   filterSupportTickets,
   filterEscalatedTickets,
   filterAssignedTickets,
   filterMyTickets,
   filterTodayTickets,
+  filterAcceptedAssignedTickets,
 } = require("../../utils/filterTickets");
 const Company = require("../../models/hr/Company");
 const { createLog } = require("../../utils/moduleLogs");
@@ -824,69 +825,61 @@ const getSingleUserTickets = async (req, res, next) => {
 
 const fetchFilteredTickets = async (req, res, next) => {
   try {
-    const { user } = req;
+    const { user, roles, departments } = req;
 
-    const { flag } = req.query;
+    const { flag } = req.params;
 
-    const loggedInUser = await User.findOne({ _id: user })
-      .select("-refreshToken -password")
-      .populate({ path: "role", select: "roleTitle" })
-      .lean()
-      .exec();
-    if (!loggedInUser) {
-      return res.status(400).json({ message: "No such user found" });
-    }
-
-    const userDepartments = loggedInUser.departments.map((dept) =>
-      dept.toString()
-    );
-
-    if (
-      !userDepartments ||
-      !Array.isArray(userDepartments) ||
-      userDepartments.length === 0
-    ) {
-      return res.status(400).json("Invalid or empty userDepartments array");
-    }
+    const userDepartments = departments.map((dept) => dept._id.toString());
 
     let filteredTickets = [];
     switch (flag) {
+      case "accept-assign":
+        filteredTickets = await filterAcceptedAssignedTickets(
+          user,
+          roles,
+          userDepartments
+        );
+        break;
       case "accept":
-        filteredTickets = await filterAcceptTickets(user, loggedInUser);
+        filteredTickets = await filterAcceptedTickets(
+          user,
+          roles,
+          userDepartments
+        );
         break;
       case "assign":
-        filteredTickets = await filterAssignedTickets(
-          userDepartments,
-          loggedInUser
+        filteredTickets = await filterAssignedTickets(roles, userDepartments);
+        break;
+      case "support":
+        filteredTickets = await filterSupportTickets(
+          user,
+          roles,
+          userDepartments
         );
+        break;
+      case "escalate":
+        filteredTickets = await filterEscalatedTickets(roles, userDepartments);
         break;
       case "close":
         filteredTickets = await filterCloseTickets(
-          userDepartments,
-          loggedInUser
-        );
-        break;
-      case "support":
-        filteredTickets = await filterSupportTickets(user, loggedInUser);
-        break;
-      case "escalate":
-        filteredTickets = await filterEscalatedTickets(
-          userDepartments,
-          loggedInUser
+          user,
+          roles,
+          userDepartments
         );
         break;
       case "raisedByMe":
-        filteredTickets = await filterMyTickets(loggedInUser);
+        filteredTickets = await filterMyTickets(roles);
         break;
 
       case "raisedTodayByMe":
-        filteredTickets = await filterTodayTickets(loggedInUser);
+        filteredTickets = await filterTodayTickets(roles);
         break;
 
       default:
         return res.sendStatus(404);
     }
 
+    console.log("length:", filteredTickets.length);
     return res.status(200).json(filteredTickets);
   } catch (error) {
     next(error);

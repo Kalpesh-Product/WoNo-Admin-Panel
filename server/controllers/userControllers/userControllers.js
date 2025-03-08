@@ -734,9 +734,12 @@ const getAssignees = async (req, res, next) => {
       member.role.some((role) => !role.roleTitle.endsWith("Admin"))
     );
 
-    const transformAssignees = assignees.map(
-      (assignee) => `${assignee.firstName} ${assignee.lastName}`
-    );
+    const transformAssignees = assignees.map((assignee) => {
+      return {
+        id: assignee._id,
+        name: `${assignee.firstName} ${assignee.lastName}`,
+      };
+    });
     return res.status(200).json(transformAssignees);
   } catch (error) {
     next(error);
