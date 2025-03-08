@@ -3,8 +3,8 @@ const mongoose = require("mongoose");
 const { createLog } = require("../../utils/moduleLogs");
 const csvParser = require("csv-parser");
 const { Readable } = require("stream");
-const crypto = require("crypto");
 const CustomError = require("../../utils/customErrorlogs");
+const WorkLocation = require("../../models/hr/WorkLocations");
 const {
   handleFileUpload,
   handleFileDelete,
@@ -15,7 +15,7 @@ const addWorkLocation = async (req, res, next) => {
   const logAction = "Add Work Location";
   const logSourceKey = "companyData";
   const { user, ip, company } = req;
-  const { buildingName, floor, wing } = req.body;
+  const { buildingName, floor, wing, fullAddress, unit } = req.body;
 
   try {
     if (!company || !buildingName) {
@@ -36,30 +36,35 @@ const addWorkLocation = async (req, res, next) => {
       );
     }
 
-    const newWorkLocation = {
-      id: crypto.randomUUID(),
-      buildingName,
-      floor: floor || "",
-      wing: wing || "",
-      isActive: true,
-      occupiedImage: { id: "", url: "" },
-      clearImage: { id: "", url: "" },
-    };
-
-    const updatedCompany = await Company.findByIdAndUpdate(
-      company,
-      { $push: { workLocations: newWorkLocation } },
-      { new: true }
-    );
-
-    if (!updatedCompany) {
+    // Check if the company exists
+    const existingCompany = await Company.findById(company);
+    if (!existingCompany) {
       throw new CustomError(
-        "Couldn't add work location",
+        "Company not found",
         logPath,
         logAction,
         logSourceKey
       );
     }
+
+    // Create new WorkLocation
+    const newWorkLocation = new WorkLocation({
+      company,
+      name: buildingName,
+      fullAddress: fullAddress || "",
+      floor: floor || "",
+      wing: wing || "",
+      isActive: true,
+      occupiedImage: { id: "", url: "" },
+      clearImage: { id: "", url: "" },
+      unit: unit || {},
+    });
+
+    await newWorkLocation.save();
+
+    // Update the company document by adding the work location reference
+    existingCompany.workLocations.push(newWorkLocation._id);
+    await existingCompany.save();
 
     await createLog({
       path: logPath,
@@ -70,7 +75,7 @@ const addWorkLocation = async (req, res, next) => {
       ip,
       company,
       sourceKey: logSourceKey,
-      sourceId: updatedCompany._id,
+      sourceId: newWorkLocation._id,
       changes: { workLocation: newWorkLocation },
     });
 
@@ -109,17 +114,9 @@ const uploadCompanyLocationImage = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid image type" });
     }
 
-    // Find the company
-    const company = await Company.findOne({ companyId });
-    if (!company) {
-      return res.status(404).json({ message: "Company not found" });
-    }
-
     // Find the work location
-    const workLocation = company.workLocations.find(
-      (loc) => loc.id === locationId
-    );
-    if (!workLocation) {
+    const workLocation = await WorkLocation.findById(locationId);
+    if (!workLocation || workLocation.company.toString() !== companyId) {
       return res.status(404).json({ message: "Work location not found" });
     }
 
@@ -128,7 +125,7 @@ const uploadCompanyLocationImage = async (req, res, next) => {
       await handleFileDelete(workLocation[imageType].id);
     }
 
-    const folderPath = `${company.companyName}/work-locations/${workLocation.buildingName}/${workLocation.wing}/${workLocation.floor}`;
+    const folderPath = `${companyId}/work-locations/${workLocation.name}`;
     const uploadResult = await handleFileUpload(file.path, folderPath);
 
     // Update the specific image type in the work location
@@ -136,7 +133,7 @@ const uploadCompanyLocationImage = async (req, res, next) => {
       id: uploadResult.public_id,
       url: uploadResult.secure_url,
     };
-    await company.save();
+    await workLocation.save();
 
     res.json({
       message: "Image uploaded and work location updated successfully",
@@ -149,9 +146,9 @@ const uploadCompanyLocationImage = async (req, res, next) => {
 
 const bulkInsertWorkLocations = async (req, res, next) => {
   try {
-    const companyId = req.userData.company;
+    const companyId = req.company;
     if (!req.file) {
-      return res.status(400).json({ message: "Please provide a csv file" });
+      return res.status(400).json({ message: "Please provide a CSV file" });
     }
 
     if (!companyId) {
@@ -172,10 +169,10 @@ const bulkInsertWorkLocations = async (req, res, next) => {
       .on("data", (row) => {
         if (row["Building Name"] && row["Floor"] && row["Wing"]) {
           workLocations.push({
-            id: crypto.randomUUID(), 
-            buildingName: row["Building Name"],
+            company: companyId,
+            name: row["Building Name"],
             fullAddress: row["Floor"],
-            unitNo: row["Wing"],
+            unit: { unitNo: row["Wing"] },
             isActive: true,
             occupiedImage: { id: "", url: "" },
             clearImage: { id: "", url: "" },
@@ -189,9 +186,14 @@ const bulkInsertWorkLocations = async (req, res, next) => {
             .json({ message: "No valid work locations found in the CSV" });
         }
 
+        const insertedWorkLocations = await WorkLocation.insertMany(
+          workLocations
+        );
+        const workLocationIds = insertedWorkLocations.map((loc) => loc._id);
+
         const updatedCompany = await Company.findByIdAndUpdate(
           companyId,
-          { $push: { workLocations: { $each: workLocations } } },
+          { $push: { workLocations: { $each: workLocationIds } } },
           { new: true }
         );
 
@@ -203,7 +205,7 @@ const bulkInsertWorkLocations = async (req, res, next) => {
 
         return res.status(200).json({
           message: "Work locations added successfully",
-          workLocations: updatedCompany.workLocations,
+          workLocations: insertedWorkLocations,
         });
       });
   } catch (error) {

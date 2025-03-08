@@ -7,14 +7,13 @@ const roomSchema = new mongoose.Schema({
     required: true,
   },
   location: {
-    name: {
-      type: String,
-    },
-    status: {
-      type: String,
-      default: "Available",
-      enum: ["Available","Occupied","Cleaning"]
-    },
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "WorkLocation",
+  },
+  status: {
+    type: String,
+    default: "Available",
+    enum: ["Available", "Occupied", "Cleaning"],
   },
   name: {
     type: String,
@@ -38,7 +37,7 @@ const roomSchema = new mongoose.Schema({
   },
   housekeepingStatus: {
     type: String,
-    enum: ["Pending","In Progress","Completed"]
+    enum: ["Pending", "In Progress", "Completed"],
   },
   assignedAssets: [
     {

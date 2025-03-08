@@ -6,16 +6,22 @@ const assignAssetSchema = new mongoose.Schema({
     ref: "Asset",
   },
   assignee: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "UserData",
+    room: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Room",
+    },
+    person: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "UserData",
+    },
   },
   company: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Company",
   },
   location: {
-    type: String,
-    required: true,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "WorkLocation",
   },
   status: {
     type: String,

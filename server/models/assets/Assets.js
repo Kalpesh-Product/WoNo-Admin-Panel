@@ -50,9 +50,19 @@ const assetsSchema = new mongoose.Schema({
     enum: ["Active", "Inactive"],
     default: "Active",
   },
-  assignedTo: {
+  location: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "UserData",
+    ref: "WorkLocation",
+  },
+  assignedTo: {
+    room: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Room",
+    },
+    person: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "UserData",
+    },
   },
 });
 
