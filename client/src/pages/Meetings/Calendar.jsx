@@ -26,6 +26,7 @@ const MeetingCalendar = () => {
     queryFn: async () => {
       try {
         const response = await axios.get("/api/meetings/get-meetings");
+        console.log("Meetins from axios: ", response.data);
         return response.data;
       } catch (error) {
         throw new Error(error.response.data.message);
@@ -38,7 +39,9 @@ const MeetingCalendar = () => {
 
     const newEvents = meetingsCheck.map((meeting) => {
       const startDate = convertToISOFormat(meeting.date, meeting.startTime);
+      console.log("startDate: => ", startDate);
       const endDate = convertToISOFormat(meeting.date, meeting.endTime);
+      console.log("endDate: => ", endDate);
 
       return {
         title: meeting.subject || "Meeting",
@@ -49,6 +52,7 @@ const MeetingCalendar = () => {
         extendedProps: {},
       };
     });
+    console.log("nEw eVEnts: ", newEvents);
 
     setEventsToBeRenamed(newEvents);
   }, [meetingsCheck, isLoading]);
@@ -58,7 +62,7 @@ const MeetingCalendar = () => {
 
     return meetingsCheck.filter((meeting) => {
       // Convert "DD-MM-YYYY" to "YYYY-MM-DD"
-      console.log(meeting.date)
+      console.log(meeting.date);
       const meetingDate = dayjs(meeting.date, "DD-MM-YYYY").format(
         "YYYY-MM-DD"
       );
@@ -67,10 +71,8 @@ const MeetingCalendar = () => {
     });
   };
 
-  
-
   const todaysEvents = getTodaysEvents();
-  console.log(todaysEvents)
+  console.log(todaysEvents);
 
   const uniqueStatuses = Array.from(
     new Set(meetingsCheck.map((meeting) => meeting.meetingStatus))
@@ -98,23 +100,32 @@ const MeetingCalendar = () => {
       borderColor: statusColors[event.meetingStatus] || "#05C3F0",
     }));
 
-const handleEventClick = (clickInfo) => {
-  const eventDetails = clickInfo.event.extendedProps; // Extract extended properties
-  setSelectedEvent({
-    title: clickInfo.event.title,
-    date: dayjs(clickInfo.event.start).format("YYYY-MM-DD"), // Format date
-    startTime: dayjs(clickInfo.event.start).format("hh:mm A"), // Convert to AM/PM format
-    endTime: dayjs(clickInfo.event.end).format("hh:mm A"),
-    range: `${dayjs(clickInfo.event.start).format("hh:mm A")} - ${dayjs(clickInfo.event.end).format("hh:mm A")}`,
-    department: eventDetails.department || "N/A", // Ensure department exists
-    agenda: eventDetails.agenda || "No agenda available",
-    meetingStatus: eventDetails.meetingStatus || "Unknown",
-    company: eventDetails.company || "N/A",
-  });
+  const handleEventClick = (clickInfo) => {
+    const eventDetails = clickInfo.event.extendedProps; // Extract extended properties
+    setSelectedEvent({
+      title: clickInfo.event.title,
+      date: dayjs(clickInfo.event.start).format("YYYY-MM-DD"), // Format date
+      startTime: dayjs(clickInfo.event.start).format("hh:mm A"), // Convert to AM/PM format
+      endTime: dayjs(clickInfo.event.end).format("hh:mm A"),
+      range: `${dayjs(clickInfo.event.start).format("hh:mm A")} - ${dayjs(
+        clickInfo.event.end
+      ).format("hh:mm A")}`,
+      department: eventDetails.department || "N/A", // Ensure department exists
+      agenda: eventDetails.agenda || "No agenda available",
+      meetingStatus: eventDetails.meetingStatus || "Unknown",
+      company: eventDetails.company || "N/A",
+    });
 
-  setIsDrawerOpen(true);
-};
+    setIsDrawerOpen(true);
+  };
 
+  // console.log(convertToISOFormat("12-03-2024", "3:30 PM")); // Expected: "2024-03-12T15:30:00"
+  // console.log(convertToISOFormat("12-03-2024", "09:15")); // Expected: "2024-03-12T09:15:00"
+  // console.log(convertToISOFormat("", "3:30 PM")); // Expected: null (with warning)
+
+  console.log("eVEnts to be renamed: ", eventsToBeRenamed);
+  console.log("eVEnts to be renamed Object: ", eventsToBeRenamed[57]);
+  console.log("filTEred eVEnts: ", filteredEvents);
 
   return (
     <div className="flex w-[70%] md:w-full">
@@ -153,8 +164,7 @@ const handleEventClick = (clickInfo) => {
                             fontSize: "0.875rem",
                             fontWeight: "bold",
                             color: "black", // Label text color matches the checkbox
-                          }}
-                        >
+                          }}>
                           {status}
                         </span>
                       }
@@ -172,7 +182,7 @@ const handleEventClick = (clickInfo) => {
               <div className="px-2 max-h-[33.5vh] overflow-y-auto">
                 {todaysEvents.length > 0 ? (
                   todaysEvents.map((event, index) => {
-                    console.log(event.start)
+                    console.log(event.start);
                     const colors = {
                       Completed: "#4caf50",
                       Upcoming: "#ff9800",
@@ -183,8 +193,7 @@ const handleEventClick = (clickInfo) => {
                           className="w-4 h-4 rounded-full mr-2"
                           style={{
                             backgroundColor: colors[event.meetingStatus],
-                          }}
-                        ></div>
+                          }}></div>
                         <div className="flex flex-col">
                           <span className="text-content font-medium">
                             {event.subject}
@@ -219,6 +228,11 @@ const handleEventClick = (clickInfo) => {
               plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
               initialView="dayGridMonth"
               events={filteredEvents} // ✅ Use filtered events
+              // events={eventsToBeRenamed} // ✅ Use filtered events
+              // events={[
+              //   { title: "event 1", date: "2025-03-08" },
+              //   { title: "event 2", date: "2025-03-08" },
+              // ]}
             />
           </div>
         </div>
@@ -227,8 +241,7 @@ const handleEventClick = (clickInfo) => {
       <MuiModal
         open={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
-        title="Meeting Details"
-      >
+        title="Meeting Details">
         {selectedEvent && (
           <div>
             <div className="flex flex-col gap-2">
