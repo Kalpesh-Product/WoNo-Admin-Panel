@@ -12,7 +12,7 @@ const AcceptedTickets = ({ title }) => {
   const { data: acceptedTickets = [], isLoading } = useQuery({
     queryKey: ["accepted-tickets"],
     queryFn: async () => {
-      const response = await axios.get("/api/tickets/filtered-tickets/accept");
+      const response = await axios.get("/api/tickets/tickets/accept-assign");
 
       return response.data;
     },
@@ -43,7 +43,7 @@ const AcceptedTickets = ({ title }) => {
       : tickets.map((ticket) => ({
           id: ticket._id,
           raisedBy: ticket.raisedBy?.firstName || "Unknown",
-          raisedToDepartment: ticket.raisedToDepartment.name || "N/A",
+          raisedToDepartment: ticket.raisedBy.departments.map((dept) => dept.name) || "N/A",
           ticketTitle: ticket?.ticket || "No Title",
           status: ticket.status || "Pending",
         }));

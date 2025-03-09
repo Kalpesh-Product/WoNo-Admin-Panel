@@ -6,10 +6,9 @@ const Company = require("../models/hr/Company");
 function generateQuery(queryMapping, roles) {
   const roleHierarchy = ["Master-Admin", "Super-Admin", "Admin", "Employee"]; // For users with multiple roles, use query of higher entity
 
-  const role = ["Master-Admin"];
   const matchedRole =
     roleHierarchy.find((roleTitle) =>
-      role.some(
+      roles.some(
         (userRole) => userRole === roleTitle || userRole.endsWith(roleTitle)
       )
     ) || "None";
@@ -21,11 +20,18 @@ async function fetchTickets(query) {
   try {
     const tickets = await Ticket.find(query)
       .populate([
-        { path: "raisedBy", select: "firstName lastName" },
+        {
+          path: "raisedBy",
+          select: "firstName lastName departments",
+          populate: {
+            path: "departments",
+            select: "name",
+            model: "Department",
+          },
+        },
         { path: "raisedToDepartment", select: "name" },
         { path: "escalatedTo", select: "name" },
       ])
-      .select("raisedBy raisedToDepartment status ticket description")
       .lean()
       .exec();
 
@@ -93,6 +99,7 @@ async function filterAcceptedAssignedTickets(user, roles, userDepartments) {
   };
 
   const query = generateQuery(queryMapping, roles);
+
   return fetchTickets(query);
 }
 
@@ -156,28 +163,37 @@ async function filterSupportTickets(user, roles, userDepartments) {
 
   try {
     const tickets = await SupportTicket.find()
-      .populate([
-        {
-          path: "ticket",
-          populate: [
-            {
-              path: "raisedBy",
-              select: "firstName lastName",
-            },
-            {
-              path: "raisedToDepartment",
+      .populate({
+        path: "ticket",
+        select: "status acceptedBy assignees image",
+        populate: [
+          {
+            path: "raisedBy",
+            select: "firstName lastName departments",
+            populate: {
+              path: "departments",
               select: "name",
             },
-          ],
-          select: "status acceptedBy assignees image",
-        },
-        {
-          path: "user",
-          select: "firstName lastName",
-        },
-      ])
-      .select("-company")
-      .lean();
+          },
+          {
+            path: "raisedToDepartment",
+            select: "name",
+          },
+          {
+            path: "acceptedBy",
+            select: "firstName lastName",
+          },
+          {
+            path: "assignees",
+            select: "firstName lastName",
+          },
+        ],
+      })
+      .populate({
+        path: "user",
+        select: "firstName lastName",
+      })
+      .select("-company");
 
     if (matchedRole === "Master-Admin" || !matchedRole === "Super-Admin") {
       return tickets;
@@ -220,6 +236,7 @@ async function filterEscalatedTickets(roles, userDepartments) {
 }
 
 async function filterCloseTickets(user, roles, userDepartments) {
+  console.log("close");
   const queryMapping = {
     "Master-Admin": {
       $and: [{ status: "Closed" }, { raisedBy: { $ne: user } }],
@@ -234,7 +251,14 @@ async function filterCloseTickets(user, roles, userDepartments) {
       ],
     },
     Employee: {
-      $and: [{ status: "Closed" }, { acceptedBy: user }],
+      $or: [
+        {
+          $and: [{ status: "Closed" }],
+        },
+        {
+          $and: [{ status: "Closed" }, { assignees: [user] }],
+        },
+      ],
     },
   };
 
@@ -254,7 +278,7 @@ async function filterMyTickets(user) {
   return myTickets;
 }
 
-async function filterTodayTickets(user, company) {
+async function filterTodayTickets(loggedInUser, company) {
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
 
@@ -262,12 +286,10 @@ async function filterTodayTickets(user, company) {
   endOfDay.setHours(23, 59, 59, 999);
 
   // Fetch today's tickets for the logged-in user
-  // Fetch today's tickets for the logged-in user
   const todayTickets = await Ticket.find({
-    raisedBy: user,
+    raisedBy: loggedInUser._id,
     createdAt: { $gte: startOfDay, $lte: endOfDay },
   })
-    .select("raisedBy raisedToDepartment status ticket description")
     .select("raisedBy raisedToDepartment status ticket description")
     .populate([
       { path: "raisedBy", select: "firstName lastName" },
@@ -276,49 +298,6 @@ async function filterTodayTickets(user, company) {
     .lean()
     .exec();
 
-  // Fetch the company's selected departments with ticket issues
-  const foundCompany = await Company.findOne({ _id: company })
-    .select("selectedDepartments")
-    .lean()
-    .exec();
-
-  if (!foundCompany) {
-    throw new Error("Company not found");
-  }
-
-  // Extract the ticket priority from the company's selected departments
-  const updatedTickets = todayTickets.map((ticket) => {
-    const department = foundCompany.selectedDepartments.find(
-      (dept) =>
-        dept.department.toString() === ticket.raisedToDepartment?._id.toString()
-    );
-
-    let priority = "Low"; // Default priority
-
-    if (department) {
-      const issue = department.ticketIssues.find(
-        (issue) => issue.title === ticket.ticket
-      );
-
-      priority = issue?.priority || "Low";
-    }
-
-    // If the issue is not found, check for "Other" and assign its priority
-    if (!priority || priority === "Low") {
-      const otherIssue = foundCompany.selectedDepartments
-        .flatMap((dept) => dept.ticketIssues)
-        .find((issue) => issue.title === "Other");
-
-      priority = otherIssue?.priority || "Low";
-    }
-
-    return {
-      ...ticket,
-      priority,
-    };
-  });
-
-  return updatedTickets;
   // Fetch the company's selected departments with ticket issues
   const foundCompany = await Company.findOne({ _id: company })
     .select("selectedDepartments")
