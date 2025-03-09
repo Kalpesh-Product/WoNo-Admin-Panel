@@ -312,7 +312,7 @@ const myTodayMeetingsColumns = [
         {row.participants.map((participant, index) => (
           <Avatar
             key={index}
-            alt={participant.name}
+            alt={participant.firstName}
             // src={participant.avatar}
             src="https://ui-avatars.com/api/?name=Alice+Johnson&background=random"
             sx={{ width: 23, height: 23 }}

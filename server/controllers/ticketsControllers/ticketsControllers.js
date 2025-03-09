@@ -69,6 +69,7 @@ const raiseTicket = async (req, res, next) => {
     const department = foundCompany.selectedDepartments.find(
       (dept) => dept.department.toString() === departmentId
     );
+
     if (!department) {
       throw new CustomError(
         "Invalid Department ID",
@@ -79,10 +80,10 @@ const raiseTicket = async (req, res, next) => {
     }
 
     const foundDepartment = await Department.findOne({
-      _id: department._id,
+      _id: department.department,
     }).select("name");
 
-    // **Handle optional file upload**
+    // *Handle optional file upload*
     let imageDetails = null;
     if (image) {
       try {
@@ -97,6 +98,7 @@ const raiseTicket = async (req, res, next) => {
           base64Image,
           `${foundCompany.companyName}/tickets/${foundDepartment.name}`
         );
+
         imageDetails = {
           id: uploadedImage.public_id,
           url: uploadedImage.secure_url,
@@ -165,7 +167,12 @@ const raiseTicket = async (req, res, next) => {
       raisedToDepartment: departmentId,
       raisedBy: user,
       company: company,
-      image: imageDetails, // Store image only if uploaded
+      image: imageDetails
+        ? {
+            id: imageDetails.id,
+            url: imageDetails.url,
+          }
+        : null, // Store image only if uploaded
     });
 
     const savedTicket = await newTicket.save();

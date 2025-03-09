@@ -100,13 +100,11 @@ const AssetModal = ({
           : mode === "view"
           ? "Asset Details"
           : "Edit Asset"
-      }
-    >
+      }>
       {mode !== "view" ? (
         <form
           onSubmit={handleSubmit(handleFormSubmit)}
-          className="flex flex-col items-center gap-4"
-        >
+          className="flex flex-col items-center gap-4">
           {/* Image Upload Section */}
           <Controller
             name="assetImage"
@@ -116,8 +114,7 @@ const AssetModal = ({
               <div
                 className={`w-4/5 flex justify-center border-2 rounded-md p-2 relative ${
                   errors.assetImage ? "border-red-500" : "border-gray-300"
-                } `}
-              >
+                } `}>
                 <div
                   className="w-full h-48 flex justify-center items-center relative"
                   style={{
@@ -132,8 +129,7 @@ const AssetModal = ({
                     // backgroundColor: assetData?.assetImage
                     //   ? "#f0f0f0"
                     //   : "transparent",
-                  }}
-                >
+                  }}>
                   <Button
                     variant="outlined"
                     component="label"
@@ -148,8 +144,7 @@ const AssetModal = ({
                       padding: "8px 16px",
                       borderRadius: "8px",
                       boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.3)",
-                    }}
-                  >
+                    }}>
                     Select Image
                     <input
                       type="file"
@@ -174,8 +169,7 @@ const AssetModal = ({
                       left: "50%",
                       transform: "translate(-50%, -50%)",
                       margin: 0,
-                    }}
-                  >
+                    }}>
                     {errors.assetImage.message}
                   </FormHelperText>
                 )}

@@ -158,24 +158,8 @@ const companySchema = new mongoose.Schema({
   ],
   workLocations: [
     {
-      id: String,
-      buildingName: {
-        type: String,
-      },
-      floor: String,
-      isActive: {
-        type: Boolean,
-        default: true,
-      },
-      occupiedImage: {
-        id: String,
-        url: String,
-      },
-      clearImage: {
-        id: String,
-        url: String,
-      },
-      wing: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "WorkLocation",
     },
   ],
   leaveTypes: [

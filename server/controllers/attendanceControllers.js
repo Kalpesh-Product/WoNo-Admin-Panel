@@ -479,9 +479,6 @@ const correctAttendance = async (req, res, next) => {
   const logAction = "Correct Attendance";
   const logSourceKey = "attendance";
 
-  const clockIn = inTime ? new Date(inTime) : null;
-  const clockOut = outTime ? new Date(outTime) : null;
-
   try {
     if (!targetedDay) {
       throw new CustomError(
@@ -492,6 +489,7 @@ const correctAttendance = async (req, res, next) => {
       );
     }
 
+    // ✅ Convert `targetedDay` to UTC midnight to match MongoDB stored date
     const targetedDate = new Date(targetedDay);
     const targetDateOnly = new Date(
       targetedDate.getUTCFullYear(),
@@ -499,36 +497,14 @@ const correctAttendance = async (req, res, next) => {
       targetedDate.getUTCDate()
     );
 
-    if (isNaN(targetedDate.getTime())) {
-      throw new CustomError(
-        "Invalid Date format",
-        logPath,
-        logAction,
-        logSourceKey
-      );
-    }
-    if (inTime && isNaN(clockIn.getTime())) {
-      throw new CustomError(
-        "Invalid inTime format",
-        logPath,
-        logAction,
-        logSourceKey
-      );
-    }
-    if (outTime && isNaN(clockOut.getTime())) {
-      throw new CustomError(
-        "Invalid outTime format",
-        logPath,
-        logAction,
-        logSourceKey
-      );
-    }
+    const startOfDay = new Date(targetDateOnly.setUTCHours(0, 0, 0, 0)); // 00:00 UTC
+    const endOfDay = new Date(targetDateOnly.setUTCHours(23, 59, 59, 999)); // 23:59 UTC
 
+    console.log("🔍 Searching attendance for:", startOfDay, "to", endOfDay);
+
+    // ✅ Find the attendance record using the corrected date range
     const foundDate = await Attendance.findOne({
-      createdAt: {
-        $gte: targetDateOnly,
-        $lt: new Date(targetDateOnly.getTime() + 24 * 60 * 60 * 1000),
-      },
+      createdAt: { $gte: startOfDay, $lt: endOfDay },
     });
 
     if (!foundDate) {
@@ -540,22 +516,22 @@ const correctAttendance = async (req, res, next) => {
       );
     }
 
-    const updateTimeClock = {
-      inTime: clockIn ? clockIn : foundDate.inTime,
-      outTime: clockOut ? clockOut : foundDate.outTime,
-    };
+    const clockIn = inTime ? new Date(inTime) : foundDate.inTime;
+    const clockOut = outTime ? new Date(outTime) : foundDate.outTime;
 
+    if (inTime && isNaN(clockIn.getTime())) {
+      throw new CustomError("Invalid inTime format", logPath, logAction, logSourceKey);
+    }
+    if (outTime && isNaN(clockOut.getTime())) {
+      throw new CustomError("Invalid outTime format", logPath, logAction, logSourceKey);
+    }
+
+    // ✅ Update attendance record
     await Attendance.findOneAndUpdate(
-      {
-        createdAt: {
-          $gte: targetDateOnly,
-          $lt: new Date(targetDateOnly.getTime() + 24 * 60 * 60 * 1000),
-        },
-      },
-      { $set: updateTimeClock }
+      { createdAt: { $gte: startOfDay, $lt: endOfDay } },
+      { $set: { inTime: clockIn, outTime: clockOut } }
     );
 
-    // Log the successful attendance correction
     await createLog({
       path: logPath,
       action: logAction,
@@ -569,8 +545,8 @@ const correctAttendance = async (req, res, next) => {
       changes: {
         oldInTime: foundDate.inTime,
         oldOutTime: foundDate.outTime,
-        newInTime: updateTimeClock.inTime,
-        newOutTime: updateTimeClock.outTime,
+        newInTime: clockIn,
+        newOutTime: clockOut,
       },
     });
 
@@ -585,6 +561,7 @@ const correctAttendance = async (req, res, next) => {
     }
   }
 };
+
 
 const bulkInsertAttendance = async (req, res, next) => {
   try {

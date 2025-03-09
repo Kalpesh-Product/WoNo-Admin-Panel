@@ -156,6 +156,28 @@ import SalesSettings from "../pages/Dashboard/SalesDashboard/SalesSettings/Sales
 import SalesSops from "../pages/Dashboard/SalesDashboard/SalesSettings/SalesSops";
 import SalesPolicies from "../pages/Dashboard/SalesDashboard/SalesSettings/SalesPolicies";
 import BulkUploadSales from "../pages/Dashboard/SalesDashboard/SalesSettings/BulkUploadSales";
+import HrCommonLayout from "../pages/HR/HrCommonLayout";
+import HrCommonAttendance from "../pages/HR/HrCommonAttendance";
+import HrCommonLeaves from "../pages/HR/HrCommonLeaves";
+import HrCommonAgreements from "../pages/HR/HrCommonAgreements";
+import HrCommonPayslips from "../pages/HR/HrCommonPayslips";
+import Unauthorized from "../pages/Unauthorized";
+import VisitorLayout from "../pages/Visitors/VisitorLayout";
+import VisitorDashboard from "../pages/Visitors/VisitorDashboard";
+import AddVisitor from "../pages/Visitors/Forms/AddVisitor";
+import ManageVisitors from "../pages/Visitors/ManageVisitors";
+import VisitorTeamMembers from "../pages/Visitors/VisitorTeamMembers";
+import VisitorReports from "../pages/Visitors/VisitorReports";
+import VisitorReviews from "../pages/Visitors/VisitorReviews";
+import VisitorSettings from "../pages/Visitors/VisitorSettings/VisitorSettings";
+import VisitorBulkUpload from "../pages/Visitors/VisitorSettings/VisitorBulkUpload";
+import ProfileLayout from "../pages/Profile/ProfileLayout";
+import MyProfile from "../pages/Profile/MyProfile";
+import ChangePassword from "../pages/Profile/ChangePassword";
+import AccessGrant from "../pages/Profile/AccessGrant";
+import MyAssets from "../pages/Profile/MyAssets";
+import MeetingRoomCredits from "../pages/Profile/MeetingRoomCredits";
+import TicketsHistory from "../pages/Profile/TicketsHistory";
 
 export const routes = createBrowserRouter([
   {
@@ -656,12 +678,61 @@ export const routes = createBrowserRouter([
               },
               {
                 path: "profile",
-                element: <Profile />,
+                element: <ProfileLayout />,
+                children:[
+                  {
+                    path:'my-profile',
+                    element:<MyProfile/>
+                  },
+                  {
+                    path:'change-password',
+                    element:<ChangePassword/>
+                  },
+                  {
+                    path:'access-grant',
+                    element:<AccessGrant/>
+                  },
+                  {
+                    path: "HR",
+                    element: <HrCommonLayout />,
+                    children: [
+                      {
+                        path: "attendance",
+                        element: <HrCommonAttendance />,
+                      },
+                      {
+                        path: "leaves",
+                        element: <HrCommonLeaves />,
+                      },
+                      {
+                        path: "agreements",
+                        element: <HrCommonAgreements />,
+                      },
+                      {
+                        path: "payslips",
+                        element: <HrCommonPayslips />,
+                      },
+                    ],
+                  },
+                  {
+                    path:'my-assets',
+                    element:<MyAssets/>
+                  },
+                  {
+                    path:'my-meetings',
+                    element:<MeetingRoomCredits/>
+                  },
+                  {
+                    path:'tickets-history',
+                    element:<TicketsHistory/>
+                  },
+                ]
               },
               {
                 path: "test",
                 element: <TestPage />,
               },
+       
 
               {
                 path: "tickets", // Parent path
@@ -873,6 +944,7 @@ export const routes = createBrowserRouter([
                       },
                     ],
                   },
+
                   {
                     path: "calendar",
                     element: <MeetingCalendar />,
@@ -911,9 +983,55 @@ export const routes = createBrowserRouter([
                   },
                 ],
               },
+              {
+                path: "visitors", // Parent path
+                element: <VisitorLayout />, // Parent component for Visitors
+                children: [
+                  {
+                    path: "", // Default route for /app/visitors
+                    element: <VisitorDashboard />,
+                    index: true,
+                  },
+                  {
+                    path: "add-visitor", // Page with form to Add a new Visitor
+                    element: <AddVisitor />,
+                  },
+                  {
+                    path: "manage-visitors", // Page with table showing a list of all visitors
+                    element: <ManageVisitors />,
+                  },
+                  {
+                    path: "team-members", // Page with table showing a list of all the team members(receptionists)
+                    element: <VisitorTeamMembers />,
+                  },
+                  {
+                    path: "reports", // Page with table showing a list of all the visitor reports
+                    element: <VisitorReports />,
+                  },
+                  {
+                    path: "reviews", // Page with table showing a list of all the visitor reviews
+                    element: <VisitorReviews />,
+                  },
+                  {
+                    path: "settings",
+                    element: <VisitorSettings />,
+                    children: [
+                      {
+                        path: "bulk-upload",
+                        element: <VisitorBulkUpload />,
+                      },
+                    ],
+                  },
+                ],
+              },
             ],
           },
         ],
+        
+      },
+      {
+        path: "unauthorized",
+        element: <Unauthorized />,
       },
     ],
   },

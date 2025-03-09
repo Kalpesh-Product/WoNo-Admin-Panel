@@ -37,23 +37,6 @@ const Agreements = () => {
     },
   ];
 
-  const rows = [
-    {
-      id: 1,
-      agreementName: "Internship Agreement",
-      date: "2025-01-01",
-    },
-    {
-      id: 2,
-      agreementName: "Travel Allowance Agreement",
-      date: "2025-02-15",
-    },
-    {
-      id: 3,
-      agreementName: "Manager Agreement",
-      date: "2025-03-10",
-    },
-  ];
 
   const { data: agreements = [] } = useQuery({
     queryKey: ["agreements"],
