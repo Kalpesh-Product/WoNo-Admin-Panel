@@ -837,6 +837,7 @@ const fetchFilteredTickets = async (req, res, next) => {
           roles,
           userDepartments
         );
+        console.log(filteredTickets)
         break;
       case "accept":
         filteredTickets = await filterAcceptedTickets(

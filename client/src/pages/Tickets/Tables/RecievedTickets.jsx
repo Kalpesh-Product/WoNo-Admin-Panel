@@ -66,13 +66,11 @@ const RecievedTickets = ({ title }) => {
     },
   });
 
-  // ✅ Mutation function to send assigned employees
   const { mutate: assignMutate } = useMutation({
     mutationKey: ["assign-ticket"],
     mutationFn: async (data) => {
-      const response = await axios.post("/api/tickets/assign-ticket", {
-        ticketId: data.ticketId,
-        assignee: data.assignedEmployees,
+      const response = await axios.patch(`/api/tickets/assign-ticket/${data.ticketId}`, {
+        assignees: data.assignedEmployees,
       });
 
       return response.data.message;
@@ -232,18 +230,18 @@ const RecievedTickets = ({ title }) => {
       <MuiModal open={open} onClose={handleClose} title="Assign Tickets">
         <form onSubmit={handleSubmit(onSubmit)}>
           <ul>
-            {subOrdinates.map((employee) => (
-              <div key={employee._id} className="flex flex-row gap-6">
+            {!isSubOrdinates ? subOrdinates.map((employee) => (
+              <div key={employee.id} className="flex flex-row gap-6">
                 <Controller
-                  name={`selectedEmployees.${employee._id}`}
+                  name={`selectedEmployees.${employee.id}`}
                   control={control}
                   render={({ field }) => (
                     <input type="checkbox" {...field} checked={!!field.value} />
                   )}
                 />
-                <li>{employee.firstName}</li>
+                <li>{employee.name}</li>
               </div>
-            ))}
+            )) : <CircularProgress />}
           </ul>
 
           <div className="flex items-center justify-center mb-4">

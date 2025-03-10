@@ -27,7 +27,7 @@ const ManageTickets = () => {
   } = useQuery({
     queryKey: ["accepted-tickets"],
     queryFn: async () => {
-      const response = await axios.get("/api/tickets?flag=accept");
+      const response = await axios.get("/api/tickets/accept-assign");
        
        return response.data;
     },
