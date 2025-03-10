@@ -116,18 +116,27 @@ async function filterAcceptedAssignedTickets(user, roles, userDepartments) {
 async function filterAcceptedTickets(user, roles, userDepartments) {
   const queryMapping = {
     "Master Admin": {
-      $and: [{ acceptedBy: { $exists: true } }, { raisedBy: { $ne: user } }],
+      $and: [
+        { acceptedBy: { $exists: true } },
+        { raisedBy: { $ne: user } },
+        { status: "In Progress" },
+      ],
     },
     "Super Admin": {
-      $and: [{ acceptedBy: { $exists: true } }, { raisedBy: { $ne: user } }],
+      $and: [
+        { acceptedBy: { $exists: true } },
+        { raisedBy: { $ne: user } },
+        { status: "In Progress" },
+      ],
     },
     Admin: {
       $and: [
         { acceptedBy: { $exists: true } },
         { raisedToDepartment: { $in: userDepartments } },
+        { status: "In Progress" },
       ],
     },
-    Employee: { acceptedBy: user },
+    Employee: { $and: [{ acceptedBy: user }, { status: "In Progress" }] },
   };
 
   const query = generateQuery(queryMapping, roles);
