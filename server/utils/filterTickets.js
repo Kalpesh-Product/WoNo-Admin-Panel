@@ -51,12 +51,14 @@ async function filterAcceptedAssignedTickets(user, roles, userDepartments) {
           $and: [
             { acceptedBy: { $exists: true } },
             { raisedBy: { $ne: user } },
+            { status: "In Progress" },
           ],
         },
         {
           $and: [
             { assignees: { $exists: true, $ne: [] } },
             { raisedBy: { $ne: user } },
+            { status: "In Progress" },
           ],
         },
       ],
@@ -67,12 +69,14 @@ async function filterAcceptedAssignedTickets(user, roles, userDepartments) {
           $and: [
             { acceptedBy: { $exists: true } },
             { raisedBy: { $ne: user } },
+            { status: "In Progress" },
           ],
         },
         {
           $and: [
             { assignees: { $exists: true, $ne: [] } },
             { raisedBy: { $ne: user } },
+            { status: "In Progress" },
           ],
         },
       ],
@@ -83,18 +87,24 @@ async function filterAcceptedAssignedTickets(user, roles, userDepartments) {
           $and: [
             { acceptedBy: { $exists: true } },
             { raisedToDepartment: { $in: userDepartments } },
+            { status: "In Progress" },
           ],
         },
         {
           $and: [
             { assignees: { $exists: true, $ne: [] } },
             { raisedToDepartment: { $in: userDepartments } },
+            { status: "In Progress" },
           ],
         },
       ],
     },
     Employee: {
-      $or: [{ acceptedBy: user }, { assignees: { $in: [user] } }],
+      $or: [
+        { acceptedBy: user },
+        { assignees: { $in: [user] } },
+        { status: "In Progress" },
+      ],
     },
   };
 
