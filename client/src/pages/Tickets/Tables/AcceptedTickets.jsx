@@ -1,5 +1,5 @@
 import AgTable from "../../../components/AgTable";
-import { Chip, CircularProgress, TextField, Typography } from "@mui/material";
+import { Chip, CircularProgress, LinearProgress, TextField, Typography } from "@mui/material";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import { toast } from "sonner";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -141,7 +141,7 @@ const AcceptedTickets = ({ title }) => {
       <div className="w-full">
         {isLoading && (
           <div className="flex justify-center">
-            <CircularProgress color="black" />
+            <LinearProgress color="black" />
           </div>
         )}
         {!isLoading ? (
