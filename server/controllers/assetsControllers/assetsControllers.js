@@ -52,7 +52,7 @@ const getAssets = async (req, res, next) => {
 
     // Fetch assets (without pagination)
     const assets = await Asset.find(filter)
-      .populate("department assignedTo")
+      .populate("department assignedTo category")
       .select("-company") // Populate references
       .sort({ [sortField]: sortOrder });
 

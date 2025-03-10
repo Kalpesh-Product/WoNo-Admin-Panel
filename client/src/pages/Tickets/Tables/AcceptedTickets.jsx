@@ -12,7 +12,7 @@ const AcceptedTickets = ({ title }) => {
   const { data: acceptedTickets = [], isLoading } = useQuery({
     queryKey: ["accepted-tickets"],
     queryFn: async () => {
-      const response = await axios.get("/api/tickets/tickets/accept-assign");
+      const response = await axios.get("/api/tickets?flag=accept-assign");
 
       return response.data;
     },
@@ -21,7 +21,7 @@ const AcceptedTickets = ({ title }) => {
   const { mutate } = useMutation({
     mutationKey: ["close-ticket"],
     mutationFn: async (ticketId) => {
-      const response = await axios.post("/api/tickets/close-ticket", {
+      const response = await axios.patch("/api/tickets/close-ticket", {
         ticketId,
       });
       return response.data;

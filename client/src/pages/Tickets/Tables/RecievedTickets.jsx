@@ -34,7 +34,7 @@ const RecievedTickets = ({ title }) => {
     mutationKey: ["accept-ticket"],
     mutationFn: async (ticket) => {
       console.log("ticket is : ", ticket);
-      const response = await axios.post(
+      const response = await axios.patch(
         `/api/tickets/accept-ticket/${ticket.id}`
       );
 

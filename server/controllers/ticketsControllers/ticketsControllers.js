@@ -274,7 +274,7 @@ const getTickets = async (req, res, next) => {
     }
 
     if (!matchingTickets.length) {
-      return res.status(404).json({ message: "No tickets available" });
+      return res.status(200).json(matchingTickets);
     }
 
     // Attach ticket issueId title from Company.selectedDepartments.ticketIssues
@@ -825,7 +825,8 @@ const fetchFilteredTickets = async (req, res, next) => {
   try {
     const { user, roles, departments, company } = req;
 
-    const { flag } = req.params;
+    const { flag } = req.query;
+    console.log(flag)
 
     const userDepartments = departments.map((dept) => dept._id.toString());
 

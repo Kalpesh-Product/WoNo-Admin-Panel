@@ -4,7 +4,7 @@ const Ticket = require("../models/tickets/Tickets");
 const Company = require("../models/hr/Company");
 
 function generateQuery(queryMapping, roles) {
-  const roleHierarchy = ["Master-Admin", "Super-Admin", "Admin", "Employee"]; // For users with multiple roles, use query of higher entity
+  const roleHierarchy = ["Master Admin", "Super Admin", "Admin", "Employee"]; // For users with multiple roles, use query of higher entity
 
   const matchedRole =
     roleHierarchy.find((roleTitle) =>
@@ -45,7 +45,7 @@ async function filterAcceptedAssignedTickets(user, roles, userDepartments) {
   // Role-based query mapping
 
   const queryMapping = {
-    "Master-Admin": {
+    "Master Admin": {
       $or: [
         {
           $and: [
@@ -61,7 +61,7 @@ async function filterAcceptedAssignedTickets(user, roles, userDepartments) {
         },
       ],
     },
-    "Super-Admin": {
+    "Super Admin": {
       $or: [
         {
           $and: [
@@ -105,10 +105,10 @@ async function filterAcceptedAssignedTickets(user, roles, userDepartments) {
 
 async function filterAcceptedTickets(user, roles, userDepartments) {
   const queryMapping = {
-    "Master-Admin": {
+    "Master Admin": {
       $and: [{ acceptedBy: { $exists: true } }, { raisedBy: { $ne: user } }],
     },
-    "Super-Admin": {
+    "Super Admin": {
       $and: [{ acceptedBy: { $exists: true } }, { raisedBy: { $ne: user } }],
     },
     Admin: {
@@ -126,13 +126,13 @@ async function filterAcceptedTickets(user, roles, userDepartments) {
 
 async function filterAssignedTickets(user, roles, userDepartments) {
   const queryMapping = {
-    "Master-Admin": {
+    "Master Admin": {
       $and: [
         { assignees: { $exists: true, $ne: [] } },
         { raisedBy: { $ne: user } },
       ],
     },
-    "Super-Admin": {
+    "Super Admin": {
       $and: [
         { assignees: { $exists: true, $ne: [] } },
         { raisedBy: { $ne: user } },
@@ -152,7 +152,7 @@ async function filterAssignedTickets(user, roles, userDepartments) {
 }
 
 async function filterSupportTickets(user, roles, userDepartments) {
-  const roleHierarchy = ["Master-Admin", "Super-Admin", "Admin", "Employee"]; // For users with multiple roles, use query of higher entity
+  const roleHierarchy = ["Master Admin", "Super Admin", "Admin", "Employee"]; // For users with multiple roles, use query of higher entity
 
   const matchedRole =
     roleHierarchy.find((roleTitle) =>
@@ -195,7 +195,7 @@ async function filterSupportTickets(user, roles, userDepartments) {
       })
       .select("-company");
 
-    if (matchedRole === "Master-Admin" || !matchedRole === "Super-Admin") {
+    if (matchedRole === "Master Admin" || !matchedRole === "Super Admin") {
       return tickets;
     } else if (matchedRole === "Admin") {
       let adminTickets = tickets.filter((ticket) =>
@@ -217,10 +217,10 @@ async function filterSupportTickets(user, roles, userDepartments) {
 
 async function filterEscalatedTickets(roles, userDepartments) {
   const queryMapping = {
-    "Master-Admin": {
+    "Master Admin": {
       escalatedTo: { $exists: true, $ne: [] },
     },
-    "Super-Admin": {
+    "Super Admin": {
       escalatedTo: { $exists: true, $ne: [] },
     },
     Admin: {
@@ -238,10 +238,10 @@ async function filterEscalatedTickets(roles, userDepartments) {
 async function filterCloseTickets(user, roles, userDepartments) {
   console.log("close");
   const queryMapping = {
-    "Master-Admin": {
+    "Master Admin": {
       $and: [{ status: "Closed" }, { raisedBy: { $ne: user } }],
     },
-    "Super-Admin": {
+    "Super Admin": {
       $and: [{ status: "Closed" }, { raisedBy: { $ne: user } }],
     },
     Admin: {
