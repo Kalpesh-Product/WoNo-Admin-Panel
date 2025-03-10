@@ -234,12 +234,12 @@ const getTickets = async (req, res, next) => {
 
     if (
       loggedInUser.role.roleTitle === "Master Admin" ||
-      loggedInUser.role.roleTitle === "Master Admin"
+      loggedInUser.role.roleTitle === "Super Admin"
     ) {
       matchingTickets = await Tickets.find({
         acceptedBy: { $exists: false },
         raisedBy: { $ne: loggedInUser._id },
-        status: "Pending",
+        status: "Open",
         company: loggedInUser.company,
       }).populate([
         { path: "raisedBy", select: "firstName lastName" },
@@ -255,7 +255,7 @@ const getTickets = async (req, res, next) => {
         acceptedBy: { $exists: false },
         raisedBy: { $ne: loggedInUser._id },
         company: loggedInUser.company,
-        status: "Pending",
+        status: "Open",
       })
         .populate([
           {
@@ -831,7 +831,6 @@ const getSingleUserTickets = async (req, res, next) => {
 // Fetch assigned, accepted, escalated, supported, closed tickets of the department
 
 const fetchFilteredTickets = async (req, res, next) => {
-  console.log("tickets");
   try {
     const { user, roles, departments, company } = req;
 
