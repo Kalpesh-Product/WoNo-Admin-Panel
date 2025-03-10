@@ -11,8 +11,6 @@ const {
   filterSupportTickets,
   filterEscalatedTickets,
   filterAssignedTickets,
-  filterMyTickets,
-  filterTodayTickets,
   filterAcceptedAssignedTickets,
 } = require("../../utils/filterTickets");
 const Company = require("../../models/hr/Company");
@@ -205,7 +203,7 @@ const raiseTicket = async (req, res, next) => {
 
 const getTickets = async (req, res, next) => {
   try {
-    const { user } = req;
+    const { user, roles } = req;
 
     const loggedInUser = await User.findOne({ _id: user })
       .populate({ path: "role", select: "roleTitle" })
@@ -232,10 +230,7 @@ const getTickets = async (req, res, next) => {
 
     let matchingTickets;
 
-    if (
-      loggedInUser.role.roleTitle === "Master Admin" ||
-      loggedInUser.role.roleTitle === "Super Admin"
-    ) {
+    if (roles.includes("Master Admin") || roles.includes("Super Admin")) {
       matchingTickets = await Tickets.find({
         acceptedBy: { $exists: false },
         raisedBy: { $ne: loggedInUser._id },
@@ -878,13 +873,13 @@ const fetchFilteredTickets = async (req, res, next) => {
           userDepartments
         );
         break;
-      case "raisedByMe":
-        filteredTickets = await filterMyTickets(user);
-        break;
+      // case "raisedByMe":
+      //   filteredTickets = await filterMyTickets(user);
+      //   break;
 
-      case "raisedTodayByMe":
-        filteredTickets = await filterTodayTickets(user, company);
-        break;
+      // case "raisedTodayByMe":
+      //   filteredTickets = await filterTodayTickets(user, company);
+      //   break;
 
       default:
         return res
@@ -893,6 +888,104 @@ const fetchFilteredTickets = async (req, res, next) => {
     }
 
     return res.status(200).json(filteredTickets);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const filterMyTickets = async (req, res, next) => {
+  const { user } = req;
+
+  try {
+    const myTickets = await Ticket.find({ raisedBy: user })
+      .select("raisedBy raisedToDepartment status ticket description")
+      .populate([
+        { path: "raisedBy", select: "firstName lastName" },
+        { path: "raisedToDepartment", select: "name" },
+      ])
+      .lean()
+      .exec();
+
+    if (!myTickets.length) {
+      return res.status(400).json({ message: "No tickets found" });
+    }
+
+    return res.status(200).json(myTickets);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const filterTodayTickets = async (req, res, next) => {
+  const { user, company } = req;
+  try {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    // Fetch today's tickets for the logged-in user
+    const todayTickets = await Ticket.find({
+      raisedBy: user,
+      createdAt: { $gte: startOfDay, $lte: endOfDay },
+    })
+      .select("raisedBy raisedToDepartment status ticket description")
+      .populate([
+        { path: "raisedBy", select: "firstName lastName" },
+        { path: "raisedToDepartment", select: "name" },
+      ])
+      .lean()
+      .exec();
+
+    if (!todayTickets.length) {
+      return res.status(400).json({ message: "No tickets found" });
+    }
+
+    // Fetch the company's selected departments with ticket issues
+    const foundCompany = await Company.findOne({ _id: company })
+      .select("selectedDepartments")
+      .lean()
+      .exec();
+
+    if (!foundCompany) {
+      return res.status(400).josn({ message: "Company not found" });
+    }
+
+    // Extract the ticket priority from the company's selected departments
+    const updatedTickets = todayTickets.map((ticket) => {
+      const department = foundCompany.selectedDepartments.find(
+        (dept) =>
+          dept.department.toString() ===
+          ticket.raisedToDepartment?._id.toString()
+      );
+
+      let priority = "Low"; // Default priority
+
+      if (department) {
+        const issue = department.ticketIssues.find(
+          (issue) => issue.title === ticket.ticket
+        );
+
+        priority = issue?.priority || "Low";
+      }
+
+      // If the issue is not found, check for "Other" and assign its priority
+      if (!priority || priority === "Low") {
+        const otherIssue = foundCompany.selectedDepartments
+          .flatMap((dept) => dept.ticketIssues)
+          .find((issue) => issue.title === "Other");
+
+        priority = otherIssue?.priority || "Low";
+      }
+
+      return {
+        ...ticket,
+        priority,
+      };
+    });
+
+    return res.status(200).json(updatedTickets);
   } catch (error) {
     next(error);
   }
@@ -908,4 +1001,6 @@ module.exports = {
   closeTicket,
   fetchFilteredTickets,
   getSingleUserTickets,
+  filterMyTickets,
+  filterTodayTickets,
 };
