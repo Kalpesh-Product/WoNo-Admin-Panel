@@ -29,7 +29,7 @@ const AcceptedTickets = ({ title }) => {
 
     onSuccess: (data) => {
       toast.success(data.message || "Ticket closed successfully");
-      queryClient.invalidateQueries(["accepted-tickets"]); // Refetch tickets
+      queryClient.invalidateQueries({queryKey:["accepted-tickets"]}); // Refetch tickets
     },
     onError: (err) => {
       toast.error(err.response.data.message || "Failed to close ticket");

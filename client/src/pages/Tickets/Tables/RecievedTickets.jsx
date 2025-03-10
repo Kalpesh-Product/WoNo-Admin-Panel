@@ -21,13 +21,14 @@ const RecievedTickets = ({ title }) => {
       try {
         const response = await axios.get("/api/tickets/get-tickets");
         const filteredTickets = response.data.filter(
-          (ticket) => !ticket.accepted
+          (ticket) => !ticket.status === "In Progress"
         );
         return filteredTickets;
       } catch (error) {
         throw new Error(error.response.data.message);
       }
     },
+    
   });
 
   const { mutate: acceptMutate } = useMutation({
