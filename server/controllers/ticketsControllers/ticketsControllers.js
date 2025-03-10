@@ -831,10 +831,11 @@ const getSingleUserTickets = async (req, res, next) => {
 // Fetch assigned, accepted, escalated, supported, closed tickets of the department
 
 const fetchFilteredTickets = async (req, res, next) => {
+  console.log("tickets");
   try {
     const { user, roles, departments, company } = req;
 
-    const { flag } = req.params;
+    const { flag } = req.query;
 
     const userDepartments = departments.map((dept) => dept._id.toString());
 
