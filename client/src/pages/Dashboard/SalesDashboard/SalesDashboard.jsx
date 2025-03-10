@@ -83,7 +83,7 @@ const SalesDashboard = () => {
   const mockSalesData = [
     {
       month: "April",
-      actual: 9000,
+      actual: 0,
       projected: 10000,
       adjustedProjected: 0,
       revenueBreakup: [
@@ -110,7 +110,7 @@ const SalesDashboard = () => {
     {
       month: "May",
       actual: 0,
-      projected: 11000,
+      projected: 10000,
       adjustedProjected: 0,
       revenueBreakup: [
         {
@@ -135,9 +135,9 @@ const SalesDashboard = () => {
     },
     {
       month: "June",
-      actual: 8000,
-      projected: 12000,
-      adjustedProjected: 4000,
+      actual: 0,
+      projected: 10000,
+      adjustedProjected: 0,
       revenueBreakup: [
         {
           client: "Client G",
@@ -161,9 +161,9 @@ const SalesDashboard = () => {
     },
     {
       month: "July",
-      actual: 7000,
-      projected: 10500,
-      adjustedProjected: 3500,
+      actual: 0,
+      projected: 10000,
+      adjustedProjected: 0,
       revenueBreakup: [
         {
           client: "Client J",
@@ -181,9 +181,9 @@ const SalesDashboard = () => {
     },
     {
       month: "August",
-      actual: 9500,
-      projected: 11500,
-      adjustedProjected: 2000,
+      actual: 0,
+      projected: 10000,
+      adjustedProjected: 0,
       revenueBreakup: [
         {
           client: "Client L",
@@ -207,9 +207,9 @@ const SalesDashboard = () => {
     },
     {
       month: "September",
-      actual: 10200,
-      projected: 12500,
-      adjustedProjected: 2300,
+      actual: 0,
+      projected: 10000,
+      adjustedProjected: 0,
       revenueBreakup: [
         {
           client: "Client O",
@@ -233,9 +233,9 @@ const SalesDashboard = () => {
     },
     {
       month: "October",
-      actual: 11500,
-      projected: 13500,
-      adjustedProjected: 2000,
+      actual: 0,
+      projected: 10000,
+      adjustedProjected: 0,
       revenueBreakup: [
         {
           client: "Client R",
@@ -259,9 +259,9 @@ const SalesDashboard = () => {
     },
     {
       month: "November",
-      actual: 12500,
-      projected: 14500,
-      adjustedProjected: 2000,
+      actual: 0,
+      projected: 10000,
+      adjustedProjected: 0,
       revenueBreakup: [
         {
           client: "Client U",
@@ -285,9 +285,9 @@ const SalesDashboard = () => {
     },
     {
       month: "December",
-      actual: 14000,
-      projected: 15500,
-      adjustedProjected: 1500,
+      actual: 0,
+      projected: 10000,
+      adjustedProjected: 0,
       revenueBreakup: [
         {
           client: "Client X",
@@ -311,9 +311,9 @@ const SalesDashboard = () => {
     },
     {
       month: "January",
-      actual: 13000,
-      projected: 16500,
-      adjustedProjected: 3500,
+      actual: 0,
+      projected: 10000,
+      adjustedProjected: 0,
       revenueBreakup: [
         {
           client: "Client AA",
@@ -337,9 +337,9 @@ const SalesDashboard = () => {
     },
     {
       month: "February",
-      actual: 15000,
-      projected: 17500,
-      adjustedProjected: 2500,
+      actual: 0,
+      projected: 10000,
+      adjustedProjected: 0,
       revenueBreakup: [
         {
           client: "Client AD",
@@ -363,9 +363,9 @@ const SalesDashboard = () => {
     },
     {
       month: "March",
-      actual: 16000,
-      projected: 18500,
-      adjustedProjected: 2500,
+      actual: 0,
+      projected: 10000,
+      adjustedProjected: 0,
       revenueBreakup: [
         {
           client: "Client AG",

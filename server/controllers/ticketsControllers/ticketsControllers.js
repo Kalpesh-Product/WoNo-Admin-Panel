@@ -239,7 +239,7 @@ const getTickets = async (req, res, next) => {
       matchingTickets = await Tickets.find({
         acceptedBy: { $exists: false },
         raisedBy: { $ne: loggedInUser._id },
-        // status: "Open",
+        status: "Open",
         company: loggedInUser.company,
       }).populate([
         { path: "raisedBy", select: "firstName lastName" },
@@ -255,7 +255,7 @@ const getTickets = async (req, res, next) => {
         acceptedBy: { $exists: false },
         raisedBy: { $ne: loggedInUser._id },
         company: loggedInUser.company,
-        // status: "Open",
+        status: "Open",
       })
         .populate([
           {
@@ -825,8 +825,8 @@ const fetchFilteredTickets = async (req, res, next) => {
   try {
     const { user, roles, departments, company } = req;
 
-    const { flag } = req.query;
-    console.log(flag)
+
+    const { flag } = req.params;
 
     const userDepartments = departments.map((dept) => dept._id.toString());
 
@@ -884,7 +884,6 @@ const fetchFilteredTickets = async (req, res, next) => {
           .status(404)
           .json({ message: "Provided a valid flag to fetch tickets" });
     }
-
     return res.status(200).json(filteredTickets);
   } catch (error) {
     next(error);

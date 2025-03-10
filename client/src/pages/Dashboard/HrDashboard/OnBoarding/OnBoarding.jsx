@@ -38,7 +38,7 @@ const OnBoarding = () => {
   useEffect(() => {
     if (!filteredTabs.length) return; // Prevent running before tabs are loaded
   
-    const basePath = "/app/dashboard/HR-dashboard/employee/";
+    const basePath = "/app/dashboard/HR-dashboard/employee/view-employees/";
     const pathAfterEmployee = location.pathname.startsWith(basePath)
       ? location.pathname.substring(basePath.length)
       : "";

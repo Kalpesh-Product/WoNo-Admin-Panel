@@ -107,7 +107,7 @@ const RaiseTicket = () => {
   const { data: tickets, isPending: ticketsLoading } = useQuery({
     queryKey: ["my-tickets"],
     queryFn: async function () {
-      const response = await axios.get("/api/tickets?flag=raisedTodayByMe");
+      const response = await axios.get("/api/tickets/ticket-filter/raisedTodayByMe");
       return response.data;
     },
   });
