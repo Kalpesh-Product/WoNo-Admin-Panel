@@ -36,29 +36,28 @@ const OnBoarding = () => {
 
   // Redirect user to the first permitted tab if they try to access Employee directly
   useEffect(() => {
+    if (!filteredTabs.length) return; // Prevent running before tabs are loaded
+  
     const basePath = "/app/dashboard/HR-dashboard/employee/";
     const pathAfterEmployee = location.pathname.startsWith(basePath)
-      ? location.pathname.substring(basePath.length) // Extract subpath
+      ? location.pathname.substring(basePath.length)
       : "";
-
-    // ✅ 1. If the user is on "/employee" without a subpath, redirect to the first allowed tab
-    if (!pathAfterEmployee || pathAfterEmployee === "employee") {
-      if (filteredTabs.length > 0) {
-        navigate(`${basePath}${filteredTabs[0].path}`, { replace: true });
-      }
+  
+    const normalizedPath = pathAfterEmployee.replace(/^\/+/, ""); // Ensure consistency
+  
+    if (!normalizedPath || normalizedPath === "employee") {
+      navigate(`${basePath}${filteredTabs[0].path}`, { replace: true });
       return;
     }
-
-    // ✅ 2. Check if the subpath is authorized
-    const isAuthorized = filteredTabs.some(
-      (tab) => tab.path === pathAfterEmployee
-    );
-
+  
+    const isAuthorized = filteredTabs.some((tab) => tab.path === normalizedPath);
+  
     if (!isAuthorized) {
       console.warn("Unauthorized access detected:", location.pathname);
-      navigate("/unauthorized", { replace: true }); // Redirect to Unauthorized page
+      navigate("/unauthorized", { replace: true });
     }
   }, [location.pathname, navigate, filteredTabs]);
+  
 
   // Determine active tab based on location
   const activeTab = filteredTabs.findIndex((tab) =>
