@@ -62,7 +62,6 @@ const getAssets = async (req, res, next) => {
   }
 };
 
-module.exports = { getAssets };
 
 const addAsset = async (req, res, next) => {
   const logPath = "assets/AssetLog";

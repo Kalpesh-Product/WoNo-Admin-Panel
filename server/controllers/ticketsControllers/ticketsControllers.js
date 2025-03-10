@@ -7,17 +7,19 @@ const { handleFileUpload } = require("../../config/cloudinaryConfig");
 const sharp = require("sharp");
 const {
   filterCloseTickets,
-  filterAcceptTickets,
+  filterAcceptedTickets,
   filterSupportTickets,
   filterEscalatedTickets,
   filterAssignedTickets,
   filterMyTickets,
   filterTodayTickets,
+  filterAcceptedAssignedTickets,
 } = require("../../utils/filterTickets");
 const Company = require("../../models/hr/Company");
 const { createLog } = require("../../utils/moduleLogs");
 const CustomError = require("../../utils/customErrorlogs");
 const Ticket = require("../../models/tickets/Tickets");
+const validateUsers = require("../../utils/validateUsers");
 
 const raiseTicket = async (req, res, next) => {
   const logPath = "tickets/TicketLog";
@@ -149,6 +151,7 @@ const raiseTicket = async (req, res, next) => {
       ticketTitle = newIssue;
       const newTicketIssue = new NewTicketIssue({
         company: req.company,
+        raisedBy: user,
         departmentId,
         issueTitle: newIssue,
         status: "Pending",
@@ -301,7 +304,7 @@ const acceptTicket = async (req, res, next) => {
   const logPath = "tickets/TicketLog";
   const logAction = "Accept Ticket";
   const logSourceKey = "ticket";
-  const { user, company, ip } = req;
+  const { user, company, ip, departments } = req;
   const { ticketId } = req.params;
 
   try {
@@ -323,14 +326,6 @@ const acceptTicket = async (req, res, next) => {
       );
     }
 
-    const foundUser = await User.findOne({ _id: user })
-      .select("-refreshToken -password")
-      .lean()
-      .exec();
-    if (!foundUser) {
-      throw new CustomError("User not found", logPath, logAction, logSourceKey);
-    }
-
     const foundTicket = await Tickets.findOne({ _id: ticketId }).lean().exec();
     if (!foundTicket) {
       throw new CustomError(
@@ -342,20 +337,19 @@ const acceptTicket = async (req, res, next) => {
     }
 
     // Check if the ticket's raised department is among the user's departments
-    // const userDepartments = foundUser.departments.map((dept) =>
-    //   dept.toString()
-    // );
-    // const ticketInDepartment = userDepartments.some(
-    //   (deptId) => foundTicket.raisedToDepartment.toString() === deptId
-    // );
-    // if (!ticketInDepartment) {
-    //   throw new CustomError(
-    //     "User does not have permission to accept this ticket",
-    //     logPath,
-    //     logAction,
-    //     logSourceKey
-    //   );
-    // }
+    const userDepartments = departments.map((dept) => dept._id.toString());
+
+    const ticketInDepartment = userDepartments.some(
+      (deptId) => foundTicket.raisedToDepartment.toString() === deptId
+    );
+    if (!ticketInDepartment) {
+      throw new CustomError(
+        "User does not have permission to accept this ticket",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
 
     // Update the ticket by marking it as accepted and setting status to "In Progress"
     const updatedTicket = await Tickets.findByIdAndUpdate(
@@ -481,58 +475,35 @@ const assignTicket = async (req, res, next) => {
   const logPath = "tickets/TicketLog";
   const logAction = "Assign Ticket";
   const logSourceKey = "ticket";
-  const { user, company, ip } = req;
+  const { user, company, ip, departments } = req;
 
   try {
-    let { ticketId, assignee } = req.body;
-    const assigneesArray = Array.isArray(assignee) ? assignee : [assignee]; // ✅ Ensure assignee is always an array
+    const { ticketId } = req.params;
+    const { assignees } = req.body;
 
-    if (!ticketId || !assignee || assigneesArray.length === 0) {
+    if (!ticketId) {
       throw new CustomError(
-        "Ticket ID and at least one assignee are required",
+        "Ticket ID and assignees are required",
         logPath,
         logAction,
         logSourceKey
       );
     }
 
-    // ✅ Validate all assignee IDs
-    if (!assigneesArray.every(id => mongoose.Types.ObjectId.isValid(id))) {
+    if (!Array.isArray(assignees)) {
       throw new CustomError(
-        "Invalid assignee ID(s) provided",
+        "Assignees are required",
         logPath,
         logAction,
         logSourceKey
       );
     }
 
-    // ✅ Validate ticketId
-    if (!mongoose.Types.ObjectId.isValid(ticketId)) {
-      throw new CustomError(
-        "Invalid ticket ID provided",
-        logPath,
-        logAction,
-        logSourceKey
-      );
-    }
+    const validAssignees = validateUsers(assignees);
 
-    // ✅ Find the user
-    const foundUser = await User.findOne({ _id: user })
-      .select("-refreshToken -password")
-      .lean()
-      .exec();
-    if (!foundUser) {
-      throw new CustomError("User not found", logPath, logAction, logSourceKey);
-    }
-
-    // ✅ Find all assignees
-    const foundAssignees = await User.find({ _id: { $in: assigneesArray } })
-      .select("-refreshToken -password")
-      .lean()
-      .exec();
-    if (foundAssignees.length !== assigneesArray.length) {
+    if (!validAssignees) {
       throw new CustomError(
-        "One or more assignees not found",
+        "Invalid one or many assignee IDs",
         logPath,
         logAction,
         logSourceKey
@@ -550,9 +521,11 @@ const assignTicket = async (req, res, next) => {
       );
     }
 
-    // ✅ Check if the ticket belongs to user's department
-    const userDepartments = foundUser.departments.map((dept) => dept.toString());
-    const ticketInDepartment = userDepartments.includes(foundTicket.raisedToDepartment.toString());
+    // Check if the ticket's raised department is among the user's departments
+    const userDepartments = departments.map((dept) => dept._id.toString());
+    const ticketInDepartment = userDepartments.some(
+      (deptId) => foundTicket.raisedToDepartment.toString() === deptId
+    );
     if (!ticketInDepartment) {
       throw new CustomError(
         "User does not have permission to assign this ticket",
@@ -562,10 +535,10 @@ const assignTicket = async (req, res, next) => {
       );
     }
 
-    // ✅ Update the ticket by adding multiple assignees and setting status to "In Progress"
+    // Update the ticket by adding the assignees and setting status to "In Progress"
     const updatedTicket = await Tickets.findOneAndUpdate(
       { _id: ticketId },
-      { $addToSet: { assignees: { $each: assigneesArray } }, status: "In Progress" },
+      { $addToSet: { assignees: assignees }, status: "In Progress" },
       { new: true }
     );
 
@@ -590,7 +563,7 @@ const assignTicket = async (req, res, next) => {
       sourceKey: logSourceKey,
       sourceId: updatedTicket._id,
       changes: {
-        assignedTo: assigneesArray,
+        assignedTo: assignees,
         assignedBy: user,
         status: "In Progress",
       },
@@ -819,7 +792,7 @@ const closeTicket = async (req, res, next) => {
   }
 };
 
-const fetchSingleUserTickets = async (req, res, next) => {
+const getSingleUserTickets = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { company } = req;
@@ -850,67 +823,64 @@ const fetchSingleUserTickets = async (req, res, next) => {
 
 const fetchFilteredTickets = async (req, res, next) => {
   try {
-    const { user } = req;
+    const { user, roles, departments, company } = req;
 
-    const { flag } = req.query;
+    const { flag } = req.params;
 
-    const loggedInUser = await User.findOne({ _id: user })
-      .select("-refreshToken -password")
-      .populate({ path: "role", select: "roleTitle" })
-      .lean()
-      .exec();
-    if (!loggedInUser) {
-      return res.status(400).json({ message: "No such user found" });
-    }
-
-    const userDepartments = loggedInUser.departments.map((dept) =>
-      dept.toString()
-    );
-
-    if (
-      !userDepartments ||
-      !Array.isArray(userDepartments) ||
-      userDepartments.length === 0
-    ) {
-      return res.status(400).json("Invalid or empty userDepartments array");
-    }
+    const userDepartments = departments.map((dept) => dept._id.toString());
 
     let filteredTickets = [];
     switch (flag) {
+      case "accept-assign":
+        filteredTickets = await filterAcceptedAssignedTickets(
+          user,
+          roles,
+          userDepartments
+        );
+        break;
       case "accept":
-        filteredTickets = await filterAcceptTickets(user, loggedInUser);
+        filteredTickets = await filterAcceptedTickets(
+          user,
+          roles,
+          userDepartments
+        );
         break;
       case "assign":
         filteredTickets = await filterAssignedTickets(
-          userDepartments,
-          loggedInUser
-        );
-        break;
-      case "close":
-        filteredTickets = await filterCloseTickets(
-          userDepartments,
-          loggedInUser
+          user,
+          roles,
+          userDepartments
         );
         break;
       case "support":
-        filteredTickets = await filterSupportTickets(user, loggedInUser);
+        filteredTickets = await filterSupportTickets(
+          user,
+          roles,
+          userDepartments
+        );
         break;
       case "escalate":
-        filteredTickets = await filterEscalatedTickets(
-          userDepartments,
-          loggedInUser
+        filteredTickets = await filterEscalatedTickets(roles, userDepartments);
+        break;
+      case "close":
+        filteredTickets = await filterCloseTickets(
+          user,
+          roles,
+          userDepartments
         );
         break;
       case "raisedByMe":
-        filteredTickets = await filterMyTickets(loggedInUser);
+        filteredTickets = await filterMyTickets(user);
         break;
 
       case "raisedTodayByMe":
-        filteredTickets = await filterTodayTickets(loggedInUser, req.company);
+        filteredTickets = await filterTodayTickets(user, company);
         break;
 
       default:
-        return res.sendStatus(404);
+        return res
+          .status(404)
+          .json({ message: "Provided a valid flag to fetch tickets" });
     }
 
     return res.status(200).json(filteredTickets);
@@ -928,5 +898,5 @@ module.exports = {
   escalateTicket,
   closeTicket,
   fetchFilteredTickets,
-  fetchSingleUserTickets,
+  getSingleUserTickets,
 };
