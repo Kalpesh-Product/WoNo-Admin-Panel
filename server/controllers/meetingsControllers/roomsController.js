@@ -125,7 +125,7 @@ const addRoom = async (req, res, next) => {
 const getRooms = async (req, res, next) => {
   try {
     // Fetch all rooms, including the assigned assets data
-    const rooms = await Room.find().populate("assignedAssets");
+    const rooms = await Room.find().populate("assignedAssets location");
 
     // Send the response with the fetched rooms
     res.status(200).json(rooms);

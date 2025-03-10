@@ -371,9 +371,9 @@ const getHierarchy = async (req, res, next) => {
     }
 
     const users = await UserData.find({ company, isActive: true })
-      .populate("role", "roleTitle") // Fetch roles
-      .populate("departments", "name") // Fetch departments
-      .populate("reportsTo", "roleTitle") // Get reportsTo as roleTitle
+      .populate({ path: "role", select: "roleTitle roleID" }) // Fetch roles
+      .populate({ path: "departments", select: "name" }) // Fetch departments
+      .populate({ path: "reportsTo", select: "roleTitle roleID" }) // Get reportsTo as roleTitle
       .lean()
       .exec();
 
