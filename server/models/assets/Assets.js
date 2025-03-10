@@ -64,6 +64,10 @@ const assetsSchema = new mongoose.Schema({
       ref: "UserData",
     },
   },
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "AssetCategory",
+  }
 });
 
 const Asset = mongoose.model("Asset", assetsSchema);
