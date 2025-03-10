@@ -239,7 +239,7 @@ const getTickets = async (req, res, next) => {
       matchingTickets = await Tickets.find({
         acceptedBy: { $exists: false },
         raisedBy: { $ne: loggedInUser._id },
-        // status: "Open",
+        status: "Open",
         company: loggedInUser.company,
       }).populate([
         { path: "raisedBy", select: "firstName lastName" },
@@ -255,7 +255,7 @@ const getTickets = async (req, res, next) => {
         acceptedBy: { $exists: false },
         raisedBy: { $ne: loggedInUser._id },
         company: loggedInUser.company,
-        // status: "Open",
+        status: "Open",
       })
         .populate([
           {

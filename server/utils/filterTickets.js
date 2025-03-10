@@ -13,6 +13,8 @@ function generateQuery(queryMapping, roles) {
       )
     ) || "None";
 
+  console.log(matchedRole);
+  console.log(queryMapping[matchedRole]);
   return queryMapping[matchedRole] || {};
 }
 
@@ -100,11 +102,8 @@ async function filterAcceptedAssignedTickets(user, roles, userDepartments) {
       ],
     },
     Employee: {
-      $or: [
-        { acceptedBy: user },
-        { assignees: { $in: [user] } },
-        { status: "In Progress" },
-      ],
+      $or: [{ acceptedBy: user }, { assignees: { $in: [user] } }],
+      status: "In Progress",
     },
   };
 
@@ -136,7 +135,7 @@ async function filterAcceptedTickets(user, roles, userDepartments) {
         { status: "In Progress" },
       ],
     },
-    Employee: { $and: [{ acceptedBy: user }, { status: "In Progress" }] },
+    Employee: { acceptedBy: user, status: "In Progress" },
   };
 
   const query = generateQuery(queryMapping, roles);
@@ -149,21 +148,24 @@ async function filterAssignedTickets(user, roles, userDepartments) {
       $and: [
         { assignees: { $exists: true, $ne: [] } },
         { raisedBy: { $ne: user } },
+        { status: "In Progress" },
       ],
     },
     "Super Admin": {
       $and: [
         { assignees: { $exists: true, $ne: [] } },
         { raisedBy: { $ne: user } },
+        { status: "In Progress" },
       ],
     },
     Admin: {
       $and: [
         { assignees: { $exists: true, $ne: [] } },
         { raisedToDepartment: { $in: userDepartments } },
+        { status: "In Progress" },
       ],
     },
-    Employee: { assignees: { $in: [user] } },
+    Employee: { assignees: { $in: [user] }, status: "In Progress" },
   };
 
   const query = generateQuery(queryMapping, roles);
@@ -255,7 +257,6 @@ async function filterEscalatedTickets(roles, userDepartments) {
 }
 
 async function filterCloseTickets(user, roles, userDepartments) {
-  console.log("close");
   const queryMapping = {
     "Master Admin": {
       $and: [{ status: "Closed" }, { raisedBy: { $ne: user } }],
