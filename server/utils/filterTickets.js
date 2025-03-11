@@ -174,10 +174,14 @@ async function filterSupportTickets(user, roles, userDepartments) {
     ) || "None";
 
   try {
-    const tickets = await SupportTicket.find()
+    const supportTickets = await SupportTicket.find({
+      ticket: {
+        $in: await Ticket.find({ status: "Open" }).distinct("_id"),
+      },
+    })
       .populate({
         path: "ticket",
-        select: "status acceptedBy assignees image",
+        select: "status acceptedBy assignees image raisedBy raisedToDepartment",
         populate: [
           {
             path: "raisedBy",
@@ -208,9 +212,9 @@ async function filterSupportTickets(user, roles, userDepartments) {
       .select("-company");
 
     if (matchedRole === "Master Admin" || !matchedRole === "Super Admin") {
-      return tickets;
+      return supportTickets;
     } else if (matchedRole === "Admin") {
-      let adminTickets = tickets.filter((ticket) => {
+      let adminTickets = supportTickets.filter((ticket) => {
         return userDepartments.some((dept) => {
           return ticket.ticket.raisedToDepartment._id.equals(
             new mongoose.Types.ObjectId(dept)
@@ -220,7 +224,7 @@ async function filterSupportTickets(user, roles, userDepartments) {
 
       return adminTickets;
     } else if (matchedRole === "Employee") {
-      let employeeTickets = tickets.filter((ticket) =>
+      let employeeTickets = supportTickets.filter((ticket) =>
         ticket.user._id.equals(new mongoose.Types.ObjectId(user))
       );
 
