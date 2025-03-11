@@ -68,9 +68,8 @@ const supportTicket = async (req, res, next) => {
       );
     }
 
-    // Update the ticket's status to "Pending"
-    await Ticket.findByIdAndUpdate(ticketId, { status: "Pending" });
-
+    // Update the ticket's status to "Open"
+    await Ticket.findByIdAndUpdate(ticketId, { status: "Open" });
     // Create a support ticket record
     const supportTicketDoc = new SupportTicket({
       ticket: ticketId,

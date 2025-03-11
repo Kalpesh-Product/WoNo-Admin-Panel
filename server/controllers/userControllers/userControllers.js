@@ -411,7 +411,7 @@ const updateProfile = async (req, res, next) => {
       }
 
       const buffer = await sharp(newProfilePicture.buffer)
-        .resize(400, 400, { fit: "cover" }) 
+        .resize(400, 400, { fit: "cover" })
         .webp({ quality: 80 })
         .toBuffer();
 
@@ -734,9 +734,12 @@ const getAssignees = async (req, res, next) => {
       member.role.some((role) => !role.roleTitle.endsWith("Admin"))
     );
 
-    const transformAssignees = assignees.map(
-      (assignee) => `${assignee.firstName} ${assignee.lastName}`
-    );
+    const transformAssignees = assignees.map((assignee) => {
+      return {
+        id: assignee._id,
+        name: `${assignee.firstName} ${assignee.lastName}`,
+      };
+    });
     return res.status(200).json(transformAssignees);
   } catch (error) {
     next(error);

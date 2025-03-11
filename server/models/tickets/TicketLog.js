@@ -6,6 +6,10 @@ const ticketLogSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Ticket",
     },
+    newTicket: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "NewTicketIssue",
+    },
     supportTicket: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "SupportTicket",

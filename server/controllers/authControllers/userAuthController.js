@@ -48,7 +48,7 @@ const login = async (req, res, next) => {
         userInfo: {
           userId: userExists._id,
           name: userExists.name,
-          role: userExists.role,
+          roles: userExists.role.map((role) => role.roleTitle),
           email: userExists.email,
           company: userExists.company._id,
           departments: userExists.departments,

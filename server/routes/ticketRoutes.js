@@ -6,8 +6,10 @@ const {
   escalateTicket,
   getTickets,
   fetchFilteredTickets,
-  fetchSingleUserTickets,
   rejectTicket,
+  getSingleUserTickets,
+  filterMyTickets,
+  filterTodayTickets,
 } = require("../controllers/ticketsControllers/ticketsControllers");
 const upload = require("../config/multerConfig");
 
@@ -17,21 +19,27 @@ const {
 } = require("../controllers/ticketsControllers/supportTicketsController");
 const {
   addTicketIssue,
-  getTicketIssue,
+  getTicketIssues,
+  rejectTicketIssue,
+  getNewTicketIssues,
 } = require("../controllers/ticketsControllers/ticketIssueController");
 
 const router = require("express").Router();
 
 router.post("/add-ticket-issue", addTicketIssue);
-router.get("/get-ticket-issue/:department", getTicketIssue);
+router.get("/ticket-issues/:department", getTicketIssues);
+router.get("/new-ticket-issues/:department", getNewTicketIssues);
+router.delete("/reject-ticket-issue/:id", rejectTicketIssue);
 router.get("/get-tickets", getTickets);
-router.get("/:id", fetchSingleUserTickets);
+router.get("/my-tickets", filterMyTickets);
+router.get("/today", filterTodayTickets);
+router.get("/:id", getSingleUserTickets);
 router.post("/raise-ticket", upload.single("issue"), raiseTicket);
-router.post("/accept-ticket/:id", acceptTicket);
-router.post("/reject-ticket/:id", rejectTicket);
-router.post("/assign-ticket", assignTicket);
-router.post("/escalate-ticket", escalateTicket);
-router.post("/close-ticket", closeTicket);
+router.patch("/accept-ticket/:ticketId", acceptTicket);
+router.patch("/reject-ticket/:id", rejectTicket);
+router.patch("/assign-ticket/:ticketId", assignTicket);
+router.patch("/escalate-ticket", escalateTicket);
+router.patch("/close-ticket", closeTicket);
 router.post("/support-ticket", supportTicket);
 router.get("/support-tickets", getSupportedTickets);
 router.get("/", fetchFilteredTickets);

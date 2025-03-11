@@ -13,6 +13,10 @@ const newTicketIssueSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    raisedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "UserData",
+    },
     status: {
       type: String,
       enum: ["Approve", "Reject", "Pending"],
