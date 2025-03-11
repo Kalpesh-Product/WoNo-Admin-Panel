@@ -104,23 +104,4 @@ const supportTicket = async (req, res, next) => {
   }
 };
 
-const getSupportedTickets = async (req, res, next) => {
-  const company = req.company;
-
-  try {
-    const supportTickets = await SupportTicket.find({ company }).populate({
-      path: "ticket",
-      select: "_id ticket raisedToDepartment raisedBy status company",
-    });
-
-    if (supportTickets.length < 0) {
-      return res.status(400).json({ message: "No Support tickets found" });
-    }
-
-    return res.status(200).json(supportTickets);
-  } catch (error) {
-    next(error);
-  }
-};
-
-module.exports = { supportTicket, getSupportedTickets };
+module.exports = { supportTicket };

@@ -15,7 +15,6 @@ const upload = require("../config/multerConfig");
 
 const {
   supportTicket,
-  getSupportedTickets,
 } = require("../controllers/ticketsControllers/supportTicketsController");
 const {
   addTicketIssue,
@@ -41,7 +40,6 @@ router.patch("/assign-ticket/:ticketId", assignTicket);
 router.patch("/escalate-ticket", escalateTicket);
 router.patch("/close-ticket", closeTicket);
 router.post("/support-ticket", supportTicket);
-router.get("/support-tickets", getSupportedTickets);
 router.get("/ticket-filter/:flag", fetchFilteredTickets);
 
 module.exports = router;

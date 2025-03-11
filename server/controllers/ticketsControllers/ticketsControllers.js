@@ -566,13 +566,13 @@ const assignTicket = async (req, res, next) => {
 
     return res.status(200).json({ message: "Ticket assigned successfully" });
   } catch (error) {
-    next(error instanceof CustomError
-      ? error
-      : new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+    next(
+      error instanceof CustomError
+        ? error
+        : new CustomError(error.message, logPath, logAction, logSourceKey, 500)
     );
   }
 };
-
 
 const escalateTicket = async (req, res, next) => {
   const logPath = "tickets/TicketLog";
@@ -820,7 +820,6 @@ const fetchFilteredTickets = async (req, res, next) => {
   try {
     const { user, roles, departments, company } = req;
 
-
     const { flag } = req.params;
 
     const userDepartments = departments.map((dept) => dept._id.toString());
@@ -833,7 +832,7 @@ const fetchFilteredTickets = async (req, res, next) => {
           roles,
           userDepartments
         );
-        console.log(filteredTickets)
+        console.log(filteredTickets);
         break;
       case "accept":
         filteredTickets = await filterAcceptedTickets(
@@ -866,13 +865,6 @@ const fetchFilteredTickets = async (req, res, next) => {
           userDepartments
         );
         break;
-      // case "raisedByMe":
-      //   filteredTickets = await filterMyTickets(user);
-      //   break;
-
-      // case "raisedTodayByMe":
-      //   filteredTickets = await filterTodayTickets(user, company);
-      //   break;
 
       default:
         return res
@@ -931,7 +923,7 @@ const filterTodayTickets = async (req, res, next) => {
       .exec();
 
     if (!todayTickets.length) {
-      return res.status(400).json({ message: "No tickets found" });
+      return res.status(200).json([]);
     }
 
     // Fetch the company's selected departments with ticket issues

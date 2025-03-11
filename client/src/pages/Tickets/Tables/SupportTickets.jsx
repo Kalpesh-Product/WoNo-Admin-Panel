@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import AgTable from "../../../components/AgTable";
 import MuiModal from "../../../components/MuiModal";
-import { Chip } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
+import { Chip, CircularProgress } from "@mui/material";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import ThreeDotMenu from "../../../components/ThreeDotMenu";
+import { queryClient } from "../../..";
+import { toast } from "sonner";
 
 const SupportTickets = ({ title }) => {
   const [openModal, setopenModal] = useState(false);
@@ -25,10 +28,12 @@ const SupportTickets = ({ title }) => {
 
   // Transform Tickets Data
   const transformTicketsData = (tickets) => {
+    console.log("TransformedTickets:", tickets);
     return !tickets.length
       ? []
       : tickets.map((ticket, index) => {
           const supportTicket = {
+            id: ticket.ticket?._id,
             srno: index + 1,
             raisedBy:
               `${ticket.ticket.raisedBy?.firstName} ${ticket.ticket.raisedBy?.lastName}` ||
@@ -53,10 +58,6 @@ const SupportTickets = ({ title }) => {
 
   const rows = isLoading ? [] : transformTicketsData(supportedTickets);
 
-  const handleOpenModal = () => {
-    setopenModal(true);
-  };
-
   const handleCloseModal = () => {
     setopenModal(false);
   };
@@ -68,6 +69,42 @@ const SupportTickets = ({ title }) => {
     "Sankalp Kalangutkar",
     "Muskan Dodmani",
   ];
+
+  const { mutate: closeTicket, isPending: isClosingTicket } = useMutation({
+    mutationKey: ["close-ticket"],
+    mutationFn: async (ticketId) => {
+      const response = await axios.patch("/api/tickets/close-ticket", {
+        ticketId,
+      });
+      return response.data;
+    },
+
+    onSuccess: (data) => {
+      toast.success(data.message);
+      queryClient.invalidateQueries({ queryKey: ["supported-tickets"] }); // Refetch tickets
+    },
+    onError: (err) => {
+      toast.error(err.response.data.message || "Failed to close ticket");
+    },
+  });
+
+  const { mutate: reAssignTicket } = useMutation({
+    mutationKey: ["close-ticket"],
+    mutationFn: async (ticketId) => {
+      const response = await axios.patch("/api/tickets/close-ticket", {
+        ticketId,
+      });
+      return response.data;
+    },
+
+    onSuccess: (data) => {
+      toast.success(data.message || "Ticket closed successfully");
+      queryClient.invalidateQueries({ queryKey: ["accepted-tickets"] }); // Refetch tickets
+    },
+    onError: (err) => {
+      toast.error(err.response.data.message || "Failed to close ticket");
+    },
+  });
 
   const viewChildren = (
     <>
@@ -163,33 +200,19 @@ const SupportTickets = ({ title }) => {
       headerName: "Actions",
       cellRenderer: (params) => (
         <>
-          <div className="p-2 mb-2 flex gap-2">
-            <button
-              style={{
-                backgroundColor: "red",
-                color: "white",
-                border: "none",
-                padding: "0.1rem 0.5rem",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              Close
-            </button>
-            <button
-              style={{
-                backgroundColor: "red",
-                color: "white",
-                border: "none",
-                padding: "0.1rem 0.5rem",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-              onClick={handleOpenModal}
-            >
-              Re-Assign
-            </button>
-          </div>
+          <ThreeDotMenu
+            rowId={params.data.id}
+            menuItems={[
+              {
+                label: "Close",
+                onClick: () => closeTicket(params.data.id),
+              },
+              {
+                label: "Re-Assign",
+                onClick: () => reAssignTicket(params.data.id),
+              },
+            ]}
+          />
         </>
       ),
     },
@@ -201,7 +224,13 @@ const SupportTickets = ({ title }) => {
         <span className="text-subtitle">{title}</span>
       </div>
       <div className="w-full">
-        <AgTable data={rows} columns={recievedTicketsColumns} />
+        {!isClosingTicket ? (
+          <AgTable key={rows.length} data={rows} columns={recievedTicketsColumns} />
+        ) : (
+          <>
+            <CircularProgress />
+          </>
+        )}
       </div>
       <MuiModal
         open={openModal}

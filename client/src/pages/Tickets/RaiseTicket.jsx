@@ -424,15 +424,14 @@ const RaiseTicket = () => {
               key={tickets?.length}
               search
               data={tickets?.map((ticket, index) => ({
-                  id: index + 1,
-                  raisedBy: ticket.raisedBy.firstName,
-                  raisedTo: ticket.raisedToDepartment.name,
-                  description: ticket.description,
-                  ticketTitle: ticket.ticket,
-                  status: ticket.status,
-                  priority: ticket.priority,
-                }))
-              }
+                id: index + 1,
+                raisedBy: ticket.raisedBy.firstName,
+                raisedTo: ticket.raisedToDepartment.name,
+                description: ticket.description,
+                ticketTitle: ticket.ticket,
+                status: ticket.status,
+                priority: ticket.priority,
+              }))}
               columns={recievedTicketsColumns}
               paginationPageSize={10}
             />
