@@ -1,4 +1,4 @@
-const Budget = require("../../models/hr/Budget");
+const Budget = require("../../models/budget/Budget");
 const User = require("../../models/hr/UserData");
 const Company = require("../../models/hr/Company");
 const CustomError = require("../../utils/customErrorlogs");

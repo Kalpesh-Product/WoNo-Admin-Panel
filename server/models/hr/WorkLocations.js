@@ -4,7 +4,7 @@ const workLocationSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Company",
   },
-  name: String,
+  buildingName: String,
   fullAddress: String,
   isActive: {
     type: Boolean,
@@ -21,6 +21,10 @@ const workLocationSchema = new mongoose.Schema({
   unit: {
     unitNo: String,
     unitName: String,
+  },
+  squareFeet: {
+    type: Number,
+    required: true,
   },
 });
 

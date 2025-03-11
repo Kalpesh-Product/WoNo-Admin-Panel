@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const budgetSchema = new mongoose.Schema(
   {
-    expanseName: {
+    expenseName: {
       type: String,
       required: true,
     },
@@ -14,7 +14,7 @@ const budgetSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Company",
     },
-    expanseType: {
+    expenseType: {
       type: String,
       required: true,
     },
