@@ -5,25 +5,32 @@ import {
   Select,
   MenuItem,
   CircularProgress,
+  TextField,
 } from "@mui/material";
 import PrimaryButton from "../../components/PrimaryButton";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { useQuery } from "@tanstack/react-query";
-import {toast} from 'sonner'
+import { toast } from "sonner";
 
 const BookMeetings = () => {
   const navigate = useNavigate();
   const axios = useAxiosPrivate();
 
-
-  const { control, handleSubmit, watch } = useForm({
+  const {
+    control,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm({
     defaultValues: {
-      location: "",
+      unit: "",
       meetingRoom: "",
     },
   });
+
+  const watchFields = watch();
 
   const selectedLocation = watch("location");
 
@@ -63,25 +70,9 @@ const BookMeetings = () => {
     : [];
 
   const onSubmit = (data) => {
-    const { location, meetingRoom } = data;
-
-    if (!location || !meetingRoom) {
-      toast.error("Please select both location and meeting room")
-      return;
-    }
-
-    const selectedRoom = allMeetingRooms.find(
-      (room) => room.name === meetingRoom
-    );
-
-    if (!selectedRoom) {
-      toast.error("Invalid meeting room selected")
-      return;
-    }
-
+console.log(data);
     navigate(
-      `/app/meetings/schedule-meeting?location=${location}&meetingRoom=${meetingRoom}`,
-      { state: { roomId: selectedRoom._id } } // Passing _id in state
+      `/app/meetings/schedule-meeting?location=${data.unit}&meetingRoom=${data.meetingRoom}`,
     );
   };
 
@@ -94,87 +85,57 @@ const BookMeetings = () => {
         onSubmit={handleSubmit(onSubmit)}
         className="flex flex-col items-center"
       >
-        <div className="grid grid-cols-1 px-0 place-items-center sm:grid-cols-1 md:grid-cols-2 md:px-0 sm:px-0 justify-center gap-4 mb-10 w-full">
+        <div className="grid grid-cols-1 px-0 sm:grid-cols-1 md:grid-cols-2 md:px-0 sm:px-0 justify-center gap-4 mb-10 w-full">
           {/* Location Dropdown */}
-          <FormControl className="w-1/2">
-            <InputLabel>Select Location</InputLabel>
-            <Controller
-              name="location"
-              control={control}
-              render={({ field }) => {
-                const uniqueLocations = Array.from(
-                  new Map(workLocations.map((loc) => [loc.name, loc])).values()
-                );
-                return(
-                <Select {...field} label="Select Location" fullWidth>
-                  <MenuItem value="" disabled>Select Location</MenuItem>
-                  {locationsLoading ? (
-                    <MenuItem disabled>
-                      <CircularProgress size={20} />
-                    </MenuItem>
-                  ) : locationsError ? (
-                    <MenuItem disabled>Error fetching locations</MenuItem>
-                  ) : (
-                    uniqueLocations.map((location) => (
-                      <MenuItem key={location._id} value={location.name}>
-                        {location.name}
-                      </MenuItem>
-                    ))
-                  )}
-                </Select>
-              )}}
-            />
-          </FormControl>
-
-          {/* Meeting Room Dropdown */}
-          <FormControl className="w-1/2">
-            <InputLabel>Select Meeting Room</InputLabel>
-            <Controller
-              name="meetingRoom"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  fullWidth
-                  label="Select Meeting Room"
-                  disabled={!selectedLocation || meetingRoomsLoading}
-                  value={
-                    filteredMeetingRooms.some(
-                      (room) => room.name === field.value
-                    )
-                      ? field.value
-                      : ""
-                  }
-                  onChange={(event) => field.onChange(event.target.value)}
-                >
-                  <MenuItem value="">Select Meeting Room</MenuItem>
-                  {meetingRoomsLoading ? (
-                    <MenuItem disabled>
-                      <CircularProgress size={20} />
-                    </MenuItem>
-                  ) : meetingRoomsError ? (
-                    <MenuItem disabled>Error fetching meeting rooms</MenuItem>
-                  ) : filteredMeetingRooms.length === 0 ? (
-                    <MenuItem disabled>No rooms available</MenuItem>
-                  ) : (
-                    filteredMeetingRooms.map((room) => (
-                      <MenuItem key={room._id} value={room.name}>
-                        {room.name}
-                      </MenuItem>
-                    ))
-                  )}
-                </Select>
-              )}
-            />
-          </FormControl>
+          <Controller
+            name="unit"
+            control={control}
+            rules={{ required: "Please select a Unit" }}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="Select Unit"
+                fullWidth
+                select
+                size="small"
+                error={!!errors.unit}
+                helperText={errors.unit?.message}
+              >
+                <MenuItem value="" disabled>
+                  {" "}
+                  Seletc Unit
+                </MenuItem>
+                <MenuItem value="Unit">Unit</MenuItem>
+              </TextField>
+            )}
+          />
+          <Controller
+            name="meetingRoom"
+            control={control}
+            rules={{ required: "Select a Meeting Room" }}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="Select Meeting Room"
+                fullWidth
+                size="small"
+                select
+                disabled={!watchFields.unit}
+                error={!!errors.meetingRoom}
+                helperText={errors.meetingRoom?.message}
+              >
+                <MenuItem value="" disabled>
+                  {" "}
+                  Seletc Unit
+                </MenuItem>
+                <MenuItem value="Unit">Unit</MenuItem>
+              </TextField>
+            )}
+          />
         </div>
-
-        <PrimaryButton
-          title="Next"
-          type="submit"
-          fontSize="text-content"
-          externalStyles="w-48 mb-20"
-        />
+        <div className="flex w-full justify-center items-center">
+          <PrimaryButton title="Next" type="submit" externalStyles={"w-40"} />
+        </div>
       </form>
     </div>
   );

@@ -24,7 +24,7 @@ const Calender = () => {
     start: "",
     description: "",
   });
-  const [eventFilter, setEventFilter] = useState(["holiday", "event"]);
+  const [eventFilter, setEventFilter] = useState(["completed", "upcoming", "cancelled"]);
   const axios = useAxiosPrivate();
 
   useEffect(() => {

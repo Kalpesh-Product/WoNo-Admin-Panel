@@ -5,53 +5,61 @@ import { Chip } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
-const SupportTickets = ({title}) => {
+const SupportTickets = ({ title }) => {
   const [openModal, setopenModal] = useState(false);
   const axios = useAxiosPrivate();
 
-   // Fetch Supported Tickets
-   const { data: supportedTickets = [], isLoading } = useQuery({
+  // Fetch Supported Tickets
+  const { data: supportedTickets = [], isLoading } = useQuery({
     queryKey: ["supported-tickets"],
     queryFn: async () => {
-      const response = await axios.get("/api/tickets?flag=support");
+      try {
+        const response = await axios.get("/api/tickets/ticket-filter/support");
 
-      return response.data;
+        return response.data;
+      } catch (error) {
+        console.error(error);
+      }
     },
   });
 
-   // Transform Tickets Data
-   const transformTicketsData = (tickets) => {
-    
+  // Transform Tickets Data
+  const transformTicketsData = (tickets) => {
     return !tickets.length
       ? []
       : tickets.map((ticket, index) => {
-        
-        const supportTicket = {
-          srno: index + 1,
-          raisedBy: `${ticket.ticket.raisedBy?.firstName} ${ticket.ticket.raisedBy?.lastName}` || "Unknown",
-          selectedDepartment: [...ticket.ticket.raisedBy.departments.map((dept) => dept.name) ]|| "N/A",
-          ticketTitle: ticket.reason || "No Title",
-          tickets: ticket.ticket?.assignees.length > 0 ? "Assigned Ticket": ticket.ticket?.acceptedBy ? "Accepted Ticket": "N/A",
-          status: ticket.ticket.status || "Pending",
-        }
+          const supportTicket = {
+            srno: index + 1,
+            raisedBy:
+              `${ticket.ticket.raisedBy?.firstName} ${ticket.ticket.raisedBy?.lastName}` ||
+              "Unknown",
+            selectedDepartment:
+              [
+                ...ticket.ticket.raisedBy.departments.map((dept) => dept.name),
+              ] || "N/A",
+            ticketTitle: ticket.reason || "No Title",
+            tickets:
+              ticket.ticket?.assignees.length > 0
+                ? "Assigned Ticket"
+                : ticket.ticket?.acceptedBy
+                ? "Accepted Ticket"
+                : "N/A",
+            status: ticket.ticket.status || "Pending",
+          };
 
-        return supportTicket
-   }
-  );
+          return supportTicket;
+        });
   };
-
-
 
   const rows = isLoading ? [] : transformTicketsData(supportedTickets);
 
-  const handleOpenModal = ()=>{
+  const handleOpenModal = () => {
     setopenModal(true);
-    
-  }
+  };
 
-  const handleCloseModal = ()=>{
+  const handleCloseModal = () => {
     setopenModal(false);
-  }
+  };
 
   const assignees = [
     "AiwinRaj",
@@ -77,16 +85,20 @@ const SupportTickets = ({title}) => {
       </ul>
       <div className="flex items-center justify-center mb-4">
         <button className="p-2 bg-primary align-middle text-white rounded-md">
-          Assign 
+          Assign
         </button>
       </div>
     </>
   );
 
   const recievedTicketsColumns = [
-    { field:"srno",headerName:"SR NO"},
+    { field: "srno", headerName: "SR NO" },
     { field: "raisedBy", headerName: "Raised By" },
-    { field: "selectedDepartment", headerName: "Selected Department", width:100 },
+    {
+      field: "selectedDepartment",
+      headerName: "Selected Department",
+      width: 100,
+    },
     { field: "ticketTitle", headerName: "Ticket Title", flex: 1 },
     {
       field: "tickets",
@@ -121,8 +133,8 @@ const SupportTickets = ({title}) => {
         const statusColorMap = {
           Pending: { backgroundColor: "#FFECC5", color: "#CC8400" }, // Light orange bg, dark orange font
           "In Progress": { backgroundColor: "#ADD8E6", color: "#00008B" }, // Light blue bg, dark blue font
-          "Closed": { backgroundColor: "#90EE90", color: "#006400" }, // Light green bg, dark green font
-          "Open": { backgroundColor: "#E6E6FA", color: "#4B0082" }, // Light purple bg, dark purple font
+          Closed: { backgroundColor: "#90EE90", color: "#006400" }, // Light green bg, dark green font
+          Open: { backgroundColor: "#E6E6FA", color: "#4B0082" }, // Light purple bg, dark purple font
           Completed: { backgroundColor: "#D3D3D3", color: "#696969" }, // Light gray bg, dark gray font
         };
 
@@ -147,40 +159,40 @@ const SupportTickets = ({title}) => {
       },
     },
     {
-        field: "actions",
-        headerName: "Actions",
-        cellRenderer: (params) => (
-          <>
-            <div className="p-2 mb-2 flex gap-2">
-              <button
-                style={{
-                  backgroundColor: "red",
-                  color: "white",
-                  border: "none",
-                  padding: "0.1rem 0.5rem",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                }}
-              >
-                Close
-              </button>
-              <button
-                style={{
-                  backgroundColor: "red",
-                  color: "white",
-                  border: "none",
-                  padding: "0.1rem 0.5rem",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                }}
-                onClick={handleOpenModal}
-              >
-                Re-Assign
-              </button>
-            </div>
-          </>
-        ),
-      },
+      field: "actions",
+      headerName: "Actions",
+      cellRenderer: (params) => (
+        <>
+          <div className="p-2 mb-2 flex gap-2">
+            <button
+              style={{
+                backgroundColor: "red",
+                color: "white",
+                border: "none",
+                padding: "0.1rem 0.5rem",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              Close
+            </button>
+            <button
+              style={{
+                backgroundColor: "red",
+                color: "white",
+                border: "none",
+                padding: "0.1rem 0.5rem",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+              onClick={handleOpenModal}
+            >
+              Re-Assign
+            </button>
+          </div>
+        </>
+      ),
+    },
   ];
 
   return (
@@ -191,7 +203,13 @@ const SupportTickets = ({title}) => {
       <div className="w-full">
         <AgTable data={rows} columns={recievedTicketsColumns} />
       </div>
-      <MuiModal open={openModal} onClose={handleCloseModal} title="Re Assign Ticket" children={viewChildren} btnTitle='Re Assign'  />
+      <MuiModal
+        open={openModal}
+        onClose={handleCloseModal}
+        title="Re Assign Ticket"
+        children={viewChildren}
+        btnTitle="Re Assign"
+      />
     </div>
   );
 };

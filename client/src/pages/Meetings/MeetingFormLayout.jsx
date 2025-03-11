@@ -32,7 +32,7 @@ import { convertToISOFormat } from "../../utils/dateFormat";
 const MeetingFormLayout = () => {
   const [open, setOpen] = useState(false);
   const [searchParams] = useSearchParams();
-  const location = searchParams.get("location");
+  const location = searchParams.get("unit");
   const meetingRoom = searchParams.get("meetingRoom");
   const [events, setEvents] = useState([]);
   const locationState = useLocation().state;
@@ -123,13 +123,6 @@ const MeetingFormLayout = () => {
       toast.error("Failed to book meeting");
     },
   });
-
-  useEffect(() => {
-    if (!location || !meetingRoom) {
-      alert("Missing required parameters. Redirecting...");
-      window.location.href = "/";
-    }
-  }, [location, meetingRoom]);
 
   useEffect(() => {
     if (isLoading || !Array.isArray(meetings)) return;
@@ -227,9 +220,16 @@ const MeetingFormLayout = () => {
             initialView="timeGridDay"
             contentHeight={425}
             dayMaxEvents={2}
-            eventDisplay="block"
+            eventDisplay="auto"
             selectable={true}
-            selectMirror={true}
+            selectMirror={false}
+            slotDuration="01:00:00"
+            slotLabelFormat={{
+              hour: "numeric",
+              minute: "2-digit",
+              meridiem: "lowercase" // Ensures "AM/PM" is uppercase
+            }}
+            allDayText="Full Day"
             select={handleDateClick}
             events={events} // Pass the events state here
           />

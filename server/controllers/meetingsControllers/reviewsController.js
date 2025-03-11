@@ -92,7 +92,7 @@ const replyReview = async (req, res, next) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    if (!mongoose.Types.ObjectId.isValid) {
+    if (!mongoose.Types.ObjectId.isValid(reviewId)) {
       return res.status(400).json({ message: "Invalid review id provided" });
     }
 

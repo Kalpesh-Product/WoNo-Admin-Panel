@@ -5,9 +5,10 @@ const Company = require("../models/hr/Company");
 
 function generateQuery(queryMapping, roles) {
   const roleHierarchy = ["Master Admin", "Super Admin", "Admin", "Employee"]; // For users with multiple roles, use query of higher entity
-if(!roles){
-  throw new Error("stupid add the roles!")
-}
+
+  if (!roles) {
+    throw new Error("stupid add the roles!");
+  }
   const matchedRole =
     roleHierarchy.find((roleTitle) =>
       roles.some(
@@ -103,11 +104,12 @@ async function filterAcceptedAssignedTickets(user, roles, userDepartments) {
       $or: [{ acceptedBy: user }, { assignees: { $in: [user] } }],
       status: "In Progress",
     },
-
   };
-  
-  const query = generateQuery(queryMapping, roles);
 
+  const query = generateQuery(queryMapping, roles);
+  if (!Object.keys(query).length) {
+    return [];
+  }
   return await fetchTickets(query);
 }
 
@@ -138,7 +140,10 @@ async function filterAcceptedTickets(user, roles, userDepartments) {
   };
 
   const query = generateQuery(queryMapping, roles);
-  return fetchTickets(query);
+  if (!Object.keys(query).length) {
+    return [];
+  }
+  return await fetchTickets(query);
 }
 
 async function filterAssignedTickets(user, roles, userDepartments) {
@@ -168,7 +173,10 @@ async function filterAssignedTickets(user, roles, userDepartments) {
   };
 
   const query = generateQuery(queryMapping, roles);
-  return fetchTickets(query);
+  if (!Object.keys(query).length) {
+    return [];
+  }
+  return await fetchTickets(query);
 }
 
 async function filterSupportTickets(user, roles, userDepartments) {
@@ -233,7 +241,7 @@ async function filterSupportTickets(user, roles, userDepartments) {
       );
 
       return employeeTickets;
-    } else return tickets;
+    } else return [];
   } catch (error) {
     return [];
   }
@@ -256,7 +264,11 @@ async function filterEscalatedTickets(roles, userDepartments) {
   };
 
   const query = generateQuery(queryMapping, roles);
-  return fetchTickets(query);
+
+  if (!Object.keys(query).length) {
+    return [];
+  }
+  return await fetchTickets(query);
 }
 
 async function filterCloseTickets(user, roles, userDepartments) {
@@ -286,7 +298,10 @@ async function filterCloseTickets(user, roles, userDepartments) {
   };
 
   const query = generateQuery(queryMapping, roles);
-  return fetchTickets(query);
+  if (!Object.keys(query).length) {
+    return [];
+  }
+  return await fetchTickets(query);
 }
 
 module.exports = {
