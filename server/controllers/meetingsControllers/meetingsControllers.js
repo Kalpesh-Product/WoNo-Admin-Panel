@@ -313,9 +313,12 @@ const getMeetings = async (req, res, next) => {
       "departments"
     );
 
+    // console.log(meetings.map((meeting)=> meeting.internalParticipants))
+
     const department = await Department.findById({
       _id: departments.departments[0],
     });
+
 
     const internalParticipants = meetings.map((meeting) => {
       if (meeting.internalParticipants.length === 0) {
@@ -323,9 +326,12 @@ const getMeetings = async (req, res, next) => {
       }
 
       return meetings.map((meeting) =>
-        meeting.internalParticipants.map((participant) => participant?.name)
+        meeting.internalParticipants.map((participant) => participant?.firstName)
       );
     });
+
+    // console.log(internalParticipants)
+
 
     const housekeepingChecklist = [
       {
@@ -389,6 +395,7 @@ const getMeetings = async (req, res, next) => {
         company: meeting.company,
       };
     });
+
 
     return res.status(200).json(transformedMeetings);
   } catch (error) {
