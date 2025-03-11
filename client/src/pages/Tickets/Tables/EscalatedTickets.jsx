@@ -12,7 +12,7 @@ const EscalatedTickets = ({title}) => {
    const { data: escalatedTickets = [], isLoading } = useQuery({
     queryKey: ["esccalate-tickets"],
     queryFn: async () => {
-      const response = await axios.get("/api/tickets?flag=escalate");
+      const response = await axios.get("/api/tickets/ticket-filter/escalate");
 
       return response.data;
     },

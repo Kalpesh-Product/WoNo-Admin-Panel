@@ -107,7 +107,7 @@ const RaiseTicket = () => {
   const { data: tickets, isPending: ticketsLoading } = useQuery({
     queryKey: ["my-tickets"],
     queryFn: async function () {
-      const response = await axios.get("/api/tickets/ticket-filter/raisedTodayByMe");
+      const response = await axios.get("/api/tickets/today");
       return response.data;
     },
   });
@@ -421,10 +421,9 @@ const RaiseTicket = () => {
             </div>
           ) : (
             <AgTable
-              key={tickets.length}
+              key={tickets?.length}
               search
-              data={[
-                ...tickets.map((ticket, index) => ({
+              data={tickets?.map((ticket, index) => ({
                   id: index + 1,
                   raisedBy: ticket.raisedBy.firstName,
                   raisedTo: ticket.raisedToDepartment.name,
@@ -432,8 +431,8 @@ const RaiseTicket = () => {
                   ticketTitle: ticket.ticket,
                   status: ticket.status,
                   priority: ticket.priority,
-                })),
-              ]}
+                }))
+              }
               columns={recievedTicketsColumns}
               paginationPageSize={10}
             />

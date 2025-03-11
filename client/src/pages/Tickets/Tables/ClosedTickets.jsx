@@ -9,7 +9,7 @@ const ClosedTickets = ({ title }) => {
   const { data, isLoading } = useQuery({
     queryKey: ["closed-tickets"],
     queryFn: async () => {
-      const response = await axios.get("/api/tickets?flag=close");
+      const response = await axios.get("/api/tickets/ticket-filter/close");
       return response.data || []; 
     },
     initialData: [], 

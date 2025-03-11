@@ -13,7 +13,7 @@ const SupportTickets = ({title}) => {
    const { data: supportedTickets = [], isLoading } = useQuery({
     queryKey: ["supported-tickets"],
     queryFn: async () => {
-      const response = await axios.get("/api/tickets?flag=support");
+      const response = await axios.get("/api/tickets/ticket-filter/support");
 
       return response.data;
     },
