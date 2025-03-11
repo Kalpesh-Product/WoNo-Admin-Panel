@@ -230,29 +230,7 @@ const masterPermissions = [
             actions: ["View", "Edit"],
           },
         ],
-      },
-      {
-        name: "Reports",
-        submodules: [
-          {
-            submoduleName: "",
-            actions: ["View", "Edit"],
-          },
-          {
-            submoduleName: "",
-            actions: ["View", "Edit"],
-          },
-        ],
-      },
-      {
-        name: "Settings",
-        submodules: [
-          {
-            submoduleName: "",
-            actions: ["View", "Edit"],
-          },
-        ],
-      },
+      }
     ],
   },
 ];
