@@ -49,16 +49,12 @@ async function filterAcceptedAssignedTickets(user, roles, userDepartments) {
     "Master Admin": {
       $or: [
         {
-          $and: [
-            { acceptedBy: { $exists: true } },
-            { raisedBy: { $ne: user } },
-            { status: "In Progress" },
-          ],
+          $and: [{ acceptedBy: { $exists: true } }, { status: "In Progress" }],
         },
         {
           $and: [
             { assignees: { $exists: true, $ne: [] } },
-            { raisedBy: { $ne: user } },
+
             { status: "In Progress" },
           ],
         },
@@ -67,16 +63,12 @@ async function filterAcceptedAssignedTickets(user, roles, userDepartments) {
     "Super Admin": {
       $or: [
         {
-          $and: [
-            { acceptedBy: { $exists: true } },
-            { raisedBy: { $ne: user } },
-            { status: "In Progress" },
-          ],
+          $and: [{ acceptedBy: { $exists: true } }, { status: "In Progress" }],
         },
         {
           $and: [
             { assignees: { $exists: true, $ne: [] } },
-            { raisedBy: { $ne: user } },
+
             { status: "In Progress" },
           ],
         },
@@ -116,18 +108,10 @@ async function filterAcceptedAssignedTickets(user, roles, userDepartments) {
 async function filterAcceptedTickets(user, roles, userDepartments) {
   const queryMapping = {
     "Master Admin": {
-      $and: [
-        { acceptedBy: { $exists: true } },
-        { raisedBy: { $ne: user } },
-        { status: "In Progress" },
-      ],
+      $and: [{ acceptedBy: { $exists: true } }, { status: "In Progress" }],
     },
     "Super Admin": {
-      $and: [
-        { acceptedBy: { $exists: true } },
-        { raisedBy: { $ne: user } },
-        { status: "In Progress" },
-      ],
+      $and: [{ acceptedBy: { $exists: true } }, { status: "In Progress" }],
     },
     Admin: {
       $and: [
@@ -151,14 +135,14 @@ async function filterAssignedTickets(user, roles, userDepartments) {
     "Master Admin": {
       $and: [
         { assignees: { $exists: true, $ne: [] } },
-        { raisedBy: { $ne: user } },
+
         { status: "In Progress" },
       ],
     },
     "Super Admin": {
       $and: [
         { assignees: { $exists: true, $ne: [] } },
-        { raisedBy: { $ne: user } },
+
         { status: "In Progress" },
       ],
     },
@@ -237,11 +221,11 @@ async function filterSupportTickets(user, roles, userDepartments) {
       return adminTickets;
     } else if (matchedRole === "Employee") {
       let employeeTickets = tickets.filter((ticket) =>
-        ticket.ticket.raisedBy._id.equals(user)
+        ticket.user._id.equals(new mongoose.Types.ObjectId(user))
       );
 
       return employeeTickets;
-    } else return [];
+    }
   } catch (error) {
     return [];
   }
