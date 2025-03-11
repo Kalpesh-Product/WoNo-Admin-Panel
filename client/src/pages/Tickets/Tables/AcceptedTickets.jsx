@@ -121,10 +121,10 @@ const AcceptedTickets = ({ title }) => {
           <ThreeDotMenu
             rowId={params.data.id}
             menuItems={[
-              { label: "Close", onclick: () => mutate(params.data.id) },
+              { label: "Close", onClick: () => mutate(params.data.id) },
               {
                 label: "Support",
-                onclick: () => handleSupportTicket(params.data.id),
+                onClick: () => handleSupportTicket(params.data.id),
               },
             ]}
           />

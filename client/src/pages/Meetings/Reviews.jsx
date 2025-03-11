@@ -32,7 +32,7 @@ const Reviews = () => {
     { field: "srno", headerName: "SR No" },
     {
       field: "nameofreview",
-      headerName: "Name of Review",
+      headerName: "User",
       cellRenderer: (params) => {
         return (
           <Chip label={params.value} style={{ backgroundColor: "white" }} />
@@ -43,7 +43,7 @@ const Reviews = () => {
     { field: "date", headerName: "Date" },
     {
       field: "rate",
-      headerName: "Rate",
+      headerName: "Rating",
       cellRenderer: (params) => {
         return (
           <div>
