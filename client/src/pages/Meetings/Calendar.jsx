@@ -39,9 +39,7 @@ const MeetingCalendar = () => {
 
     const newEvents = meetingsCheck.map((meeting) => {
       const startDate = convertToISOFormat(meeting.date, meeting.startTime);
-      console.log("startDate: => ", startDate);
       const endDate = convertToISOFormat(meeting.date, meeting.endTime);
-      console.log("endDate: => ", endDate);
 
       return {
         title: meeting.subject || "Meeting",
@@ -52,7 +50,6 @@ const MeetingCalendar = () => {
         extendedProps: {},
       };
     });
-    console.log("nEw eVEnts: ", newEvents);
 
     setEventsToBeRenamed(newEvents);
   }, [meetingsCheck, isLoading]);
@@ -61,8 +58,6 @@ const MeetingCalendar = () => {
     const today = dayjs().format("YYYY-MM-DD"); // Get today's date in "YYYY-MM-DD"
 
     return meetingsCheck.filter((meeting) => {
-      // Convert "DD-MM-YYYY" to "YYYY-MM-DD"
-      console.log(meeting.date);
       const meetingDate = dayjs(meeting.date, "DD-MM-YYYY").format(
         "YYYY-MM-DD"
       );
