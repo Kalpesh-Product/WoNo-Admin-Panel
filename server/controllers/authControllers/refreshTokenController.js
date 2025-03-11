@@ -13,18 +13,13 @@ const handleRefreshToken = async (req, res, next) => {
 
     const userExists = await User.findOne({ refreshToken })
       .select(
-        "firstName lastName role email empId company password designation departments selectedDepartments"
+        "firstName lastName role email empId password designation company departments permissions"
       )
       .populate([
         {
           path: "company",
           select:
-            "companyName selectedDepartments workLocations employeeTypes shifts policies agreements sops permissions",
-          populate: {
-            path: "selectedDepartments.department",
-            select: "name",
-            model: "Department",
-          },
+            "companyName workLocations employeeTypes shifts policies agreements sops",
         },
         { path: "role", select: "roleTitle" },
         { path: "departments", select: "name" },
@@ -49,7 +44,7 @@ const handleRefreshToken = async (req, res, next) => {
           {
             userInfo: {
               email: decoded.email,
-              role: userExists.designation,
+              roles: userExists.role.map((r) => r.roleTitle),
               userId: userExists._id,
               company: userExists.company._id,
               departments: userExists.departments,

@@ -21,17 +21,20 @@ const ManageTickets = () => {
 
   
   // Fetch Accepted Tickets
-  const {
-    data: acceptedTickets = [],
-    isLoading,
-  } = useQuery({
+  const { data: acceptedTickets = [], isLoading } = useQuery({
     queryKey: ["accepted-tickets"],
     queryFn: async () => {
-      const response = await axios.get("/api/tickets?flag=accept");
-       
-       return response.data;
+      try {
+        const response = await axios.get("/api/tickets/ticket-filter/accept-assign");
+
+        return response.data;
+      } catch (error) {
+        console.error("Error fetching tickets:", error);
+        throw new Error("Failed to fetch tickets");
+      }
     },
   });
+
 
   const widgets = [
     {

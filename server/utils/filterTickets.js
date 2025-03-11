@@ -5,14 +5,15 @@ const Company = require("../models/hr/Company");
 
 function generateQuery(queryMapping, roles) {
   const roleHierarchy = ["Master Admin", "Super Admin", "Admin", "Employee"]; // For users with multiple roles, use query of higher entity
-
+  if (!roles) {
+    throw new Error("stupid add the roles!");
+  }
   const matchedRole =
     roleHierarchy.find((roleTitle) =>
       roles.some(
         (userRole) => userRole === roleTitle || userRole.endsWith(roleTitle)
       )
     ) || "None";
-
   return queryMapping[matchedRole] || {};
 }
 
@@ -43,7 +44,6 @@ async function fetchTickets(query) {
 
 async function filterAcceptedAssignedTickets(user, roles, userDepartments) {
   // Role-based query mapping
-
   const queryMapping = {
     "Master Admin": {
       $or: [
@@ -107,7 +107,7 @@ async function filterAcceptedAssignedTickets(user, roles, userDepartments) {
 
   const query = generateQuery(queryMapping, roles);
 
-  return fetchTickets(query);
+  return await fetchTickets(query);
 }
 
 async function filterAcceptedTickets(user, roles, userDepartments) {
