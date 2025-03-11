@@ -320,8 +320,6 @@ const getMeetings = async (req, res, next) => {
       "departments"
     );
 
-    console.log(meetings);
-
     const department = await Department.findById({
       _id: departments.departments[0],
     });
@@ -335,39 +333,6 @@ const getMeetings = async (req, res, next) => {
         meeting.internalParticipants.map((participant) => participant?.name)
       );
     });
-
-    const housekeepingChecklist = [
-      {
-        name: "Clean and arrange chairs and tables",
-      },
-      {
-        name: "Check projector functionality",
-      },
-      {
-        name: "Ensure AC is working",
-      },
-      {
-        name: "Clean whiteboard and provide markers",
-      },
-      {
-        name: "Vacuum and clean the floor",
-      },
-      {
-        name: "Check lighting and replace bulbs if necessary",
-      },
-      {
-        name: "Ensure Wi-Fi connectivity",
-      },
-      {
-        name: "Stock water bottles and glasses",
-      },
-      {
-        name: "Inspect electrical sockets and outlets",
-      },
-      {
-        name: "Remove any trash or debris",
-      },
-    ];
 
     const transformedMeetings = meetings.map((meeting, index) => {
       return {
