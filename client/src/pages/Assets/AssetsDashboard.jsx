@@ -1,6 +1,5 @@
 import React from "react";
-import AreaGraph from "../../components/graphs/AreaGraph";
-import { RiArchiveDrawerLine, RiPagesLine } from "react-icons/ri";
+import { RiPagesLine } from "react-icons/ri";
 import { MdFormatListBulleted, MdMiscellaneousServices } from "react-icons/md";
 import { CgProfile } from "react-icons/cg";
 import Card from "../../components/Card";
@@ -10,7 +9,6 @@ import DataCard from "../../components/DataCard";
 import MuiTable from "../../components/Tables/MuiTable";
 import BarGraph from "../../components/graphs/BarGraph";
 import PieChartMui from "../../components/graphs/PieChartMui";
-import HeatMap from "../../components/graphs/HeatMap";
 import {
   assetAvailabilityData,
   assetAvailabilityOptions,
@@ -19,7 +17,6 @@ import {
   assetUtilizationSeries,
   departmentPieData,
   departmentPieOptions,
-  donutSeriesData,
   physicalDigitalOptions,
   physicalDigitalPieData,
   recentAssetsColumns,
@@ -109,8 +106,7 @@ const AssetsDashboard = () => {
         <WidgetSection
           layout={1}
           title={"Assigned v/s Unassigned Assets"}
-          border
-        >
+          border>
           <PieChartMui
             data={assetAvailabilityData}
             options={assetAvailabilityOptions}

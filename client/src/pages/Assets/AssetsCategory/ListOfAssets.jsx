@@ -2,14 +2,100 @@ import { useState } from "react";
 import AgTable from "../../../components/AgTable";
 import PrimaryButton from "../../../components/PrimaryButton";
 import AssetModal from "./AssetModal";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import MuiModal from "../../../components/MuiModal";
+import { Controller, useForm } from "react-hook-form";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { Button, FormHelperText, MenuItem, TextField } from "@mui/material";
+import { toast } from "sonner";
+import useAuth from "../../../hooks/useAuth";
 
 const ListOfAssets = () => {
+  const { auth } = useAuth();
   const axios = useAxiosPrivate();
   const [modalMode, setModalMode] = useState("add");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      name: "",
+      assetType: "",
+      vendor: "",
+      purchaseDate: null,
+      quantity: null,
+      price: null,
+      warranty: null,
+      image: null,
+      brand: "",
+      department: "",
+      status: "",
+      assignedTo: "",
+    },
+  });
+
+  const { data: assetsCategories = [], isPending: assetPending } = useQuery({
+    queryKey: ["assetsCategories"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/assets/get-category");
+        return response.data;
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
+  const { data: vendorDetials = [], isPending: isVendorDetails } = useQuery({
+    queryKey: ["vendorDetials"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/vendors/get-vendors");
+        return response.data;
+      } catch (error) {
+        throw new Error(error.response.data.message);
+      }
+    },
+  });
+
+  console.log(vendorDetials);
+
+  const { mutate: addAsset, isPending: isAddingAsset } = useMutation({
+    mutationKey: ["addAsset"],
+    mutationFn: async (data) => {
+      const formData = new FormData();
+
+      formData.append("name", data.name);
+      formData.append("assetType", data.assetType);
+      formData.append("vendor", data.vendor);
+      formData.append("purchaseDate", data.purchaseDate);
+      formData.append("quantity", Number(data.quantity));
+      formData.append("price", Number(data.price));
+      formData.append("warranty", Number(data.warranty));
+      if (data.image) {
+        formData.append("image", data.image);
+      }
+      formData.append("brand", data.brand);
+      formData.append("department", data.department);
+      formData.append("status", data.status);
+      formData.append("assignedTo", data.assignedTo);
+
+      const response = await axios.post("/api/assets/create-asset");
+      return response.data;
+    },
+    onSuccess: function (data) {
+      toast.success(data.message);
+      setIsModalOpen(false);
+    },
+    onError: function (error) {
+      toast.error(error.message);
+    },
+  });
 
   const assetColumns = [
     { field: "id", headerName: "ID" },
@@ -34,7 +120,7 @@ const ListOfAssets = () => {
   ];
 
   const { data: assetsList = [] } = useQuery({
-    queryKey: "assetsList",
+    queryKey: ["assetsList"],
     queryFn: async () => {
       try {
         const response = await axios.get("/api/assets/get-assets");
@@ -44,141 +130,6 @@ const ListOfAssets = () => {
       }
     },
   });
-
-  const assets = [
-    {
-      id: 1,
-      department: "IT",
-      assetNumber: "A1001",
-      category: "Laptop",
-      brand: "Dell",
-      price: "45000",
-      quantity: 5,
-      purchaseDate: "15-01-2024",
-      warranty: 24,
-      modelName: "Inspiron 1522",
-      location: "Office A",
-      vendorName: "Dell Technologies India",
-      // invalid URL
-      assetImage:
-        "https://i.dell.com/is/image/DellContent/content/dam/ss2/product-images/dell-client-products/notebooks/inspiron-notebooks/15-3520/media-gallery/notebook-inspiron-15-3520-gallery-1.psd?fmt=png-alpha&pscan=auto&scl=1&wid=3653&hei=2548&qlt=100,0&resMode=sharp2&size=3653,2548",
-    },
-    {
-      id: 2,
-      department: "IT",
-      assetNumber: "A1002",
-      category: "Laptop",
-      brand: "HP",
-      price: "50000",
-      quantity: 10,
-      purchaseDate: "10-12-2023",
-      warranty: 12,
-      modelName: "Pavilion 15",
-      location: "Office B",
-      vendorName: "HP India Pvt Ltd",
-      // valid URL as on 7 feb 2025
-      assetImage:
-        "https://i.dell.com/is/image/DellContent/content/dam/ss2/product-images/dell-client-products/notebooks/inspiron-notebooks/14-2-in-1-7440-intel/media-gallery/notebook-inspiron-14-7440-t-ice-blue-gallery-10.psd?fmt=pjpg&pscan=auto&scl=1&wid=3924&hei=2565&qlt=100,1&resMode=sharp2&size=3924,2565&chrss=full&imwidth=5000",
-    },
-    {
-      id: 3,
-      department: "IT",
-      assetNumber: "A1003",
-      category: "Laptop",
-      brand: "Apple",
-      price: "120000",
-      quantity: 8,
-      purchaseDate: "01-02-2024",
-      warranty: 36,
-      modelName: "MacBook Pro 16",
-      location: "Office A",
-      vendorName: "Apple India Pvt Ltd",
-    },
-    {
-      id: 4,
-      department: "IT",
-      assetNumber: "A1004",
-      category: "Laptop",
-      brand: "Lenovo",
-      price: "40000",
-      quantity: 15,
-      purchaseDate: "20-01-2024",
-      warranty: 12,
-      modelName: "ThinkPad X1",
-      location: "Warehouse",
-      vendorName: "Lenovo India Pvt Ltd",
-    },
-    {
-      id: 5,
-      department: "IT",
-      assetNumber: "A1005",
-      category: "Laptop",
-      brand: "Acer",
-      price: "20000",
-      quantity: 3,
-      purchaseDate: "05-01-2024",
-      warranty: 24,
-      modelName: "Aspire 5",
-      location: "Office B",
-      vendorName: "Acer India Pvt Ltd",
-    },
-    {
-      id: 6,
-      department: "IT",
-      assetNumber: "A1006",
-      category: "Laptop",
-      brand: "Asus",
-      price: "60000",
-      quantity: 12,
-      purchaseDate: "05-02-2024",
-      warranty: 18,
-      modelName: "ZenBook 14",
-      location: "Warehouse",
-      vendorName: "Asus India Pvt Ltd",
-    },
-    {
-      id: 7,
-      department: "HR",
-      assetNumber: "A1007",
-      category: "Projector",
-      brand: "Epson",
-      price: "20000",
-      quantity: 2,
-      purchaseDate: "30-11-2023",
-      warranty: 24,
-      modelName: "PowerLite 1781W",
-      location: "Office A",
-      vendorName: "Epson India Pvt Ltd",
-    },
-    {
-      id: 8,
-      department: "Administration",
-      assetNumber: "A1008",
-      category: "Printer",
-      brand: "HP",
-      price: "5000",
-      quantity: 6,
-      purchaseDate: "15-12-2023",
-      warranty: 36,
-      modelName: "LaserJet Pro M15w",
-      location: "Office B",
-      vendorName: "HP India Pvt Ltd",
-    },
-    {
-      id: 9,
-      department: "Finance",
-      assetNumber: "A1009",
-      category: "Scanner",
-      brand: "Canon",
-      price: "6000",
-      quantity: 4,
-      purchaseDate: "28-01-2024",
-      warranty: 24,
-      modelName: "imageFORMULA R40",
-      location: "Warehouse",
-      vendorName: "Canon India Pvt Ltd",
-    },
-  ];
 
   const handleDetailsClick = (asset) => {
     setSelectedAsset(asset);
@@ -192,21 +143,9 @@ const ListOfAssets = () => {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = async (assetData) => {
+  const handleFormSubmit = (data) => {
     if (modalMode === "add") {
-      // Logic to add new asset
-      try {
-        // await axios.post('/api/assets', assetData);
-      } catch (error) {
-        console.error("Error adding asset:", error);
-      }
-    } else if (modalMode === "edit") {
-      // Logic to update existing asset
-      try {
-        // await axios.put(`/api/assets/${assetData.id}`, assetData);
-      } catch (error) {
-        console.error("Error updating asset:", error);
-      }
+      addAsset(data);
     }
   };
 
@@ -239,14 +178,298 @@ const ListOfAssets = () => {
         handleClick={handleAddAsset}
       />
 
-      <AssetModal
-        mode={modalMode}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSubmit={handleSubmit}
-        assetData={selectedAsset}
-        onModeChange={setModalMode}
-      />
+      <MuiModal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        {modalMode === "add" && (
+          <div>
+            <form onSubmit={handleSubmit(handleFormSubmit)}>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2">
+                  <Controller
+                    name="image"
+                    control={control}
+                    rules={{ required: "Asset image is required" }}
+                    render={({ field }) => (
+                      <div
+                        {...field}
+                        className={`w-full flex justify-center border-2 rounded-md p-2 relative ${
+                          errors.assetImage
+                            ? "border-red-500"
+                            : "border-gray-300"
+                        } `}
+                      >
+                        <div
+                          className="w-full h-48 flex justify-center items-center relative"
+                          style={{
+                            backgroundImage: previewImage
+                              ? `url(${previewImage})`
+                              : "none",
+                            backgroundSize: "contain",
+                            backgroundPosition: "center",
+                            backgroundRepeat: "no-repeat",
+                          }}
+                        >
+                          <Button
+                            variant="outlined"
+                            component="label"
+                            sx={{
+                              position: "absolute",
+                              bottom: 8,
+                              right: 8,
+                              backgroundColor: "rgba(255, 255, 255, 0.7)",
+                              color: "#000",
+                              fontSize: "16px",
+                              fontWeight: "bold",
+                              padding: "8px 16px",
+                              borderRadius: "8px",
+                              boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.3)",
+                            }}
+                          >
+                            Select Image
+                            <input
+                              type="file"
+                              accept="image/*"
+                              hidden
+                              onChange={(e) => {
+                                if (e.target.files.length > 0) {
+                                  field.onChange(e.target.files);
+                                  setPreviewImage(previewImage);
+                                } else {
+                                  field.onChange(null);
+                                }
+                              }}
+                            />
+                          </Button>
+                        </div>
+                        {errors.assetImage && (
+                          <FormHelperText
+                            error
+                            sx={{
+                              position: "absolute",
+                              top: "50%",
+                              left: "50%",
+                              transform: "translate(-50%, -50%)",
+                              margin: 0,
+                            }}
+                          >
+                            {errors.assetImage.message}
+                          </FormHelperText>
+                        )}
+                      </div>
+                    )}
+                  />
+                </div>
+                <Controller
+                  name="assetType"
+                  control={control}
+                  rules={{ required: "Department is required" }}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="Asset Type"
+                      helperText={!!errors.assetType?.message}
+                      select
+                    >
+                      <MenuItem value="">Select an Asset Type</MenuItem>
+                      <MenuItem value="Physical">Physical</MenuItem>
+                      <MenuItem value="Digital">Digital</MenuItem>
+                    </TextField>
+                  )}
+                />
+
+                <Controller
+                  name="department"
+                  control={control}
+                  rules={{ required: "Department is required" }}
+                  render={({ field }) => (
+                    <TextField
+                      error={!!errors.department}
+                      helperText={errors.department?.message}
+                      fullWidth
+                      {...field}
+                      select
+                      label="Department"
+                      size="small"
+                    >
+                      {auth.user.company.selectedDepartments?.map((dept) => (
+                        <MenuItem key={dept._id} value={dept._id}>
+                          {dept.name}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  )}
+                />
+
+                <Controller
+                  name="categoryId"
+                  control={control}
+                  defaultValue=""
+                  rules={{ required: "Category is required" }}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      select
+                      label="Category"
+                      size="small"
+                    >
+                      {assetsCategories.map((category) => (
+                        <MenuItem key={category._id} value={category._id}>
+                          {category.categoryName}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  )}
+                />
+                <Controller
+                  name="subCategoryId"
+                  control={control}
+                  defaultValue=""
+                  rules={{ required: "Sub-Category is required" }}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      select
+                      label="Sub-Category"
+                      size="small"
+                    >
+                      {assetsCategories.subCategories?.map((subCategory) => (
+                        <MenuItem key={subCategory._id} value={subCategory._id}>
+                          {subCategory.categoryName}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  )}
+                />
+
+                {/* Department & Category */}
+                <Controller
+                  name="brand"
+                  control={control}
+                  defaultValue=""
+                  rules={{ required: "Brand is required" }}
+                  render={({ field }) => (
+                    <TextField
+                      size="small"
+                      {...field}
+                      label="Brand Name"
+                      error={!!errors.brand}
+                      helperText={errors.brand?.message}
+                    />
+                  )}
+                />
+                {/* Quantity & Price */}
+                <Controller
+                  name="quantity"
+                  control={control}
+                  rules={{ required: "Quantity is required" }}
+                  render={({ field }) => (
+                    <TextField
+                      size="small"
+                      {...field}
+                      label="Quantity"
+                      type="number"
+                      error={!!errors.quantity}
+                      helperText={errors.quantity?.message}
+                    />
+                  )}
+                />
+
+                <Controller
+                  name="price"
+                  control={control}
+                  defaultValue=""
+                  rules={{ required: "Price is required" }}
+                  render={({ field }) => (
+                    <TextField
+                      size="small"
+                      {...field}
+                      label="Price"
+                      type="number"
+                      className=""
+                      error={!!errors.price}
+                      helperText={errors.price?.message}
+                    />
+                  )}
+                />
+
+                {/* <Controller
+              name="vendor"
+              control={control}
+              defaultValue=""
+              rules={{ required: "Vendor Name is required" }}
+              render={({ field }) => (
+                <TextField
+                  select
+                  {...field}
+                  label="Vendor Name"
+                  size="small"
+                  error={!!errors.department}
+                  helperText={errors.department?.message}
+                  fullWidth>
+                  {vendorDetials.map((vendor) => (
+                    <MenuItem key={vendor} value={vendor}>
+                      {vendor}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              )}
+            /> */}
+                {/* Purchase Date & Warranty */}
+
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <Controller
+                    name="purchaseDate"
+                    control={control}
+                    defaultValue={null}
+                    rules={{ required: "Purchase Date is required" }}
+                    render={({ field }) => (
+                      <DatePicker
+                        {...field}
+                        label="Purchase Date"
+                        slotProps={{
+                          textField: {
+                            size: "small",
+                            error: !!errors.purchaseDate,
+                            helperText: errors?.purchaseDate?.message,
+                          },
+                        }}
+                        className="w-full"
+                      />
+                    )}
+                  />
+                </LocalizationProvider>
+
+                <Controller
+                  name="warranty"
+                  control={control}
+                  defaultValue=""
+                  rules={{ required: "Warranty is required" }}
+                  render={({ field }) => (
+                    <TextField
+                      size="small"
+                      {...field}
+                      label="Warranty (Months)"
+                      type="number"
+                      error={!!errors.warranty}
+                      helperText={errors.warranty?.message}
+                    />
+                  )}
+                />
+                <FormHelperText>{errors.category?.message}</FormHelperText>
+              </div>
+              {/* Main end div*/}
+              {/* Conditionally render submit/edit button */}
+              <div className="flex gap-4 justify-center items-center mt-4">
+                <PrimaryButton
+                  title={modalMode === "add" ? "Submit" : "Update"}
+                />
+                {/* Cancel button for edit mode */}
+              </div>
+            </form>
+          </div>
+        )}
+      </MuiModal>
     </>
   );
 };

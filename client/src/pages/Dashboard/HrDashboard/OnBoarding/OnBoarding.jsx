@@ -1,73 +1,39 @@
-import { useEffect } from "react";
+import { Tab, Tabs } from "@mui/material";
+import React, { useEffect } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Tabs } from "@mui/material";
-import useAuth from "../../../../hooks/useAuth";
 
 const OnBoarding = () => {
-  const { auth } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Define available tabs (before filtering)
-  const allTabs = [
-    { label: "Employee Onboarding", path: "employee-onboarding" },
-    { label: "View Employee", path: "view-employees" },
+  // Map routes to tabs
+  const tabs = [
+    { label: "Employee On-Boarding", path: "employee-onboarding" },
+    { label: "View Employees", path: "view-employees" },
   ];
 
-  // Extract permitted submodules for "Employee"
-  const permittedSubmodules = new Set();
+  // Redirect to "view-employees" if the current path is "/hr-dashboard/compliances"
+  useEffect(() => {
+    if (location.pathname === "/app/dashboard/HR-dashboard/employee") {
+      navigate("/app/dashboard/HR-dashboard/employee/employee-onboarding", {
+        replace: true,
+      });
+    }
+  }, [location, navigate]);
 
-  auth.user.permissions?.deptWisePermissions?.forEach((department) => {
-    department.modules.forEach((module) => {
-      if (module.moduleName === "Employee") {
-        module.submodules.forEach((submodule) => {
-          if (submodule.actions.includes("View")) {
-            permittedSubmodules.add(submodule.submoduleName);
-          }
-        });
-      }
-    });
-  });
-
-  // Filter tabs based on permissions
-  const filteredTabs = allTabs.filter((tab) =>
-    permittedSubmodules.has(tab.label)
+  // Determine whether to show the tabs
+  const showTabs = !location.pathname.includes(
+    "view-employees/"
   );
 
-  // Redirect user to the first permitted tab if they try to access Employee directly
-  useEffect(() => {
-    const basePath = "/app/dashboard/HR-dashboard/employee/";
-    const pathAfterEmployee = location.pathname.startsWith(basePath)
-      ? location.pathname.substring(basePath.length) // Extract subpath
-      : "";
-
-    // ✅ 1. If the user is on "/employee" without a subpath, redirect to the first allowed tab
-    if (!pathAfterEmployee || pathAfterEmployee === "employee") {
-      if (filteredTabs.length > 0) {
-        navigate(`${basePath}${filteredTabs[0].path}`, { replace: true });
-      }
-      return;
-    }
-
-    // ✅ 2. Check if the subpath is authorized
-    const isAuthorized = filteredTabs.some(
-      (tab) => tab.path === pathAfterEmployee
-    );
-
-    if (!isAuthorized) {
-      console.warn("Unauthorized access detected:", location.pathname);
-      navigate("/unauthorized", { replace: true }); // Redirect to Unauthorized page
-    }
-  }, [location.pathname, navigate, filteredTabs]);
-
   // Determine active tab based on location
-  const activeTab = filteredTabs.findIndex((tab) =>
+  const activeTab = tabs.findIndex((tab) =>
     location.pathname.includes(tab.path)
   );
 
   return (
     <div className="p-4">
-      {filteredTabs.length > 0 && (
+      {showTabs && (
         <Tabs
           value={activeTab}
           variant="fullWidth"
@@ -88,7 +54,7 @@ const OnBoarding = () => {
             },
           }}
         >
-          {filteredTabs.map((tab, index) => (
+          {tabs.map((tab, index) => (
             <NavLink
               key={index}
               className={"border-r-[1px] border-borderGray"}

@@ -269,7 +269,7 @@ const getTickets = async (req, res, next) => {
     }
 
     if (!matchingTickets.length) {
-      return res.status(404).json({ message: "No tickets available" });
+      return res.status(200).json(matchingTickets);
     }
 
     // Attach ticket issueId title from Company.selectedDepartments.ticketIssues
@@ -505,15 +505,7 @@ const assignTicket = async (req, res, next) => {
       );
     }
 
-    if (!mongoose.Types.ObjectId.isValid(ticketId)) {
-      throw new CustomError(
-        "Invalid ticket ID provided",
-        logPath,
-        logAction,
-        logSourceKey
-      );
-    }
-
+    // ✅ Find the ticket
     const foundTicket = await Tickets.findOne({ _id: ticketId }).lean().exec();
     if (!foundTicket) {
       throw new CustomError(
@@ -544,6 +536,7 @@ const assignTicket = async (req, res, next) => {
       { $addToSet: { assignees: assignees }, status: "In Progress" },
       { new: true }
     );
+
     if (!updatedTicket) {
       throw new CustomError(
         "Failed to assign ticket",
@@ -553,7 +546,7 @@ const assignTicket = async (req, res, next) => {
       );
     }
 
-    // Log the successful ticket assignment
+    // ✅ Log the successful ticket assignment
     await createLog({
       path: logPath,
       action: logAction,
@@ -573,15 +566,13 @@ const assignTicket = async (req, res, next) => {
 
     return res.status(200).json({ message: "Ticket assigned successfully" });
   } catch (error) {
-    if (error instanceof CustomError) {
-      next(error);
-    } else {
-      next(
-        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
-      );
-    }
+    next(error instanceof CustomError
+      ? error
+      : new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+    );
   }
 };
+
 
 const escalateTicket = async (req, res, next) => {
   const logPath = "tickets/TicketLog";
@@ -829,7 +820,8 @@ const fetchFilteredTickets = async (req, res, next) => {
   try {
     const { user, roles, departments, company } = req;
 
-    const { flag } = req.query;
+
+    const { flag } = req.params;
 
     const userDepartments = departments.map((dept) => dept._id.toString());
 
@@ -841,6 +833,7 @@ const fetchFilteredTickets = async (req, res, next) => {
           roles,
           userDepartments
         );
+        console.log(filteredTickets)
         break;
       case "accept":
         filteredTickets = await filterAcceptedTickets(
@@ -886,7 +879,6 @@ const fetchFilteredTickets = async (req, res, next) => {
           .status(404)
           .json({ message: "Provided a valid flag to fetch tickets" });
     }
-
     return res.status(200).json(filteredTickets);
   } catch (error) {
     next(error);

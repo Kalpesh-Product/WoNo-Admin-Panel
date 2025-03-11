@@ -8,20 +8,22 @@ import PrimaryButton from "../../../components/PrimaryButton";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "../../../index";
 import ThreeDotMenu from "../../../components/ThreeDotMenu";
+import { Controller, useForm } from "react-hook-form";
+import useAuth from "../../../hooks/useAuth";
 
 const RecievedTickets = ({ title }) => {
   const [open, setOpen] = useState(false);
+  const { auth } = useAuth();
   const axios = useAxiosPrivate();
+  const [selectedTicketId, setSelectedTicketId] = useState(null);
 
   const { data: tickets = [], isLoading } = useQuery({
     queryKey: ["tickets"],
     queryFn: async () => {
       try {
         const response = await axios.get("/api/tickets/get-tickets");
-        const filteredTickets = response.data.filter(
-          (ticket) => !ticket.accepted
-        );
-        return filteredTickets;
+
+        return response.data;
       } catch (error) {
         throw new Error(error.response.data.message);
       }
@@ -31,8 +33,27 @@ const RecievedTickets = ({ title }) => {
   const { mutate: acceptMutate } = useMutation({
     mutationKey: ["accept-ticket"],
     mutationFn: async (ticket) => {
-      console.log("ticket is : ", ticket)
-      const response = await axios.post(`/api/tickets/accept-ticket/${ticket.id}`);
+      console.log("ticket is : ", ticket);
+      const response = await axios.patch(
+        `/api/tickets/accept-ticket/${ticket.id}`
+      );
+
+      return response.data.message;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["tickets"] });
+      toast.success(data);
+    },
+    onError: (error) => {
+      toast.error(error.response.data.message);
+    },
+  });
+  const { mutate: rejectMutate, isPending: rejectPending } = useMutation({
+    mutationKey: ["reject-ticket"],
+    mutationFn: async (ticket) => {
+      const response = await axios.post(
+        `/api/tickets/reject-ticket/${ticket.id}`
+      );
 
       return response.data.message;
     },
@@ -47,29 +68,65 @@ const RecievedTickets = ({ title }) => {
 
   const { mutate: assignMutate } = useMutation({
     mutationKey: ["assign-ticket"],
-    mutationFn: async (ticket) => {
-      const response = await axios.post("/api/tickets/assign-ticket", {
-        ticketId: ticket.id,
-      });
+    mutationFn: async (data) => {
+      const response = await axios.patch(
+        `/api/tickets/assign-ticket/${data.ticketId}`,
+        {
+          assignees: data.assignedEmployees,
+        }
+      );
 
       return response.data.message;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["tickets"] });
       toast.success(data);
+      handleClose(); // Close modal on success
+      reset(); // Reset form after submission
     },
     onError: (error) => {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Something went wrong");
     },
   });
 
-  const openModal = () => {
-    ("I am Clicked");
-    setOpen(true);
+  const fetchSubOrdinates = async () => {
+    try {
+      const response = await axios.get("/api/users/assignees");
+
+      return response.data;
+    } catch (error) {
+      toast.error(error.message || "Failed to fetch users");
+    }
+  };
+
+  const { data: subOrdinates = [], isPending: isSubOrdinates } = useQuery({
+    queryKey: ["sub-ordinates"],
+    queryFn: fetchSubOrdinates,
+  });
+
+  const { control, handleSubmit, reset } = useForm({
+    defaultValues: {
+      selectedEmployees: {},
+    },
+  });
+
+  const onSubmit = (formData) => {
+    const assignedEmployeeIds = Object.keys(formData.selectedEmployees).filter(
+      (id) => formData.selectedEmployees[id]
+    ); // ✅ Keep only selected IDs
+
+    if (assignedEmployeeIds.length === 0) {
+      toast.error("Please select at least one employee.");
+      return;
+    }
+
+    assignMutate({
+      ticketId: selectedTicketId,
+      assignedEmployees: assignedEmployeeIds,
+    }); // ✅ Send array of IDs
   };
 
   const transformTicketsData = (tickets) => {
-    let Srno = 0;
     return tickets.map((ticket) => ({
       id: ticket._id,
       raisedBy: ticket.raisedBy?.firstName || "Unknown",
@@ -83,15 +140,15 @@ const RecievedTickets = ({ title }) => {
   // Example usage
   const rows = isLoading ? [] : transformTicketsData(tickets);
 
-  const handleClose = () => setOpen(false);
+  const handleOpenAssignModal = (ticketId) => {
+    setSelectedTicketId(ticketId);
+    setOpen(true);
+  };
 
-  const assignees = [
-    "AiwinRaj",
-    "Anushri Bhagat",
-    "Allen Silvera",
-    "Sankalp Kalangutkar",
-    "Muskan Dodmani",
-  ];
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedTicketId(null);
+  };
 
   const recievedTicketsColumns = [
     { field: "raisedBy", headerName: "Raised By" },
@@ -135,8 +192,28 @@ const RecievedTickets = ({ title }) => {
           <ThreeDotMenu
             rowId={params.data.id}
             menuItems={[
-              { label: "Accept", onClick: () => acceptMutate(params.data) },
-              { label: "Assign", onClick: openModal },
+              {
+                label: "Accept",
+                onClick: () => acceptMutate(params.data),
+                isLoading: isLoading,
+              },
+              // Conditionally add "Assign"
+              ...(auth.user.role.length > 0 &&
+              (auth.user.role[0].roleTitle === "Master Admin" ||
+                auth.user.role[0].roleTitle === "Super Admin" ||
+                auth.user.role[0].roleTitle.endsWith("Admin"))
+                ? [
+                    {
+                      label: "Assign",
+                      onClick: () => handleOpenAssignModal(params.data.id),
+                    },
+                    {
+                      label: "Reject",
+                      onClick: () => rejectMutate(params.data),
+                      isLoading: isLoading,
+                    },
+                  ]
+                : []),
             ]}
           />
         </>
@@ -157,29 +234,41 @@ const RecievedTickets = ({ title }) => {
         ) : (
           <AgTable
             key={rows.length}
-            data={rows}
+            data={rows ? rows : []}
+            tableHeight={350}
             columns={recievedTicketsColumns}
           />
         )}
       </div>
       <MuiModal open={open} onClose={handleClose} title="Assign Tickets">
-        <>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <ul>
-            {assignees.map((key, items) => {
-              return (
-                <>
-                  <div className="flex flex-row gap-6">
-                    <input type="checkbox"></input>
-                    <li key={items}>{key}</li>
-                  </div>
-                </>
-              );
-            })}
+            {!isSubOrdinates ? (
+              subOrdinates.map((employee) => (
+                <div key={employee.id} className="flex flex-row gap-6">
+                  <Controller
+                    name={`selectedEmployees.${employee.id}`}
+                    control={control}
+                    render={({ field }) => (
+                      <input
+                        type="checkbox"
+                        {...field}
+                        checked={!!field.value}
+                      />
+                    )}
+                  />
+                  <li>{employee.name}</li>
+                </div>
+              ))
+            ) : (
+              <CircularProgress />
+            )}
           </ul>
+
           <div className="flex items-center justify-center mb-4">
-            <PrimaryButton title={"Assign"} />
+            <PrimaryButton title="Assign" type="submit" />
           </div>
-        </>
+        </form>
       </MuiModal>
     </div>
   );

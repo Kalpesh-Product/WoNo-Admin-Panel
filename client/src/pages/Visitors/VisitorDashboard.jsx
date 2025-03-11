@@ -15,13 +15,21 @@ import { useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import {
   assetAvailabilityData,
-  assetAvailabilityOptions,
   assetCategoriesData,
   departmentPieData,
   departmentPieOptions,
   recentAssetsColumns,
   recentAssetsData,
 } from "../Assets/AssetsData/Data";
+import {
+  assetAvailabilityDataV,
+  assetAvailabilityOptionsV,
+  assetCategoriesDataV,
+  departmentPieDataVX,
+  departmentPieOptionsVX,
+  recentAssetsColumnsVX,
+  recentAssetsDataVX,
+} from "./VisitorsData/VisitorsData";
 
 const VisitorDashboard = () => {
   const axios = useAxiosPrivate();
@@ -382,9 +390,6 @@ const VisitorDashboard = () => {
   );
 
   const BookingMonths = [
-    "Jan",
-    "Feb",
-    "Mar",
     "Apr",
     "May",
     "Jun",
@@ -394,6 +399,9 @@ const VisitorDashboard = () => {
     "Oct",
     "Nov",
     "Dec",
+    "Jan",
+    "Feb",
+    "Mar",
   ];
 
   // Example booked hours data per month
@@ -419,24 +427,24 @@ const VisitorDashboard = () => {
     y: (actualBookedHoursPerMonth[month] / totalBookableHours) * 100,
   }));
 
-  const averageBookingSeries = [{ name: "Booking Utilization", data }];
+  const averageBookingSeries = [{ name: "Total Visitors", data }];
 
   const averageBookingOptions = {
     chart: { type: "bar", fontFamily: "Poppins-Regular" },
     xaxis: { categories: BookingMonths },
     yaxis: {
       max: 100,
-      title: { text: "Utilization (%)" },
+      title: { text: "Visitors" },
       labels: {
         formatter: function (value) {
-          return Math.round(value) + "%"; // Removes decimals
+          return Math.round(value) + ""; // Removes decimals
         },
       },
     },
     dataLabels: {
       enabled: true,
       formatter: function (val) {
-        return Math.round(val) + "%"; // Display percentage without decimals
+        return Math.round(val) + ""; // Display percentage without decimals
       },
       style: {
         fontSize: "11px",
@@ -452,6 +460,7 @@ const VisitorDashboard = () => {
         columnWidth: "40%",
       },
     },
+    colors: ["#1E3D73"], // Black color for bars
     // annotations: {
     //   yaxis: [
     //     {
@@ -601,42 +610,42 @@ const VisitorDashboard = () => {
   };
 
   const columns3 = [
-    { id: "ranks", label: "Rank", align: "left" },
-    { id: "employeeName", label: "Employee name", align: "left" },
-    { id: "department", label: "Department", align: "center" },
-    { id: "Performance (%)", label: "Performance (%)", align: "center" },
+    { id: "ranks", label: "Sr No", align: "left" },
+    { id: "employeeName", label: "Visitor", align: "left" },
+    { id: "department", label: "To Meet", align: "center" },
+    { id: "Performance (%)", label: "Time", align: "center" },
   ];
 
   const rows3 = [
     {
       ranks: "1",
-      employeeName: "Aiwin",
-      department: "Tech",
-      "Performance (%)": "97",
+      employeeName: "John Doe",
+      department: "Abrar Shaikh",
+      "Performance (%)": "10:00 AM",
     },
     {
       ranks: "2",
-      employeeName: "Allen Silvera",
-      department: "Tech",
-      "Performance (%)": "90",
+      employeeName: "Aman Gupta",
+      department: "Abrar Shaikh",
+      "Performance (%)": "09:45 AM",
     },
     {
       ranks: 3,
-      employeeName: "Sankalp Kalangutkar",
-      department: "Tech",
-      "Performance (%)": "80",
+      employeeName: "Jeff Bezos",
+      department: "Abrar Shaikh",
+      "Performance (%)": "10:00 AM",
     },
     {
-      ranks: 3,
-      employeeName: "Sankalp Kalangutkar",
-      department: "Tech",
-      "Performance (%)": "80",
+      ranks: 4,
+      employeeName: "Elon Musk",
+      department: "Abrar Shaikh",
+      "Performance (%)": "09:45 AM",
     },
     {
-      ranks: 3,
-      employeeName: "Sankalp Kalangutkar",
-      department: "Tech",
-      "Performance (%)": "80",
+      ranks: 5,
+      employeeName: "Satya Nadela",
+      department: "Abrar Shaikh",
+      "Performance (%)": "10:00 AM",
     },
   ];
 
@@ -699,7 +708,7 @@ const VisitorDashboard = () => {
         const item = genderData[seriesIndex]; // Use genderData to fetch the correct item
         return `
           <div style="padding: 5px; font-size: 12px;">
-            ${item.label}: ${item.actualCount} employees
+            ${item.label}: ${item.actualCount} visitors
           </div>`;
       },
     },
@@ -804,15 +813,15 @@ const VisitorDashboard = () => {
           layout={1}
           title={"Visitor Categories This Month"}
           border>
-          <DonutChart {...assetCategoriesData} />
+          <DonutChart {...assetCategoriesDataV} />
         </WidgetSection>,
         <WidgetSection
           layout={1}
           title={"Checked In v/s Checked Out Visitors Today"}
           border>
           <PieChartMui
-            data={assetAvailabilityData}
-            options={assetAvailabilityOptions}
+            data={assetAvailabilityDataV}
+            options={assetAvailabilityOptionsV}
           />
         </WidgetSection>,
       ],
@@ -845,8 +854,8 @@ const VisitorDashboard = () => {
         </WidgetSection>,
         <WidgetSection layout={1} title={"Department Wise Visits"} border>
           <PieChartMui
-            data={departmentPieData}
-            options={departmentPieOptions}
+            data={departmentPieDataVX}
+            options={departmentPieOptionsVX}
           />
         </WidgetSection>,
       ],
@@ -857,8 +866,8 @@ const VisitorDashboard = () => {
         <WidgetSection layout={1} padding>
           <MuiTable
             Title="Visitors Today"
-            columns={recentAssetsColumns}
-            rows={recentAssetsData}
+            columns={recentAssetsColumnsVX}
+            rows={recentAssetsDataVX}
             rowKey="id"
             rowsToDisplay={10}
             scroll={true}

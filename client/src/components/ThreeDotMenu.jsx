@@ -1,9 +1,9 @@
-import { Popover, IconButton, Button } from "@mui/material";
+import { Popover, IconButton, Button, CircularProgress } from "@mui/material";
 import { useState } from "react";
 import { PiDotsThreeVerticalBold } from "react-icons/pi";
 import PrimaryButton from "./PrimaryButton";
 
-const ThreeDotMenu = ({ rowId, menuItems }) => {
+const ThreeDotMenu = ({ rowId, menuItems, isLoading }) => {
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleOpen = (event) => {
@@ -29,17 +29,16 @@ const ThreeDotMenu = ({ rowId, menuItems }) => {
         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
         transformOrigin={{ vertical: "top", horizontal: "left" }}
       >
-        <div className="w-full bg-white rounded-md motion-preset-slide-down-sm">
+        <div className="w-full bg-white rounded-xl motion-preset-slide-down-sm">
           {menuItems.map(({ label, onClick }, index) => (
             <div
               key={index}
               onClick={() => {
                 onClick();
-                handleClose(); // Close popover after clicking an option
               }}
               className="bg-white text-primary p-4 py-2 border-b-[1px] border-borderGray cursor-pointer text-content hover:bg-gray-200"
             >
-              {label}
+              {isLoading ? <CircularProgress /> : label}
             </div>
           ))}
         </div>

@@ -42,6 +42,6 @@ router.patch("/escalate-ticket", escalateTicket);
 router.patch("/close-ticket", closeTicket);
 router.post("/support-ticket", supportTicket);
 router.get("/support-tickets", getSupportedTickets);
-router.get("/", fetchFilteredTickets);
+router.get("/ticket-filter/:flag", fetchFilteredTickets);
 
 module.exports = router;
