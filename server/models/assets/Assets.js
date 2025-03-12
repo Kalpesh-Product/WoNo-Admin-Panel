@@ -52,7 +52,7 @@ const assetsSchema = new mongoose.Schema({
   },
   location: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "WorkLocation",
+    ref: "Unit",
   },
   assignedTo: {
     room: {
