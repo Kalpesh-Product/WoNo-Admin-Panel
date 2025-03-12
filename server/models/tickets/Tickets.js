@@ -20,17 +20,27 @@ const ticketsSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["Open", "In Progress", "Closed", "Not Accepted", "Pending"],
+      enum: ["Open", "In Progress", "Closed", "Pending"],
       default: "Open",
     },
-
     specifiedReason: {
       type: String,
     },
+    escalateStatus: {
+      type: String,
+      enum: ["Open", "In Progress", "Closed", "Pending"],
+      default: "Open",
+    },
+    // escalatedTo: [
+    //   {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: "Department",
+    //   },
+    // ],
     escalatedTo: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Department",
+        ref: "Ticket",
       },
     ],
     assignees: [

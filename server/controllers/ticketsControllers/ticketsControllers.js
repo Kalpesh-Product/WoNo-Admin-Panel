@@ -248,7 +248,6 @@ const getTickets = async (req, res, next) => {
           { escalatedTo: { $in: userDepartments } },
         ],
         acceptedBy: { $exists: false },
-        raisedBy: { $ne: loggedInUser._id },
         company: loggedInUser.company,
         status: "Open",
       })
@@ -647,9 +646,43 @@ const escalateTicket = async (req, res, next) => {
     }
 
     // Update the ticket: add the departmentId to the escalatedTo array
+    // const updatedTicket = await Tickets.findByIdAndUpdate(
+    //   ticketId,
+    //   { $push: { escalatedTo: departmentId } },
+    //   { new: true }
+    // );
+
+    const ticket = await Ticket.findById(ticketId);
+
+    if (!ticket) {
+      throw new CustomError(
+        "Ticket to be escalated not found",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    //Create new ticket to track the status of the escalated ticket
+    const newTicket = new Ticket({
+      ticket: ticket.ticket,
+      description: ticket.description,
+      raisedToDepartment: departmentId,
+      raisedBy: user,
+      company: company,
+      image: imageDetails
+        ? {
+            id: imageDetails.id,
+            url: imageDetails.url,
+          }
+        : null,
+    });
+
+    const savedTicket = await newTicket.save();
+
     const updatedTicket = await Tickets.findByIdAndUpdate(
       ticketId,
-      { $push: { escalatedTo: departmentId } },
+      { $push: { escalatedTo: savedTicket._id }, escalateStatus: "Open" },
       { new: true }
     );
     if (!updatedTicket) {
