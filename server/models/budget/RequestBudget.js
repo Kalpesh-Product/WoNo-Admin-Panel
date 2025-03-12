@@ -14,8 +14,8 @@ const requestBudgetSchema = new mongoose.Schema(
       ref: "Company",
     },
     expenseType: {
-      type: String,
-      required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "BudgetCategory",
     },
     amount: {
       type: Number,
