@@ -7,10 +7,13 @@ import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import ThreeDotMenu from "../../../components/ThreeDotMenu";
 import { queryClient } from "../../..";
 import { toast } from "sonner";
+import { Controller, useForm } from "react-hook-form";
+import PrimaryButton from "../../../components/PrimaryButton";
 
 const SupportTickets = ({ title }) => {
   const [openModal, setopenModal] = useState(false);
   const axios = useAxiosPrivate();
+  const [selectedTicketId, setSelectedTicketId] = useState(null);
 
   // Fetch Supported Tickets
   const { data: supportedTickets = [], isLoading } = useQuery({
@@ -25,6 +28,10 @@ const SupportTickets = ({ title }) => {
       }
     },
   });
+  const handleOpenAssignModal = (ticketId) => {
+    setSelectedTicketId(ticketId);
+    setopenModal(true);
+  };
 
   // Transform Tickets Data
   const transformTicketsData = (tickets) => {
@@ -58,18 +65,6 @@ const SupportTickets = ({ title }) => {
 
   const rows = isLoading ? [] : transformTicketsData(supportedTickets);
 
-  const handleCloseModal = () => {
-    setopenModal(false);
-  };
-
-  const assignees = [
-    "AiwinRaj",
-    "Anushri Bhagat",
-    "Allen Silvera",
-    "Sankalp Kalangutkar",
-    "Muskan Dodmani",
-  ];
-
   const { mutate: closeTicket, isPending: isClosingTicket } = useMutation({
     mutationKey: ["close-ticket"],
     mutationFn: async (ticketId) => {
@@ -88,45 +83,64 @@ const SupportTickets = ({ title }) => {
     },
   });
 
-  const { mutate: reAssignTicket } = useMutation({
-    mutationKey: ["close-ticket"],
-    mutationFn: async (ticketId) => {
-      const response = await axios.patch("/api/tickets/close-ticket", {
-        ticketId,
-      });
-      return response.data;
-    },
+  const fetchSubOrdinates = async () => {
+    try {
+      const response = await axios.get("/api/users/assignees");
 
-    onSuccess: (data) => {
-      toast.success(data.message || "Ticket closed successfully");
-      queryClient.invalidateQueries({ queryKey: ["accepted-tickets"] }); // Refetch tickets
+      return response.data;
+    } catch (error) {
+      toast.error(error.message || "Failed to fetch users");
+    }
+  };
+
+  const { data: subOrdinates = [], isPending: isSubOrdinates } = useQuery({
+    queryKey: ["sub-ordinates"],
+    queryFn: fetchSubOrdinates,
+  });
+
+  const { control, handleSubmit, reset } = useForm({
+    defaultValues: {
+      selectedEmployees: {},
     },
-    onError: (err) => {
-      toast.error(err.response.data.message || "Failed to close ticket");
+  });
+  const { mutate: assignMutate } = useMutation({
+    mutationKey: ["assign-ticket"],
+    mutationFn: async (data) => {
+      const response = await axios.patch(
+        `/api/tickets/assign-ticket/${data.ticketId}`,
+        {
+          assignees: data.assignedEmployees,
+        }
+      );
+
+      return response.data.message;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["supported-tickets"] });
+      toast.success(data);
+      setopenModal(false); // Close modal on success
+      reset(); // Reset form after submission
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || "Something went wrong");
     },
   });
 
-  const viewChildren = (
-    <>
-      <ul>
-        {assignees.map((key, items) => {
-          return (
-            <>
-              <div className="flex flex-row gap-6">
-                <input type="checkbox"></input>
-                <li key={items}>{key}</li>
-              </div>
-            </>
-          );
-        })}
-      </ul>
-      <div className="flex items-center justify-center mb-4">
-        <button className="p-2 bg-primary align-middle text-white rounded-md">
-          Assign
-        </button>
-      </div>
-    </>
-  );
+  const onSubmit = (formData) => {
+    const assignedEmployeeIds = Object.keys(formData.selectedEmployees).filter(
+      (id) => formData.selectedEmployees[id]
+    ); // ✅ Keep only selected IDs
+
+    if (assignedEmployeeIds.length === 0) {
+      toast.error("Please select at least one employee.");
+      return;
+    }
+
+    assignMutate({
+      ticketId: selectedTicketId,
+      assignedEmployees: assignedEmployeeIds,
+    }); // ✅ Send array of IDs
+  };
 
   const recievedTicketsColumns = [
     { field: "srno", headerName: "SR NO" },
@@ -209,7 +223,7 @@ const SupportTickets = ({ title }) => {
               },
               {
                 label: "Re-Assign",
-                onClick: () => reAssignTicket(params.data.id),
+                onClick: () => handleOpenAssignModal(params.data.id),
               },
             ]}
           />
@@ -225,7 +239,11 @@ const SupportTickets = ({ title }) => {
       </div>
       <div className="w-full">
         {!isClosingTicket ? (
-          <AgTable key={rows.length} data={rows} columns={recievedTicketsColumns} />
+          <AgTable
+            key={rows.length}
+            data={rows}
+            columns={recievedTicketsColumns}
+          />
         ) : (
           <>
             <CircularProgress />
@@ -234,11 +252,38 @@ const SupportTickets = ({ title }) => {
       </div>
       <MuiModal
         open={openModal}
-        onClose={handleCloseModal}
-        title="Re Assign Ticket"
-        children={viewChildren}
-        btnTitle="Re Assign"
-      />
+        onClose={() => setopenModal(false)}
+        title="Assign Tickets"
+      >
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <ul>
+            {!isSubOrdinates ? (
+              subOrdinates.map((employee) => (
+                <div key={employee.id} className="flex flex-row gap-6">
+                  <Controller
+                    name={`selectedEmployees.${employee.id}`}
+                    control={control}
+                    render={({ field }) => (
+                      <input
+                        type="checkbox"
+                        {...field}
+                        checked={!!field.value}
+                      />
+                    )}
+                  />
+                  <li>{employee.name}</li>
+                </div>
+              ))
+            ) : (
+              <CircularProgress />
+            )}
+          </ul>
+
+          <div className="flex items-center justify-center mb-4">
+            <PrimaryButton title="Assign" type="submit" />
+          </div>
+        </form>
+      </MuiModal>
     </div>
   );
 };
