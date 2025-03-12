@@ -170,7 +170,7 @@ const addUnit = async (req, res, next) => {
   }
 };
 
-const uploadCompanyLocationImage = async (req, res, next) => {
+const uploadUnitImage = async (req, res, next) => {
   try {
     const { unitId, imageType } = req.body;
     const file = req.file; // Multer stores a single file in req.file
@@ -220,14 +220,15 @@ const uploadCompanyLocationImage = async (req, res, next) => {
   }
 };
 
-const bulkInsertWorkLocations = async (req, res, next) => {
+const bulkInsertUnits = async (req, res, next) => {
   try {
     const companyId = req.company;
+    const { buildingId } = req.body;
     if (!req.file) {
       return res.status(400).json({ message: "Please provide a CSV file" });
     }
 
-    if (!companyId) {
+    if (!companyId || !buildingId) {
       return res
         .status(400)
         .json({ message: "Company ID and CSV data are required" });
@@ -237,36 +238,31 @@ const bulkInsertWorkLocations = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid companyId provided" });
     }
 
-    const workLocations = [];
+    const units = [];
     const stream = Readable.from(req.file.buffer.toString("utf-8").trim());
 
     stream
       .pipe(csvParser())
       .on("data", (row) => {
-        workLocations.push({
+        units.push({
           company: companyId,
-          name: row["Building Name"],
-          fullAddress: row["Full Address"],
-          unit: {
-            unitNo: row["Unit Name"],
-            unitName: row["Unit No"],
-          },
+          building: buildingId,
+          unitName: row["Floor"],
+          unitNo: row["Unit Number"],
           isActive: true,
-          occupiedImage: { id: "", url: "" },
-          clearImage: { id: "", url: "" },
+          occupiedImage: { imageId: "", url: "" },
+          clearImage: { imageId: "", url: "" },
         });
       })
       .on("end", async () => {
-        if (workLocations.length === 0) {
+        if (units.length === 0) {
           return res
             .status(400)
             .json({ message: "No valid work locations found in the CSV" });
         }
 
-        const insertedWorkLocations = await WorkLocation.insertMany(
-          workLocations
-        );
-        const workLocationIds = insertedWorkLocations.map((loc) => loc._id);
+        const insertedUnits = await Unit.insertMany(units);
+        const workLocationIds = insertedUnits.map((loc) => loc._id);
 
         const updatedCompany = await Company.findByIdAndUpdate(
           companyId,
@@ -282,7 +278,7 @@ const bulkInsertWorkLocations = async (req, res, next) => {
 
         return res.status(200).json({
           message: "Work locations added successfully",
-          workLocations: insertedWorkLocations,
+          workLocations: insertedUnits,
         });
       });
   } catch (error) {
@@ -293,6 +289,6 @@ const bulkInsertWorkLocations = async (req, res, next) => {
 module.exports = {
   addBuilding,
   addUnit,
-  bulkInsertWorkLocations,
-  uploadCompanyLocationImage,
+  bulkInsertUnits,
+  uploadUnitImage,
 };
