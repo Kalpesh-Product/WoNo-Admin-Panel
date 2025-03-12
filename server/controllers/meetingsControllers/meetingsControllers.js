@@ -305,7 +305,14 @@ const getMeetings = async (req, res, next) => {
     const meetings = await Meeting.find({
       company,
     })
-      .populate("bookedRoom", "name location housekeepingStatus")
+      .populate({
+        path: "bookedRoom",
+        select: "name location housekeepingStatus",
+        populate: {
+          path: "location",
+          select: "name fullAddress isActive unit",
+        },
+      })
       .populate("bookedBy", "firstName lastName email")
       .populate("internalParticipants", "firstName lastName email");
 
@@ -330,73 +337,34 @@ const getMeetings = async (req, res, next) => {
       );
     });
 
-    // console.log(internalParticipants)
-
-
-    const housekeepingChecklist = [
-      {
-        name: "Clean and arrange chairs and tables",
-      },
-      {
-        name: "Check projector functionality",
-      },
-      {
-        name: "Ensure AC is working",
-      },
-      {
-        name: "Clean whiteboard and provide markers",
-      },
-      {
-        name: "Vacuum and clean the floor",
-      },
-      {
-        name: "Check lighting and replace bulbs if necessary",
-      },
-      {
-        name: "Ensure Wi-Fi connectivity",
-      },
-      {
-        name: "Stock water bottles and glasses",
-      },
-      {
-        name: "Inspect electrical sockets and outlets",
-      },
-      {
-        name: "Remove any trash or debris",
-      },
-    ];
-
-    const transformedMeetings =
-      meetings.map((meeting, index) => {
-        return {
-          _id: meeting._id,
-          name: meeting.bookedBy?.name,
-          department: department.name,
-          roomName: meeting.bookedRoom.name,
-          // roomStatus: meeting.bookedRoom.location.status,
-          location: meeting.bookedRoom.location,
-          meetingType: meeting.meetingType,
-          housekeepingStatus: meeting.bookedRoom.housekeepingStatus,
-          date: formatDate(meeting.startDate),
-          startTime: formatTime(meeting.startTime),
-          endTime: formatTime(meeting.endTime),
-          credits: meeting.credits,
-          duration: formatDuration(meeting.startTime, meeting.endTime),
-          meetingStatus: meeting.status,
-          action: meeting.extend,
-          agenda: meeting.agenda,
-          subject: meeting.subject,
-          housekeepingChecklist: [...(meeting.housekeepingChecklist ?? [])],
-          // internalParticipants: internalParticipants[index],
-          // externalParticipants: meeting.externalParticipants,
-          participants:
-            meeting.externalParticipants.length > 0
-              ? meeting.externalParticipants
-              : internalParticipants[index],
-          company: meeting.company,
-        };
-      }) || [];
-
+    const transformedMeetings = meetings.map((meeting, index) => {
+      return {
+        _id: meeting._id,
+        name: meeting.bookedBy?.name,
+        department: department.name,
+        roomName: meeting.bookedRoom.name,
+        location: meeting.bookedRoom.location,
+        meetingType: meeting.meetingType,
+        housekeepingStatus: meeting.bookedRoom.housekeepingStatus,
+        date: formatDate(meeting.startDate),
+        startTime: formatTime(meeting.startTime),
+        endTime: formatTime(meeting.endTime),
+        credits: meeting.credits,
+        duration: formatDuration(meeting.startTime, meeting.endTime),
+        meetingStatus: meeting.status,
+        action: meeting.extend,
+        agenda: meeting.agenda,
+        subject: meeting.subject,
+        housekeepingChecklist: [...(meeting.housekeepingChecklist ?? [])],
+        // internalParticipants: internalParticipants[index],
+        // externalParticipants: meeting.externalParticipants,
+        participants:
+          meeting.externalParticipants.length > 0
+            ? meeting.externalParticipants
+            : internalParticipants[index],
+        company: meeting.company,
+      };
+    });
 
     return res.status(200).json(transformedMeetings);
   } catch (error) {

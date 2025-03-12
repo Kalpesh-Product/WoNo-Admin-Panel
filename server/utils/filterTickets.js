@@ -5,9 +5,10 @@ const Company = require("../models/hr/Company");
 
 function generateQuery(queryMapping, roles) {
   const roleHierarchy = ["Master Admin", "Super Admin", "Admin", "Employee"]; // For users with multiple roles, use query of higher entity
-if(!roles){
-  throw new Error("stupid add the roles!")
-}
+
+  if (!roles) {
+    throw new Error("stupid add the roles!");
+  }
   const matchedRole =
     roleHierarchy.find((roleTitle) =>
       roles.some(
@@ -48,16 +49,12 @@ async function filterAcceptedAssignedTickets(user, roles, userDepartments) {
     "Master Admin": {
       $or: [
         {
-          $and: [
-            { acceptedBy: { $exists: true } },
-            { raisedBy: { $ne: user } },
-            { status: "In Progress" },
-          ],
+          $and: [{ acceptedBy: { $exists: true } }, { status: "In Progress" }],
         },
         {
           $and: [
             { assignees: { $exists: true, $ne: [] } },
-            { raisedBy: { $ne: user } },
+
             { status: "In Progress" },
           ],
         },
@@ -66,16 +63,12 @@ async function filterAcceptedAssignedTickets(user, roles, userDepartments) {
     "Super Admin": {
       $or: [
         {
-          $and: [
-            { acceptedBy: { $exists: true } },
-            { raisedBy: { $ne: user } },
-            { status: "In Progress" },
-          ],
+          $and: [{ acceptedBy: { $exists: true } }, { status: "In Progress" }],
         },
         {
           $and: [
             { assignees: { $exists: true, $ne: [] } },
-            { raisedBy: { $ne: user } },
+
             { status: "In Progress" },
           ],
         },
@@ -103,29 +96,22 @@ async function filterAcceptedAssignedTickets(user, roles, userDepartments) {
       $or: [{ acceptedBy: user }, { assignees: { $in: [user] } }],
       status: "In Progress",
     },
-
   };
-  
-  const query = generateQuery(queryMapping, roles);
 
+  const query = generateQuery(queryMapping, roles);
+  if (!Object.keys(query).length) {
+    return [];
+  }
   return await fetchTickets(query);
 }
 
 async function filterAcceptedTickets(user, roles, userDepartments) {
   const queryMapping = {
     "Master Admin": {
-      $and: [
-        { acceptedBy: { $exists: true } },
-        { raisedBy: { $ne: user } },
-        { status: "In Progress" },
-      ],
+      $and: [{ acceptedBy: { $exists: true } }, { status: "In Progress" }],
     },
     "Super Admin": {
-      $and: [
-        { acceptedBy: { $exists: true } },
-        { raisedBy: { $ne: user } },
-        { status: "In Progress" },
-      ],
+      $and: [{ acceptedBy: { $exists: true } }, { status: "In Progress" }],
     },
     Admin: {
       $and: [
@@ -138,7 +124,10 @@ async function filterAcceptedTickets(user, roles, userDepartments) {
   };
 
   const query = generateQuery(queryMapping, roles);
-  return fetchTickets(query);
+  if (!Object.keys(query).length) {
+    return [];
+  }
+  return await fetchTickets(query);
 }
 
 async function filterAssignedTickets(user, roles, userDepartments) {
@@ -146,14 +135,14 @@ async function filterAssignedTickets(user, roles, userDepartments) {
     "Master Admin": {
       $and: [
         { assignees: { $exists: true, $ne: [] } },
-        { raisedBy: { $ne: user } },
+
         { status: "In Progress" },
       ],
     },
     "Super Admin": {
       $and: [
         { assignees: { $exists: true, $ne: [] } },
-        { raisedBy: { $ne: user } },
+
         { status: "In Progress" },
       ],
     },
@@ -168,7 +157,10 @@ async function filterAssignedTickets(user, roles, userDepartments) {
   };
 
   const query = generateQuery(queryMapping, roles);
-  return fetchTickets(query);
+  if (!Object.keys(query).length) {
+    return [];
+  }
+  return await fetchTickets(query);
 }
 
 async function filterSupportTickets(user, roles, userDepartments) {
@@ -182,10 +174,14 @@ async function filterSupportTickets(user, roles, userDepartments) {
     ) || "None";
 
   try {
-    const tickets = await SupportTicket.find()
+    const supportTickets = await SupportTicket.find({
+      ticket: {
+        $in: await Ticket.find({ status: "Open" }).distinct("_id"),
+      },
+    })
       .populate({
         path: "ticket",
-        select: "status acceptedBy assignees image",
+        select: "status acceptedBy assignees image raisedBy raisedToDepartment",
         populate: [
           {
             path: "raisedBy",
@@ -216,9 +212,9 @@ async function filterSupportTickets(user, roles, userDepartments) {
       .select("-company");
 
     if (matchedRole === "Master Admin" || !matchedRole === "Super Admin") {
-      return tickets;
+      return supportTickets;
     } else if (matchedRole === "Admin") {
-      let adminTickets = tickets.filter((ticket) => {
+      let adminTickets = supportTickets.filter((ticket) => {
         return userDepartments.some((dept) => {
           return ticket.ticket.raisedToDepartment._id.equals(
             new mongoose.Types.ObjectId(dept)
@@ -228,12 +224,12 @@ async function filterSupportTickets(user, roles, userDepartments) {
 
       return adminTickets;
     } else if (matchedRole === "Employee") {
-      let employeeTickets = tickets.filter((ticket) =>
-        ticket.ticket.raisedBy._id.equals(user)
+      let employeeTickets = supportTickets.filter((ticket) =>
+        ticket.user._id.equals(new mongoose.Types.ObjectId(user))
       );
 
       return employeeTickets;
-    } else return tickets;
+    }
   } catch (error) {
     return [];
   }
@@ -256,7 +252,11 @@ async function filterEscalatedTickets(roles, userDepartments) {
   };
 
   const query = generateQuery(queryMapping, roles);
-  return fetchTickets(query);
+
+  if (!Object.keys(query).length) {
+    return [];
+  }
+  return await fetchTickets(query);
 }
 
 async function filterCloseTickets(user, roles, userDepartments) {
@@ -286,7 +286,10 @@ async function filterCloseTickets(user, roles, userDepartments) {
   };
 
   const query = generateQuery(queryMapping, roles);
-  return fetchTickets(query);
+  if (!Object.keys(query).length) {
+    return [];
+  }
+  return await fetchTickets(query);
 }
 
 module.exports = {
