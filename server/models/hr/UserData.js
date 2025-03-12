@@ -106,9 +106,11 @@ const userDataSchema = new mongoose.Schema({
     required: true,
   },
   workLocation: {
-    type: String,
-    required: true,
-    trim: true,
+    // type: String,
+    // required: true,
+    // trim: true,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Unit",
   },
   reportsTo: {
     type: mongoose.Schema.Types.ObjectId,

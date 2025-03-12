@@ -253,6 +253,14 @@ const fetchUser = async (req, res, next) => {
         { path: "departments", select: "name" },
         { path: "company", select: "name" },
         { path: "role", select: "roleTitle modulePermissions" },
+        {
+          path: "workLocation",
+          select: "_id unitName unitNo",
+          populate: {
+            path: "building",
+            select: "_id buildingName fullAddress",
+          },
+        },
       ])
       .lean()
       .exec();
