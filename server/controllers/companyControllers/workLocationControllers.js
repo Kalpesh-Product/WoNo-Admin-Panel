@@ -9,13 +9,15 @@ const {
   handleFileUpload,
   handleFileDelete,
 } = require("../../config/cloudinaryConfig");
+const Unit = require("../../models/locations/Unit");
+const Building = require("../../models/locations/Building");
 
-const addWorkLocation = async (req, res, next) => {
+const addBuilding = async (req, res, next) => {
   const logPath = "hr/HrLog";
-  const logAction = "Add Work Location";
-  const logSourceKey = "companyData";
+  const logAction = "Add Building";
+  const logSourceKey = "building";
   const { user, ip, company } = req;
-  const { buildingName, floor, wing, fullAddress, unit } = req.body;
+  const { buildingName, fullAddress } = req.body;
 
   try {
     if (!company || !buildingName) {
@@ -48,22 +50,16 @@ const addWorkLocation = async (req, res, next) => {
     }
 
     // Create new WorkLocation
-    const newWorkLocation = new WorkLocation({
+    const newBuilding = new Building({
       company,
-      name: buildingName,
+      buildingName,
       fullAddress: fullAddress || "",
-      floor: floor || "",
-      wing: wing || "",
-      isActive: true,
-      occupiedImage: { id: "", url: "" },
-      clearImage: { id: "", url: "" },
-      unit: unit || {},
     });
 
-    await newWorkLocation.save();
+    const savedBuilding = await newBuilding.save();
 
     // Update the company document by adding the work location reference
-    existingCompany.workLocations.push(newWorkLocation._id);
+    existingCompany.workLocations.push(savedBuilding._id);
     await existingCompany.save();
 
     await createLog({
@@ -75,13 +71,94 @@ const addWorkLocation = async (req, res, next) => {
       ip,
       company,
       sourceKey: logSourceKey,
-      sourceId: newWorkLocation._id,
-      changes: { workLocation: newWorkLocation },
+      sourceId: savedBuilding._id,
+      changes: { workLocation: newBuilding },
     });
 
     return res.status(200).json({
       message: "Work location added successfully",
-      workLocation: newWorkLocation,
+      workLocation: newBuilding,
+    });
+  } catch (error) {
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
+  }
+};
+
+const addUnit = async (req, res, next) => {
+  const logPath = "hr/HrLog";
+  const logAction = "Add Unit";
+  const logSourceKey = "unit";
+  const { user, ip, company } = req;
+  const { buildingId, unitName, unitNo, clearImage, occupiedImage } = req.body;
+
+  try {
+    if (!company || !unitName || !unitNo || !buildingId) {
+      throw new CustomError(
+        "Missing required fields",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(company)) {
+      throw new CustomError(
+        "Invalid company provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    // Check if the company exists
+    const existingCompany = await Company.findById(company);
+    if (!existingCompany) {
+      throw new CustomError(
+        "Company not found",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    // Create new WorkLocation
+    const newUnit = new Unit({
+      company,
+      unitName,
+      unitNo,
+      building: buildingId,
+      clearImage: clearImage ? clearImage : "",
+      occupiedImage: occupiedImage ? occupiedImage : "",
+    });
+
+    const savedUnit = await newUnit.save();
+
+    // Update the company document by adding the work location reference
+    existingCompany.workLocations.push(savedUnit._id);
+    await existingCompany.save();
+
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Work location added successfully",
+      status: "Success",
+      user,
+      ip,
+      company,
+      sourceKey: logSourceKey,
+      sourceId: savedUnit._id,
+      changes: { workLocation: newUnit },
+    });
+
+    return res.status(200).json({
+      message: "Work location added successfully",
+      workLocation: newUnit,
     });
   } catch (error) {
     if (error instanceof CustomError) {
@@ -96,7 +173,7 @@ const addWorkLocation = async (req, res, next) => {
 
 const uploadCompanyLocationImage = async (req, res, next) => {
   try {
-    const { locationId, imageType } = req.body;
+    const { unitId, imageType } = req.body;
     const file = req.file; // Multer stores a single file in req.file
     const companyId = req.company;
 
@@ -104,7 +181,7 @@ const uploadCompanyLocationImage = async (req, res, next) => {
       return res.status(400).json({ message: "No image provided" });
     }
 
-    if (!locationId || !companyId || !imageType) {
+    if (!unitId || !companyId || !imageType) {
       return res.status(400).json({
         message: "Company ID, Location ID, and Image Type are required",
       });
@@ -115,7 +192,7 @@ const uploadCompanyLocationImage = async (req, res, next) => {
     }
 
     // Find the work location
-    const workLocation = await WorkLocation.findById(locationId);
+    const workLocation = await WorkLocation.findById(unitId);
     if (!workLocation || workLocation.company.toString() !== companyId) {
       return res.status(404).json({ message: "Work location not found" });
     }
@@ -167,18 +244,18 @@ const bulkInsertWorkLocations = async (req, res, next) => {
     stream
       .pipe(csvParser())
       .on("data", (row) => {
-          workLocations.push({
-            company: companyId,
-            name: row["Building Name"],
-            fullAddress: row["Full Address"],
-            unit: {
-              unitNo: row["Unit Name"],
-              unitName: row["Unit No"],
-            },
-            isActive: true,
-            occupiedImage: { id: "", url: "" },
-            clearImage: { id: "", url: "" },
-          });
+        workLocations.push({
+          company: companyId,
+          name: row["Building Name"],
+          fullAddress: row["Full Address"],
+          unit: {
+            unitNo: row["Unit Name"],
+            unitName: row["Unit No"],
+          },
+          isActive: true,
+          occupiedImage: { id: "", url: "" },
+          clearImage: { id: "", url: "" },
+        });
       })
       .on("end", async () => {
         if (workLocations.length === 0) {
@@ -215,7 +292,8 @@ const bulkInsertWorkLocations = async (req, res, next) => {
 };
 
 module.exports = {
-  addWorkLocation,
+  addBuilding,
+  addUnit,
   bulkInsertWorkLocations,
   uploadCompanyLocationImage,
 };
