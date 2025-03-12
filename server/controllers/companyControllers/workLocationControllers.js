@@ -4,7 +4,6 @@ const { createLog } = require("../../utils/moduleLogs");
 const csvParser = require("csv-parser");
 const { Readable } = require("stream");
 const CustomError = require("../../utils/customErrorlogs");
-const WorkLocation = require("../../models/hr/WorkLocations");
 const {
   handleFileUpload,
   handleFileDelete,
