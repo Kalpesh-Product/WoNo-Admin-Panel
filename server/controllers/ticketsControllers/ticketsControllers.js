@@ -646,45 +646,12 @@ const escalateTicket = async (req, res, next) => {
     }
 
     // Update the ticket: add the departmentId to the escalatedTo array
-    // const updatedTicket = await Tickets.findByIdAndUpdate(
-    //   ticketId,
-    //   { $push: { escalatedTo: departmentId } },
-    //   { new: true }
-    // );
-
-    const ticket = await Ticket.findById(ticketId);
-
-    if (!ticket) {
-      throw new CustomError(
-        "Ticket to be escalated not found",
-        logPath,
-        logAction,
-        logSourceKey
-      );
-    }
-
-    //Create new ticket to track the status of the escalated ticket
-    const newTicket = new Ticket({
-      ticket: ticket.ticket,
-      description: ticket.description,
-      raisedToDepartment: departmentId,
-      raisedBy: user,
-      company: company,
-      image: imageDetails
-        ? {
-            id: imageDetails.id,
-            url: imageDetails.url,
-          }
-        : null,
-    });
-
-    const savedTicket = await newTicket.save();
-
     const updatedTicket = await Tickets.findByIdAndUpdate(
       ticketId,
-      { $push: { escalatedTo: savedTicket._id }, escalateStatus: "Open" },
+      { $push: { escalatedTo: departmentId } },
       { new: true }
     );
+
     if (!updatedTicket) {
       throw new CustomError(
         "Failed to escalate ticket",
