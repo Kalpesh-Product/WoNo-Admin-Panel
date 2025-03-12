@@ -10,6 +10,14 @@ const hrLogSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Department",
     },
+    building: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Building",
+    },
+    unit: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Unit",
+    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "UserData",

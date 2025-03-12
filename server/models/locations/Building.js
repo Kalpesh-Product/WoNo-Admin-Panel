@@ -4,8 +4,12 @@ const buildingSchema = new mongoose.Schema({
   company: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Company",
+    required: true,
   },
-  name: String,
+  buildingName: {
+    type: String,
+    required: true,
+  },
   fullAddress: String,
   isActive: {
     type: Boolean,

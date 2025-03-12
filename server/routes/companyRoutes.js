@@ -26,9 +26,10 @@ const {
   addShift,
 } = require("../controllers/companyControllers/shiftControllers");
 const {
-  addWorkLocation,
+  addBuilding,
   bulkInsertWorkLocations,
   uploadCompanyLocationImage,
+  addUnit,
 } = require("../controllers/companyControllers/workLocationControllers");
 const {
   createDepartment,
@@ -41,7 +42,8 @@ router.get("/company-hierarchy", getHierarchy);
 router.post("/add-department", createDepartment);
 router.post("/add-employee-type", addEmployeeType);
 router.post("/add-leave-type", addLeaveType);
-router.post("/add-work-location", addWorkLocation);
+router.post("/add-building", addBuilding);
+router.post("/add-unit", addUnit);
 router.post(
   "/bulk-add-locations",
   upload.single("locations"),
