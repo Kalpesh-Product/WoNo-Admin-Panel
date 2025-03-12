@@ -307,10 +307,14 @@ const getMeetings = async (req, res, next) => {
     })
       .populate({
         path: "bookedRoom",
-        select: "name location housekeepingStatus",
+        select: "name housekeepingStatus",
         populate: {
           path: "location",
-          select: "name fullAddress isActive unit",
+          select: "unitName unitNo",
+          populate: {
+            path: "building",
+            select: "buildingName",
+          },
         },
       })
       .populate("bookedBy", "firstName lastName email")
@@ -320,12 +324,9 @@ const getMeetings = async (req, res, next) => {
       "departments"
     );
 
-    // console.log(meetings.map((meeting)=> meeting.internalParticipants))
-
     const department = await Department.findById({
       _id: departments.departments[0],
     });
-
 
     const internalParticipants = meetings.map((meeting) => {
       if (meeting.internalParticipants.length === 0) {
@@ -333,7 +334,87 @@ const getMeetings = async (req, res, next) => {
       }
 
       return meetings.map((meeting) =>
-        meeting.internalParticipants.map((participant) => participant?.firstName)
+        meeting.internalParticipants.map(
+          (participant) => participant?.firstName
+        )
+      );
+    });
+
+    const transformedMeetings = meetings.map((meeting, index) => {
+      return {
+        _id: meeting._id,
+        name: meeting.bookedBy?.name,
+        department: department.name,
+        roomName: meeting.bookedRoom.name,
+        location: meeting.bookedRoom.location,
+        meetingType: meeting.meetingType,
+        housekeepingStatus: meeting.bookedRoom.housekeepingStatus,
+        date: formatDate(meeting.startDate),
+        startTime: formatTime(meeting.startTime),
+        endTime: formatTime(meeting.endTime),
+        credits: meeting.credits,
+        duration: formatDuration(meeting.startTime, meeting.endTime),
+        meetingStatus: meeting.status,
+        action: meeting.extend,
+        agenda: meeting.agenda,
+        subject: meeting.subject,
+        housekeepingChecklist: [...(meeting.housekeepingChecklist ?? [])],
+        // internalParticipants: internalParticipants[index],
+        // externalParticipants: meeting.externalParticipants,
+        participants:
+          meeting.externalParticipants.length > 0
+            ? meeting.externalParticipants
+            : internalParticipants[index],
+        company: meeting.company,
+      };
+    });
+
+    return res.status(200).json(transformedMeetings);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getMyMeetings = async (req, res, next) => {
+  try {
+    const { user, company } = req;
+
+    const meetings = await Meeting.find({
+      company,
+      bookedBy: user,
+    })
+      .populate({
+        path: "bookedRoom",
+        select: "name housekeepingStatus",
+        populate: {
+          path: "location",
+          select: "unitName unitNo",
+          populate: {
+            path: "building",
+            select: "buildingName",
+          },
+        },
+      })
+      .populate("bookedBy", "firstName lastName email")
+      .populate("internalParticipants", "firstName lastName email");
+
+    const departments = await User.findById({ _id: user }).select(
+      "departments"
+    );
+
+    const department = await Department.findById({
+      _id: departments.departments[0],
+    });
+
+    const internalParticipants = meetings.map((meeting) => {
+      if (meeting.internalParticipants.length === 0) {
+        return;
+      }
+
+      return meetings.map((meeting) =>
+        meeting.internalParticipants.map(
+          (participant) => participant?.firstName
+        )
       );
     });
 
@@ -783,6 +864,7 @@ const extendMeeting = async (req, res, next) => {
 module.exports = {
   addMeetings,
   getMeetings,
+  getMyMeetings,
   addHousekeepingTask,
   deleteHousekeepingTask,
   getMeetingsByTypes,
