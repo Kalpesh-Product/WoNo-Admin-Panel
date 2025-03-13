@@ -23,16 +23,16 @@ import Hostels from "../../../../assets/WONO_images/img/website-builder/new-layo
 import Hostels_mockup from "../../../../assets/WONO_images/img/website-builder/new-layout/mobile/mockups/hostels.png";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import useAxiosPrivate from '../../../../hooks/useAxiosPrivate'
-
+import useAxiosPrivate from "../../../../hooks/useAxiosPrivate";
+import { CircularProgress } from "@mui/material";
 
 const ThemeGrid = () => {
   const navigate = useNavigate();
-  const axios = useAxiosPrivate()
+  const axios = useAxiosPrivate();
 
   const fetchTemplates = async () => {
     try {
-      const response = await axios.get('/api/editor/templates');
+      const response = await axios.get("/api/editor/templates");
       return response.data;
     } catch (error) {
       console.error("Error fetching templates:", error);
@@ -43,7 +43,6 @@ const ThemeGrid = () => {
     queryKey: ["templates"],
     queryFn: fetchTemplates,
   });
-  
 
   const themeImages = [
     {
@@ -128,17 +127,45 @@ const ThemeGrid = () => {
       <div className="p-4">
         <div className="themePage-content-header bg-white">
           <span className="text-left text-title text-primary font-pmedium">
-           Select Themes
+            Select Themes
           </span>
         </div>
 
-        <div className="themePage-content-grid grid grid-cols-2 gap-8 py-4 bg-white">
+        {!isTemplatesPending ? (
+          <div className="grid grid-cols-2 sm:grid-cols1 gap-4">
+            {templates.map((template, index) => (
+              <div>
+                <div
+                  className="theme-grid w-full h-full overflow-hidden shadow-lg"
+                  key={index}
+                  onClick={()=>navigate('/app/dashboard/frontend-dashboard/view-theme', {state: {
+                    templateName: template.templateName,
+                    pageName: template.pages[0]?.pageName,
+                  }},)}
+                >
+                  <span>{template.templateName}</span>
+                  <img
+                    src={BiznestImage}
+                    alt={template.templateName}
+                    className="w-full h-full object-cover transition-transform duration-200 hover:scale-110 cursor-pointer"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <CircularProgress />
+        )}
+
+        {/* <div className="themePage-content-grid grid grid-cols-2 gap-8 py-4 bg-white">
           {themeImages.map((image, index) => (
             <div
               className="theme-grid w-full h-full overflow-hidden shadow-lg"
               key={index}
               onClick={() => {
-                navigate("/app/dashboard/frontend-dashboard/view-theme", { state: { image } }); // Pass theme data
+                navigate("/app/dashboard/frontend-dashboard/view-theme", {
+                  state: { image },
+                }); // Pass theme data
                 window.scrollTo({ top: 0, behavior: "instant" });
               }}
             >
@@ -149,7 +176,7 @@ const ThemeGrid = () => {
               />
             </div>
           ))}
-        </div>
+        </div> */}
 
         <div className="themePage-featured flex items-center justify-center py-4 bg-white">
           <div className="themePage-featured-grid grid grid-cols-2 gap-4">

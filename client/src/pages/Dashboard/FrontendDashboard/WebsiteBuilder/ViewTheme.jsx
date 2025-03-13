@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import BiznestImage from "../../../../assets/WONO_images/img/products-images/biznestImage.webp";
 import BiznestImageMockup from "../../../../assets/WONO_images/img/website-builder/new-layout/mobile/mockups/biznest-mockup.webp";
 import Cafe_2 from "../../../../assets/WONO_images/img/website-builder/new-layout/cafe-2.webp";
@@ -13,12 +13,10 @@ import CoWorkingImage_2 from "../../../../assets/WONO_images/img/website-builder
 import CoWorkingNomad from "../../../../assets/WONO_images/img/website-builder/new-layout/mobile/mockups/co-living-nomad.png";
 import CoWorkingImage_3 from "../../../../assets/WONO_images/img/website-builder/new-layout/co-working-3.webp";
 import CoWorkingImage_3_Mockup from "../../../../assets/WONO_images/img/website-builder/new-layout/mobile/mockups/co-working-3.png";
-import Featured from "../../../../assets/WONO_images/img/website-builder/new-layout/featured/featured-1.png";
 import Boutique from "../../../../assets/WONO_images/img/website-builder/new-layout/boutique.webp";
 import BoutiqueMockup from "../../../../assets/WONO_images/img/website-builder/new-layout/mobile/mockups/boutique-mockup.webp";
 import CoWorkingMewo from "../../../../assets/WONO_images/img/website-builder/new-layout/co-working-mewo.webp";
 import CoWorkingMewoMockup from "../../../../assets/WONO_images/img/website-builder/new-layout/mobile/mockups/co-working-mewo-mockup.webp";
-import BizNestMockup from "../../../../assets/WONO_images/img/website-builder/new-layout/Macbook-mockup.webp";
 import Hostels from "../../../../assets/WONO_images/img/website-builder/new-layout/hostels.png";
 import Hostels_mockup from "../../../../assets/WONO_images/img/website-builder/new-layout/mobile/mockups/hostels.png";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -118,10 +116,13 @@ const ViewTheme = () => {
     { src: Cafe_3, mockup: Cafe3Mockup, alt: "Cafe_3", tag: "cafe" },
     { src: Hostels, mockup: Hostels_mockup, alt: "Hostels", tag: "hostels" },
   ];
+  const location = useLocation();
+  const {templateName, pageName} = location.state
+  useEffect(()=>{console.log(pageName, templateName)},[pageName])
 
   const navigate = useNavigate();
 
-  const location = useLocation();
+  
   const { image: initialImage } = location.state || {
     image: { src: BiznestImage, tag: "co-working", alt: "Product Image" },
   };
@@ -129,9 +130,9 @@ const ViewTheme = () => {
   const [currentImage, setCurrentImage] = useState(initialImage);
 
   // Filter the recommendations based on the current image's tag
-  const filteredRecommendations = recommendations.filter(
-    (rec) => rec.tag === currentImage.tag
-  );
+  // const filteredRecommendations = recommendations.filter(
+  //   (rec) => rec.tag === currentImage.tag
+  // );
 
   const handleViewMore = () => {
     setShowAll(true); // Show all recommendations
@@ -166,6 +167,7 @@ const ViewTheme = () => {
                   <div class="product-page-button-space flex gap-4 items-center">
                     <button
                       class="product-page-button bg-white text-black mb-8 w-full py-2 px-8 rounded-full"
+                      onClick={()=>navigate(`/app/dashboard/frontend-dashboard/select-theme/edit-theme/${templateName}/${pageName}`)}
                     >
                       Edit theme
                     </button>
@@ -187,8 +189,8 @@ const ViewTheme = () => {
 
               <div class="product-page-image-container overflow-hidden mb-8">
                 <img
-                  src={currentImage.mockup}
-                  alt={currentImage.alt}
+                  src={BiznestImage}
+                  alt={templateName}
                   class="w-full h-full object-contain"
                 />
               </div>
@@ -229,7 +231,7 @@ const ViewTheme = () => {
           <div class="product-page-reccomendations-header mb-8">
             <span class="text-title">Few more suggestions for you</span>
           </div>
-          <div class="product-page-reccomendations-grid grid grid-cols-2 gap-8">
+          {/* <div class="product-page-reccomendations-grid grid grid-cols-2 gap-8">
             {filteredRecommendations
               .slice(0, showAll ? filteredRecommendations.length : 4)
               .map((rec, index) => (
@@ -257,7 +259,7 @@ const ViewTheme = () => {
                 Load More
               </button>
             )}
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

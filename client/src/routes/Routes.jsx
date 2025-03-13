@@ -178,6 +178,7 @@ import AccessGrant from "../pages/Profile/AccessGrant";
 import MyAssets from "../pages/Profile/MyAssets";
 import MeetingRoomCredits from "../pages/Profile/MeetingRoomCredits";
 import TicketsHistory from "../pages/Profile/TicketsHistory";
+import EditTemplate from "../pages/Dashboard/FrontendDashboard/WebsiteBuilder/EditTemplate";
 
 export const routes = createBrowserRouter([
   {
@@ -218,6 +219,14 @@ export const routes = createBrowserRouter([
                       {
                         path: "live-demo",
                         element: <PageDemo />,
+                      },
+                      {
+                        path: "*",
+                        element: <ThemeGrid />,
+                      },
+                      {
+                        path: "select-theme/edit-theme/:templateName/:pageName",
+                        element: <EditTemplate />,
                       },
                       {
                         path: "data",
