@@ -30,6 +30,7 @@ const {
   bulkInsertUnits,
   uploadUnitImage,
   addUnit,
+  fetchUnits,
 } = require("../controllers/companyControllers/workLocationControllers");
 const {
   createDepartment,
@@ -44,6 +45,7 @@ router.post("/add-employee-type", addEmployeeType);
 router.post("/add-leave-type", addLeaveType);
 router.post("/add-building", addBuilding);
 router.post("/add-unit", addUnit);
+router.get("/fetch-units", fetchUnits);
 router.post(
   "/bulk-add-locations",
   upload.single("units"),

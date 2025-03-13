@@ -10,6 +10,7 @@ const {
 } = require("../../config/cloudinaryConfig");
 const Unit = require("../../models/locations/Unit");
 const Building = require("../../models/locations/Building");
+const UserData = require("../../models/hr/UserData");
 
 const addBuilding = async (req, res, next) => {
   const logPath = "hr/HrLog";
@@ -30,7 +31,7 @@ const addBuilding = async (req, res, next) => {
 
     if (!mongoose.Types.ObjectId.isValid(company)) {
       throw new CustomError(
-        "Invalid company provided",
+        "Invalid company ID provided",
         logPath,
         logAction,
         logSourceKey
@@ -58,8 +59,13 @@ const addBuilding = async (req, res, next) => {
     const savedBuilding = await newBuilding.save();
 
     // Update the company document by adding the work location reference
-    existingCompany.workLocations.push(savedBuilding._id);
-    await existingCompany.save();
+    await Company.findOneAndUpdate(
+      { _id: company },
+      {
+        $push: { workLocations: savedBuilding._id },
+      },
+      { new: true, useFindAndModify: false }
+    );
 
     await createLog({
       path: logPath,
@@ -71,11 +77,11 @@ const addBuilding = async (req, res, next) => {
       company,
       sourceKey: logSourceKey,
       sourceId: savedBuilding._id,
-      changes: { workLocation: newBuilding },
+      changes: newBuilding,
     });
 
     return res.status(200).json({
-      message: "Work location added successfully",
+      message: "Building added successfully",
       workLocation: newBuilding,
     });
   } catch (error) {
@@ -108,7 +114,16 @@ const addUnit = async (req, res, next) => {
 
     if (!mongoose.Types.ObjectId.isValid(company)) {
       throw new CustomError(
-        "Invalid company provided",
+        "Invalid company ID provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(buildingId)) {
+      throw new CustomError(
+        "Invalid building ID provided",
         logPath,
         logAction,
         logSourceKey
@@ -120,6 +135,16 @@ const addUnit = async (req, res, next) => {
     if (!existingCompany) {
       throw new CustomError(
         "Company not found",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    const existingBuilding = await Building.findById(buildingId);
+    if (!existingBuilding) {
+      throw new CustomError(
+        "Building not found",
         logPath,
         logAction,
         logSourceKey
@@ -138,10 +163,6 @@ const addUnit = async (req, res, next) => {
 
     const savedUnit = await newUnit.save();
 
-    // Update the company document by adding the work location reference
-    existingCompany.workLocations.push(savedUnit._id);
-    await existingCompany.save();
-
     await createLog({
       path: logPath,
       action: logAction,
@@ -152,11 +173,11 @@ const addUnit = async (req, res, next) => {
       company,
       sourceKey: logSourceKey,
       sourceId: savedUnit._id,
-      changes: { workLocation: newUnit },
+      changes: newUnit,
     });
 
     return res.status(200).json({
-      message: "Work location added successfully",
+      message: "Unit added successfully",
       workLocation: newUnit,
     });
   } catch (error) {
@@ -167,6 +188,43 @@ const addUnit = async (req, res, next) => {
         new CustomError(error.message, logPath, logAction, logSourceKey, 500)
       );
     }
+  }
+};
+
+const fetchUnits = async (req, res, next) => {
+  const { user, company } = req;
+
+  try {
+    const companyExists = await Company.findById(company);
+
+    if (!companyExists) {
+      return res.status(400).json({ message: "Company not found" });
+    }
+
+    const foundUser = await UserData.findById({ _id: user }).populate({
+      path: "workLocation",
+      select: "_id unitName unitNo",
+      populate: {
+        path: "building",
+        select: "_id buildingName fullAddress",
+      },
+    });
+
+    if (!foundUser) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    const units = await Unit.find({
+      building: foundUser.workLocation.building,
+    });
+
+    if (!units.length) {
+      return res.status(200).json([]);
+    }
+
+    return res.status(200).json(units);
+  } catch (error) {
+    next(error);
   }
 };
 
@@ -290,6 +348,7 @@ const bulkInsertUnits = async (req, res, next) => {
 module.exports = {
   addBuilding,
   addUnit,
+  fetchUnits,
   bulkInsertUnits,
   uploadUnitImage,
 };
