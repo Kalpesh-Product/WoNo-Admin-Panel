@@ -1,35 +1,40 @@
 const mongoose = require("mongoose");
 
 const budgetSchema = new mongoose.Schema({
-  department: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Department",
-  },
   company: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Company",
   },
-  ammount: {
+  department: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Department",
+  },
+  expanseName: {
+    type: String,
+    required: true,
+  },
+  projectedAmount: {
     type: Number,
     required: true,
+  },
+  actualAmount: {
+    type: Number,
   },
   status: {
     type: String,
     enum: ["Pending", "Approved", "Rejected"],
-    default: "Pending",
   },
-  utilized: {
-    type: Number,
-    default: 0,
+  isExtraBudget: {
+    type: Boolean,
+    default: false,
   },
-  requests: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "RequestBudget",
-    },
-  ],
-  forMonth: {
+  month: {
     type: Date,
+    required: true,
+  },
+  typeOfBudget: {
+    type: String,
+    enum: ["Internal", "External"],
     required: true,
   },
 });

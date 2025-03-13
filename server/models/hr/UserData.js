@@ -175,7 +175,7 @@ const userDataSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: false,
-  },
+  }
 });
 
 const UserData = mongoose.model("UserData", userDataSchema);

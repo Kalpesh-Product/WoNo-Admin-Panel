@@ -2,19 +2,22 @@ const Budget = require("../../models/budget/Budget");
 const User = require("../../models/hr/UserData");
 const Company = require("../../models/hr/Company");
 const CustomError = require("../../utils/customErrorlogs");
+const { Readable } = require("stream");
+const csvParser = require("csv-parser");
 const { createLog } = require("../../utils/moduleLogs");
 
 const requestBudget = async (req, res, next) => {
-  const logPath = "BudgetLogs";
+  const logPath = "/budget/BudgetLog";
   const logAction = "Request Budget";
   const logSourceKey = "budget";
   const { user, ip, company } = req;
 
   try {
-    const { amount, dueDate, expanseName, expanseType } = req.body;
+    const { projectedAmount, expanseName, month, typeOfBudget, isExtraBudget } =
+      req.body;
     const { departmentId } = req.params;
 
-    if (!amount || !dueDate || !expanseName || !expanseType) {
+    if (!projectedAmount || !expanseName || !month || !typeOfBudget) {
       throw new CustomError(
         "Invalid budget data",
         logPath,
@@ -59,11 +62,12 @@ const requestBudget = async (req, res, next) => {
 
     const newBudgetRequest = new Budget({
       expanseName,
-      expanseType,
+      projectedAmount,
       department: departmentId,
       company: companyDoc._id,
-      dueDate,
-      amount,
+      month,
+      typeOfBudget,
+      isExtraBudget: isExtraBudget || false, // Default to false
       status: "Pending",
     });
 
@@ -79,7 +83,14 @@ const requestBudget = async (req, res, next) => {
       company: company,
       sourceKey: logSourceKey,
       sourceId: newBudgetRequest._id,
-      changes: { amount, dueDate, expanseName, expanseType },
+      changes: {
+        projectedAmount,
+        actualAmount,
+        expanseName,
+        month,
+        typeOfBudget,
+        isExtraBudget,
+      },
     });
 
     return res.status(200).json({
@@ -96,7 +107,7 @@ const requestBudget = async (req, res, next) => {
 
 const fetchBudget = async (req, res, next) => {
   try {
-    const { departmentId } = req.params;
+    const { departmentId } = req.query;
     const { user } = req;
 
     const foundUser = await User.findOne({ _id: user })
@@ -125,4 +136,99 @@ const fetchBudget = async (req, res, next) => {
   }
 };
 
-module.exports = { requestBudget, fetchBudget };
+const bulkInsertBudgets = async (req, res, next) => {
+  try {
+    const logPath = "BulkInsertLogs";
+    const logAction = "Bulk insert for Budget";
+    const { user, ip, company } = req;
+    const { departmentId } = req.params;
+
+    if (!req.file) {
+      throw new CustomError(
+        "CSV file was not provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    const budgets = [];
+    const stream = Readable.from(req.file.buffer.toString("utf-8").trim());
+
+    stream
+      .pipe(csvParser())
+      .on("data", (row) => {
+        const projectedAmt = parseFloat(row["Projected Amount"]);
+        const actualAmt = row["Actual Amount"]
+          ? parseFloat(row["Actual Amount"])
+          : 0;
+        const parsedMonth = new Date(row["Month"]);
+
+        if (
+          isNaN(projectedAmt) ||
+          isNaN(actualAmt) ||
+          isNaN(parsedMonth.getTime())
+        ) {
+          return; // Skip invalid rows
+        }
+
+        budgets.push({
+          company,
+          department: departmentId,
+          expanseName: row["Expanse Name"],
+          projectedAmount: projectedAmt,
+          actualAmount: actualAmt,
+          status: row["Status"] || "Pending",
+          month: parsedMonth,
+          typeOfBudget: row["Type Of Budget"],
+        });
+      })
+      .on("end", async () => {
+        if (budgets.length === 0) {
+          return next(
+            new CustomError(
+              "No valid budgets found in CSV file",
+              logPath,
+              logAction,
+              logSourceKey
+            )
+          );
+        }
+
+        await Budget.insertMany(budgets);
+        await createLog({
+          path: logPath,
+          action: logAction,
+          remarks: "Bulk inserted budgets in the database",
+          status: "Success",
+          user: user,
+          ip: ip,
+          company: company,
+        });
+    
+
+        res.status(201).json({
+          success: true,
+          message: "Budgets uploaded successfully",
+          data: budgets,
+        });
+      });
+  } catch (error) {
+    next(
+      error instanceof CustomError
+        ? error
+        : new CustomError(
+            error.message,
+            "BudgetLogs",
+            "Request Budget",
+            "budget",
+            500
+          )
+    );
+  }
+};
+module.exports = {
+  requestBudget,
+  fetchBudget,
+  bulkInsertBudgets,
+};
