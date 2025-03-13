@@ -20,7 +20,6 @@ const addMeetings = async (req, res, next) => {
   try {
     const {
       meetingType,
-      // bookedBy,
       bookedRoom,
       startDate,
       endDate,
@@ -63,6 +62,7 @@ const addMeetings = async (req, res, next) => {
       );
     }
 
+    const currDate = new Date();
     const startDateObj = new Date(startDate);
     const endDateObj = new Date(endDate);
     const startTimeObj = new Date(startTime);
@@ -82,9 +82,18 @@ const addMeetings = async (req, res, next) => {
       );
     }
 
-    const roomAvailable = await Room.findById({
+    if (startDateObj <= currDate) {
+      throw new CustomError(
+        "Please select future timing",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    const roomAvailable = await Room.findOne({
       _id: bookedRoom,
-      "location.status": "Available",
+      status: "Available",
     });
 
     if (!roomAvailable) {
@@ -97,6 +106,7 @@ const addMeetings = async (req, res, next) => {
     }
 
     let participants = [];
+    let externalClientData;
 
     if (internalParticipants) {
       const invalidIds = internalParticipants.filter(
@@ -162,7 +172,12 @@ const addMeetings = async (req, res, next) => {
         personName,
       });
 
-      await newExternalClient.save();
+      const savedExternalClient = await newExternalClient.save();
+
+      externalClientData = {
+        participants: [...externalParticipants],
+        company: savedExternalClient._id,
+      };
     }
 
     const conflictingMeeting = await Meeting.findOne({
@@ -197,13 +212,13 @@ const addMeetings = async (req, res, next) => {
       agenda,
       company,
       internalParticipants: internalParticipants ? participants : [],
-      externalParticipants: externalParticipants ? externalParticipants : [],
+      externalParticipants: externalParticipants ? externalClientData : {},
     });
 
     await meeting.save();
 
     // Update room status to "Booked"
-    roomAvailable.location.status = "Occupied";
+    roomAvailable.status = "Occupied";
     await roomAvailable.save();
 
     const data = {
