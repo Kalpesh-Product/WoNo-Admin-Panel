@@ -22,9 +22,28 @@ import BizNestMockup from "../../../../assets/WONO_images/img/website-builder/ne
 import Hostels from "../../../../assets/WONO_images/img/website-builder/new-layout/hostels.png";
 import Hostels_mockup from "../../../../assets/WONO_images/img/website-builder/new-layout/mobile/mockups/hostels.png";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosPrivate from '../../../../hooks/useAxiosPrivate'
+
 
 const ThemeGrid = () => {
   const navigate = useNavigate();
+  const axios = useAxiosPrivate()
+
+  const fetchTemplates = async () => {
+    try {
+      const response = await axios.get('/api/editor/templates');
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching templates:", error);
+    }
+  };
+
+  const { data: templates = [], isPending: isTemplatesPending } = useQuery({
+    queryKey: ["templates"],
+    queryFn: fetchTemplates,
+  });
+  
 
   const themeImages = [
     {
