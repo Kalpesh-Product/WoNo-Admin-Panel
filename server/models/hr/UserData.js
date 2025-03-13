@@ -173,11 +173,7 @@ const userDataSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: false,
-  },
-  unit: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Unit",
-  },
+  }
 });
 
 const UserData = mongoose.model("UserData", userDataSchema);
