@@ -10,17 +10,17 @@ const LeadSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    salesCategory: {
-      type: String,
-      required: true,
+    serviceCategory: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Service",
     },
     leadStatus: {
       type: String,
       required: true,
     },
     proposedLocation: {
-      type: String,
-      required: true,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Unit",
     },
     source: {
       type: String,
@@ -30,7 +30,7 @@ const LeadSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    hoLocation: {
+    headOfficeLocation: {
       type: String,
       required: true,
     },
