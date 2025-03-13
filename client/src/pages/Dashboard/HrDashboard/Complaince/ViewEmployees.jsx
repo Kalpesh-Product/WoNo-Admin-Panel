@@ -52,18 +52,20 @@ const ViewEmployees = () => {
       field: "status",
       headerName: "Status",
       cellRenderer: (params) => {
+
+        const statusText = params.value ? "Active" : "InActive";
         const statusColorMap = {
           Active: { backgroundColor: "#90EE90", color: "#006400" },
-          Inactive: { backgroundColor: "#D3D3D3", color: "#696969" },
+          InActive: { backgroundColor: "#D3D3D3", color: "#696969" },
         };
 
-        const { backgroundColor, color } = statusColorMap[params.value] || {
+        const { backgroundColor, color } = statusColorMap[statusText] || {
           backgroundColor: "gray",
           color: "white",
         };
         return (
           <Chip
-            label={params.value}
+            label={statusText}
             style={{
               backgroundColor,
               color,
@@ -71,65 +73,6 @@ const ViewEmployees = () => {
           />
         );
       },
-    },
-  ];
-
-  const rows = [
-    {
-      srno: "1",
-      employeeName: "Aiwinraj",
-      employmentID: "WO001",
-      email: "aiwinraj.wono@gmail.com",
-      role: "Employee",
-      status: "Active",
-    },
-    {
-      srno: "2",
-      employeeName: "Allan",
-      employmentID: "WO002",
-      email: "allan.wono@gmail.com",
-      role: "Employee",
-      status: "Active",
-    },
-    {
-      srno: "3",
-      employeeName: "Sankalp",
-      employmentID: "WO003",
-      email: "sankalp.wono@gmail.com",
-      role: "Employee",
-      status: "Active",
-    },
-    {
-      srno: "4",
-      employeeName: "Anushri",
-      employmentID: "WO004",
-      email: "anushri.wono@gmail.com",
-      role: "Employee",
-      status: "Active",
-    },
-    {
-      srno: "5",
-      employeeName: "Muskan",
-      employmentID: "WO005",
-      email: "muskan.wono@gmail.com",
-      role: "Employee",
-      status: "Active",
-    },
-    {
-      srno: "6",
-      employeeName: "Kalpesh",
-      employmentID: "WO006",
-      email: "kalpesh.wono@gmail.com",
-      role: "Employee",
-      status: "Active",
-    },
-    {
-      srno: "7",
-      employeeName: "Allan2",
-      employmentID: "WO007",
-      email: "allan2.wono@gmail.com",
-      role: "Employee",
-      status: "InActive",
     },
   ];
 
@@ -146,7 +89,7 @@ const ViewEmployees = () => {
             employmentID : employee.empId,
             email : employee.email,
             role : employee.role.map(r=>r.roleTitle),
-            status : 'Active',
+            status : employee.isActive,
            }))]}
           columns={viewEmployeeColumns}
         />

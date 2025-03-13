@@ -1,201 +1,183 @@
 import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import "../../pages/LoginPage/CalenderModal.css";
-import { Checkbox, FormControlLabel, FormGroup } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
-import useAxiosPrivate from "../../hooks/useAxiosPrivate";
-import { convertToISOFormat } from "../../utils/dateFormat";
+
+import { Checkbox, CircularProgress, FormControlLabel, FormGroup } from "@mui/material";
 import dayjs from "dayjs";
+
 import MuiModal from "../../components/MuiModal";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import { useQuery } from "@tanstack/react-query";
 
-const MeetingCalendar = () => {
+const Calender = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [drawerMode, setDrawerMode] = useState(""); // 'view' or 'add'
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [filteredEvents, setFilteredEvents] = useState([]);
+  const [headerBackground, setHeaderBackground] = useState("");
+  const [newEvent, setNewEvent] = useState({
+    title: "",
+    start: "",
+    description: "",
+  });
+  const [eventFilter, setEventFilter] = useState(["holiday", "event"]);
   const axios = useAxiosPrivate();
-  const [eventsToBeRenamed, setEventsToBeRenamed] = useState([]);
-  const statusColors = {
-    Completed: "#4caf50", // Green for Completed
-    Upcoming: "#ff9800", // Orange for Upcoming
-  };
 
-  const { data: meetingsCheck = [], isLoading } = useQuery({
-    queryKey: ["meetingsCheck"],
+  const { data: events = [], isPending: isEventsPending } = useQuery({
+    queryKey: ["events"],
     queryFn: async () => {
       try {
-        const response = await axios.get("/api/meetings/get-meetings");
-        console.log("Meetins from axios: ", response.data);
+        const response = await axios.get("/api/events/all-events");
         return response.data;
       } catch (error) {
-        throw new Error(error.response.data.message);
+        toast.error(error.message);
+        return [];
       }
     },
   });
 
   useEffect(() => {
-    if (isLoading || !Array.isArray(meetingsCheck)) return;
-
-    const newEvents = meetingsCheck.map((meeting) => {
-      const startDate = convertToISOFormat(meeting.date, meeting.startTime);
-      const endDate = convertToISOFormat(meeting.date, meeting.endTime);
-
-      return {
-        title: meeting.subject || "Meeting",
-        start: startDate,
-        end: endDate,
-        allDay: false,
-        meetingStatus: meeting.meetingStatus,
-        extendedProps: {},
-      };
-    });
-
-    setEventsToBeRenamed(newEvents);
-  }, [meetingsCheck, isLoading]);
+    if (eventFilter.length === 0) {
+      setFilteredEvents(events);
+    } else {
+      const filtered = events.filter((event) =>
+        eventFilter.includes(event.extendedProps?.type.toLowerCase())
+      );
+      setFilteredEvents(filtered);
+    }
+  }, [eventFilter, events]);
 
   const getTodaysEvents = () => {
-    const today = dayjs().format("YYYY-MM-DD"); // Get today's date in "YYYY-MM-DD"
-
-    return meetingsCheck.filter((meeting) => {
-      const meetingDate = dayjs(meeting.date, "DD-MM-YYYY").format(
-        "YYYY-MM-DD"
+    const today = dayjs().startOf("day");
+    return events.filter((event) => {
+      const eventStart = dayjs(event.start).startOf("day");
+      const eventEnd = dayjs(event.end).startOf("day");
+      return (
+        today.isSame(eventStart) ||
+        (today.isAfter(eventStart) && today.isBefore(eventEnd))
       );
-
-      return meetingDate === today; // Compare with today's date
     });
   };
 
   const todaysEvents = getTodaysEvents();
-  console.log(todaysEvents);
-
-  const uniqueStatuses = Array.from(
-    new Set(meetingsCheck.map((meeting) => meeting.meetingStatus))
-  );
-
-  // ✅ Initialize both checkboxes as selected by default
-  const [filteredStatuses, setFilteredStatuses] = useState(uniqueStatuses);
-
-  const handleCheckboxChange = (e) => {
-    const selectedStatus = e.target.value;
-
-    setFilteredStatuses((prevFilter) =>
-      e.target.checked
-        ? [...prevFilter, selectedStatus]
-        : prevFilter.filter((s) => s !== selectedStatus)
-    );
-  };
-
-  // ✅ Apply filtering logic
-  const filteredEvents = eventsToBeRenamed
-    .filter((event) => filteredStatuses.includes(event.meetingStatus))
-    .map((event) => ({
-      ...event,
-      backgroundColor: statusColors[event.meetingStatus] || "#05C3F0",
-      borderColor: statusColors[event.meetingStatus] || "#05C3F0",
-    }));
 
   const handleEventClick = (clickInfo) => {
-    const eventDetails = clickInfo.event.extendedProps; // Extract extended properties
-    setSelectedEvent({
-      title: clickInfo.event.title,
-      date: dayjs(clickInfo.event.start).format("YYYY-MM-DD"), // Format date
-      startTime: dayjs(clickInfo.event.start).format("hh:mm A"), // Convert to AM/PM format
-      endTime: dayjs(clickInfo.event.end).format("hh:mm A"),
-      range: `${dayjs(clickInfo.event.start).format("hh:mm A")} - ${dayjs(
-        clickInfo.event.end
-      ).format("hh:mm A")}`,
-      department: eventDetails.department || "N/A", // Ensure department exists
-      agenda: eventDetails.agenda || "No agenda available",
-      meetingStatus: eventDetails.meetingStatus || "Unknown",
-      company: eventDetails.company || "N/A",
-    });
+    const event = clickInfo.event;
+    const type = event.extendedProps?.type.toLowerCase();
 
+    const colors = {
+      holiday: "#4caf50",
+      event: "#ff9800",
+    };
+
+    const headerBackground = colors[type] || ""; // Fallback to empty if type doesn't match
+
+    setSelectedEvent(event);
+    setDrawerMode("view");
     setIsDrawerOpen(true);
+    setHeaderBackground(headerBackground); // Set the background color
   };
 
-  // console.log(convertToISOFormat("12-03-2024", "3:30 PM")); // Expected: "2024-03-12T15:30:00"
-  // console.log(convertToISOFormat("12-03-2024", "09:15")); // Expected: "2024-03-12T09:15:00"
-  // console.log(convertToISOFormat("", "3:30 PM")); // Expected: null (with warning)
-
-  console.log("eVEnts to be renamed: ", eventsToBeRenamed);
-  console.log("eVEnts to be renamed Object: ", eventsToBeRenamed[57]);
-  console.log("filTEred eVEnts: ", filteredEvents);
+  const closeDrawer = () => {
+    setIsDrawerOpen(false);
+    setSelectedEvent(null);
+    setNewEvent({
+      title: "",
+      start: "",
+      description: "",
+    });
+  };
 
   return (
     <div className="flex w-[70%] md:w-full">
       <div className="flex-1 p-4 bg-white">
         <div className="flex gap-4 relative w-full">
           <div className="flex flex-col gap-4 w-[25%]">
-            <div className="border-2 border-gray-300 rounded-md">
+            <div className="border-2 border-gray-300  rounded-md">
               <div className="w-full flex justify-start border-b-default border-borderGray p-2">
                 <span className="text-content font-bold uppercase">
-                  Meeting Filters
+                  Event Filters
                 </span>
               </div>
               <div className="flex justify-start text-content px-2">
-                <FormGroup column>
-                  {uniqueStatuses.map((status) => (
-                    <FormControlLabel
-                      key={status}
-                      defaultChecked={true}
-                      control={
-                        <Checkbox
-                          sx={{
-                            fontSize: "0.75rem",
-                            transform: "scale(0.8)",
-                            "&.Mui-checked": {
-                              color: statusColors[status] || "#05C3F0", // Default fallback color
-                            },
-                          }}
-                          checked={filteredStatuses.includes(status)}
-                          onChange={handleCheckboxChange}
-                          value={status}
+                {!isEventsPending ? (
+                  <FormGroup column>
+                    {["holiday", "event"].map((type) => {
+                      const colors = {
+                        holiday: "#4caf50",
+                        event: "#ff9800",
+                      };
+                      return (
+                        <FormControlLabel
+                          key={type}
+                          control={
+                            <Checkbox
+                              sx={{
+                                fontSize: "0.75rem",
+                                transform: "scale(0.8)",
+                                color: colors[type],
+                                "&.Mui-checked": { color: colors[type] },
+                              }}
+                              checked={eventFilter.includes(type)}
+                              onChange={(e) => {
+                                const selectedType = e.target.value;
+                                setEventFilter((prevFilter) =>
+                                  e.target.checked
+                                    ? [...prevFilter, selectedType]
+                                    : prevFilter.filter(
+                                        (t) => t !== selectedType
+                                      )
+                                );
+                              }}
+                              value={type}
+                            />
+                          }
+                          label={
+                            <span style={{ fontSize: "0.875rem" }}>
+                              {type.charAt(0).toUpperCase() + type.slice(1)}
+                            </span>
+                          }
                         />
-                      }
-                      label={
-                        <span
-                          style={{
-                            fontSize: "0.875rem",
-                            fontWeight: "bold",
-                            color: "black", // Label text color matches the checkbox
-                          }}>
-                          {status}
-                        </span>
-                      }
-                    />
-                  ))}
-                </FormGroup>
+                      );
+                    })}
+                  </FormGroup>
+                ) : (
+                  <CircularProgress />
+                )}
               </div>
             </div>
 
-            <div className="border-2 border-gray-300 rounded-md">
+            <div className="border-2 border-gray-300  rounded-md">
               <div className="mb-2 text-content font-bold uppercase border-b-default border-borderGray p-2">
-                <span>Today's Meetings</span>
+                <span>Today's Schedule</span>
               </div>
 
-              <div className="px-2 max-h-[33.5vh] overflow-y-auto">
+              <div className="px-2">
                 {todaysEvents.length > 0 ? (
                   todaysEvents.map((event, index) => {
-                    console.log(event.start);
                     const colors = {
-                      Completed: "#4caf50",
-                      Upcoming: "#ff9800",
+                      holiday: "#4caf50",
+                      event: "#ff9800",
                     };
                     return (
                       <div key={index} className="flex gap-2 items-center mb-2">
                         <div
-                          className="w-4 h-4 rounded-full mr-2"
+                          className="w-3 h-3 rounded-full mr-2"
                           style={{
-                            backgroundColor: colors[event.meetingStatus],
-                          }}></div>
+                            backgroundColor: colors[event.extendedProps.type],
+                          }}
+                        ></div>
                         <div className="flex flex-col">
                           <span className="text-content font-medium">
-                            {event.subject}
+                            {event.title}
                           </span>
                           <span className="text-small text-gray-500">
-                            {event.startDate
-                              ? dayjs(event.startDate).format("h:mm A")
+                            {event.start
+                              ? dayjs(event.start).format("h:mm A")
                               : "All Day"}
                           </span>
                         </div>
@@ -217,70 +199,57 @@ const MeetingCalendar = () => {
               }}
               dayMaxEvents={2}
               eventDisplay="block"
-              displayEventTime={false}
               eventClick={handleEventClick}
               contentHeight={520}
               plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
               initialView="dayGridMonth"
-              events={filteredEvents} // ✅ Use filtered events
-              // events={eventsToBeRenamed} // ✅ Use filtered events
-              // events={[
-              //   { title: "event 1", date: "2025-03-08" },
-              //   { title: "event 2", date: "2025-03-08" },
-              // ]}
+              events={filteredEvents}
             />
           </div>
         </div>
-      </div>
 
-      <MuiModal
-        open={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
-        title="Meeting Details">
-        {selectedEvent && (
-          <div>
-            <div className="flex flex-col gap-2">
-              <span className="text-content flex items-center">
-                <span className="w-[30%]">Subject</span>
-                <span>:</span>
-                <span className="text-content font-pmedium w-full justify-start pl-4">
-                  {selectedEvent.title}
+        <MuiModal
+          open={isDrawerOpen}
+          onClose={closeDrawer}
+          headerBackground={headerBackground}
+          title="Event Details"
+        >
+          {drawerMode === "view" && selectedEvent && (
+            <div>
+              <div className="flex flex-col gap-2">
+                <span className="text-content flex items-center">
+                  <span className="w-[30%]">Title</span>
+                  <span>:</span>
+                  <span className="text-content font-pmedium w-full justify-start pl-4">
+                    {selectedEvent.title}
+                  </span>
                 </span>
-              </span>
-              <span className="text-content flex items-center">
-                <span className="w-[30%]">Date</span>
-                <span>:</span>
-                <span className="text-content font-pmedium w-full justify-start pl-4">
-                  {dayjs(selectedEvent.date).format("YYYY-MM-DD")}
-                </span>
-              </span>
-              <span className="text-content flex items-center">
-                <span className="w-[30%]">Duration</span>
-                <span>:</span>
-                <span className="text-content font-pmedium w-full justify-start pl-4">
-                  {selectedEvent.range}
-                </span>
-              </span>
-              <span className="text-content flex items-center">
-                <span className="w-[30%]">Start Time</span>
-                <span>:</span>
-                <span className="text-content font-pmedium w-full justify-start pl-4">
-                  {selectedEvent.startTime}
-                </span>
-              </span>
-              <span className="text-content flex items-center">
-                <span className="w-[30%]">End Time</span>
-                <span>:</span>
-                <span className="text-content font-pmedium w-full justify-start pl-4">
-                  {selectedEvent.endTime}
-                </span>
-              </span>
+                <span className="text-content flex  items-center">
+                  <span className="w-[30%]"> Start Date </span>
+                  <span>:</span>
+                  <span className="text-content font-pmedium w-full justify-start pl-4">
+                    {dayjs(selectedEvent.start).format("YYYY-MM-DD")}
+                  </span>{" "}
+                </span>{" "}
+                {selectedEvent.extendedProps.description && (
+                  <div>
+                    <span className="text-content flex  items-start">
+                      <span className="w-[30%]"> Description</span>
+                      <span>:</span>
+
+                      <span className="text-content font-pmedium w-full justify-start pl-4">
+                        {selectedEvent.extendedProps.description}
+                      </span>
+                    </span>{" "}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        )}
-      </MuiModal>
+          )}
+        </MuiModal>
+      </div>
     </div>
   );
 };
 
-export default MeetingCalendar;
+export default Calender;
