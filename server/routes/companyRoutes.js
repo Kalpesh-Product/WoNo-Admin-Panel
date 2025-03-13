@@ -26,9 +26,11 @@ const {
   addShift,
 } = require("../controllers/companyControllers/shiftControllers");
 const {
-  addWorkLocation,
-  bulkInsertWorkLocations,
-  uploadCompanyLocationImage,
+  addBuilding,
+  bulkInsertUnits,
+  uploadUnitImage,
+  addUnit,
+  fetchUnits,
 } = require("../controllers/companyControllers/workLocationControllers");
 const {
   createDepartment,
@@ -41,11 +43,13 @@ router.get("/company-hierarchy", getHierarchy);
 router.post("/add-department", createDepartment);
 router.post("/add-employee-type", addEmployeeType);
 router.post("/add-leave-type", addLeaveType);
-router.post("/add-work-location", addWorkLocation);
+router.post("/add-building", addBuilding);
+router.post("/add-unit", addUnit);
+router.get("/fetch-units", fetchUnits);
 router.post(
   "/bulk-add-locations",
-  upload.single("locations"),
-  bulkInsertWorkLocations
+  upload.single("units"),
+  bulkInsertUnits
 );
 router.get("/get-company-data", getCompanyData);
 router.post("/update-active-status/:field", updateActiveStatus);
@@ -69,7 +73,7 @@ router.post(
 router.post(
   "/upload-location-image",
   upload.single("locationImage"),
-  uploadCompanyLocationImage
+  uploadUnitImage
 );
 router.get("/get-company-documents/:type", getCompanyDocuments);
 

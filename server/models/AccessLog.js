@@ -1,13 +1,9 @@
 const mongoose = require("mongoose");
 
 const accessLogSchema = new mongoose.Schema({
-  category: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Category",
-  },
   permissions: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Permissions",
+    ref: "Permission",
   },
   action: {
     type: String,

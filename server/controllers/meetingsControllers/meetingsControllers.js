@@ -20,7 +20,6 @@ const addMeetings = async (req, res, next) => {
   try {
     const {
       meetingType,
-      // bookedBy,
       bookedRoom,
       startDate,
       endDate,
@@ -63,6 +62,7 @@ const addMeetings = async (req, res, next) => {
       );
     }
 
+    const currDate = new Date();
     const startDateObj = new Date(startDate);
     const endDateObj = new Date(endDate);
     const startTimeObj = new Date(startTime);
@@ -82,9 +82,18 @@ const addMeetings = async (req, res, next) => {
       );
     }
 
-    const roomAvailable = await Room.findById({
+    if (startDateObj <= currDate) {
+      throw new CustomError(
+        "Please select future timing",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    const roomAvailable = await Room.findOne({
       _id: bookedRoom,
-      "location.status": "Available",
+      status: "Available",
     });
 
     if (!roomAvailable) {
@@ -97,6 +106,7 @@ const addMeetings = async (req, res, next) => {
     }
 
     let participants = [];
+    let externalClientData;
 
     if (internalParticipants) {
       const invalidIds = internalParticipants.filter(
@@ -162,7 +172,12 @@ const addMeetings = async (req, res, next) => {
         personName,
       });
 
-      await newExternalClient.save();
+      const savedExternalClient = await newExternalClient.save();
+
+      externalClientData = {
+        participants: [...externalParticipants],
+        company: savedExternalClient._id,
+      };
     }
 
     const conflictingMeeting = await Meeting.findOne({
@@ -197,13 +212,13 @@ const addMeetings = async (req, res, next) => {
       agenda,
       company,
       internalParticipants: internalParticipants ? participants : [],
-      externalParticipants: externalParticipants ? externalParticipants : [],
+      externalParticipants: externalParticipants ? externalClientData : {},
     });
 
     await meeting.save();
 
     // Update room status to "Booked"
-    roomAvailable.location.status = "Occupied";
+    roomAvailable.status = "Occupied";
     await roomAvailable.save();
 
     const data = {
@@ -307,35 +322,99 @@ const getMeetings = async (req, res, next) => {
     })
       .populate({
         path: "bookedRoom",
-        select: "name location housekeepingStatus",
+        select: "name housekeepingStatus",
         populate: {
           path: "location",
-          select: "name fullAddress isActive unit",
+          select: "unitName unitNo",
+          populate: {
+            path: "building",
+            select: "buildingName",
+          },
         },
       })
       .populate("bookedBy", "firstName lastName email")
-      .populate("internalParticipants", "firstName lastName email");
+      .populate("internalParticipants", "firstName lastName email _id");
 
     const departments = await User.findById({ _id: user }).select(
       "departments"
     );
 
-    // console.log(meetings.map((meeting)=> meeting.internalParticipants))
+    const department = await Department.findById({
+      _id: departments.departments[0],
+    });
+
+    const internalParticipants = meetings.map((meeting) =>
+      meeting.internalParticipants.map((participant) => participant)
+    );
+
+    const transformedMeetings = meetings.map((meeting, index) => {
+      console.log(internalParticipants[index]);
+      return {
+        _id: meeting._id,
+        name: meeting.bookedBy?.name,
+        department: department.name,
+        roomName: meeting.bookedRoom.name,
+        location: meeting.bookedRoom.location,
+        meetingType: meeting.meetingType,
+        housekeepingStatus: meeting.bookedRoom.housekeepingStatus,
+        date: formatDate(meeting.startDate),
+        startTime: formatTime(meeting.startTime),
+        endTime: formatTime(meeting.endTime),
+        credits: meeting.credits,
+        duration: formatDuration(meeting.startTime, meeting.endTime),
+        meetingStatus: meeting.status,
+        action: meeting.extend,
+        agenda: meeting.agenda,
+        subject: meeting.subject,
+        housekeepingChecklist: [...(meeting.housekeepingChecklist ?? [])],
+        participants:
+          internalParticipants[index].length > 0
+            ? internalParticipants[index]
+            : meeting.externalParticipants,
+        company: meeting.company,
+      };
+    });
+
+    return res.status(200).json(transformedMeetings);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getMyMeetings = async (req, res, next) => {
+  try {
+    const { user, company } = req;
+
+    const meetings = await Meeting.find({
+      company,
+      bookedBy: user,
+    })
+      .populate({
+        path: "bookedRoom",
+        select: "name housekeepingStatus",
+        populate: {
+          path: "location",
+          select: "unitName unitNo",
+          populate: {
+            path: "building",
+            select: "buildingName",
+          },
+        },
+      })
+      .populate("bookedBy", "firstName lastName email")
+      .populate("internalParticipants", "firstName lastName email _id");
+
+    const departments = await User.findById({ _id: user }).select(
+      "departments"
+    );
 
     const department = await Department.findById({
       _id: departments.departments[0],
     });
 
-
-    const internalParticipants = meetings.map((meeting) => {
-      if (meeting.internalParticipants.length === 0) {
-        return;
-      }
-
-      return meetings.map((meeting) =>
-        meeting.internalParticipants.map((participant) => participant?.firstName)
-      );
-    });
+    const internalParticipants = meetings.map((meeting) =>
+      meeting.internalParticipants.map((participant) => participant)
+    );
 
     const transformedMeetings = meetings.map((meeting, index) => {
       return {
@@ -356,12 +435,10 @@ const getMeetings = async (req, res, next) => {
         agenda: meeting.agenda,
         subject: meeting.subject,
         housekeepingChecklist: [...(meeting.housekeepingChecklist ?? [])],
-        // internalParticipants: internalParticipants[index],
-        // externalParticipants: meeting.externalParticipants,
         participants:
-          meeting.externalParticipants.length > 0
-            ? meeting.externalParticipants
-            : internalParticipants[index],
+          internalParticipants[index].length > 0
+            ? internalParticipants[index]
+            : meeting.externalParticipants,
         company: meeting.company,
       };
     });
@@ -783,6 +860,7 @@ const extendMeeting = async (req, res, next) => {
 module.exports = {
   addMeetings,
   getMeetings,
+  getMyMeetings,
   addHousekeepingTask,
   deleteHousekeepingTask,
   getMeetingsByTypes,

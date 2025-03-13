@@ -357,7 +357,7 @@ const RaiseTicket = () => {
                     {preview && (
                       <>
                         <span
-                          className="underline text-primary text-content"
+                          className="underline text-primary text-content cursor-pointer"
                           onClick={() => setOpenModal(true)}
                         >
                           Preview

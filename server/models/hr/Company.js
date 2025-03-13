@@ -159,7 +159,7 @@ const companySchema = new mongoose.Schema({
   workLocations: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "WorkLocation",
+      ref: "Building",
     },
   ],
   leaveTypes: [

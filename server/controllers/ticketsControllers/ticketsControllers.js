@@ -248,7 +248,6 @@ const getTickets = async (req, res, next) => {
           { escalatedTo: { $in: userDepartments } },
         ],
         acceptedBy: { $exists: false },
-        raisedBy: { $ne: loggedInUser._id },
         company: loggedInUser.company,
         status: "Open",
       })
@@ -652,6 +651,7 @@ const escalateTicket = async (req, res, next) => {
       { $push: { escalatedTo: departmentId } },
       { new: true }
     );
+
     if (!updatedTicket) {
       throw new CustomError(
         "Failed to escalate ticket",
