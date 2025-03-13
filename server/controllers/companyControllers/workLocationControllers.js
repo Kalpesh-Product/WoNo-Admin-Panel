@@ -191,29 +191,30 @@ const uploadUnitImage = async (req, res, next) => {
     }
 
     // Find the work location
-    const workLocation = await WorkLocation.findById(unitId);
-    if (!workLocation || workLocation.company.toString() !== companyId) {
+    const unit = await Unit.findById(unitId).populate([
+      { path: "building", select: "buildingName" },
+      { path: "company", select: "companyName" },
+    ]);
+    if (!unit || unit.company.toString() !== companyId) {
       return res.status(404).json({ message: "Work location not found" });
     }
 
-    // Delete the existing image if it exists
-    if (workLocation[imageType] && workLocation[imageType].id) {
-      await handleFileDelete(workLocation[imageType].id);
+    if (unit[imageType] && unit[imageType].imageId) {
+      await handleFileDelete(unit[imageType].imageId);
     }
 
-    const folderPath = `${companyId}/work-locations/${workLocation.name}`;
+    const folderPath = `${unit.company.companyName}/work-locations/${unit.building.buildingName}/${unit.unitName}`;
     const uploadResult = await handleFileUpload(file.path, folderPath);
 
-    // Update the specific image type in the work location
-    workLocation[imageType] = {
-      id: uploadResult.public_id,
+    unit[imageType] = {
+      imageId: uploadResult.public_id,
       url: uploadResult.secure_url,
     };
-    await workLocation.save();
+    await unit.save();
 
     res.json({
       message: "Image uploaded and work location updated successfully",
-      workLocation: { [imageType]: workLocation[imageType] },
+      workLocation: { [imageType]: unit[imageType] },
     });
   } catch (error) {
     next(error);
