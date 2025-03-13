@@ -333,7 +333,7 @@ const getMeetings = async (req, res, next) => {
         },
       })
       .populate("bookedBy", "firstName lastName email")
-      .populate("internalParticipants", "firstName lastName email");
+      .populate("internalParticipants", "firstName lastName email _id");
 
     const departments = await User.findById({ _id: user }).select(
       "departments"
@@ -343,19 +343,12 @@ const getMeetings = async (req, res, next) => {
       _id: departments.departments[0],
     });
 
-    const internalParticipants = meetings.map((meeting) => {
-      if (meeting.internalParticipants.length === 0) {
-        return;
-      }
-
-      return meetings.map((meeting) =>
-        meeting.internalParticipants.map(
-          (participant) => participant?.firstName
-        )
-      );
-    });
+    const internalParticipants = meetings.map((meeting) =>
+      meeting.internalParticipants.map((participant) => participant)
+    );
 
     const transformedMeetings = meetings.map((meeting, index) => {
+      console.log(internalParticipants[index]);
       return {
         _id: meeting._id,
         name: meeting.bookedBy?.name,
@@ -374,12 +367,10 @@ const getMeetings = async (req, res, next) => {
         agenda: meeting.agenda,
         subject: meeting.subject,
         housekeepingChecklist: [...(meeting.housekeepingChecklist ?? [])],
-        // internalParticipants: internalParticipants[index],
-        // externalParticipants: meeting.externalParticipants,
         participants:
-          meeting.externalParticipants.length > 0
-            ? meeting.externalParticipants
-            : internalParticipants[index],
+          internalParticipants[index].length > 0
+            ? internalParticipants[index]
+            : meeting.externalParticipants,
         company: meeting.company,
       };
     });
@@ -411,7 +402,7 @@ const getMyMeetings = async (req, res, next) => {
         },
       })
       .populate("bookedBy", "firstName lastName email")
-      .populate("internalParticipants", "firstName lastName email");
+      .populate("internalParticipants", "firstName lastName email _id");
 
     const departments = await User.findById({ _id: user }).select(
       "departments"
@@ -421,17 +412,9 @@ const getMyMeetings = async (req, res, next) => {
       _id: departments.departments[0],
     });
 
-    const internalParticipants = meetings.map((meeting) => {
-      if (meeting.internalParticipants.length === 0) {
-        return;
-      }
-
-      return meetings.map((meeting) =>
-        meeting.internalParticipants.map(
-          (participant) => participant?.firstName
-        )
-      );
-    });
+    const internalParticipants = meetings.map((meeting) =>
+      meeting.internalParticipants.map((participant) => participant)
+    );
 
     const transformedMeetings = meetings.map((meeting, index) => {
       return {
@@ -452,12 +435,10 @@ const getMyMeetings = async (req, res, next) => {
         agenda: meeting.agenda,
         subject: meeting.subject,
         housekeepingChecklist: [...(meeting.housekeepingChecklist ?? [])],
-        // internalParticipants: internalParticipants[index],
-        // externalParticipants: meeting.externalParticipants,
         participants:
-          meeting.externalParticipants.length > 0
-            ? meeting.externalParticipants
-            : internalParticipants[index],
+          internalParticipants[index].length > 0
+            ? internalParticipants[index]
+            : meeting.externalParticipants,
         company: meeting.company,
       };
     });

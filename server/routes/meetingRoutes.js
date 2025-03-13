@@ -28,7 +28,7 @@ router.post("/create-review", addReview);
 router.post("/create-reply", replyReview);
 router.get("/get-rooms", getRooms);
 router.get("/get-meetings", getMeetings);
-router.get("/fetch-my-meetings", getMyMeetings);
+router.get("/my-meetings", getMyMeetings);
 router.get("/get-reviews", getReviews);
 router.get("/get-meetings-type", getMeetingsByTypes);
 router.patch("/update-room/:id", upload.single("room"), updateRoom);

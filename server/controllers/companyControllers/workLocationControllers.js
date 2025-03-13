@@ -228,7 +228,7 @@ const fetchUnits = async (req, res, next) => {
   }
 };
 
-const uploadCompanyLocationImage = async (req, res, next) => {
+const uploadUnitImage = async (req, res, next) => {
   try {
     const { unitId, imageType } = req.body;
     const file = req.file; // Multer stores a single file in req.file
