@@ -7,7 +7,7 @@
 const multer = require("multer");
 const { createLog } = require("../utils/moduleLogs");
 
-const errorHandler = async (err, req, res, next) => {
+const errorHandler = async (err, req, res) => {
   try {
     const { user, ip, company } = req;
     const statusCode = err.statusCode || 500;
@@ -24,7 +24,7 @@ const errorHandler = async (err, req, res, next) => {
         .json({ message: "File upload error: " + err.message });
     }
 
-    if (req.method !== "GET") {
+    if (req.method !== "GET" && err.path) {
       try {
         await createLog({
           path,

@@ -28,6 +28,7 @@ const vendorRoutes = require("./routes/vendorRoutes");
 const techRoutes = require("./routes/techRoutes");
 const budgetRoutes = require("./routes/budgetRoutes");
 const payrollRoutes = require("./routes/payrollRoutes");
+const websiteRoutes = require("./routes/websiteTemplatesRoutes");
 const getLogs = require("./controllers/logController");
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -37,10 +38,9 @@ connectDb(process.env.DB_URL);
 app.use(credentials);
 app.use(cors(corsConfig));
 app.use(cookieParser());
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
-app.set("trust proxy", true);
 
 app.get("/", (req, res) => {
   if (req.accepts("html")) {
@@ -65,6 +65,7 @@ app.use("/api/meetings", verifyJwt, meetingsRoutes);
 app.use("/api/tickets", verifyJwt, ticketsRoutes);
 app.use("/api/leaves", verifyJwt, leaveRoutes);
 app.use("/api/employee-agreements", employeeAgreementRoutes);
+app.use("/api/editor", websiteRoutes);
 app.use("/api/users", verifyJwt, userRoutes);
 app.use("/api/roles", verifyJwt, roleRoutes);
 app.use("/api/vendors", verifyJwt, vendorRoutes);
