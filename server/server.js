@@ -28,6 +28,7 @@ const vendorRoutes = require("./routes/vendorRoutes");
 const techRoutes = require("./routes/techRoutes");
 const budgetRoutes = require("./routes/budgetRoutes");
 const payrollRoutes = require("./routes/payrollRoutes");
+const websiteRoutes = require('./routes/websiteTemplatesRoutes')
 const getLogs = require("./controllers/logController");
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -65,6 +66,7 @@ app.use("/api/meetings", verifyJwt, meetingsRoutes);
 app.use("/api/tickets", verifyJwt, ticketsRoutes);
 app.use("/api/leaves", verifyJwt, leaveRoutes);
 app.use("/api/employee-agreements", employeeAgreementRoutes);
+app.use("/api/editor", websiteRoutes );
 app.use("/api/users", verifyJwt, userRoutes);
 app.use("/api/roles", verifyJwt, roleRoutes);
 app.use("/api/vendors", verifyJwt, vendorRoutes);
