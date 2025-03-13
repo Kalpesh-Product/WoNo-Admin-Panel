@@ -24,7 +24,7 @@ const errorHandler = async (err, req, res, next) => {
         .json({ message: "File upload error: " + err.message });
     }
 
-    if (req.method !== "GET") {
+    if (req.method !== "GET" && err.path) {
       try {
         await createLog({
           path,
