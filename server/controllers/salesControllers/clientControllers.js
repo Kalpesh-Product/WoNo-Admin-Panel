@@ -5,8 +5,6 @@ const multer = require("multer");
 const Company = require("../../models/hr/Company");
 const { PDFDocument } = require("pdf-lib");
 
-//Onboard a new client
-
 const createClient = async (req, res) => {
   try {
     const { company } = req;
@@ -36,14 +34,12 @@ const createClient = async (req, res) => {
       hOPocPhone,
     } = req.body;
 
-    //Check if client already exists
-
     const clientExists = await Client.findOne({ clientName });
 
     if (clientExists) {
       return res.status(400).json({ message: "Client already exists" });
     }
-    // Basic validation
+
     if (
       !clientName ||
       !sector ||
@@ -79,7 +75,6 @@ const createClient = async (req, res) => {
         .json({ message: "Start date must be before end date" });
     }
 
-    // Create client object
     const client = new Client({
       company,
       clientName,
@@ -118,7 +113,6 @@ const createClient = async (req, res) => {
   }
 };
 
-// Get all clients with validation
 const getClients = async (req, res, next) => {
   try {
     const clients = await Client.find().populate("unit");
@@ -131,7 +125,6 @@ const getClients = async (req, res, next) => {
   }
 };
 
-// Get a single client by ID with validation
 const getClientById = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -148,7 +141,6 @@ const getClientById = async (req, res, next) => {
   }
 };
 
-// Update client details with validation
 const updateClient = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -168,7 +160,6 @@ const updateClient = async (req, res, next) => {
   }
 };
 
-// Delete a client (soft delete by setting isActive to false) with validation
 const deleteClient = async (req, res, next) => {
   try {
     const { id } = req.params;
