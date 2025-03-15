@@ -9,6 +9,10 @@ const clientSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  service: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Service",
+  },
   sector: {
     type: String,
     required: true,
@@ -70,44 +74,44 @@ const clientSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  pocName: {
-    type: String,
-    required: true,
-  },
-  companyCertificateOfIncorporation: {
+  localPoc: {
     name: {
       type: String,
       required: true,
     },
-    documentLink: {
+    email: {
       type: String,
       required: true,
+      unique: true,
+      trim: true,
+      lowercase: true,
+      match: [/^\S+@\S+\.\S+$/, "Invalid email format"],
     },
-    documentId: {
+    phone: {
       type: String,
-      required: true,
+      minlength: 7,
+      maxlength: 20,
+      match: [/^\+?[0-9]+$/, "Invalid phone number format"],
     },
   },
-  companyRegisteredAddress: {
-    type: String,
-    required: true,
-  },
-  companyPANCardNumber: {
-    type: String,
-    required: true,
-  },
-  companyGSTCertificate: {
+  hOPoc: {
     name: {
       type: String,
       required: true,
     },
-    documentLink: {
+    email: {
       type: String,
       required: true,
+      unique: true,
+      trim: true,
+      lowercase: true,
+      match: [/^\S+@\S+\.\S+$/, "Invalid email format"],
     },
-    documentId: {
+    phone: {
       type: String,
-      required: true,
+      minlength: 7,
+      maxlength: 20,
+      match: [/^\+?[0-9]+$/, "Invalid phone number format"],
     },
   },
   isActive: {
