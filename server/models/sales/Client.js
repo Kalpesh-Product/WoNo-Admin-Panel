@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 
-
 const clientSchema = new mongoose.Schema({
   company: {
     type: mongoose.Schema.Types.ObjectId,
@@ -71,8 +70,80 @@ const clientSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
+  pocName: {
+    type: String,
+    required: true,
+  },
+  companyCertificateOfIncorporation: {
+    name: {
+      type: String,
+      required: true,
+    },
+    documentLink: {
+      type: String,
+      required: true,
+    },
+    documentId: {
+      type: String,
+      required: true,
+    },
+  },
+  companyRegisteredAddress: {
+    type: String,
+    required: true,
+  },
+  companyPANCardNumber: {
+    type: String,
+    required: true,
+  },
+  companyGSTCertificate: {
+    name: {
+      type: String,
+      required: true,
+    },
+    documentLink: {
+      type: String,
+      required: true,
+    },
+    documentId: {
+      type: String,
+      required: true,
+    },
+  },
+  // companyListofDirectors: {
+  //   name: {
+  //     type: String,
+  //     required: true,
+  //   },
+  //   documentLink: {
+  //     type: String,
+  //     required: true,
+  //   },
+  //   documentId: {
+  //     type: String,
+  //     required: true,
+  //   }
+  // },
+  // detailsOfTheSigningAuthority: {
+  //   name: {
+  //     type: String,
+  //     required: true,
+  //   },
+  //   documentLink: {
+  //     type: String,
+  //     required: true,
+  //   },
+  //   documentId: {
+  //     type: String,
+  //     required: true,
+  //   }
+  // },
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const Client = mongoose.model("Client", clientSchema);
 
-export default Client;
+module.exports = Client;

@@ -9,7 +9,7 @@ const revenueSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    date: {
+    month: {
       type: Date,
       required: true,
     },
