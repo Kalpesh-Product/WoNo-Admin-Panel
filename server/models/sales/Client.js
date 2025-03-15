@@ -110,34 +110,6 @@ const clientSchema = new mongoose.Schema({
       required: true,
     },
   },
-  // companyListofDirectors: {
-  //   name: {
-  //     type: String,
-  //     required: true,
-  //   },
-  //   documentLink: {
-  //     type: String,
-  //     required: true,
-  //   },
-  //   documentId: {
-  //     type: String,
-  //     required: true,
-  //   }
-  // },
-  // detailsOfTheSigningAuthority: {
-  //   name: {
-  //     type: String,
-  //     required: true,
-  //   },
-  //   documentLink: {
-  //     type: String,
-  //     required: true,
-  //   },
-  //   documentId: {
-  //     type: String,
-  //     required: true,
-  //   }
-  // },
   isActive: {
     type: Boolean,
     default: true,
