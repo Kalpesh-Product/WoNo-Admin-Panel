@@ -22,10 +22,6 @@ const LeadSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "Unit",
     },
-    source: {
-      type: String,
-      required: true,
-    },
     sector: {
       type: String,
       required: true,
@@ -60,10 +56,6 @@ const LeadSchema = new mongoose.Schema(
       required: true,
     },
     period: {
-      type: String,
-      required: true,
-    },
-    location: {
       type: String,
       required: true,
     },
