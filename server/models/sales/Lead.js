@@ -12,15 +12,15 @@ const LeadSchema = new mongoose.Schema(
     },
     serviceCategory: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Service",
+      ref: "ClientService",
     },
     leadStatus: {
       type: String,
       required: true,
     },
     proposedLocation: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Unit",
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Unit",
     },
     sector: {
       type: String,

@@ -1,15 +1,13 @@
 const Unit = require("../../models/locations/Unit");
 const Client = require("../../models/sales/Client");
-const { handleDocumentUpload } = require("../../config/cloudinaryConfig");
-const multer = require("multer");
-const Company = require("../../models/hr/Company");
-const { PDFDocument } = require("pdf-lib");
+const mongoose = require("mongoose");
 
-const createClient = async (req, res) => {
+const createClient = async (req, res, next) => {
   try {
     const { company } = req;
     const {
       clientName,
+      service,
       sector,
       hoCity,
       hoState,
@@ -40,8 +38,19 @@ const createClient = async (req, res) => {
       return res.status(400).json({ message: "Client already exists" });
     }
 
+    if (!mongoose.Types.ObjectId.isValid(unit)) {
+      return res.status(400).json({ message: "Invalid unit ID provided" });
+    }
+
+    const unitExists = await Unit.findOne({ _id: unit });
+
+    if (!unitExists) {
+      return res.status(400).json({ message: "Unit doesn't exists" });
+    }
+
     if (
       !clientName ||
+      !service ||
       !sector ||
       !hoCity ||
       !hoState ||
@@ -78,6 +87,7 @@ const createClient = async (req, res) => {
     const client = new Client({
       company,
       clientName,
+      service,
       sector,
       hoCity,
       hoState,
@@ -109,13 +119,14 @@ const createClient = async (req, res) => {
     await client.save();
     res.status(201).json({ message: "Client onboarded successfully" });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    next(error);
   }
 };
 
 const getClients = async (req, res, next) => {
   try {
-    const clients = await Client.find().populate("unit");
+    const { company } = req;
+    const clients = await Client.find({ company }).populate("unit");
     if (!clients.length) {
       return res.status(404).json({ message: "No clients found" });
     }
@@ -156,7 +167,7 @@ const updateClient = async (req, res, next) => {
     }
     res.status(200).json({ message: "Client updated successfully", client });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    next(error);
   }
 };
 
@@ -176,7 +187,7 @@ const deleteClient = async (req, res, next) => {
     }
     res.status(200).json({ message: "Client deactivated successfully" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
