@@ -2,7 +2,7 @@ import { Tab, Tabs } from "@mui/material";
 import React, { useEffect } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
-const ManageAssets = () => {
+const MaintenanceFinance = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -14,8 +14,8 @@ const ManageAssets = () => {
 
   // Redirect to "view-employees" if the current path is "/hr-dashboard/compliances"
   useEffect(() => {
-    if (location.pathname === "/app/dashboard/sales-dashboard/finance") {
-      navigate("/app/dashboard/sales-dashboard/finance/budget", {
+    if (location.pathname === "/app/dashboard/maintenance-dashboard/finance") {
+      navigate("/app/dashboard/maintenance-dashboard/finance/budget", {
         replace: true,
       });
     }
@@ -79,4 +79,4 @@ const ManageAssets = () => {
   );
 };
 
-export default ManageAssets;
+export default MaintenanceFinance;

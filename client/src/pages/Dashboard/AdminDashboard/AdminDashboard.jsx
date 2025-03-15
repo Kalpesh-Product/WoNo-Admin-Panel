@@ -1,6 +1,9 @@
 import React from "react";
 import Card from "../../../components/Card";
-import { MdFormatListBulleted, MdOutlineMiscellaneousServices } from "react-icons/md";
+import {
+  MdFormatListBulleted,
+  MdOutlineMiscellaneousServices,
+} from "react-icons/md";
 import { SiCashapp, SiGoogleadsense } from "react-icons/si";
 import WidgetSection from "../../../components/WidgetSection";
 import LayerBarGraph from "../../../components/graphs/LayerBarGraph";
@@ -86,15 +89,33 @@ const AdminDashboard = () => {
       ],
     },
     {
-      layout: 4,
+      layout: 6,
       widgets: [
+        <Card
+          icon={<MdFormatListBulleted />}
+          title="Annual Expenses"
+          route={"/app/dashboard/admin-dashboard/annual-expenses"}
+        />,
+        <Card
+          icon={<MdFormatListBulleted />}
+          title="Inventory"
+          route={"/app/dashboard/admin-dashboard/inventory"}
+        />,
+        <Card
+          icon={<SiCashapp />}
+          title="Finance"
+          route={"/app/dashboard/admin-dashboard/finance"}
+        />,
         <Card icon={<MdFormatListBulleted />} title="Mix-Bag" />,
-        <Card icon={<SiCashapp />} title="Finance" route={"finance"} />,
-        <Card icon={<SiGoogleadsense />} title="Data" />,
+        <Card
+          icon={<SiGoogleadsense />}
+          title="Data"
+          route={"/app/dashboard/admin-dashboard/data"}
+        />,
         <Card
           icon={<MdOutlineMiscellaneousServices />}
           title="Settings"
-          
+          route={"/app/dashboard/admin-dashboard/settings"}
         />,
       ],
     },
