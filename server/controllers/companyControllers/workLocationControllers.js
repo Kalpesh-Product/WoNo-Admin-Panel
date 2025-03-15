@@ -209,7 +209,6 @@ const fetchUnits = async (req, res, next) => {
         select: "_id buildingName fullAddress",
       },
     });
-
     if (!foundUser) {
       return res.status(400).json({ message: "User not found" });
     }
@@ -217,11 +216,11 @@ const fetchUnits = async (req, res, next) => {
     const units = await Unit.find({
       building: foundUser.workLocation.building,
     });
+    console.log("units",units)
 
     if (!units.length) {
       return res.status(200).json([]);
     }
-
     return res.status(200).json(units);
   } catch (error) {
     next(error);

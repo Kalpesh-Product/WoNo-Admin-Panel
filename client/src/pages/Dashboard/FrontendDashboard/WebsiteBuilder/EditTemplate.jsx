@@ -194,7 +194,9 @@ const EditTemplate = () => {
         <div
           id="blocks"
           style={{ flex: 1, overflowY: "auto", padding: "10px" }}
-        ></div>
+        >
+          
+        </div>
       </div>
 
       {/* Main Editor Area */}
@@ -272,7 +274,7 @@ const EditTemplate = () => {
             Save
           </button>
         </div>
-        <div id="editor-canvas" style={{ flex: 1, background: "#fff" }}></div>
+        <div id="editor-canvas" style={{ flex: 1, background: "#fff", height:'70vh' }}></div>
       </div>
     </div>
   );

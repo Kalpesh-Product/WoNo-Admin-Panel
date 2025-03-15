@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   FormControl,
   InputLabel,
@@ -8,7 +8,7 @@ import {
   TextField,
 } from "@mui/material";
 import PrimaryButton from "../../components/PrimaryButton";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { useQuery } from "@tanstack/react-query";
@@ -22,6 +22,7 @@ const BookMeetings = () => {
     control,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -31,22 +32,25 @@ const BookMeetings = () => {
   });
 
   const watchFields = watch();
+  const selectedUnit = useWatch({ control, name: "unit" });
+  const [selectedUnitId, setSelectedUnitId] = useState("");
 
   const selectedLocation = watch("location");
 
   // Fetch Work Locations
   const {
-    data: workLocations = [],
+    data: units = [],
     isLoading: locationsLoading,
     error: locationsError,
   } = useQuery({
-    queryKey: ["workLocations"],
+    queryKey: ["units"],
     queryFn: async () => {
-      const response = await axios.get(
-        "/api/company/get-company-data?field=workLocations"
-      );
-      console.log(response.data.workLocations);
-      return response.data.workLocations;
+      try {
+        const response = await axios.get("/api/company/fetch-units");
+        return response.data;
+      } catch (error) {
+        console.log(error.message);
+      }
     },
   });
 
@@ -59,20 +63,27 @@ const BookMeetings = () => {
     queryKey: ["meetingRooms"],
     queryFn: async () => {
       const response = await axios.get("/api/meetings/get-rooms");
-      console.log(response.data);
       return response.data;
     },
   });
 
   // Filter meeting rooms based on selected location
-  const filteredMeetingRooms = selectedLocation
-    ? allMeetingRooms.filter((room) => room.location.name === selectedLocation)
+  const filteredMeetingRooms = selectedUnitId
+    ? allMeetingRooms.filter((room) => room.location?.unitNo === selectedUnitId)
     : [];
 
+  useEffect(() => {
+    setValue("meetingRoom", ""); // Reset meeting room selection
+  }, [selectedUnit, setValue]);
+
+  useEffect(() => {
+    console.log(filteredMeetingRooms);
+  }, [filteredMeetingRooms]);
+
   const onSubmit = (data) => {
-console.log(data);
+    console.log(data);
     navigate(
-      `/app/meetings/schedule-meeting?location=${data.unit}&meetingRoom=${data.meetingRoom}`,
+      `/app/meetings/schedule-meeting?location=${data.unit}&meetingRoom=${data.meetingRoom}`
     );
   };
 
@@ -100,12 +111,25 @@ console.log(data);
                 size="small"
                 error={!!errors.unit}
                 helperText={errors.unit?.message}
+                onChange={(e) => {
+                  const unitId = e.target.value;
+                  field.onChange(e.target.value);
+
+                  const selectedUnit = units.find(
+                    (unit) => unit._id === unitId
+                  );
+                  setSelectedUnitId(selectedUnit?.unitNo || "");
+                }}
               >
                 <MenuItem value="" disabled>
                   {" "}
                   Seletc Unit
                 </MenuItem>
-                <MenuItem value="Unit">Unit</MenuItem>
+                {units.map((location, index) => (
+                  <MenuItem key={index} value={location._id}>
+                    {location.unitNo}
+                  </MenuItem>
+                ))}
               </TextField>
             )}
           />
@@ -126,9 +150,13 @@ console.log(data);
               >
                 <MenuItem value="" disabled>
                   {" "}
-                  Seletc Unit
+                  Seletc Room
                 </MenuItem>
-                <MenuItem value="Unit">Unit</MenuItem>
+                {filteredMeetingRooms.map((room, index) => (
+                  <MenuItem key={room._id} value={room._id}>
+                    {room.name}
+                  </MenuItem>
+                ))}
               </TextField>
             )}
           />
