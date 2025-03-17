@@ -8,7 +8,7 @@ import { SiCashapp, SiGoogleadsense } from "react-icons/si";
 import WidgetSection from "../../../components/WidgetSection";
 import LayerBarGraph from "../../../components/graphs/LayerBarGraph";
 
-const MaintainanceDashboard = () => {
+const ItDashboard = () => {
   const utilisedData = [125, 150, 99, 85, 70, 50, 80, 95, 100, 65, 50, 120];
   const defaultData = utilisedData.map((value) =>
     Math.max(100 - Math.min(value, 100), 0)
@@ -93,29 +93,29 @@ const MaintainanceDashboard = () => {
       widgets: [
         <Card
           icon={<MdFormatListBulleted />}
-          title="Annual Expenses"
-          route={"/app/dashboard/maintenance-dashboard/annual-expenses"}
+          title="Annual Expense"
+          route={"/app/dashboard/it-dashboard/annual-expenses"}
         />,
         <Card
           icon={<MdFormatListBulleted />}
           title="Inventory"
-          route={"/app/dashboard/maintenance-dashboard/inventory"}
+          route={"/app/dashboard/it-dashboard/inventory"}
         />,
         <Card
           icon={<SiCashapp />}
           title="Finance"
-          route={"/app/dashboard/maintenance-dashboard/finance"}
+          route={"/app/dashboard/it-dashboard/finance"}
         />,
         <Card icon={<MdFormatListBulleted />} title="Mix-Bag" />,
         <Card
           icon={<SiGoogleadsense />}
           title="Data"
-          route={"/app/dashboard/maintenance-dashboard/data"}
+          route={"/app/dashboard/it-dashboard/data"}
         />,
         <Card
           icon={<MdOutlineMiscellaneousServices />}
           title="Settings"
-          route={"/app/dashboard/maintenance-dashboard/settings"}
+          route={"/app/dashboard/it-dashboard/settings"}
         />,
       ],
     },
@@ -132,4 +132,4 @@ const MaintainanceDashboard = () => {
   );
 };
 
-export default MaintainanceDashboard;
+export default ItDashboard;

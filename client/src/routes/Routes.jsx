@@ -179,6 +179,50 @@ import MyAssets from "../pages/Profile/MyAssets";
 import MeetingRoomCredits from "../pages/Profile/MeetingRoomCredits";
 import TicketsHistory from "../pages/Profile/TicketsHistory";
 import EditTemplate from "../pages/Dashboard/FrontendDashboard/WebsiteBuilder/EditTemplate";
+import ItLayout from "../pages/Dashboard/ItDashboard/ItLayout";
+import ItDashboard from "../pages/Dashboard/ItDashboard/ItDashboard";
+import AdminAnnualExpenses from "../pages/Dashboard/AdminDashboard/AdminAnnualExpenses";
+import AdminInventory from "../pages/Dashboard/AdminDashboard/AdminInventory";
+import AdminFinance from "../pages/Dashboard/AdminDashboard/AdminFinance/AdminFinance";
+import AdminBudget from "../pages/Dashboard/AdminDashboard/AdminFinance/AdminBudget";
+import AdminPayment from "../pages/Dashboard/AdminDashboard/AdminFinance/AdminPayment";
+import AdminData from "../pages/Dashboard/AdminDashboard/AdminData/AdminData";
+import AdminAssetList from "../pages/Dashboard/AdminDashboard/AdminData/AdminAssetList";
+import AdminVendorDatabase from "../pages/Dashboard/AdminDashboard/AdminData/AdminVendorDatabase";
+import AdminElectricityExpenses from "../pages/Dashboard/AdminDashboard/AdminData/AdminElectricityExpenses";
+import AdminMonthlyInvoiceReports from "../pages/Dashboard/AdminDashboard/AdminData/AdminMonthlyInvoiceReports";
+import AdminSettings from "../pages/Dashboard/AdminDashboard/AdminSettings/AdminSettings";
+import AdminBulkUpload from "../pages/Dashboard/AdminDashboard/AdminSettings/AdminBulkUpload";
+import AdminSops from "../pages/Dashboard/AdminDashboard/AdminSettings/AdminSops";
+import AdminPolicies from "../pages/Dashboard/AdminDashboard/AdminSettings/AdminPolicies";
+import MaintenanceAnnualExpenses from "../pages/Dashboard/MaintainanceDashboard/MaintenanceAnnualExpenses";
+import MaintenanceInventory from "../pages/Dashboard/MaintainanceDashboard/MaintenanceInventory";
+import MaintenanceFinance from "../pages/Dashboard/MaintainanceDashboard/MaintenanceFinance/MaintenanceFinance";
+import MaintenanceBudget from "../pages/Dashboard/MaintainanceDashboard/MaintenanceFinance/MaintenanceBudget";
+import MaintenancePayment from "../pages/Dashboard/MaintainanceDashboard/MaintenanceFinance/MaintenancePayment";
+import MaintenanceData from "../pages/Dashboard/MaintainanceDashboard/MaintenanceData/MaintenanceData";
+import MaintenanceAssetList from "../pages/Dashboard/MaintainanceDashboard/MaintenanceData/MaintenanceAssetList";
+import MaintenanceVendorReports from "../pages/Dashboard/MaintainanceDashboard/MaintenanceData/MaintenanceVendorReports";
+import MaintenanceAmcRecords from "../pages/Dashboard/MaintainanceDashboard/MaintenanceData/MaintenanceAmcRecords";
+import MaintenanceMonthlyInvoice from "../pages/Dashboard/MaintainanceDashboard/MaintenanceData/MaintenanceMonthlyInvoice";
+import MaintenanceSettings from "../pages/Dashboard/MaintainanceDashboard/MaintenanceSettings/MaintenanceSettings";
+import MaintenanceBulkUpload from "../pages/Dashboard/MaintainanceDashboard/MaintenanceSettings/MaintenanceBulkUpload";
+import MaintenanceSops from "../pages/Dashboard/MaintainanceDashboard/MaintenanceSettings/MaintenanceSops";
+import MaintenancePolicies from "../pages/Dashboard/MaintainanceDashboard/MaintenanceSettings/MaintenancePolicies";
+import ItAnnualExpenses from "../pages/Dashboard/ItDashboard/ItAnnualExpenses";
+import ItInventory from "../pages/Dashboard/ItDashboard/ItInventory";
+import ItFinance from "../pages/Dashboard/ItDashboard/ItFinance/ItFinance";
+import ItBudget from "../pages/Dashboard/ItDashboard/ItFinance/ItBudget";
+import ItPayment from "../pages/Dashboard/ItDashboard/ItFinance/ItPayment";
+import ItData from "../pages/Dashboard/ItDashboard/ItData/ItData";
+import ItAssetList from "../pages/Dashboard/ItDashboard/ItData/ItAssetList";
+import ItVendorReports from "../pages/Dashboard/ItDashboard/ItData/ItVendorReports";
+import ItAmcRecords from "../pages/Dashboard/ItDashboard/ItData/ItAmcRecords";
+import ItMonthlyInvoice from "../pages/Dashboard/ItDashboard/ItData/ItMonthlyInvoice";
+import ItSettings from "../pages/Dashboard/ItDashboard/ItSettings/ItSettings";
+import ItBulkUpload from "../pages/Dashboard/ItDashboard/ItSettings/ItBulkUpload";
+import ItSops from "../pages/Dashboard/ItDashboard/ItSettings/ItSops";
+import ItPolicies from "../pages/Dashboard/ItDashboard/ItSettings/ItPolicies";
 
 export const routes = createBrowserRouter([
   {
@@ -295,15 +339,211 @@ export const routes = createBrowserRouter([
                         path: "",
                         element: <AdminDashboard />,
                       },
+                      {
+                        path: "annual-expenses",
+                        element: <AdminAnnualExpenses />,
+                      },
+                      {
+                        path: "inventory",
+                        element: <AdminInventory />,
+                      },
+                      {
+                        path: "finance",
+                        element: <AdminFinance />,
+                        children: [
+                          {
+                            path: "budget",
+                            element: <AdminBudget />,
+                          },
+                          {
+                            path: "payment-schedule",
+                            element: <AdminPayment />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "data",
+                        element: <AdminData />,
+                        children: [
+                          {
+                            path: "asset-list",
+                            element: <AdminAssetList />,
+                          },
+                          {
+                            path: "vendor-database",
+                            element: <AdminVendorDatabase />,
+                          },
+                          {
+                            path: "electricity-expenses",
+                            element: <AdminElectricityExpenses />,
+                          },
+                          {
+                            path: "monthly-invoice-reports",
+                            element: <AdminMonthlyInvoiceReports />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "settings",
+                        element: <AdminSettings />,
+                        children: [
+                          {
+                            path: "bulk-upload",
+                            element: <AdminBulkUpload />,
+                          },
+                          {
+                            path: "sops",
+                            element: <AdminSops />,
+                          },
+                          {
+                            path: "policies",
+                            element: <AdminPolicies />,
+                          },
+                        ],
+                      },
                     ],
                   },
                   {
-                    path: "maintainance-dashboard",
+                    path: "maintenance-dashboard",
                     element: <MaintainanceLayout />,
                     children: [
                       {
                         path: "",
                         element: <MaintainanceDashboard />,
+                      },
+                      {
+                        path: "annual-expenses",
+                        element: <MaintenanceAnnualExpenses />,
+                      },
+                      {
+                        path: "inventory",
+                        element: <MaintenanceInventory />,
+                      },
+                      {
+                        path: "finance",
+                        element: <MaintenanceFinance />,
+                        children: [
+                          {
+                            path: "budget",
+                            element: <MaintenanceBudget />,
+                          },
+                          {
+                            path: "payment-schedule",
+                            element: <MaintenancePayment />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "data",
+                        element: <MaintenanceData />,
+                        children: [
+                          {
+                            path: "asset-list",
+                            element: <MaintenanceAssetList />,
+                          },
+                          {
+                            path: "vendor-database",
+                            element: <MaintenanceVendorReports />,
+                          },
+                          {
+                            path: "amc-records",
+                            element: <MaintenanceAmcRecords />,
+                          },
+                          {
+                            path: "monthly-invoice-reports",
+                            element: <MaintenanceMonthlyInvoice />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "settings",
+                        element: <MaintenanceSettings />,
+                        children: [
+                          {
+                            path: "bulk-upload",
+                            element: <MaintenanceBulkUpload />,
+                          },
+                          {
+                            path: "sops",
+                            element: <MaintenanceSops />,
+                          },
+                          {
+                            path: "policies",
+                            element: <MaintenancePolicies />,
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    path: "it-dashboard",
+                    element: <ItLayout />,
+                    children: [
+                      {
+                        path: "",
+                        element: <ItDashboard />,
+                      },
+                      {
+                        path: "annual-expenses",
+                        element: <ItAnnualExpenses />,
+                      },
+                      {
+                        path: "inventory",
+                        element: <ItInventory />,
+                      },
+                      {
+                        path: "finance",
+                        element: <ItFinance />,
+                        children: [
+                          {
+                            path: "budget",
+                            element: <ItBudget />,
+                          },
+                          {
+                            path: "payment-schedule",
+                            element: <ItPayment />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "data",
+                        element: <ItData />,
+                        children: [
+                          {
+                            path: "asset-list",
+                            element: <ItAssetList />,
+                          },
+                          {
+                            path: "vendor-database",
+                            element: <ItVendorReports />,
+                          },
+                          {
+                            path: "amc-records",
+                            element: <ItAmcRecords />,
+                          },
+                          {
+                            path: "monthly-invoice-reports",
+                            element: <ItMonthlyInvoice />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "settings",
+                        element: <ItSettings />,
+                        children: [
+                          {
+                            path: "bulk-upload",
+                            element: <ItBulkUpload />,
+                          },
+                          {
+                            path: "sops",
+                            element: <ItSops />,
+                          },
+                          {
+                            path: "policies",
+                            element: <ItPolicies />,
+                          },
+                        ],
                       },
                     ],
                   },
@@ -688,18 +928,18 @@ export const routes = createBrowserRouter([
               {
                 path: "profile",
                 element: <ProfileLayout />,
-                children:[
+                children: [
                   {
-                    path:'my-profile',
-                    element:<MyProfile/>
+                    path: "my-profile",
+                    element: <MyProfile />,
                   },
                   {
-                    path:'change-password',
-                    element:<ChangePassword/>
+                    path: "change-password",
+                    element: <ChangePassword />,
                   },
                   {
-                    path:'access-grant',
-                    element:<AccessGrant/>
+                    path: "access-grant",
+                    element: <AccessGrant />,
                   },
                   {
                     path: "HR",
@@ -724,24 +964,23 @@ export const routes = createBrowserRouter([
                     ],
                   },
                   {
-                    path:'my-assets',
-                    element:<MyAssets/>
+                    path: "my-assets",
+                    element: <MyAssets />,
                   },
                   {
-                    path:'my-meetings',
-                    element:<MeetingRoomCredits/>
+                    path: "my-meetings",
+                    element: <MeetingRoomCredits />,
                   },
                   {
-                    path:'tickets-history',
-                    element:<TicketsHistory/>
+                    path: "tickets-history",
+                    element: <TicketsHistory />,
                   },
-                ]
+                ],
               },
               {
                 path: "test",
                 element: <TestPage />,
               },
-       
 
               {
                 path: "tickets", // Parent path
@@ -1036,7 +1275,6 @@ export const routes = createBrowserRouter([
             ],
           },
         ],
-        
       },
       {
         path: "unauthorized",

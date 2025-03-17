@@ -2,27 +2,35 @@ import { Tab, Tabs } from "@mui/material";
 import React, { useEffect } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
-const ManageAssets = () => {
+const MaintenanceData = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
   // Map routes to tabs
   const tabs = [
-    { label: "Budget", path: "budget" },
-    { label: "Payment Schedule", path: "payment-schedule" },
+    { label: "Asset List", path: "asset-list" },
+    { label: "Vendor Database", path: "vendor-database" },
+    {
+      label: "AMC Records",
+      path: "amc-records",
+    },
+    {
+      label: "Monthly Invoice Reports",
+      path: "monthly-invoice-reports",
+    },
   ];
 
   // Redirect to "view-employees" if the current path is "/hr-dashboard/compliances"
   useEffect(() => {
-    if (location.pathname === "/app/dashboard/sales-dashboard/finance") {
-      navigate("/app/dashboard/sales-dashboard/finance/budget", {
+    if (location.pathname === "/app/dashboard/maintenance-dashboard/data") {
+      navigate("/app/dashboard/maintenance-dashboard/data/asset-list", {
         replace: true,
       });
     }
   }, [location, navigate]);
 
   // Determine whether to show the tabs
-  const showTabs = !location.pathname.includes("budget/");
+  const showTabs = !location.pathname.includes("asset-list/");
 
   // Determine active tab based on location
   const activeTab = tabs.findIndex((tab) =>
@@ -79,4 +87,4 @@ const ManageAssets = () => {
   );
 };
 
-export default ManageAssets;
+export default MaintenanceData;

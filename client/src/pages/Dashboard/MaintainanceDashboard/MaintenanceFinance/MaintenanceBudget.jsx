@@ -3,7 +3,7 @@ import BudgetDisplay from "../../../../components/BudgetDisplay";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../../../hooks/useAxiosPrivate";
 
-const SalesBudget = () => {
+const MaintenanceBudget = () => {
   const axios = useAxiosPrivate();
   const { data: hrFinance = [] } = useQuery({
     queryKey: ["hrFinance"],
@@ -23,4 +23,4 @@ const SalesBudget = () => {
   );
 };
 
-export default SalesBudget;
+export default MaintenanceBudget;

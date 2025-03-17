@@ -1,18 +1,18 @@
 import { useState } from "react";
-import AgTable from "../../../components/AgTable";
-import PrimaryButton from "../../../components/PrimaryButton";
-import AssetModal from "./AssetModal";
+import AgTable from "../../../../components/AgTable";
+import PrimaryButton from "../../../../components/PrimaryButton";
+// import AssetModal from "./AssetModal";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
-import MuiModal from "../../../components/MuiModal";
+import useAxiosPrivate from "../../../../hooks/useAxiosPrivate";
+import MuiModal from "../../../../components/MuiModal";
 import { Controller, useForm } from "react-hook-form";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Button, FormHelperText, MenuItem, TextField } from "@mui/material";
 import { toast } from "sonner";
-import useAuth from "../../../hooks/useAuth";
+import useAuth from "../../../../hooks/useAuth";
 
-const ListOfAssets = () => {
+const MaintenanceVendorReports = () => {
   const { auth } = useAuth();
   const axios = useAxiosPrivate();
   const [modalMode, setModalMode] = useState("add");
@@ -155,8 +155,8 @@ const ListOfAssets = () => {
         key={assetsList.length}
         search={true}
         searchColumn={"Asset Number"}
-        tableTitle={"List of Assets"}
-        buttonTitle={"Add Asset"}
+        tableTitle={"Vendor Database"}
+        buttonTitle={"Add Vendor"}
         data={[
           ...assetsList.map((asset, index) => ({
             id: index + 1,
@@ -466,4 +466,4 @@ const ListOfAssets = () => {
   );
 };
 
-export default ListOfAssets;
+export default MaintenanceVendorReports;
