@@ -12,7 +12,9 @@ const {
 const {
   createLead,
   getLeads,
+  bulkInsertLeads,
 } = require("../controllers/salesControllers/leadsControllers");
+const upload = require("../config/multerConfig");
 
 router.post("/onboard-client", createClient);
 router.get("/clients", getClients);
@@ -21,5 +23,6 @@ router.post("/create-service", createClientService);
 router.get("/services", getClientServices);
 router.post("/create-lead", createLead);
 router.get("/leads", getLeads);
+router.post("/bulk-insert-leads", upload.single("leads"), bulkInsertLeads);
 
 module.exports = router;
