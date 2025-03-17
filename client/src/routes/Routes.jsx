@@ -535,7 +535,7 @@ export const routes = createBrowserRouter([
                             element: <Templates />,
                           },
                           {
-                            path: "templates/view-template/:id",
+                            path: "templates/:id",
                             element: <ViewTemplate />,
                           },
                         ],

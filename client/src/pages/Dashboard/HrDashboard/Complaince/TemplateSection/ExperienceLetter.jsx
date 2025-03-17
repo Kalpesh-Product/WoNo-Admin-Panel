@@ -1,10 +1,14 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 import biznestLogo from "../../../../../assets/biznest/biznest_logo.jpg";
 import { useSidebar } from "../../../../../context/SideBarContext";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
-
-import { TextField } from "@mui/material";
+import TextField from "@mui/material/TextField";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { useForm, Controller } from "react-hook-form";
+import dayjs from "dayjs";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import PrimaryButton from "../../../../../components/PrimaryButton";
 
 const ExperienceLetter = () => {
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
@@ -14,20 +18,20 @@ const ExperienceLetter = () => {
     setIsSidebarOpen(false);
   }, []);
 
-  const [letterData, setLetterData] = useState({
-    name: "[Name]",
-    designation: "[Designation]",
-    workedFrom: "[Worked From]",
-    doj: "[DOJ]",
-    lwd: "[LWD]",
-    hrName: "[HR Name]",
-    hrDesignation: "[HR Designation]",
-    date: "DD/MM/YY",
+  const { control, handleSubmit, watch } = useForm({
+    defaultValues: {
+      name: "[Name]",
+      designation: "[Designation]",
+      workedFrom: "[Worked From]",
+      doj: "[DOJ]",
+      lwd: "[LWD]",
+      hrName: "[HR Name]",
+      hrDesignation: "[HR Designation]",
+      date: "DD/MM/YY",
+    },
   });
 
-  const handleChange = (e) => {
-    setLetterData({ ...letterData, [e.target.name]: e.target.value });
-  };
+  const letterData = watch();
 
   const exportToPDF = async () => {
     const canvas = await html2canvas(letterRef.current, { scale: 2 });
@@ -42,7 +46,7 @@ const ExperienceLetter = () => {
   return (
     <div className="flex items-start gap-4">
       <div>
-        <div className="h-full" ref={letterRef}>
+        <div className="h-[67vh] overflow-y-auto" ref={letterRef}>
           <div className="border bg-[#fa0606] w-[50rem] h-[70rem] mx-auto">
             <div className="bg-white ml-10 h-full">
               <div className="bg-white mx-10 h-full flex flex-col justify-between">
@@ -113,29 +117,58 @@ const ExperienceLetter = () => {
           </div>
         </div>
       </div>
-      <div className="w-1/3 p-4 border">
-        <span className="text-subtitle font-pmedium">Edit Fields</span>
-        <div className="flex flex-col gap-4">
-          {Object.keys(letterData).map((field) => (
-            <div key={field} className="my-2 ">
-              <TextField
-                label={field.charAt(0).toUpperCase() + field.slice(1)}
-                name={field}
-                value={letterData[field]}
-                placeholder={field}
-                onChange={handleChange}
-                fullWidth
-                size="small"
-              />
-            </div>
-          ))}
+      <div className="h-[67vh] w-1/3 p-4 border flex flex-col justify-between">
+        <div className="h-[50vh] overflow-y-auto">
+          <h2 className="text-subtitle font-pregular">Edit Fields</h2>
+          <div className="flex flex-col gap-4">
+            {Object.keys(letterData).map((field) => (
+              <div key={field} className="my-2">
+                {field === "doj" || field === "lwd" || field === "date" ? (
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <Controller
+                      name={field}
+                      control={control}
+                      render={({ field: controllerField }) => (
+                        <DatePicker
+                          label={field.charAt(0).toUpperCase() + field.slice(1)}
+                          value={dayjs(controllerField.value, "DD/MM/YYYY")}
+                          slotProps={{
+                            textField: {
+                              size: "small",
+                              fullWidth: true,
+                              error: "",
+                            },
+                          }}
+                          onChange={(newValue) =>
+                            controllerField.onChange(
+                              dayjs(newValue).format("DD/MM/YYYY")
+                            )
+                          }
+                          format="DD/MM/YYYY"
+                          size="small"
+                        />
+                      )}
+                    />
+                  </LocalizationProvider>
+                ) : (
+                  <Controller
+                    name={field}
+                    control={control}
+                    render={({ field: controllerField }) => (
+                      <TextField
+                        label={field.charAt(0).toUpperCase() + field.slice(1)}
+                        {...controllerField}
+                        fullWidth
+                        size="small"
+                      />
+                    )}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
         </div>
-        <button
-          onClick={exportToPDF}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-        >
-          Export to PDF
-        </button>
+        <PrimaryButton title={"Export"} handleSubmit={exportToPDF} />
       </div>
     </div>
   );
