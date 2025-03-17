@@ -857,6 +857,28 @@ const extendMeeting = async (req, res, next) => {
   }
 };
 
+// const getSingleRoomMeetings = async (req, res, next) => {
+//   const { id } = req.params;
+
+//   try {
+//     const startOfDay = new Date();
+//     startOfDay.setHours(0, 0, 0, 0);
+
+//     const endOfDay = new Date();
+//     endOfDay.setHours(23, 59, 59, 999);
+
+//     const meetings = await Meeting.find({
+//       bookedRoom: id,
+//       startDate: { $lte: endOfDay },
+//       endDate: { $gte: startOfDay },
+//     }).populate("bookedRoom");
+
+//     res.status(200).json(meetings);
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
 module.exports = {
   addMeetings,
   getMeetings,
