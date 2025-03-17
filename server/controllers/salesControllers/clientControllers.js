@@ -1,3 +1,4 @@
+const Company = require("../../models/hr/Company");
 const Unit = require("../../models/locations/Unit");
 const Client = require("../../models/sales/Client");
 const mongoose = require("mongoose");
@@ -198,7 +199,14 @@ const createClient = async (req, res, next) => {
 const getClients = async (req, res, next) => {
   try {
     const { company } = req;
-    const clients = await Client.find({ company }).populate("unit");
+    const clients = await Client.find({ company }).populate([
+      {
+        path: "unit",
+        select: "_id unitName unitNo",
+        populate: { path: "building", select: "_id buildingName fullAddress" },
+      },
+      { path: "service", select: "_id serviceName description" },
+    ]);
     if (!clients.length) {
       return res.status(404).json({ message: "No clients found" });
     }
@@ -214,7 +222,7 @@ const getClientById = async (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid client ID format" });
     }
-    const client = await Client.findById(id).populate("company unit");
+    const client = await Client.findById(id).populate("unit service");
     if (!client) {
       return res.status(404).json({ message: "Client not found" });
     }
@@ -263,10 +271,38 @@ const deleteClient = async (req, res, next) => {
   }
 };
 
+const getClientsUnitWise = async (req, res, next) => {
+  const { company } = req;
+  const { unitId } = req.params;
+
+  try {
+    const companyExists = await Company.findById(company);
+
+    if (!companyExists) {
+      return res.status(400).json({ message: "Company not found" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(unitId)) {
+      return res.status(400).json({ message: "Invalid unit ID provided" });
+    }
+
+    const clients = await Client.find({ unit: unitId });
+
+    if (!clients.length) {
+      return res.status(200).json([]);
+    }
+
+    return res.status(200).json(clients);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createClient,
   updateClient,
   deleteClient,
   getClientById,
   getClients,
+  getClientsUnitWise,
 };

@@ -46,11 +46,7 @@ router.post("/add-leave-type", addLeaveType);
 router.post("/add-building", addBuilding);
 router.post("/add-unit", addUnit);
 router.get("/fetch-units", fetchUnits);
-router.post(
-  "/bulk-add-locations",
-  upload.single("units"),
-  bulkInsertUnits
-);
+router.post("/bulk-add-locations", upload.single("units"), bulkInsertUnits);
 router.get("/get-company-data", getCompanyData);
 router.post("/update-active-status/:field", updateActiveStatus);
 router.post("/add-company-logo", upload.single("logo"), addCompanyLogo);

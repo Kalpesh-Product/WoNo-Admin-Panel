@@ -348,7 +348,6 @@ const getMeetings = async (req, res, next) => {
     );
 
     const transformedMeetings = meetings.map((meeting, index) => {
-      console.log(internalParticipants[index]);
       return {
         _id: meeting._id,
         name: meeting.bookedBy?.name,
