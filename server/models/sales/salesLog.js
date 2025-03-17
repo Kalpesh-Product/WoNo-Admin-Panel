@@ -22,9 +22,13 @@ const salesLogSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Member",
     },
-    desk: {
+    deskData: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Desk",
+      ref: "DeskData",
+    },
+    deskBooking: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "DeskBooking",
     },
     action: {
       type: String,
