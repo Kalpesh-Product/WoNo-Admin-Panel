@@ -857,27 +857,49 @@ const extendMeeting = async (req, res, next) => {
   }
 };
 
-// const getSingleRoomMeetings = async (req, res, next) => {
-//   const { id } = req.params;
+const getSingleRoomMeetings = async (req, res, next) => {
+  const { roomId } = req.params;
 
-//   try {
-//     const startOfDay = new Date();
-//     startOfDay.setHours(0, 0, 0, 0);
+  try {
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-//     const endOfDay = new Date();
-//     endOfDay.setHours(23, 59, 59, 999);
+    if (!mongoose.Types.ObjectId.isValid(roomId)) {
+      return res.status(400).json({ message: "Invalid roomId provided" });
+    }
 
-//     const meetings = await Meeting.find({
-//       bookedRoom: id,
-//       startDate: { $lte: endOfDay },
-//       endDate: { $gte: startOfDay },
-//     }).populate("bookedRoom");
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
 
-//     res.status(200).json(meetings);
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const meetings = await Meeting.find({
+      bookedRoom: roomId,
+      $or: [
+        { startDate: { $lte: endOfDay }, endDate: { $gte: startOfDay } },
+        { startDate: { $gt: endOfDay } },
+      ],
+    }).populate("bookedRoom", "_id name status description seats");
+
+    const formattedMeetings = meetings.map((meeting) => ({
+      ...meeting._doc,
+      startDate: meeting.startDate.toLocaleString("en-US", {
+        timeZone: timezone,
+      }),
+      endDate: meeting.endDate.toLocaleString("en-US", {
+        timeZone: timezone,
+      }),
+      startTime: meeting.startTime.toLocaleString("en-US", {
+        timeZone: timezone,
+      }),
+      endTime: meeting.endTime.toLocaleString("en-US", { timeZone: timezone }),
+    }));
+
+    res.status(200).json(formattedMeetings);
+  } catch (error) {
+    next(error);
+  }
+};
 
 module.exports = {
   addMeetings,
@@ -888,4 +910,5 @@ module.exports = {
   getMeetingsByTypes,
   cancelMeeting,
   getAvaliableUsers,
+  getSingleRoomMeetings,
 };
