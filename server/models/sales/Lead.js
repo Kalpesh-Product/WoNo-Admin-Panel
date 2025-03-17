@@ -18,10 +18,7 @@ const LeadSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    proposedLocation: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Unit",
-    },
+    proposedLocations: [{ type: mongoose.Schema.Types.ObjectId, ref: "Unit" }],
     sector: {
       type: String,
       required: true,
@@ -56,7 +53,7 @@ const LeadSchema = new mongoose.Schema(
       required: true,
     },
     period: {
-      type: String,
+      type: Number,
       required: true,
     },
     openDesks: {
