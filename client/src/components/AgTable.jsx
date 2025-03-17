@@ -178,9 +178,11 @@ const AgTable = React.memo(
               <PrimaryButton
                 title={<MdFilterAlt />}
                 handleSubmit={() => setFilterDrawerOpen(true)}
+                externalStyles={"rounded-r-none"}
               />
               <SecondaryButton
                 title={<MdFilterAltOff />}
+                externalStyles={"rounded-l-none"}
                 handleSubmit={() => {
                   setFilters({});
                   setAppliedFilters({});

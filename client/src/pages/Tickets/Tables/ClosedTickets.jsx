@@ -18,8 +18,8 @@ const ClosedTickets = ({ title }) => {
   const transformTicketsData = (tickets) => {
     return !tickets.length
       ? []
-      : tickets.map((ticket) => ({
-          id: ticket._id,
+      : tickets.map((ticket,index) => ({
+          id: index + 1,
           raisedBy: ticket.raisedBy?.firstName || "Unknown",
           fromDepartment: ticket.raisedToDepartment?.name || "N/A",
           ticketTitle: ticket?.ticket || "No Title",
@@ -29,6 +29,7 @@ const ClosedTickets = ({ title }) => {
 
   const rows = isLoading ? [] : transformTicketsData(data);
   const recievedTicketsColumns = [
+    {field : "id", headerName: "Ticket ID", sort:"desc" },
     { field: "raisedBy", headerName: "Raised By" },
     { field: "fromDepartment", headerName: "From Department" },
     { field: "ticketTitle", headerName: "Ticket Title", flex: 1 },

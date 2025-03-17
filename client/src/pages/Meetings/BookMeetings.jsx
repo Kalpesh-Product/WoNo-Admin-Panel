@@ -89,7 +89,7 @@ const BookMeetings = () => {
 
   return (
     <div className="border-default border-borderGray m-4 p-4 rounded-md text-center">
-      <h2 className="font-pregular text-title text-primary mt-20 mb-10">
+      <h2 className="font-pregular text-title text-primary my-10">
         Book A Meeting
       </h2>
       <form

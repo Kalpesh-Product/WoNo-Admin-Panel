@@ -476,7 +476,7 @@ export const routes = createBrowserRouter([
                     ],
                   },
                   {
-                    path: "it-dashboard",
+                    path: "IT-dashboard",
                     element: <ItLayout />,
                     children: [
                       {

@@ -94,28 +94,28 @@ const ItDashboard = () => {
         <Card
           icon={<MdFormatListBulleted />}
           title="Annual Expense"
-          route={"/app/dashboard/it-dashboard/annual-expenses"}
+          route={"/app/dashboard/IT-dashboard/annual-expenses"}
         />,
         <Card
           icon={<MdFormatListBulleted />}
           title="Inventory"
-          route={"/app/dashboard/it-dashboard/inventory"}
+          route={"/app/dashboard/IT-dashboard/inventory"}
         />,
         <Card
           icon={<SiCashapp />}
           title="Finance"
-          route={"/app/dashboard/it-dashboard/finance"}
+          route={"/app/dashboard/IT-dashboard/finance"}
         />,
         <Card icon={<MdFormatListBulleted />} title="Mix-Bag" />,
         <Card
           icon={<SiGoogleadsense />}
           title="Data"
-          route={"/app/dashboard/it-dashboard/data"}
+          route={"/app/dashboard/IT-dashboard/data"}
         />,
         <Card
           icon={<MdOutlineMiscellaneousServices />}
           title="Settings"
-          route={"/app/dashboard/it-dashboard/settings"}
+          route={"/app/dashboard/IT-dashboard/settings"}
         />,
       ],
     },

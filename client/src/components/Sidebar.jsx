@@ -113,8 +113,8 @@ const Sidebar = () => {
         },
         {
           id: 7,
-          title: "Maintainance Dashboard",
-          route: "/app/dashboard/maintainance-dashboard",
+          title: "Maintenance Dashboard",
+          route: "/app/dashboard/maintenance-dashboard",
           icon: <GiAutoRepair />,
         },
         {
@@ -125,7 +125,7 @@ const Sidebar = () => {
         {
           id: 9,
           title: "IT Dashboard",
-          route: "/app/dashboard/it-dashboard",
+          route: "/app/dashboard/IT-dashboard",
           icon: <FaLaptopMedical />,
         },
       ],
