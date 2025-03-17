@@ -1,6 +1,10 @@
 const mongoose = require("mongoose");
 const Lead = require("../../models/sales/Lead");
 const Unit = require("../../models/locations/Unit");
+const { Readable } = require("stream");
+const csvParser = require("csv-parser");
+const fs = require("fs");
+const path = require("path");
 
 const createLead = async (req, res, next) => {
   try {
@@ -27,6 +31,7 @@ const createLead = async (req, res, next) => {
       remarksComments,
       lastFollowUpDate,
     } = req.body;
+    const { company } = req;
 
     const leadExists = await Lead.findOne({ emailAddress });
 
@@ -93,6 +98,7 @@ const createLead = async (req, res, next) => {
       totalDesks,
       clientBudget,
       startDate,
+      company,
       remarksComments,
       lastFollowUpDate,
     });
@@ -119,4 +125,93 @@ const getLeads = async (req, res, next) => {
   }
 };
 
-module.exports = { createLead, getLeads };
+const bulkInsertLeads = async (req, res, next) => {
+  try {
+    const file = req.file;
+    const { company } = req;
+
+    if (!file) {
+      return res.status(400).json({ message: "Please provide a CSV sheet" });
+    }
+
+    const newLeads = [];
+    const stream = Readable.from(file.buffer.toString("utf-8").trim());
+
+    stream
+      .pipe(csvParser())
+      .on("data", async (row) => {
+        try {
+          const proposedLocationsRaw = row["Proposed Location"] || "";
+          const proposedLocations = proposedLocationsRaw
+            .split(/[,/]/) // Split using comma or slash as delimiter
+            .map((id) => id.trim()) // Trim spaces
+            .filter((id) => id.length > 0) // Remove empty values
+            .map((id) => id); // Convert to ObjectId
+
+          const lead = {
+            company,
+            dateOfContact: new Date(
+              row["Date of Contact"].split("/").reverse().join("-")
+            ),
+            companyName: row["Company Name"].trim(),
+            serviceCategory: row["Sales Category"],
+            leadStatus: row["Lead Status"],
+            proposedLocations, // Fixed handling
+            sector: row["Sector"],
+            headOfficeLocation: row["HO Location"].trim(),
+            officeInGoa: row["Office in Goa"].toLowerCase() === "yes",
+            pocName: row["POC Name"],
+            designation: row["Designation"],
+            contactNumber: row["Contact Number"],
+            emailAddress: row["Email Address"],
+            leadSource: row["Lead Source"],
+            period: row["Period"],
+            openDesks: parseInt(row["Open Desks"], 10),
+            cabinDesks: parseInt(row["Cabin Desks"], 10),
+            totalDesks: parseInt(row["Total Desks"], 10),
+            clientBudget: parseFloat(row["Client Budget"]),
+            remarksComments: row["Remarks/Comments"] || "",
+            startDate:
+              row["Start Date"].trim() === "-" ||
+              row["Start Date"].trim() === "TBD"
+                ? null
+                : new Date(row["Start Date"]),
+            lastFollowUpDate:
+              row["Last Follup Date"].trim() === "-" ||
+              !row["Last Follup Date"].trim().length
+                ? null
+                : new Date(
+                    row["Last Follup Date"].split("/").reverse().join("-")
+                  ),
+          };
+
+          newLeads.push(lead);
+        } catch (err) {
+          console.error("Error processing row:", err);
+        }
+      })
+      .on("end", async () => {
+        try {
+          console.log(newLeads.length);
+          if (!fs.existsSync(path.join(__dirname, "..", "..", "debugging"))) {
+            fs.mkdirSync(path.join(__dirname, "..", "..", "debugging"));
+          }
+          fs.writeFileSync(
+            path.join(__dirname, "..", "..", "debugging", "leads.json"),
+            JSON.stringify(newLeads)
+          );
+          await Lead.insertMany(newLeads);
+          res.status(201).json({
+            message: "Leads inserted successfully",
+            count: newLeads.length,
+          });
+        } catch (error) {
+          res.status(500).json(error)
+        }
+      });
+  } catch (error) {
+    res.status(500).json(error)
+  }
+};
+
+module.exports = { createLead, getLeads, bulkInsertLeads };

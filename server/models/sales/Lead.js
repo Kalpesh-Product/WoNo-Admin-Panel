@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 
 const LeadSchema = new mongoose.Schema(
   {
+    company: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+    },
     dateOfContact: {
       type: Date,
       required: true,
@@ -18,10 +22,12 @@ const LeadSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    proposedLocation: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Unit",
-    },
+    proposedLocations: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Unit",
+      },
+    ],
     sector: {
       type: String,
       required: true,
@@ -76,8 +82,7 @@ const LeadSchema = new mongoose.Schema(
       required: true,
     },
     startDate: {
-      type: Date,
-      required: true,
+      type: Date
     },
     remarksComments: {
       type: String,
@@ -89,4 +94,5 @@ const LeadSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Lead", LeadSchema);
+const Lead = mongoose.model("Lead", LeadSchema);
+module.exports = Lead;
