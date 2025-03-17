@@ -29,6 +29,8 @@
     "grapesjs-blocks-basic": "^1.0.2",
     "grapesjs-preset-webpage": "^1.0.3",
     "grapesjs-react": "^4.0.2",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.0",
     "react": "^19.0.0",
     "react-apexcharts": "^1.7.0",
     "react-dom": "^19.0.0",
