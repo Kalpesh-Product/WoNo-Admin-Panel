@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const serviceSchema = new mongoose.Schema(
+const clientServiceSchema = new mongoose.Schema(
   {
     serviceName: {
       type: String,
@@ -18,5 +18,5 @@ const serviceSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Service = mongoose.model("Service", serviceSchema);
-module.exports = Service;
+const ClientService = mongoose.model("ClientService", clientServiceSchema);
+module.exports = ClientService;
