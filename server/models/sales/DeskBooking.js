@@ -4,7 +4,7 @@ const deskBookingSchema = new mongoose.Schema(
   {
     desks: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "DeskData",
+      ref: "Unit",
     },
     month: {
       type: Date,

@@ -2,6 +2,7 @@ const Company = require("../../models/hr/Company");
 const Unit = require("../../models/locations/Unit");
 const Client = require("../../models/sales/Client");
 const mongoose = require("mongoose");
+const DeskBooking = require("../../models/sales/DeskBooking");
 
 const createClient = async (req, res, next) => {
   const logPath = "sales/SalesLog";
@@ -144,7 +145,11 @@ const createClient = async (req, res, next) => {
       },
     });
 
-    await client.save();
+    const savedClient = await client.save();
+
+    // const bookedDesk = await DeskBooking.findOne({ unit: unit });
+
+    // const updatedDesks = await DeskBooking;
 
     await createLog({
       path: logPath,
@@ -155,7 +160,7 @@ const createClient = async (req, res, next) => {
       ip: ip,
       company: company,
       sourceKey: logSourceKey,
-      sourceId: client._id,
+      sourceId: savedClient._id,
       changes: {
         clientName,
         service,
