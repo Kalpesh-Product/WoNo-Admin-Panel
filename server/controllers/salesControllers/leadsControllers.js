@@ -197,12 +197,12 @@ const bulkInsertLeads = async (req, res, next) => {
       .pipe(csvParser())
       .on("data", async (row) => {
         try {
-          const proposedLocationsRaw = row["Proposed Location"] || "";
+          const proposedLocationsRaw = row["Proposed Location Unit ID"] || "";
           const proposedLocations = proposedLocationsRaw
             .split(/[,/]/) // Split using comma or slash as delimiter
             .map((id) => id.trim()) // Trim spaces
             .filter((id) => id.length > 0) // Remove empty values
-            .map((id) => id); // Convert to ObjectId
+            .map((id) => id.trim()); // Convert to ObjectId
 
           const lead = {
             company,
@@ -210,9 +210,15 @@ const bulkInsertLeads = async (req, res, next) => {
               row["Date of Contact"].split("/").reverse().join("-")
             ),
             companyName: row["Company Name"].trim(),
-            serviceCategory: row["Sales Category"],
+            serviceCategory: !row["Sales Category ID"].trim().length
+              ? null
+              : row["Sales Category ID"].trim(),
             leadStatus: row["Lead Status"],
-            proposedLocations, // Fixed handling
+            proposedLocations: proposedLocations.find(
+              (loc) => loc.trim() === "-"
+            )
+              ? null
+              : proposedLocations,
             sector: row["Sector"],
             headOfficeLocation: row["HO Location"].trim(),
             officeInGoa: row["Office in Goa"].toLowerCase() === "yes",
@@ -222,14 +228,25 @@ const bulkInsertLeads = async (req, res, next) => {
             emailAddress: row["Email Address"],
             leadSource: row["Lead Source"],
             period: row["Period"],
-            openDesks: parseInt(row["Open Desks"], 10),
-            cabinDesks: parseInt(row["Cabin Desks"], 10),
-            totalDesks: parseInt(row["Total Desks"], 10),
-            clientBudget: parseFloat(row["Client Budget"]),
+            openDesks: !row["Open Desks"].trim().length
+              ? null
+              : parseInt(row["Open Desks"].trim(), 10),
+            cabinDesks: !row["Cabin Desks"].trim().length
+              ? null
+              : parseInt(row["Cabin Desks"].trim(), 10),
+            totalDesks: !row["Total Desks"].trim().length
+              ? null
+              : parseInt(row["Total Desks"].trim(), 10),
+            clientBudget:
+              row["Client Budget"].trim() === "-" ||
+              !row["Client Budget"].trim().length
+                ? null
+                : parseFloat(row["Client Budget"]),
             remarksComments: row["Remarks/Comments"] || "",
             startDate:
               row["Start Date"].trim() === "-" ||
-              row["Start Date"].trim() === "TBD"
+              row["Start Date"].trim() === "TBD" ||
+              !row["Start Date"].trim().length
                 ? null
                 : new Date(row["Start Date"]),
             lastFollowUpDate:
@@ -248,25 +265,17 @@ const bulkInsertLeads = async (req, res, next) => {
       })
       .on("end", async () => {
         try {
-          console.log(newLeads.length);
-          if (!fs.existsSync(path.join(__dirname, "..", "..", "debugging"))) {
-            fs.mkdirSync(path.join(__dirname, "..", "..", "debugging"));
-          }
-          fs.writeFileSync(
-            path.join(__dirname, "..", "..", "debugging", "leads.json"),
-            JSON.stringify(newLeads)
-          );
           await Lead.insertMany(newLeads);
           res.status(201).json({
             message: "Leads inserted successfully",
             count: newLeads.length,
           });
         } catch (error) {
-          res.status(500).json(error)
+          res.status(500).json(error);
         }
       });
   } catch (error) {
-    res.status(500).json(error)
+    res.status(500).json(error);
   }
 };
 
