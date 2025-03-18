@@ -82,7 +82,7 @@ const addMeetings = async (req, res, next) => {
       );
     }
 
-    if (startDateObj <= currDate) {
+    if (startDateObj.getDate() < currDate.getDate()) {
       throw new CustomError(
         "Please select future timing",
         logPath,
@@ -182,12 +182,27 @@ const addMeetings = async (req, res, next) => {
 
     const conflictingMeeting = await Meeting.findOne({
       bookedRoom: roomAvailable._id,
+      startDate: { $lte: endDateObj },
+      endDate: { $gte: startDateObj },
       $or: [
-        { startDate: { $lte: endDateObj }, endDate: { $gte: startDateObj } },
-      ],
-      $and: [
-        { startTime: { $lte: endTimeObj } },
-        { endTime: { $gte: startTimeObj } },
+        {
+          $and: [
+            { startTime: { $lte: startTimeObj } },
+            { endTime: { $gt: startTimeObj } },
+          ],
+        },
+        {
+          $and: [
+            { startTime: { $lt: endTimeObj } },
+            { endTime: { $gte: endTimeObj } },
+          ],
+        },
+        {
+          $and: [
+            { startTime: { $gte: startTimeObj } },
+            { endTime: { $lte: endTimeObj } },
+          ],
+        },
       ],
     });
 
@@ -501,7 +516,7 @@ const addHousekeepingTask = async (req, res, next) => {
 
     const room = await Room.findOneAndUpdate(
       { name: roomName },
-      { housekeepingStatus: "Completed", "location.status": "Available" },
+      { housekeepingStatus: "Completed", status: "Available" },
       { new: true }
     );
 
@@ -671,26 +686,24 @@ const getMeetingsByTypes = async (req, res, next) => {
 };
 
 const cancelMeeting = async (req, res, next) => {
-  try {
-    const { meetingId } = req.params;
-    const company = req.company;
-    const user = req.user;
-    const ip = req.ip;
-    let path = "meetings/MeetingLog";
-    let action = "Cancel Meeting";
+  const logPath = "meetings/MeetingLog";
+  const logAction = "Cancel Meeting";
+  const logSourceKey = "meeting";
+  const { meetingId } = req.params;
+  const { company, user, ip } = req;
 
+  try {
     if (!meetingId) {
       throw new CustomError(
         "Meeting ID is required",
-        400,
-        "meetings/MeetingLog",
-        "Cancel Meeting",
-        "meeting"
+        logPath,
+        logAction,
+        logSourceKey
       );
     }
 
     const cancelledMeeting = await Meeting.findByIdAndUpdate(
-      { _id: meetingId },
+      meetingId,
       { status: "Cancelled" },
       { new: true }
     );
@@ -698,114 +711,94 @@ const cancelMeeting = async (req, res, next) => {
     if (!cancelledMeeting) {
       throw new CustomError(
         "Meeting not found, please check the ID",
-        400,
-        "meetings/MeetingLog",
-        "Cancel Meeting",
-        "meeting"
+        logPath,
+        logAction,
+        logSourceKey
       );
     }
 
-    await createLog(
-      path,
-      action,
-      "Meeting cancelled successfully",
-      "Success",
-      user,
-      ip,
-      company,
-      cancelledMeeting._id,
-      {
-        meetingId,
-      }
-    );
+    // Log the successful meeting cancellation
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Meeting cancelled successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: cancelledMeeting._id,
+      changes: { meetingId },
+    });
 
-    res.status(200).json({ message: "Meeting cancelled successfully" });
+    return res.status(200).json({ message: "Meeting cancelled successfully" });
   } catch (error) {
-    next(error);
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
 const extendMeeting = async (req, res, next) => {
-  try {
-    const { meetingId } = req.params;
-    const { newEndTime } = req.body;
-    const company = req.company;
-    const user = req.user;
-    const ip = req.ip;
-    let path = "meetings/MeetingLog";
-    let action = "Extend Meeting";
+  const logPath = "meetings/MeetingLog";
+  const logAction = "Extend Meeting Time";
+  const logSourceKey = "meeting";
+  const { meetingId, newEndTime } = req.body;
+  const { user, ip, company } = req;
 
+  try {
     if (!meetingId || !newEndTime) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Meeting ID and new end time are required",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res
-        .status(400)
-        .json({ message: "Meeting ID and new end time are required" });
     }
 
     if (!mongoose.Types.ObjectId.isValid(meetingId)) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Invalid meeting ID",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(400).json({ message: "Invalid meeting ID" });
     }
 
     const meeting = await Meeting.findById(meetingId);
     if (!meeting) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Meeting not found",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(404).json({ message: "Meeting not found" });
     }
 
     const newEndTimeObj = new Date(newEndTime);
     if (isNaN(newEndTimeObj.getTime())) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Invalid new end time format",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(400).json({ message: "Invalid new end time format" });
     }
 
     if (newEndTimeObj <= meeting.endTime) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "New end time must be later than the current end time",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(400).json({
-        message: "New end time must be later than the current end time",
-      });
     }
 
+    // Check for conflicting meeting
     const conflictingMeeting = await Meeting.findOne({
       bookedRoom: meeting.bookedRoom,
       startDate: meeting.startDate,
@@ -813,46 +806,46 @@ const extendMeeting = async (req, res, next) => {
       endTime: { $gt: meeting.endTime },
       _id: { $ne: meetingId },
     });
-
     if (conflictingMeeting) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Room is already booked during the extended time",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res
-        .status(400)
-        .json({ message: "Room is already booked during the extended time" });
     }
 
+    // Store the old endTime for logging
+    const oldEndTime = meeting.endTime;
     meeting.endTime = newEndTimeObj;
+    meeting.endDate = newEndTimeObj;
     await meeting.save();
 
-    await createLog(
-      path,
-      action,
-      "Meeting extended successfully",
-      "Success",
-      user,
-      ip,
-      company,
-      meeting._id,
-      {
-        meetingId,
-        oldEndTime: meeting.endTime,
-        newEndTime: newEndTimeObj,
-      }
-    );
+    // Log the successful extension
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Meeting extended successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: meeting._id,
+      changes: { meetingId, oldEndTime, newEndTime: newEndTimeObj },
+    });
 
-    res
-      .status(200)
-      .json({ message: "Meeting extended successfully", newEndTime });
+    return res.status(200).json({
+      message: "Meeting extended successfully",
+    });
   } catch (error) {
-    next(error);
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
@@ -904,6 +897,7 @@ module.exports = {
   addMeetings,
   getMeetings,
   getMyMeetings,
+  extendMeeting,
   addHousekeepingTask,
   deleteHousekeepingTask,
   getMeetingsByTypes,
