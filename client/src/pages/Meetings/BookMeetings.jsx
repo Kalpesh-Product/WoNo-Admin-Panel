@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from "react";
-import {
-  MenuItem,
-  TextField,
-} from "@mui/material";
+import { MenuItem, TextField } from "@mui/material";
 import PrimaryButton from "../../components/PrimaryButton";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 const BookMeetings = () => {
@@ -31,7 +28,6 @@ const BookMeetings = () => {
   const selectedUnit = useWatch({ control, name: "location" });
   const [selectedUnitId, setSelectedUnitId] = useState("");
 
-
   // Fetch all Meeting Rooms
   const {
     data: allMeetingRooms = [],
@@ -47,29 +43,37 @@ const BookMeetings = () => {
 
   // Filter meeting rooms based on selected location
   const filteredMeetingRooms = selectedUnitId
-    ? allMeetingRooms.filter((room) => room.location?.building?._id === selectedUnitId)
+    ? allMeetingRooms.filter(
+        (room) => room.location?.building?._id === selectedUnitId
+      )
     : [];
 
   useEffect(() => {
     setValue("meetingRoom", ""); // Reset meeting room selection
   }, [selectedUnit, setValue]);
 
-  useEffect(() => {
-  }, [filteredMeetingRooms]);
+  useEffect(() => {}, [filteredMeetingRooms]);
 
   const onSubmit = (data) => {
+    const selectedLocation = allMeetingRooms.find(
+      (location) => location.location?.building?._id === data.location
+    );
+    const selectedRoom = allMeetingRooms.find(
+      (room) => room._id === data.meetingRoom
+    );
 
-    const selectedLocation = allMeetingRooms.find((location)=>location.location?.building?._id === data.location)
-    const selectedRoom = allMeetingRooms.find((room)=>room._id === data.meetingRoom)
-
-    const selectedLocationName = selectedLocation.location?.building?.buildingName
-    const selectedRoomName = selectedRoom.name
-    const selectedLocationId = selectedLocation.location?.building?._id
-    const selectedRoomId = selectedRoom._id
-
-    console.log(data);
+    const selectedLocationName =
+      selectedLocation.location?.building?.buildingName;
+    const selectedRoomName = selectedRoom.name;
+    const selectedLocationId = selectedLocation.location?.building?._id;
+    const selectedRoomId = selectedRoom._id;
     navigate(
-      `/app/meetings/schedule-meeting?location=${encodeURIComponent(selectedLocationName)}&meetingRoom=${encodeURIComponent(selectedRoomName)}`
+      `/app/meetings/schedule-meeting?location=${selectedLocationName}&meetingRoom=${selectedRoomName}`,
+      {
+        state: {
+          meetingRoomId: selectedRoomId,
+        },
+      }
     );
   };
 
@@ -91,42 +95,43 @@ const BookMeetings = () => {
             render={({ field }) => {
               const uniqueBuildings = [
                 ...new Map(
-                  allMeetingRooms.map((room)=>[
+                  allMeetingRooms.map((room) => [
                     room.location?.building?._id,
-                    room.location?.building
+                    room.location?.building,
                   ])
-                ).values()
-              ]
+                ).values(),
+              ];
               return (
-              <TextField
-                {...field}
-                label="Select Location"
-                fullWidth
-                select
-                size="small"
-                error={!!errors.location}
-                helperText={errors.location?.message}
-                onChange={(e) => {
-                  const locationId = e.target.value;
-                  field.onChange(e.target.value);
+                <TextField
+                  {...field}
+                  label="Select Location"
+                  fullWidth
+                  select
+                  size="small"
+                  error={!!errors.location}
+                  helperText={errors.location?.message}
+                  onChange={(e) => {
+                    const locationId = e.target.value;
+                    field.onChange(e.target.value);
 
-                  const selectedLocation = uniqueBuildings.find(
-                    (building) => building?._id === locationId
-                  );
-                  setSelectedUnitId(selectedLocation?._id  || "");
-                }}
-              >
-                <MenuItem value="" disabled>
-                  {" "}
-                  Seletc Location
-                </MenuItem>
-                {uniqueBuildings.map((building) => (
-                  <MenuItem key={building?._id} value={building?._id}>
-                    {building?.buildingName}
+                    const selectedLocation = uniqueBuildings.find(
+                      (building) => building?._id === locationId
+                    );
+                    setSelectedUnitId(selectedLocation?._id || "");
+                  }}
+                >
+                  <MenuItem value="" disabled>
+                    {" "}
+                    Seletc Location
                   </MenuItem>
-                ))}
-              </TextField>
-            )}}
+                  {uniqueBuildings.map((building) => (
+                    <MenuItem key={building?._id} value={building?._id}>
+                      {building?.buildingName}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              );
+            }}
           />
           <Controller
             name="meetingRoom"
@@ -157,7 +162,11 @@ const BookMeetings = () => {
           />
         </div>
         <div className="flex w-full justify-center items-center">
-          <PrimaryButton title="Next" type="submit" externalStyles={"w-40"} />
+          <PrimaryButton
+            title="Next"
+            type="submit"
+            externalStyles={"w-40"}
+          />
         </div>
       </form>
     </div>
