@@ -233,7 +233,6 @@ const fetchUser = async (req, res, next) => {
       const users = await User.find({
         department: { $elemMatch: { $eq: deptId } },
         company,
-        company,
       })
         .select("-password")
         .populate([
@@ -246,21 +245,21 @@ const fetchUser = async (req, res, next) => {
       return res.status(200).json(users);
     }
 
-    const users = await User.find({ company })
+    const users = await User.find({ company: company })
       .select("-password")
       .populate([
-        { path: "reportsTo", select: "_id firstName lastName email" },
+        { path: "reportsTo", select: "_id roleTitle" },
         { path: "departments", select: "name" },
         { path: "company", select: "name" },
         { path: "role", select: "roleTitle modulePermissions" },
-        {
-          path: "workLocation",
-          select: "_id unitName unitNo",
-          populate: {
-            path: "building",
-            select: "_id buildingName fullAddress",
-          },
-        },
+        // {
+        //   path: "workLocation",
+        //   select: "_id unitName unitNo",
+        //   populate: {
+        //     path: "building",
+        //     select: "_id buildingName fullAddress",
+        //   },
+        // },
       ])
       .lean()
       .exec();
