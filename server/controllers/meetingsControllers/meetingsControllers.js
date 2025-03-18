@@ -651,7 +651,10 @@ const getMeetingsByTypes = async (req, res, next) => {
       );
     }
 
-    const meetings = await Meeting.find({ meetingType: type }).populate([
+    const meetings = await Meeting.find({
+      meetingType: type,
+      company,
+    }).populate([
       {
         path: "company",
         select: "companyName",
