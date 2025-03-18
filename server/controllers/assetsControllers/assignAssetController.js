@@ -22,7 +22,9 @@ const getAssetRequests = async (req, res, next) => {
       company: companyId,
       status: "Pending",
     })
-      .populate("asset assignee company") // Populate referenced fields
+      .populate("asset company")
+      .populate("assignee.person")
+      .populate("assignee.room") // Populate referenced fields
       .sort({ dateOfAssigning: -1 }); // Sort by latest assignments
 
     res.status(200).json(assignedAssets);
