@@ -256,7 +256,6 @@ const uploadUnitImage = async (req, res, next) => {
     let imageDetails = null;
     try {
       const buffer = await sharp(file.buffer)
-        .resize(1200, 800, { fit: "cover" })
         .webp({ quality: 80 })
         .toBuffer();
       const base64Image = `data:image/webp;base64,${buffer.toString("base64")}`;
