@@ -2,7 +2,7 @@ const Company = require("../../models/hr/Company");
 const Unit = require("../../models/locations/Unit");
 const Client = require("../../models/sales/Client");
 const mongoose = require("mongoose");
-const DeskBooking = require("../../models/sales/DeskBooking");
+const Desk = require("../../models/sales/Desk");
 const { createLog } = require("../../utils/moduleLogs");
 const CustomError = require("../../utils/customErrorlogs");
 
@@ -114,50 +114,6 @@ const createClient = async (req, res, next) => {
       );
     }
 
-    //Creating or updating deskBooking entry
-
-    const totalSeats = unitExists.cabinDesks + unitExists.openDesks;
-
-    const bookedSeats = totalBookedDesks;
-    const availableSeats = totalSeats - bookedSeats;
-
-    // Create start and end boundaries
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
-
-    const startOfMonth = new Date(year, month);
-    const endOfMonth = new Date(year, month + 1, 1);
-
-    const bookingExists = await DeskBooking.findOne({
-      unit,
-      month: { $gte: startOfMonth, $lt: endOfMonth },
-    });
-
-    let newbooking = null;
-
-    if (bookingExists) {
-      const totalBookedSeats = bookedSeats + bookingExists.bookedSeats;
-      await DeskBooking.findOneAndUpdate(
-        { _id: bookingExists._id },
-        {
-          bookedSeats: totalBookedSeats,
-          availableSeats: totalSeats - totalBookedSeats,
-        }
-      );
-    } else {
-      const booking = await DeskBooking({
-        unit,
-        bookedSeats,
-        availableSeats,
-        month: startDate,
-        service,
-        company,
-      });
-
-      newbooking = await booking.save();
-    }
-
     const client = new Client({
       company,
       clientName,
@@ -191,6 +147,24 @@ const createClient = async (req, res, next) => {
     });
 
     const savedClient = await client.save();
+
+    //Creating or updating deskBooking entry
+
+    const totalSeats = unitExists.cabinDesks + unitExists.openDesks;
+
+    const bookedSeats = totalBookedDesks;
+    const availableSeats = totalSeats - bookedSeats;
+    const booking = await Desk({
+      unit,
+      bookedSeats,
+      availableSeats,
+      month: startDate,
+      service,
+      client: savedClient._id,
+      company,
+    });
+
+    const newbooking = await booking.save();
 
     await createLog({
       path: logPath,
