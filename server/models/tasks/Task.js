@@ -57,7 +57,6 @@ const taskSchema = new mongoose.Schema({
   taskTag: {
     type: String,
     enum: ["KRA", "KPI"],
-    required: true,
   },
   isDeleted: {
     type: Boolean,

@@ -8,6 +8,8 @@ const {
   cancelMeeting,
   getAvaliableUsers,
   getMyMeetings,
+  getSingleRoomMeetings,
+  extendMeeting,
 } = require("../controllers/meetingsControllers/meetingsControllers");
 const {
   getReviews,
@@ -26,8 +28,10 @@ router.post("/create-meeting", addMeetings);
 router.post("/create-room", upload.single("room"), addRoom);
 router.post("/create-review", addReview);
 router.post("/create-reply", replyReview);
+router.patch("/extend-meeting", extendMeeting);
 router.get("/get-rooms", getRooms);
 router.get("/get-meetings", getMeetings);
+router.get("/get-room-meetings/:roomId", getSingleRoomMeetings);
 router.get("/my-meetings", getMyMeetings);
 router.get("/get-reviews", getReviews);
 router.get("/get-meetings-type", getMeetingsByTypes);

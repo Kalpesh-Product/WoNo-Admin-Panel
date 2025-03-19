@@ -68,7 +68,9 @@ const addRoom = async (req, res, next) => {
         .webp({ quality: 80 })
         .toBuffer();
 
-      const base64Image = `data:image/webp;base64,${buffer.toString("base64")}`;
+      const base64Image = `data:irmage/webp;base64,${buffer.toString(
+        "base64"
+      )}`;
       const uploadResult = await handleFileUpload(
         base64Image,
         `${foundUser.company.companyName}/rooms`
@@ -125,7 +127,13 @@ const addRoom = async (req, res, next) => {
 const getRooms = async (req, res, next) => {
   try {
     // Fetch all rooms, including the assigned assets data
-    const rooms = await Room.find().populate("assignedAssets location");
+    const rooms = await Room.find()
+      .populate("assignedAssets")
+      .populate({
+        path: "location",
+        select: "_id unitName unitNo",
+        populate: { path: "building", select: "_id buildingName fullAddress" },
+      });
 
     // Send the response with the fetched rooms
     res.status(200).json(rooms);

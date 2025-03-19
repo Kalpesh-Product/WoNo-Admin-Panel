@@ -7,13 +7,19 @@ const fs = require("fs");
 const path = require("path");
 
 const createLead = async (req, res, next) => {
+  const logPath = "sales/SalesLog";
+  const logAction = "Create Lead";
+  const logSourceKey = "lead";
+
+  const { user, ip, company } = req;
+
   try {
     const {
       dateOfContact,
       companyName,
       serviceCategory,
       leadStatus,
-      proposedLocation,
+      proposedLocations,
       sector,
       headOfficeLocation,
       officeInGoa,
@@ -33,29 +39,12 @@ const createLead = async (req, res, next) => {
     } = req.body;
     const { company } = req;
 
-    const leadExists = await Lead.findOne({ emailAddress });
-
-    if (leadExists) {
-      return res.status(400).json({ message: "Lead already exists" });
-    }
-
-    if (!mongoose.Types.ObjectId.isValid(proposedLocation)) {
-      return res.status(400).json({ message: "Invalid proposed location ID" });
-    }
-
-    const unitExists = await Unit.findOne({ _id: proposedLocation });
-
-    if (!unitExists) {
-      return res
-        .status(400)
-        .json({ message: "Proposed location doesn't exist" });
-    }
-
     if (
       !dateOfContact ||
       !companyName ||
       !serviceCategory ||
       !leadStatus ||
+      !proposedLocations ||
       !sector ||
       !headOfficeLocation ||
       officeInGoa === undefined ||
@@ -69,13 +58,60 @@ const createLead = async (req, res, next) => {
       !clientBudget ||
       !startDate
     ) {
-      return res
-        .status(400)
-        .json({ message: "All required fields must be provided" });
+      throw new CustomError(
+        "All required fields must be provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    const currDate = new Date();
+    if (new Date(startDate) < currDate) {
+      throw new CustomError(
+        "Start date must be a future date",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    const leadExists = await Lead.findOne({ emailAddress });
+    if (leadExists) {
+      throw new CustomError(
+        "Lead already exists",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(proposedLocations)) {
+      throw new CustomError(
+        "Invalid proposed location ID",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    const unitExists = await Unit.findOne({ _id: proposedLocations });
+    if (!unitExists) {
+      throw new CustomError(
+        "Proposed location doesn't exist",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     if (totalDesks < 1 || clientBudget <= 0) {
-      return res.status(400).json({ message: "Invalid numerical values" });
+      throw new CustomError(
+        "Invalid numerical values",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     const lead = new Lead({
@@ -83,7 +119,7 @@ const createLead = async (req, res, next) => {
       companyName,
       serviceCategory,
       leadStatus,
-      proposedLocation,
+      proposedLocations,
       sector,
       headOfficeLocation,
       officeInGoa,
@@ -104,9 +140,29 @@ const createLead = async (req, res, next) => {
     });
 
     await lead.save();
-    res.status(201).json({ message: "Lead created successfully" });
+
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Lead created successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: lead._id,
+      changes: lead,
+    });
+
+    return res.status(201).json({ message: "Lead created successfully" });
   } catch (error) {
-    next(error);
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
@@ -114,7 +170,7 @@ const getLeads = async (req, res, next) => {
   try {
     const { company } = req;
     const leads = await Lead.find({ company }).populate(
-      "serviceCategory proposedLocation"
+      "serviceCategory proposedLocations"
     );
     if (!leads.length) {
       return res.status(404).json({ message: "No leads found" });

@@ -3,6 +3,7 @@ const router = require("express").Router();
 const {
   createClient,
   getClients,
+  getClientsUnitWise,
 } = require("../controllers/salesControllers/clientControllers");
 const {
   createClientService,
@@ -14,6 +15,7 @@ const {
   bulkInsertLeads,
 } = require("../controllers/salesControllers/leadsControllers");
 const upload = require("../config/multerConfig");
+const getBookedDesks = require("../controllers/salesControllers/DeskControllers");
 
 const {
   addRevenue,
@@ -22,10 +24,12 @@ const {
 
 router.post("/onboard-client", createClient);
 router.get("/clients", getClients);
+router.get("/unit-clients/:unitId", getClientsUnitWise);
 router.post("/create-service", createClientService);
 router.get("/services", getClientServices);
 router.post("/create-lead", createLead);
 router.get("/leads", getLeads);
+router.get("/booked-desks", getBookedDesks);
 router.post("/bulk-insert-leads", upload.single("leads"), bulkInsertLeads);
 router.post("/add-revenue", addRevenue);
 router.get("/fetch-revenues", getRevenues);

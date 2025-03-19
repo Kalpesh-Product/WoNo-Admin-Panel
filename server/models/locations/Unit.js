@@ -28,6 +28,14 @@ const unitSchema = new mongoose.Schema(
       imageId: String,
       url: String,
     },
+    cabinDesks: {
+      type: Number,
+      required: true,
+    },
+    openDesks: {
+      type: Number,
+      required: true,
+    },
     isActive: {
       type: Boolean,
       default: true,

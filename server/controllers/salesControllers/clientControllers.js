@@ -1,10 +1,18 @@
+const Company = require("../../models/hr/Company");
 const Unit = require("../../models/locations/Unit");
 const Client = require("../../models/sales/Client");
 const mongoose = require("mongoose");
+const DeskBooking = require("../../models/sales/DeskBooking");
+const { createLog } = require("../../utils/moduleLogs");
+const CustomError = require("../../utils/customErrorlogs");
 
 const createClient = async (req, res, next) => {
+  const logPath = "sales/SalesLog";
+  const logAction = "Onboard Client";
+  const logSourceKey = "client";
+  const { user, ip, company } = req;
+
   try {
-    const { company } = req;
     const {
       clientName,
       service,
@@ -14,7 +22,6 @@ const createClient = async (req, res, next) => {
       unit,
       cabinDesks,
       openDesks,
-      totalDesks,
       ratePerDesk,
       annualIncrement,
       perDeskMeetingCredits,
@@ -33,19 +40,31 @@ const createClient = async (req, res, next) => {
     } = req.body;
 
     const clientExists = await Client.findOne({ clientName });
-
     if (clientExists) {
-      return res.status(400).json({ message: "Client already exists" });
+      throw new CustomError(
+        "Client already exists",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     if (!mongoose.Types.ObjectId.isValid(unit)) {
-      return res.status(400).json({ message: "Invalid unit ID provided" });
+      throw new CustomError(
+        "Invalid unit ID provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
-
     const unitExists = await Unit.findOne({ _id: unit });
-
     if (!unitExists) {
-      return res.status(400).json({ message: "Unit doesn't exists" });
+      throw new CustomError(
+        "Unit doesn't exist",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     if (
@@ -54,7 +73,6 @@ const createClient = async (req, res, next) => {
       !sector ||
       !hoCity ||
       !hoState ||
-      !totalDesks ||
       !ratePerDesk ||
       !annualIncrement ||
       !startDate ||
@@ -69,19 +87,74 @@ const createClient = async (req, res, next) => {
       !hOPocEmail ||
       !hOPocPhone
     ) {
-      return res
-        .status(400)
-        .json({ message: "All required fields must be provided" });
+      throw new CustomError(
+        "All required fields must be provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    if (totalDesks < 1 || ratePerDesk <= 0 || annualIncrement < 0) {
-      return res.status(400).json({ message: "Invalid numerical values" });
+    const totalBookedDesks = cabinDesks + openDesks;
+    if (totalBookedDesks < 1 || ratePerDesk <= 0 || annualIncrement < 0) {
+      throw new CustomError(
+        "Invalid numerical values",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     if (new Date(startDate) >= new Date(endDate)) {
-      return res
-        .status(400)
-        .json({ message: "Start date must be before end date" });
+      throw new CustomError(
+        "Start date must be before end date",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    //Creating or updating deskBooking entry
+
+    const totalSeats = unitExists.cabinDesks + unitExists.openDesks;
+
+    const bookedSeats = totalBookedDesks;
+    const availableSeats = totalSeats - bookedSeats;
+
+    // Create start and end boundaries
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+
+    const startOfMonth = new Date(year, month);
+    const endOfMonth = new Date(year, month + 1, 1);
+
+    const bookingExists = await DeskBooking.findOne({
+      unit,
+      month: { $gte: startOfMonth, $lt: endOfMonth },
+    });
+
+    let newbooking = null;
+
+    if (bookingExists) {
+      const totalBookedSeats = bookedSeats + bookingExists.bookedSeats;
+      await DeskBooking.findOneAndUpdate(
+        { _id: bookingExists._id },
+        {
+          bookedSeats: totalBookedSeats,
+          availableSeats: totalSeats - totalBookedSeats,
+        }
+      );
+    } else {
+      const booking = await DeskBooking({
+        unit,
+        bookedSeats,
+        availableSeats,
+        month: startDate,
+        company,
+      });
+
+      newbooking = await booking.save();
     }
 
     const client = new Client({
@@ -94,7 +167,7 @@ const createClient = async (req, res, next) => {
       unit,
       cabinDesks,
       openDesks,
-      totalDesks,
+      totalDesks: totalBookedDesks,
       ratePerDesk,
       annualIncrement,
       perDeskMeetingCredits,
@@ -116,17 +189,77 @@ const createClient = async (req, res, next) => {
       },
     });
 
-    await client.save();
-    res.status(201).json({ message: "Client onboarded successfully" });
+    const savedClient = await client.save();
+
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Client onboarded successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: savedClient._id,
+      changes: {
+        client: {
+          clientName,
+          service,
+          sector,
+          hoCity,
+          hoState,
+          unit,
+          cabinDesks,
+          openDesks,
+          totalDesks: totalBookedDesks,
+          ratePerDesk,
+          annualIncrement,
+          perDeskMeetingCredits,
+          totalMeetingCredits,
+          startDate,
+          endDate,
+          lockinPeriod,
+          rentDate,
+          nextIncrement,
+          hOPoc: { name: hOPocName, email: hOPocEmail, phone: hOPocPhone },
+          localPoc: {
+            name: localPocName,
+            email: localPocEmail,
+            phone: localPocPhone,
+          },
+        },
+        desks: {
+          deskId: newbooking ? newbooking._id : bookingExists._id,
+          unit,
+          bookedSeats,
+          availableSeats,
+        },
+      },
+    });
+
+    return res.status(201).json({ message: "Client onboarded successfully" });
   } catch (error) {
-    next(error);
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
 const getClients = async (req, res, next) => {
   try {
     const { company } = req;
-    const clients = await Client.find({ company }).populate("unit");
+    const clients = await Client.find({ company }).populate([
+      {
+        path: "unit",
+        select: "_id unitName unitNo",
+        populate: { path: "building", select: "_id buildingName fullAddress" },
+      },
+      { path: "service", select: "_id serviceName description" },
+    ]);
     if (!clients.length) {
       return res.status(404).json({ message: "No clients found" });
     }
@@ -142,7 +275,7 @@ const getClientById = async (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid client ID format" });
     }
-    const client = await Client.findById(id).populate("company unit");
+    const client = await Client.findById(id).populate("unit service");
     if (!client) {
       return res.status(404).json({ message: "Client not found" });
     }
@@ -191,10 +324,38 @@ const deleteClient = async (req, res, next) => {
   }
 };
 
+const getClientsUnitWise = async (req, res, next) => {
+  const { company } = req;
+  const { unitId } = req.params;
+
+  try {
+    const companyExists = await Company.findById(company);
+
+    if (!companyExists) {
+      return res.status(400).json({ message: "Company not found" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(unitId)) {
+      return res.status(400).json({ message: "Invalid unit ID provided" });
+    }
+
+    const clients = await Client.find({ unit: unitId });
+
+    if (!clients.length) {
+      return res.status(200).json([]);
+    }
+
+    return res.status(200).json(clients);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createClient,
   updateClient,
   deleteClient,
   getClientById,
   getClients,
+  getClientsUnitWise,
 };

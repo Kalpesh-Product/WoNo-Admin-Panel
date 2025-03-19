@@ -233,7 +233,6 @@ const fetchUser = async (req, res, next) => {
       const users = await User.find({
         department: { $elemMatch: { $eq: deptId } },
         company,
-        company,
       })
         .select("-password")
         .populate([
@@ -246,21 +245,21 @@ const fetchUser = async (req, res, next) => {
       return res.status(200).json(users);
     }
 
-    const users = await User.find({ company })
+    const users = await User.find({ company: company })
       .select("-password")
       .populate([
-        { path: "reportsTo", select: "name email" },
+        { path: "reportsTo", select: "_id roleTitle" },
         { path: "departments", select: "name" },
         { path: "company", select: "name" },
         { path: "role", select: "roleTitle modulePermissions" },
-        {
-          path: "workLocation",
-          select: "_id unitName unitNo",
-          populate: {
-            path: "building",
-            select: "_id buildingName fullAddress",
-          },
-        },
+        // {
+        //   path: "workLocation",
+        //   select: "_id unitName unitNo",
+        //   populate: {
+        //     path: "building",
+        //     select: "_id buildingName fullAddress",
+        //   },
+        // },
       ])
       .lean()
       .exec();
@@ -273,31 +272,6 @@ const fetchUser = async (req, res, next) => {
   }
 };
 
-// const fetchSingleUser = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const user = await User.findOne({ empId: id })
-//       .select("-password")
-//       .populate([
-//         { path: "reportsTo", select: "name email" },
-//         { path: "departments", select: "name" },
-//         { path: "company", select: "name" },
-//         { path: "role", select: "roleTitle modulePermissions" },
-//       ])
-//       .lean()
-//       .exec();
-
-//     if (!user) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-
-//     res.status(200).json(user);
-//   } catch (error) {
-//     console.error("Error fetching user by ID: ", error);
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-
 const fetchSingleUser = async (req, res) => {
   try {
     const { empid } = req.params;
@@ -308,6 +282,14 @@ const fetchSingleUser = async (req, res) => {
         { path: "departments", select: "name" },
         { path: "company", select: "name" },
         { path: "role", select: "roleTitle modulePermissions" },
+        {
+          path: "workLocation",
+          select: "_id unitName unitNo",
+          populate: {
+            path: "building",
+            select: "_id buildingName fullAddress",
+          },
+        },
       ])
       .lean()
       .exec();
