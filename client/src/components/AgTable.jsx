@@ -298,4 +298,6 @@ const AgTable = React.memo(
   }
 );
 
+
+
 export default AgTable;

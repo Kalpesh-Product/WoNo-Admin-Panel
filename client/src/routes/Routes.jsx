@@ -1027,7 +1027,7 @@ export const routes = createBrowserRouter([
                     element: <BookMeetings />, // This is your first page
                   },
                   {
-                    path: "schedule-meeting",
+                    path: "book-meeting/schedule-meeting",
                     element: <MeetingFormLayout />, // This is your second page
                   },
                   {

@@ -12,6 +12,9 @@ import {
   ListItem,
   IconButton,
   Typography,
+  AvatarGroup,
+  Avatar,
+  LinearProgress,
 } from "@mui/material";
 import AgTable from "../../components/AgTable";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
@@ -28,7 +31,7 @@ const ManageMeetings = () => {
   const [modalMode, setModalMode] = useState("update"); // 'update', or 'view'
 
   const statusColors = {
-    Scheduled: { bg: "#E3F2FD", text: "#1565C0" }, // Light Blue
+    Upcoming: { bg: "#E3F2FD", text: "#1565C0" }, // Light Blue
     Ongoing: { bg: "#FFF3E0", text: "#E65100" }, // Light Orange
     Completed: { bg: "#E8F5E9", text: "#1B5E20" }, // Light Green
     Cancelled: { bg: "#FFEBEE", text: "#B71C1C" }, // Light Red
@@ -57,11 +60,7 @@ const ManageMeetings = () => {
     queryKey: ["meetings"],
     queryFn: async () => {
       const response = await axios.get("/api/meetings/get-meetings");
-      const filteredMeetings = response.data.filter(
-        (meeting) => meeting.meetingStatus === "Completed"
-      );
-      console.log("Fetched Meetings:", filteredMeetings);
-      return filteredMeetings;
+      return response.data;
     },
   });
 
@@ -188,15 +187,29 @@ const ManageMeetings = () => {
     housekeepingMutation.mutate(payload);
   };
 
-  const columns = useMemo(() => {
-    return [
-      { field: "roomName", headerName: "Room Name" },
-      { field: "endTime", headerName: "End Time" },
-      { field: "extendedEndTime", headerName: "Extended End Time" },
-      {
-        field: "meetingStatus",
-        headerName: "Meeting Status",
-        cellRenderer: (params) => (
+  const columns = [
+    { field: "roomName", headerName: "Room Name" },
+    { field: "startTime", headerName: "Start Time" },
+    { field: "endTime", headerName: "End Time" },
+    {
+      field: "meetingStatus",
+      headerName: "Meeting Status",
+      cellRenderer: (params) => (
+        <Chip
+          label={params.value || ""}
+          sx={{
+            backgroundColor: statusColors[params.value]?.bg || "#F5F5F5",
+            color: statusColors[params.value]?.text || "#000",
+            fontWeight: "bold",
+          }}
+        />
+      ),
+    },
+    {
+      field: "housekeepingStatus",
+      headerName: "Housekeeping Status",
+      cellRenderer: (params) => {
+        return (
           <Chip
             label={params.value || ""}
             sx={{
@@ -205,73 +218,76 @@ const ManageMeetings = () => {
               fontWeight: "bold",
             }}
           />
-        ),
+        );
       },
-      {
-        field: "housekeepingStatus",
-        headerName: "Housekeeping Status",
-        cellRenderer: (params) => {
-          return (
-            <Chip
-              label={params.value || ""}
-              sx={{
-                backgroundColor: statusColors[params.value]?.bg || "#F5F5F5",
-                color: statusColors[params.value]?.text || "#000",
-                fontWeight: "bold",
-              }}
-            />
-          );
-        },
+    },
+    {
+      field: "participants",
+      headerName: "Participants",
+      cellRenderer: (params) => {
+        const participants = Array.isArray(params.data?.participants)
+          ? params.data?.participants
+          : [];
+        return (
+          <div className="flex justify-start items-center">
+            <AvatarGroup max={4}>
+              {participants?.map((participant, index) => {
+                return (
+                  <Avatar
+                    key={index}
+                    alt={participant.firstName}
+                    // src={participant.avatar}
+                    src="https://ui-avatars.com/api/?name=Alice+Johnson&background=random"
+                    sx={{ width: 23, height: 23 }}
+                  />
+                );
+              })}
+            </AvatarGroup>
+          </div>
+        );
       },
-      {
-        field: "roomStatus",
-        headerName: "Room Status",
-        cellRenderer: (params) => (
-          <Chip
-            label={params.value || ""}
-            sx={{
-              backgroundColor: statusColors[params.value]?.bg || "#F5F5F5",
-              color: statusColors[params.value]?.text || "#000",
-              fontWeight: "bold",
-            }}
-          />
-        ),
-      },
-      {
-        field: "action",
-        headerName: "Action",
-        cellRenderer: (params) => (
-          <Box sx={{ display: "flex", gap: 1, minWidth: "250px" }}>
-            <Button
-              variant="contained"
-              disabled={params.data.housekeepingStatus === "Completed"}
-              onClick={() =>
-                handleOpenChecklistModal("update", params.data._id)
-              }
-              size="small"
-            >
-              Update Checklist
-            </Button>
+    },
+    {
+      field: "action",
+      headerName: "Action",
+      cellRenderer: (params) => (
+        <Box sx={{ display: "flex", gap: 1, minWidth: "250px" }}>
+          <Button
+            variant="contained"
+            disabled={params.data.housekeepingStatus === "Completed"}
+            onClick={() => handleOpenChecklistModal("update", params.data._id)}
+            size="small"
+          >
+            Update Checklist
+          </Button>
 
-            <Button
-              variant="outlined"
-              onClick={() => handleOpenChecklistModal("view", params.data._id)}
-              size="small"
-            >
-              View Checklist
-            </Button>
-          </Box>
-        ),
-      },
-    ];
-  }, [meetings]); // ✅ Columns update whenever `meetings` changes
+          <Button
+            variant="outlined"
+            onClick={() => handleOpenChecklistModal("view", params.data._id)}
+            size="small"
+          >
+            View Checklist
+          </Button>
+        </Box>
+      ),
+    },
+  ];
+  // ✅ Columns update whenever `meetings` changes
 
   return (
     <div className="p-4 flex flex-col gap-4">
       {isLoading ? (
-        <Typography variant="h6">Loading meetings...</Typography>
+        <div className="flex h-screen justify-center items-center">
+          <LinearProgress />
+        </div>
       ) : (
-        <AgTable key={meetings} data={meetings || []} columns={columns} />
+        <AgTable
+          key={meetings.length}
+          search
+          tableTitle={"Manage Meetings"}
+          data={meetings || []}
+          columns={columns}
+        />
       )}
 
       {/* Checklist Modal */}
@@ -317,10 +333,10 @@ const ManageMeetings = () => {
                 <span className="text-subtitle text-primary font-pmedium">
                   Custom Tasks
                 </span>
-                <List sx={{width:'100%'}}>
+                <List sx={{ width: "100%" }}>
                   {checklists[selectedMeetingId]?.customItems.map(
                     (item, index) => (
-                      <ListItem key={index} sx={{width:'100%'}}>
+                      <ListItem key={index} sx={{ width: "100%" }}>
                         <div className="flex items-center justify-between w-full">
                           <div>
                             <Checkbox

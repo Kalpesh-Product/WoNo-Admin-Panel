@@ -12,7 +12,7 @@ const clientSchema = new mongoose.Schema(
     },
     service: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Service",
+      ref: "ClientService",
     },
     sector: {
       type: String,

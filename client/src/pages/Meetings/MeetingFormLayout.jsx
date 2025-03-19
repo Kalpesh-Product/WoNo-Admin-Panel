@@ -10,9 +10,11 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import MuiModal from "../../components/MuiModal";
+import { IoMdClose } from "react-icons/io";
 import { useForm, Controller } from "react-hook-form";
 import {
   Autocomplete,
+  Chip,
   CircularProgress,
   FormControl,
   InputLabel,
@@ -32,12 +34,13 @@ import { toast } from "sonner";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { queryClient } from "../../index";
-import StyledTextField from "../../components/MUIStyled/StyledTextField";
+import humanDate from "../../utils/humanDateForamt";
 
 const MeetingFormLayout = () => {
   const [open, setOpen] = useState(false);
   const [searchParams] = useSearchParams();
   const locationName = searchParams.get("location") || "";
+  const [selectedUsers, setSelectedUsers] = useState([]);
   const meetingRoomName = searchParams.get("meetingRoom") || "";
   const locationState = useLocation();
   const meetingRoomId = locationState.state?.meetingRoomId || "";
@@ -58,22 +61,55 @@ const MeetingFormLayout = () => {
   });
 
   const meetingType = watch("meetingType");
+  const startDate = watch("startDate"); // Watch startDate
+  const endDate = watch("endDate"); // Watch endDate
+  const startTime = watch("startTime");
+  const endTime = watch("endTime");
+
+  const handleDateClick = (arg) => {
+    if (!arg.start) return;
+
+    const selectedDate = dayjs(arg.start).startOf("day");
+    const startTime = dayjs(arg.start);
+    const endTime = dayjs(arg.start).add(30, "minute");
+
+    setValue("startDate", selectedDate, { shouldDirty: true });
+    setValue("endDate", selectedDate, { shouldDirty: true });
+    setValue("startTime", dayjs(startTime), { shouldDirty: true });
+    setValue("endTime", dayjs(endTime), { shouldDirty: true });
+
+    setOpen(true);
+  };
 
   const {
-    data: users = [],
-    isLoading: usersLoading,
-    error: usersError,
+    data: availableUsers = [],
+    isLoading: availableUsersLoading,
+    error: availableUsersError,
   } = useQuery({
-    queryKey: ["users"],
+    queryKey: ["users", startDate, endDate, startTime, endTime], // Add startDate and endDate to query key
     queryFn: async () => {
-      const response = await axios.get("/api/users/fetch-users");
-      const formattedUsers = response.data.map((user) => ({
-        label: user.name,
-        id: user._id,
-      }));
-      console.log(formattedUsers);
-      return formattedUsers;
+      const formattedStartDate = dayjs(startDate).format("YYYY-MM-DD");
+      const formattedEndDate = dayjs(endDate).format("YYYY-MM-DD");
+      const formattedStartTime = dayjs(startTime).format("YYYY-MM-DD HH:mm:ss");
+      const formattedEndTime = dayjs(endTime).format("YYYY-MM-DD HH:mm:ss");
+    
+      console.log("Formatted Start Date:", formattedStartDate);
+      console.log("Formatted End Date:", formattedEndDate);
+      console.log("Formatted Start Time:", formattedStartTime);
+      console.log("Formatted End Time:", formattedEndTime);
+    
+      const response = await axios.get("/api/meetings/get-available-users", {
+        params: {
+          startDate: formattedStartDate, // Send as string (not Date object)
+          endDate: formattedEndDate,
+          startTime: formattedStartTime, // Ensure local time is sent
+          endTime: formattedEndTime,
+        },
+      });
+
+      return response.data;
     },
+    enabled: !!startDate && !!endDate && !!startTime && !!endTime, // Ensure all values exist before fetching
   });
 
   const {
@@ -124,22 +160,22 @@ const MeetingFormLayout = () => {
     setEvents(formattedEvents);
   };
 
-  const {mutate : createMeeting, isPending: isCreateMeeting} = useMutation({
+  const { mutate: createMeeting, isPending: isCreateMeeting } = useMutation({
     mutationKey: ["createMeeting"],
     mutationFn: async (data) => {
       await axios.post("/api/meetings/create-meeting", {
-        bookedRoom : meetingRoomId,
-        meetingType : data.meetingType,
-        startDate : data.startDate,
-        endDate : data.endDate,
-        startTime : data.startTime,
-        endTime : data.endTime,
-        subject : data.subject,
-        agenda : data.agenda
+        bookedRoom: meetingRoomId,
+        meetingType: data.meetingType,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        startTime: data.startTime,
+        endTime: data.endTime,
+        subject: data.subject,
+        agenda: data.agenda,
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({queryKey:["meetings"]});
+      queryClient.invalidateQueries({ queryKey: ["meetings"] });
       toast.success("Meeting booked successfully");
       setOpen(false);
       navigate("/app/meetings/calendar");
@@ -149,24 +185,9 @@ const MeetingFormLayout = () => {
     },
   });
 
-  const handleDateClick = (arg) => {
-    if (!arg.start) return;
-
-    const startTime = dayjs(arg.start); // Keep as a Dayjs object
-    const endTime = dayjs(arg.start).add(30, "minute");
-    const selectedDate = dayjs(arg.start).startOf("day"); // Get only the date part
-
-    setValue("startDate", selectedDate); // Set only the date
-    setValue("endDate", selectedDate); // Set only the date
-    setValue("startTime", startTime); // Set the correct format for MUI TimePicker
-    setValue("endTime", endTime);
-
-    setOpen(true);
-  };
-
   const onSubmit = (data) => {
     createMeeting(data);
-    console.log(data)
+    console.log(data);
   };
 
   return (
@@ -217,6 +238,14 @@ const MeetingFormLayout = () => {
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col w-full gap-4"
         >
+          <div>
+            <span className="text-content">
+              Selected Date : {humanDate(startDate)}
+            </span>
+            <span className="text-content">
+              End Date : {humanDate(endDate)}
+            </span>
+          </div>
           <div className="grid grid-cols-2 gap-8 px-2 pb-4 mb-4 border-b-default border-borderGray">
             <div className="flex items-center justify-between">
               <span className="text-content">Location</span>
@@ -229,8 +258,8 @@ const MeetingFormLayout = () => {
               </span>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 sm:grid-cols-1 gap-4 gap-y-6">
-            <div className="col-span-2">
+          <div className="grid grid-cols-2 sm:grid-cols-1 gap-4 gap-y-6">
+            <div className="col-span-2 sm:col-span-1 md:col-span-2">
               <Controller
                 name="meetingType"
                 control={control}
@@ -249,39 +278,6 @@ const MeetingFormLayout = () => {
                 )}
               />
             </div>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <Controller
-                name="startDate"
-                control={control}
-                render={({ field }) => (
-                  <DatePicker
-                    {...field}
-                    label={"Select a Start Date"}
-                    format="DD/MM/YYYY"
-                    slotProps={{
-                      textField: { size: "small", fullWidth: true },
-                    }}
-                  />
-                )}
-              />
-            </LocalizationProvider>
-
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <Controller
-                name="endDate"
-                control={control}
-                render={({ field }) => (
-                  <DatePicker
-                    {...field}
-                    label={"Select an End Date"}
-                    format="DD/MM/YYYY"
-                    slotProps={{
-                      textField: { size: "small", fullWidth: true },
-                    }}
-                  />
-                )}
-              />
-            </LocalizationProvider>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <Controller
                 name="startTime"
@@ -311,7 +307,41 @@ const MeetingFormLayout = () => {
                 )}
               />
             </LocalizationProvider>
-            <div className="col-span-2">
+            <div className="col-span-2 sm:col-span-1 md:col-span-2">
+              <Controller
+                name="internalParticipants"
+                control={control}
+                render={({ field }) => (
+                  <Autocomplete
+                    multiple
+                    options={availableUsers} // The user list
+                    getOptionLabel={(user) =>
+                      `${user.firstName} ${user.lastName}`
+                    } // Display names
+                    onChange={(_, newValue) => field.onChange(newValue)} // Sync selected users with form state
+                    renderTags={(selected, getTagProps) =>
+                      selected.map((user, index) => (
+                        <Chip
+                          key={user._id}
+                          label={`${user.firstName} ${user.lastName}`}
+                          {...getTagProps({ index })}
+                          deleteIcon={<IoMdClose />}
+                        />
+                      ))
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select Participants"
+                        size="small"
+                        fullWidth
+                      />
+                    )}
+                  />
+                )}
+              />
+            </div>
+            <div className="col-span-2 sm:col-span-1 md:col-span-2">
               <Controller
                 name="subject"
                 control={control}
@@ -328,7 +358,7 @@ const MeetingFormLayout = () => {
                 )}
               />
             </div>
-            <div className="col-span-2">
+            <div className="col-span-2 sm:col-span-1 md:col-span-2 sm">
               <Controller
                 name="agenda"
                 control={control}
@@ -349,7 +379,12 @@ const MeetingFormLayout = () => {
 
           {/* Submit Button */}
           <div className="flex justify-center">
-            <PrimaryButton title="Submit" type="submit" disabled={isCreateMeeting} isLoading={isCreateMeeting} />
+            <PrimaryButton
+              title="Submit"
+              type="submit"
+              disabled={isCreateMeeting}
+              isLoading={isCreateMeeting}
+            />
           </div>
         </form>
       </MuiModal>
