@@ -17,7 +17,10 @@ const getBookedDesks = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid service ID provided" });
     }
 
-    const bookedDesks = await Desk.find({ company, service: serviceId })
+    const bookedDesks = await Desk.find(
+      { company, service: serviceId },
+      { createdAt: 0, updatedAt: 0, __v: 0 }
+    )
       .populate([
         {
           path: "unit",
