@@ -40,7 +40,6 @@ const clientSchema = new mongoose.Schema(
     },
     totalDesks: {
       type: Number,
-      required: true,
     },
     ratePerDesk: {
       type: Number,
@@ -48,7 +47,6 @@ const clientSchema = new mongoose.Schema(
     },
     annualIncrement: {
       type: Number,
-      required: true,
     },
     perDeskMeetingCredits: {
       type: Number,
@@ -73,7 +71,6 @@ const clientSchema = new mongoose.Schema(
     rentDate: { type: Date, required: true },
     nextIncrement: {
       type: Date,
-      required: true,
     },
     localPoc: {
       name: {

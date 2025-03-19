@@ -3,6 +3,8 @@ const Unit = require("../../models/locations/Unit");
 const Client = require("../../models/sales/Client");
 const mongoose = require("mongoose");
 const DeskBooking = require("../../models/sales/DeskBooking");
+const { createLog } = require("../../utils/moduleLogs");
+const CustomError = require("../../utils/customErrorlogs");
 
 const createClient = async (req, res, next) => {
   const logPath = "sales/SalesLog";
@@ -20,7 +22,6 @@ const createClient = async (req, res, next) => {
       unit,
       cabinDesks,
       openDesks,
-      totalDesks,
       ratePerDesk,
       annualIncrement,
       perDeskMeetingCredits,
@@ -72,7 +73,6 @@ const createClient = async (req, res, next) => {
       !sector ||
       !hoCity ||
       !hoState ||
-      !totalDesks ||
       !ratePerDesk ||
       !annualIncrement ||
       !startDate ||
@@ -95,7 +95,8 @@ const createClient = async (req, res, next) => {
       );
     }
 
-    if (totalDesks < 1 || ratePerDesk <= 0 || annualIncrement < 0) {
+    const totalBookedDesks = cabinDesks + openDesks;
+    if (totalBookedDesks < 1 || ratePerDesk <= 0 || annualIncrement < 0) {
       throw new CustomError(
         "Invalid numerical values",
         logPath,
@@ -113,6 +114,49 @@ const createClient = async (req, res, next) => {
       );
     }
 
+    //Creating or updating deskBooking entry
+
+    const totalSeats = unitExists.cabinDesks + unitExists.openDesks;
+
+    const bookedSeats = totalBookedDesks;
+    const availableSeats = totalSeats - bookedSeats;
+
+    // Create start and end boundaries
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+
+    const startOfMonth = new Date(year, month);
+    const endOfMonth = new Date(year, month + 1, 1);
+
+    const bookingExists = await DeskBooking.findOne({
+      unit,
+      month: { $gte: startOfMonth, $lt: endOfMonth },
+    });
+
+    let newbooking = null;
+
+    if (bookingExists) {
+      const totalBookedSeats = bookedSeats + bookingExists.bookedSeats;
+      await DeskBooking.findOneAndUpdate(
+        { _id: bookingExists._id },
+        {
+          bookedSeats: totalBookedSeats,
+          availableSeats: totalSeats - totalBookedSeats,
+        }
+      );
+    } else {
+      const booking = await DeskBooking({
+        unit,
+        bookedSeats,
+        availableSeats,
+        month: startDate,
+        company,
+      });
+
+      newbooking = await booking.save();
+    }
+
     const client = new Client({
       company,
       clientName,
@@ -123,7 +167,7 @@ const createClient = async (req, res, next) => {
       unit,
       cabinDesks,
       openDesks,
-      totalDesks,
+      totalDesks: totalBookedDesks,
       ratePerDesk,
       annualIncrement,
       perDeskMeetingCredits,
@@ -147,10 +191,6 @@ const createClient = async (req, res, next) => {
 
     const savedClient = await client.save();
 
-    // const bookedDesk = await DeskBooking.findOne({ unit: unit });
-
-    // const updatedDesks = await DeskBooking;
-
     await createLog({
       path: logPath,
       action: logAction,
@@ -162,29 +202,37 @@ const createClient = async (req, res, next) => {
       sourceKey: logSourceKey,
       sourceId: savedClient._id,
       changes: {
-        clientName,
-        service,
-        sector,
-        hoCity,
-        hoState,
-        unit,
-        cabinDesks,
-        openDesks,
-        totalDesks,
-        ratePerDesk,
-        annualIncrement,
-        perDeskMeetingCredits,
-        totalMeetingCredits,
-        startDate,
-        endDate,
-        lockinPeriod,
-        rentDate,
-        nextIncrement,
-        hOPoc: { name: hOPocName, email: hOPocEmail, phone: hOPocPhone },
-        localPoc: {
-          name: localPocName,
-          email: localPocEmail,
-          phone: localPocPhone,
+        client: {
+          clientName,
+          service,
+          sector,
+          hoCity,
+          hoState,
+          unit,
+          cabinDesks,
+          openDesks,
+          totalDesks: totalBookedDesks,
+          ratePerDesk,
+          annualIncrement,
+          perDeskMeetingCredits,
+          totalMeetingCredits,
+          startDate,
+          endDate,
+          lockinPeriod,
+          rentDate,
+          nextIncrement,
+          hOPoc: { name: hOPocName, email: hOPocEmail, phone: hOPocPhone },
+          localPoc: {
+            name: localPocName,
+            email: localPocEmail,
+            phone: localPocPhone,
+          },
+        },
+        desks: {
+          deskId: newbooking ? newbooking._id : bookingExists._id,
+          unit,
+          bookedSeats,
+          availableSeats,
         },
       },
     });

@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const deskBookingSchema = new mongoose.Schema(
   {
-    desks: {
+    unit: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Unit",
     },

@@ -101,10 +101,25 @@ const addUnit = async (req, res, next) => {
   const logAction = "Add Unit";
   const logSourceKey = "unit";
   const { user, ip, company } = req;
-  const { buildingId, unitName, unitNo, clearImage, occupiedImage } = req.body;
+  const {
+    buildingId,
+    unitName,
+    unitNo,
+    cabinDesks,
+    openDesks,
+    clearImage,
+    occupiedImage,
+  } = req.body;
 
   try {
-    if (!company || !unitName || !unitNo || !buildingId) {
+    if (
+      !company ||
+      !unitName ||
+      !unitNo ||
+      !buildingId ||
+      !cabinDesks ||
+      !openDesks
+    ) {
       throw new CustomError(
         "Missing required fields",
         logPath,
@@ -157,6 +172,8 @@ const addUnit = async (req, res, next) => {
       company,
       unitName,
       unitNo,
+      cabinDesks,
+      openDesks,
       building: buildingId,
       clearImage: clearImage ? clearImage : "",
       occupiedImage: occupiedImage ? occupiedImage : "",
@@ -255,9 +272,7 @@ const uploadUnitImage = async (req, res, next) => {
     // Resize and convert the image before uploading
     let imageDetails = null;
     try {
-      const buffer = await sharp(file.buffer)
-        .webp({ quality: 80 })
-        .toBuffer();
+      const buffer = await sharp(file.buffer).webp({ quality: 80 }).toBuffer();
       const base64Image = `data:image/webp;base64,${buffer.toString("base64")}`;
 
       const folderPath = `${unit.company.companyName}/work-locations/${unit.building.buildingName}/${unit.unitName}`;
@@ -283,7 +298,6 @@ const uploadUnitImage = async (req, res, next) => {
     next(error);
   }
 };
-
 
 const bulkInsertUnits = async (req, res, next) => {
   try {
