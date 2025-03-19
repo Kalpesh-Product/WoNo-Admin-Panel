@@ -18,6 +18,10 @@ const deskBookingSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    service: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ClientService",
+    },
     company: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Company",

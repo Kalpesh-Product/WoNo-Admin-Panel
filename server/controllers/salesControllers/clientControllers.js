@@ -151,6 +151,7 @@ const createClient = async (req, res, next) => {
         bookedSeats,
         availableSeats,
         month: startDate,
+        service,
         company,
       });
 
