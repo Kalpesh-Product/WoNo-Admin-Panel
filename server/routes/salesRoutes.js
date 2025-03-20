@@ -1,10 +1,9 @@
 const router = require("express").Router();
 
 const {
-  createClient,
-  getClients,
-  getClientsUnitWise,
-} = require("../controllers/salesControllers/clientControllers");
+  createCoworkingClient,
+  getCoworkingClients,
+} = require("../controllers/salesControllers/coworkingClientController");
 const {
   createClientService,
   getClientServices,
@@ -22,9 +21,8 @@ const {
   getRevenues,
 } = require("../controllers/salesControllers/revenueController");
 
-router.post("/onboard-client", createClient);
-router.get("/clients", getClients);
-router.get("/unit-clients/:unitId", getClientsUnitWise);
+router.post("/onboard-client", createCoworkingClient);
+router.get("/clients", getCoworkingClients);
 router.post("/create-service", createClientService);
 router.get("/services", getClientServices);
 router.post("/create-lead", createLead);
