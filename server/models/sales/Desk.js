@@ -10,11 +10,11 @@ const deskSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
-    bookedSeats: {
+    bookedDesks: {
       type: Number,
       required: true,
     },
-    availableSeats: {
+    availableDesks: {
       type: Number,
       required: true,
     },

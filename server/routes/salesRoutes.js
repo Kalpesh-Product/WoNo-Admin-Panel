@@ -2,9 +2,9 @@ const router = require("express").Router();
 
 const {
   createClient,
-  getClients,
   getClientsUnitWise,
-} = require("../controllers/salesControllers/clientControllers");
+  getClients,
+} = require("../controllers/salesControllers/coworkingClientControllers");
 const {
   createClientService,
   getClientServices,

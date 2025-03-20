@@ -114,49 +114,6 @@ const createClient = async (req, res, next) => {
       );
     }
 
-    //Creating or updating deskBooking entry
-
-    const totalSeats = unitExists.cabinDesks + unitExists.openDesks;
-
-    const bookedSeats = totalBookedDesks;
-    const availableSeats = totalSeats - bookedSeats;
-
-    // Create start and end boundaries
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
-
-    const startOfMonth = new Date(year, month);
-    const endOfMonth = new Date(year, month + 1, 1);
-
-    const bookingExists = await DeskBooking.findOne({
-      unit,
-      month: { $gte: startOfMonth, $lt: endOfMonth },
-    });
-
-    let newbooking = null;
-
-    if (bookingExists) {
-      const totalBookedSeats = bookedSeats + bookingExists.bookedSeats;
-      await DeskBooking.findOneAndUpdate(
-        { _id: bookingExists._id },
-        {
-          bookedSeats: totalBookedSeats,
-          availableSeats: totalSeats - totalBookedSeats,
-        }
-      );
-    } else {
-      const booking = await DeskBooking({
-        unit,
-        bookedSeats,
-        availableSeats,
-        month: startDate,
-        company,
-      });
-
-      newbooking = await booking.save();
-    }
-
     const client = new CoworkingClient({
       company,
       clientName,
@@ -221,8 +178,8 @@ const createClient = async (req, res, next) => {
 
     const booking = await Desk({
       unit,
-      bookedSeats: bookedDesks,
-      availableSeats: availableDesks,
+      bookedDesks,
+      availableDesks,
       month: startDate,
       service,
       client: savedClient._id,
@@ -271,8 +228,8 @@ const createClient = async (req, res, next) => {
         desks: {
           deskId: newbooking ? newbooking._id : bookingExists._id,
           unit,
-          bookedSeats: bookedDesks,
-          availableSeats: availableDesks,
+          bookedDesks,
+          availableDesks,
         },
       },
     });
