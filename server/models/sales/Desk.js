@@ -2,9 +2,9 @@ const mongoose = require("mongoose");
 
 const deskBookingSchema = new mongoose.Schema(
   {
-    desks: {
+    unit: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "DeskData",
+      ref: "Unit",
     },
     month: {
       type: Date,
@@ -17,6 +17,14 @@ const deskBookingSchema = new mongoose.Schema(
     availableSeats: {
       type: Number,
       required: true,
+    },
+    service: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ClientService",
+    },
+    client: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Client",
     },
     company: {
       type: mongoose.Schema.Types.ObjectId,

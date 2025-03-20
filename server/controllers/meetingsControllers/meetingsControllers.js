@@ -668,7 +668,15 @@ const getMeetingsByTypes = async (req, res, next) => {
       },
       {
         path: "bookedRoom",
-        select: "name location",
+        select: "name housekeepingStatus",
+        populate: {
+          path: "location",
+          select: "unitName unitNo",
+          populate: {
+            path: "building",
+            select: "buildingName",
+          },
+        },
       },
     ]);
 
@@ -682,7 +690,7 @@ const getMeetingsByTypes = async (req, res, next) => {
       return {
         _id: meeting._id,
         roomName: meeting.bookedRoom.name,
-        location: meeting.bookedRoom.location.name,
+        location: meeting.bookedRoom.location,
         meetingType: meeting.meetingType,
         endTime: formatTime(meeting.endTime),
         company: meeting.company.companyName,

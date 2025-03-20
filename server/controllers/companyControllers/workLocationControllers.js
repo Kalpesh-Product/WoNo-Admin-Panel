@@ -8,6 +8,7 @@ const {
   handleFileUpload,
   handleFileDelete,
 } = require("../../config/cloudinaryConfig");
+const sharp = require("sharp");
 const Unit = require("../../models/locations/Unit");
 const Building = require("../../models/locations/Building");
 const UserData = require("../../models/hr/UserData");
@@ -100,10 +101,25 @@ const addUnit = async (req, res, next) => {
   const logAction = "Add Unit";
   const logSourceKey = "unit";
   const { user, ip, company } = req;
-  const { buildingId, unitName, unitNo, clearImage, occupiedImage } = req.body;
+  const {
+    buildingId,
+    unitName,
+    unitNo,
+    cabinDesks,
+    openDesks,
+    clearImage,
+    occupiedImage,
+  } = req.body;
 
   try {
-    if (!company || !unitName || !unitNo || !buildingId) {
+    if (
+      !company ||
+      !unitName ||
+      !unitNo ||
+      !buildingId ||
+      !cabinDesks ||
+      !openDesks
+    ) {
       throw new CustomError(
         "Missing required fields",
         logPath,
@@ -156,6 +172,8 @@ const addUnit = async (req, res, next) => {
       company,
       unitName,
       unitNo,
+      cabinDesks,
+      openDesks,
       building: buildingId,
       clearImage: clearImage ? clearImage : "",
       occupiedImage: occupiedImage ? occupiedImage : "",
@@ -219,7 +237,7 @@ const fetchUnits = async (req, res, next) => {
 const uploadUnitImage = async (req, res, next) => {
   try {
     const { unitId, imageType } = req.body;
-    const file = req.file; // Multer stores a single file in req.file
+    const file = req.file; // Multer stores the file in req.file
     const companyId = req.company;
 
     if (!file) {
@@ -241,26 +259,40 @@ const uploadUnitImage = async (req, res, next) => {
       { path: "building", select: "buildingName" },
       { path: "company", select: "companyName" },
     ]);
-    if (!unit || unit.company.toString() !== companyId) {
+
+    if (!unit || unit.company._id.toString() !== companyId) {
       return res.status(404).json({ message: "Work location not found" });
     }
 
+    // Delete the existing image if it exists
     if (unit[imageType] && unit[imageType].imageId) {
       await handleFileDelete(unit[imageType].imageId);
     }
 
-    const folderPath = `${unit.company.companyName}/work-locations/${unit.building.buildingName}/${unit.unitName}`;
-    const uploadResult = await handleFileUpload(file.path, folderPath);
+    // Resize and convert the image before uploading
+    let imageDetails = null;
+    try {
+      const buffer = await sharp(file.buffer).webp({ quality: 80 }).toBuffer();
+      const base64Image = `data:image/webp;base64,${buffer.toString("base64")}`;
 
-    unit[imageType] = {
-      imageId: uploadResult.public_id,
-      url: uploadResult.secure_url,
-    };
+      const folderPath = `${unit.company.companyName}/work-locations/${unit.building.buildingName}/${unit.unitName}`;
+      const uploadResult = await handleFileUpload(base64Image, folderPath);
+
+      imageDetails = {
+        imageId: uploadResult.public_id,
+        url: uploadResult.secure_url,
+      };
+    } catch (uploadError) {
+      return next(new Error("Error processing image before upload"));
+    }
+
+    // Update the unit with the new image
+    unit[imageType] = imageDetails;
     await unit.save();
 
     res.json({
       message: "Image uploaded and work location updated successfully",
-      workLocation: { [imageType]: unit[imageType] },
+      workLocation: { [imageType]: imageDetails },
     });
   } catch (error) {
     next(error);

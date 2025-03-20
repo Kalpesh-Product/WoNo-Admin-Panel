@@ -7,24 +7,20 @@ const clientSchema = new mongoose.Schema(
       ref: "Company",
     },
     clientName: {
-      type: String,
-      required: true,
+      type: String
     },
     service: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "ClientService",
     },
     sector: {
-      type: String,
-      required: true,
+      type: String
     },
     hoCity: {
-      type: String,
-      required: true,
+      type: String
     },
     hoState: {
-      type: String,
-      required: true,
+      type: String
     },
     unit: {
       type: mongoose.Schema.Types.ObjectId,
@@ -40,15 +36,12 @@ const clientSchema = new mongoose.Schema(
     },
     totalDesks: {
       type: Number,
-      required: true,
     },
     ratePerDesk: {
-      type: Number,
-      required: true,
+      type: Number
     },
     annualIncrement: {
       type: Number,
-      required: true,
     },
     perDeskMeetingCredits: {
       type: Number,
@@ -59,30 +52,36 @@ const clientSchema = new mongoose.Schema(
       default: 0,
     },
     startDate: {
-      type: Date,
-      required: true,
+      type: Date
     },
     endDate: {
-      type: Date,
-      required: true,
+      type: Date
     },
     lockinPeriod: {
-      type: Number,
-      required: true,
+      type: Number
+    },
+    clearImage: {
+      imageId: String,
+      imageUrl: String,
+    },
+    occupiedImage: {
+      imageId: String,
+      imageUrl: String,
+    },
+    bookingType: {
+      type: String,
+      enum: ["SPV", "Direct"],
     },
     rentDate: { type: Date, required: true },
     nextIncrement: {
       type: Date,
-      required: true,
     },
     localPoc: {
       name: {
         type: String,
-        required: true,
       },
       email: {
         type: String,
-        required: true,
         unique: true,
         trim: true,
         lowercase: true,
@@ -98,11 +97,9 @@ const clientSchema = new mongoose.Schema(
     hOPoc: {
       name: {
         type: String,
-        required: true,
       },
       email: {
         type: String,
-        required: true,
         unique: true,
         trim: true,
         lowercase: true,
@@ -123,6 +120,6 @@ const clientSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Client = mongoose.model("Client", clientSchema);
+const Client = mongoose.model("CoworkingClient", clientSchema);
 
 module.exports = Client;
