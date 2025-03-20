@@ -223,6 +223,7 @@ import ItSettings from "../pages/Dashboard/ItDashboard/ItSettings/ItSettings";
 import ItBulkUpload from "../pages/Dashboard/ItDashboard/ItSettings/ItBulkUpload";
 import ItSops from "../pages/Dashboard/ItDashboard/ItSettings/ItSops";
 import ItPolicies from "../pages/Dashboard/ItDashboard/ItSettings/ItPolicies";
+import ItPerSqExpense from "../pages/Dashboard/ItDashboard/ItPerSqExpense";
 
 export const routes = createBrowserRouter([
   {
@@ -544,6 +545,10 @@ export const routes = createBrowserRouter([
                             element: <ItPolicies />,
                           },
                         ],
+                      },
+                      {
+                        path: "per-sq-ft-expense",
+                        element: <ItPerSqExpense />,
                       },
                     ],
                   },

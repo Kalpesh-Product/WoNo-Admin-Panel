@@ -22,8 +22,8 @@ const ItData = () => {
 
   // Redirect to "view-employees" if the current path is "/hr-dashboard/compliances"
   useEffect(() => {
-    if (location.pathname === "/app/dashboard/it-dashboard/data") {
-      navigate("/app/dashboard/it-dashboard/data/asset-list", {
+    if (location.pathname === "/app/dashboard/IT-dashboard/data") {
+      navigate("/app/dashboard/IT-dashboard/data/asset-list", {
         replace: true,
       });
     }

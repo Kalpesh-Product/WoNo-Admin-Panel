@@ -14,8 +14,8 @@ const ItFinance = () => {
 
   // Redirect to "view-employees" if the current path is "/hr-dashboard/compliances"
   useEffect(() => {
-    if (location.pathname === "/app/dashboard/it-dashboard/finance") {
-      navigate("/app/dashboard/it-dashboard/finance/budget", {
+    if (location.pathname === "/app/dashboard/IT-dashboard/finance") {
+      navigate("/app/dashboard/IT-dashboard/finance/budget", {
         replace: true,
       });
     }
