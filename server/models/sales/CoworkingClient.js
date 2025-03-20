@@ -76,6 +76,10 @@ const clientSchema = new mongoose.Schema(
       imageId: String,
       imageUrl: String,
     },
+    bookingType: {
+      type: String,
+      enum: ["SPV", "Direct"],
+    },
     rentDate: { type: Date, required: true },
     nextIncrement: {
       type: Date,
