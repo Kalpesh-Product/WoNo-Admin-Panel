@@ -120,6 +120,6 @@ const clientSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Client = mongoose.model("Client", clientSchema);
+const Client = mongoose.model("CoworkingClient", clientSchema);
 
 module.exports = Client;

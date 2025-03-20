@@ -1,5 +1,5 @@
 const Revenue = require("../../models/sales/Revenue");
-const Client = require("../../models/sales/Client");
+const CoworkingClient = require("../../models/sales/CoworkingClient");
 const Service = require("../../models/sales/ClientService");
 const addRevenue = async (req, res, next) => {
   try {
@@ -11,11 +11,11 @@ const addRevenue = async (req, res, next) => {
     }
 
     // Validate client and service existence
-    const clientExists = await Client.findById(clientId);
+    const clientExists = await CoworkingClient.findById(clientId);
     const serviceExists = await Service.findById(serviceId);
 
     if (!clientExists) {
-      return res.status(404).json({ message: "Client not found." });
+      return res.status(404).json({ message: "CoworkingClient not found." });
     }
     if (!serviceExists) {
       return res.status(404).json({ message: "Service not found." });

@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const { handleFileUpload } = require("../../config/cloudinaryConfig");
 const { createLog } = require("../../utils/moduleLogs");
 const CustomError = require("../../utils/customErrorlogs");
+const Unit = require("../../models/locations/Unit");
 
 const addRoom = async (req, res, next) => {
   const { user, ip, company } = req;
@@ -43,9 +44,7 @@ const addRoom = async (req, res, next) => {
       );
     }
 
-    const isValidLocation = foundUser.company.workLocations.some(
-      (loc) => loc.name === location
-    );
+    const isValidLocation = await Unit.findOne({ _id: location }).lean().exec();
 
     if (!isValidLocation) {
       throw new CustomError(
@@ -64,7 +63,6 @@ const addRoom = async (req, res, next) => {
     if (req.file) {
       const file = req.file;
       const buffer = await sharp(file.buffer)
-        .resize(800, 800, { fit: "cover" })
         .webp({ quality: 80 })
         .toBuffer();
 
