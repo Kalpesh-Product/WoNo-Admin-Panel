@@ -508,8 +508,6 @@ const formattedCompanyTableData = clientOccupancyData.map((company) => ({
   completedTime: calculateCompletedTime(company.startDate),
 }));
 
-console.log(formattedCompanyTableData);
-
 // -----------------------Recently Added Assets End--------------------
 // -----------------------Client Members birthday Start--------------------
 const today = dayjs();

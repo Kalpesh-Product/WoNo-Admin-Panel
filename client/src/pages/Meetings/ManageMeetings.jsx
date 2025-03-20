@@ -21,6 +21,7 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { queryClient } from "../../index";
 import MuiModal from "../../components/MuiModal";
 import PrimaryButton from "../../components/PrimaryButton";
+import { useSelector } from "react-redux";
 
 const ManageMeetings = () => {
   const axios = useAxiosPrivate();
@@ -54,15 +55,17 @@ const ManageMeetings = () => {
     { name: "Inspect electrical sockets and outlets", checked: false },
     { name: "Remove any trash or debris", checked: false },
   ];
+  const meetings = useSelector((state) => state.meetings?.data);
+  console.log("From Redux : ",meetings)
 
   // Fetch meetings
-  const { data: meetings = [], isLoading } = useQuery({
-    queryKey: ["meetings"],
-    queryFn: async () => {
-      const response = await axios.get("/api/meetings/get-meetings");
-      return response.data;
-    },
-  });
+  // const { data: meetings = [], isLoading } = useQuery({
+  //   queryKey: ["meetings"],
+  //   queryFn: async () => {
+  //     const response = await axios.get("/api/meetings/get-meetings");
+  //     return response.data;
+  //   },
+  // });
 
   // API mutation for submitting housekeeping tasks
   const housekeepingMutation = useMutation({
@@ -276,19 +279,13 @@ const ManageMeetings = () => {
 
   return (
     <div className="p-4 flex flex-col gap-4">
-      {isLoading ? (
-        <div className="flex h-screen justify-center items-center">
-          <LinearProgress />
-        </div>
-      ) : (
-        <AgTable
-          key={meetings.length}
-          search
-          tableTitle={"Manage Meetings"}
-          data={meetings || []}
-          columns={columns}
-        />
-      )}
+      <AgTable
+        key={meetings.length}
+        search
+        tableTitle={"Manage Meetings"}
+        data={meetings || []}
+        columns={columns}
+      />
 
       {/* Checklist Modal */}
       <MuiModal
