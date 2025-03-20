@@ -6,6 +6,11 @@ const { createLog } = require("../../utils/moduleLogs");
 const CustomError = require("../../utils/customErrorlogs");
 const { Readable } = require("stream");
 const csvParser = require("csv-parser");
+const {
+  handleFileDelete,
+  handleFileUpload,
+} = require("../../config/cloudinaryConfig");
+const sharp = require("sharp");
 
 const createCoworkingClient = async (req, res, next) => {
   const logPath = "sales/SalesLog";
@@ -482,10 +487,133 @@ const bulkInsertCoworkingClients = async (req, res, next) => {
   }
 };
 
+const uploadUnitImage = async (req, res, next) => {
+  const logPath = "sales/salesLog";
+  const logAction = "Upload Unit Image";
+  const logSourceKey = "client";
+  const { clientId, imageType } = req.body;
+  const file = req.file;
+  const companyId = req.company;
+  const user = req.user;
+  const ip = req.ip;
+
+  try {
+    // Validate that a file was uploaded
+    if (!file) {
+      throw new CustomError(
+        "No image provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    // Validate required fields
+    if (!clientId || !companyId || !imageType) {
+      throw new CustomError(
+        "Company ID, Location ID, Client ID, and Image Type are required",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    // Validate image type
+    if (!["occupiedImage", "clearImage"].includes(imageType)) {
+      throw new CustomError(
+        "Invalid image type",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    // Find the client document
+    const client = await CoworkingClient.findById({ _id: clientId });
+    if (!client) {
+      throw new CustomError(
+        "Client doesn't exist",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    // Find the unit with building and company details
+    const unit = await Unit.findById({ _id: client.unit }).populate([
+      { path: "building", select: "buildingName" },
+      { path: "company", select: "companyName" },
+    ]);
+    if (!unit) {
+      throw new CustomError("Unit not found", logPath, logAction, logSourceKey);
+    }
+
+    // Delete the existing image if it exists
+    if (client[imageType] && client[imageType].imageId) {
+      await handleFileDelete(client[imageType].imageId);
+    }
+
+    // Process image: resize, convert to WebP, and upload
+    let imageDetails = null;
+    try {
+      const buffer = await sharp(file.buffer).webp({ quality: 80 }).toBuffer();
+      const base64Image = `data:image/webp;base64,${buffer.toString("base64")}`;
+      const folderPath = `${unit.company.companyName}/work-locations/${unit.building.buildingName}/${unit.unitName}`;
+      const uploadResult = await handleFileUpload(base64Image, folderPath);
+      if (!uploadResult.public_id) {
+        throw new Error("Failed to upload image");
+      }
+      imageDetails = {
+        imageId: uploadResult.public_id,
+        imageUrl: uploadResult.secure_url,
+      };
+    } catch (uploadError) {
+      throw new CustomError(
+        "Error processing image before upload",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    // Update the client document with the new image details
+    client[imageType] = imageDetails;
+    await client.save();
+
+    // Log the successful update
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Image uploaded successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: companyId,
+      sourceKey: logSourceKey,
+      sourceId: client._id,
+      changes: { [imageType]: imageDetails },
+    });
+
+    return res.status(200).json({
+      message: "Image uploaded and work location updated successfully",
+      unitImage: { [imageType]: imageDetails },
+    });
+  } catch (error) {
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
+  }
+};
+
 module.exports = {
   createCoworkingClient,
   updateCoworkingClient,
   deleteCoworkingClient,
   getCoworkingClients,
   bulkInsertCoworkingClients,
+  uploadUnitImage,
 };

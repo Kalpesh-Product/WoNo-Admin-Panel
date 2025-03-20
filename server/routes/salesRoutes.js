@@ -3,7 +3,7 @@ const router = require("express").Router();
 const {
   createCoworkingClient,
   getCoworkingClients,
-} = require("../controllers/salesControllers/coworkingClientController");
+} = require("../controllers/salesControllers/coworkingClientControllers");
 const {
   createClientService,
   getClientServices,
@@ -24,9 +24,13 @@ const {
   getAvailableDesks,
   getBookedDesks,
 } = require("../controllers/salesControllers/deskControllers");
+const {
+  uploadUnitImage,
+} = require("../controllers/salesControllers/coworkingClientControllers");
 
 router.post("/onboard-client", createCoworkingClient);
 router.get("/clients", getCoworkingClients);
+router.post("/upload-unit-image", upload.single("unitImage"), uploadUnitImage);
 router.post("/create-service", createClientService);
 router.get("/services", getClientServices);
 router.post("/create-lead", createLead);
