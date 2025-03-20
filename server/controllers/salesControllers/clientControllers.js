@@ -95,8 +95,8 @@ const createClient = async (req, res, next) => {
       );
     }
 
-    const totalBookedDesks = cabinDesks + openDesks;
-    if (totalBookedDesks < 1 || ratePerDesk <= 0 || annualIncrement < 0) {
+    const bookedDesks = cabinDesks + openDesks;
+    if (bookedDesks < 1 || ratePerDesk <= 0 || annualIncrement < 0) {
       throw new CustomError(
         "Invalid numerical values",
         logPath,
@@ -124,7 +124,7 @@ const createClient = async (req, res, next) => {
       unit,
       cabinDesks,
       openDesks,
-      totalDesks: totalBookedDesks,
+      totalDesks: bookedDesks,
       ratePerDesk,
       annualIncrement,
       perDeskMeetingCredits,
@@ -148,16 +148,38 @@ const createClient = async (req, res, next) => {
 
     const savedClient = await client.save();
 
-    //Creating or updating deskBooking entry
+    //Creating deskBooking entry
 
-    const totalSeats = unitExists.cabinDesks + unitExists.openDesks;
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const startOfMonth = new Date(year, month, 1);
+    const endOfMonth = new Date(year, month + 1, 1);
 
-    const bookedSeats = totalBookedDesks;
-    const availableSeats = totalSeats - bookedSeats;
+    const fetchedBookedDesks = await Desk.find({
+      unit,
+      month: { $gte: startOfMonth, $lt: endOfMonth },
+    });
+
+    const totalDesks = unitExists.cabinDesks + unitExists.openDesks;
+
+    console.log("fetchedBookedDesks", fetchedBookedDesks);
+
+    let availableDesks = totalDesks - bookedDesks;
+    let totalBookedDesks;
+
+    if (!fetchedBookedDesks) {
+      totalBookedDesks = fetchedBookedDesks.reduce((acc, desk) => {
+        acc + desk.bookedSeats;
+      }, 0);
+
+      availableDesks = totalDesks - totalBookedDesks;
+    }
+
     const booking = await Desk({
       unit,
-      bookedSeats,
-      availableSeats,
+      bookedSeats: bookedDesks,
+      availableSeats: availableDesks,
       month: startDate,
       service,
       client: savedClient._id,
@@ -206,8 +228,8 @@ const createClient = async (req, res, next) => {
         desks: {
           deskId: newbooking ? newbooking._id : bookingExists._id,
           unit,
-          bookedSeats,
-          availableSeats,
+          bookedSeats: bookedDesks,
+          availableSeats: availableDesks,
         },
       },
     });

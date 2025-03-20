@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const deskBookingSchema = new mongoose.Schema(
+const deskSchema = new mongoose.Schema(
   {
     unit: {
       type: mongoose.Schema.Types.ObjectId,
@@ -22,10 +22,6 @@ const deskBookingSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "ClientService",
     },
-    client: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Client",
-    },
     company: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Company",
@@ -34,5 +30,5 @@ const deskBookingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const DeskBooking = mongoose.model("DeskBooking", deskBookingSchema);
-module.exports = DeskBooking;
+const Desk = mongoose.model("Desk", deskSchema);
+module.exports = Desk;

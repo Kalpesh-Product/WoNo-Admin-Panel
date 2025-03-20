@@ -15,12 +15,15 @@ const {
   bulkInsertLeads,
 } = require("../controllers/salesControllers/leadsControllers");
 const upload = require("../config/multerConfig");
-const getBookedDesks = require("../controllers/salesControllers/DeskControllers");
 
 const {
   addRevenue,
   getRevenues,
 } = require("../controllers/salesControllers/revenueController");
+const {
+  getBookedDesks,
+  getAvailableDesks,
+} = require("../controllers/salesControllers/DeskControllers");
 
 router.post("/onboard-client", createClient);
 router.get("/clients", getClients);
@@ -30,6 +33,7 @@ router.get("/services", getClientServices);
 router.post("/create-lead", createLead);
 router.get("/leads", getLeads);
 router.get("/booked-desks/:serviceId", getBookedDesks);
+router.get("/available-desks/:unitId", getAvailableDesks);
 router.post("/bulk-insert-leads", upload.single("leads"), bulkInsertLeads);
 router.post("/add-revenue", addRevenue);
 router.get("/fetch-revenues", getRevenues);
