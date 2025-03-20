@@ -7,7 +7,7 @@ const CustomError = require("../../utils/customErrorlogs");
 const { Readable } = require("stream");
 const csvParser = require("csv-parser");
 
-const createClient = async (req, res, next) => {
+const createCoworkingClient = async (req, res, next) => {
   const logPath = "sales/SalesLog";
   const logAction = "Onboard CoworkingClient";
   const logSourceKey = "client";

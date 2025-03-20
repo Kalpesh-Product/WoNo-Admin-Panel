@@ -14,12 +14,16 @@ const {
   bulkInsertLeads,
 } = require("../controllers/salesControllers/leadsControllers");
 const upload = require("../config/multerConfig");
-const getBookedDesks = require("../controllers/salesControllers/DeskControllers");
 
 const {
   addRevenue,
   getRevenues,
 } = require("../controllers/salesControllers/revenueController");
+
+const {
+  getAvailableDesks,
+  getBookedDesks,
+} = require("../controllers/salesControllers/deskControllers");
 
 router.post("/onboard-client", createCoworkingClient);
 router.get("/clients", getCoworkingClients);
