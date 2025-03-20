@@ -248,7 +248,7 @@ const bulkInsertLeads = async (req, res, next) => {
               row["Start Date"].trim() === "TBD" ||
               !row["Start Date"].trim().length
                 ? null
-                : new Date(row["Start Date"]),
+                : new Date(row["Start Date"].split("/").reverse().join("-")),
             lastFollowUpDate:
               row["Last Follup Date"].trim() === "-" ||
               !row["Last Follup Date"].trim().length

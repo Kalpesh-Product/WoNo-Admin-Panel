@@ -45,13 +45,12 @@ const LeadSchema = new mongoose.Schema(
     },
     emailAddress: {
       type: String,
-      unique: true,
     },
     leadSource: {
       type: String,
     },
     period: {
-      type: Number,
+      type: String,
       required: true,
     },
     openDesks: {
@@ -73,8 +72,7 @@ const LeadSchema = new mongoose.Schema(
       type: String,
     },
     lastFollowUpDate: {
-      type: Date,
-      default: null,
+      type: Date
     },
   },
   { timestamps: true }

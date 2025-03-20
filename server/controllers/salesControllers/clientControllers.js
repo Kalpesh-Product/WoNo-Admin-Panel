@@ -1,6 +1,6 @@
 const Company = require("../../models/hr/Company");
 const Unit = require("../../models/locations/Unit");
-const Client = require("../../models/sales/Client");
+const CoworkingClient = require("../../models/sales/CoworkingClient");
 const mongoose = require("mongoose");
 const Desk = require("../../models/sales/Desk");
 const { createLog } = require("../../utils/moduleLogs");
@@ -8,7 +8,7 @@ const CustomError = require("../../utils/customErrorlogs");
 
 const createClient = async (req, res, next) => {
   const logPath = "sales/SalesLog";
-  const logAction = "Onboard Client";
+  const logAction = "Onboard CoworkingClient";
   const logSourceKey = "client";
   const { user, ip, company } = req;
 
@@ -39,10 +39,10 @@ const createClient = async (req, res, next) => {
       hOPocPhone,
     } = req.body;
 
-    const clientExists = await Client.findOne({ clientName });
+    const clientExists = await CoworkingClient.findOne({ clientName });
     if (clientExists) {
       throw new CustomError(
-        "Client already exists",
+        "CoworkingClient already exists",
         logPath,
         logAction,
         logSourceKey
@@ -114,7 +114,50 @@ const createClient = async (req, res, next) => {
       );
     }
 
-    const client = new Client({
+    //Creating or updating deskBooking entry
+
+    const totalSeats = unitExists.cabinDesks + unitExists.openDesks;
+
+    const bookedSeats = totalBookedDesks;
+    const availableSeats = totalSeats - bookedSeats;
+
+    // Create start and end boundaries
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+
+    const startOfMonth = new Date(year, month);
+    const endOfMonth = new Date(year, month + 1, 1);
+
+    const bookingExists = await DeskBooking.findOne({
+      unit,
+      month: { $gte: startOfMonth, $lt: endOfMonth },
+    });
+
+    let newbooking = null;
+
+    if (bookingExists) {
+      const totalBookedSeats = bookedSeats + bookingExists.bookedSeats;
+      await DeskBooking.findOneAndUpdate(
+        { _id: bookingExists._id },
+        {
+          bookedSeats: totalBookedSeats,
+          availableSeats: totalSeats - totalBookedSeats,
+        }
+      );
+    } else {
+      const booking = await DeskBooking({
+        unit,
+        bookedSeats,
+        availableSeats,
+        month: startDate,
+        company,
+      });
+
+      newbooking = await booking.save();
+    }
+
+    const client = new CoworkingClient({
       company,
       clientName,
       service,
@@ -191,7 +234,7 @@ const createClient = async (req, res, next) => {
     await createLog({
       path: logPath,
       action: logAction,
-      remarks: "Client onboarded successfully",
+      remarks: "CoworkingClient onboarded successfully",
       status: "Success",
       user: user,
       ip: ip,
@@ -234,7 +277,9 @@ const createClient = async (req, res, next) => {
       },
     });
 
-    return res.status(201).json({ message: "Client onboarded successfully" });
+    return res
+      .status(201)
+      .json({ message: "CoworkingClient onboarded successfully" });
   } catch (error) {
     if (error instanceof CustomError) {
       next(error);
@@ -249,7 +294,7 @@ const createClient = async (req, res, next) => {
 const getClients = async (req, res, next) => {
   try {
     const { company } = req;
-    const clients = await Client.find({ company }).populate([
+    const clients = await CoworkingClient.find({ company }).populate([
       {
         path: "unit",
         select: "_id unitName unitNo",
@@ -272,9 +317,9 @@ const getClientById = async (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid client ID format" });
     }
-    const client = await Client.findById(id).populate("unit service");
+    const client = await CoworkingClient.findById(id).populate("unit service");
     if (!client) {
-      return res.status(404).json({ message: "Client not found" });
+      return res.status(404).json({ message: "CoworkingClient not found" });
     }
     res.status(200).json(client);
   } catch (error) {
@@ -288,14 +333,16 @@ const updateClient = async (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid client ID format" });
     }
-    const client = await Client.findByIdAndUpdate(id, req.body, {
+    const client = await CoworkingClient.findByIdAndUpdate(id, req.body, {
       new: true,
       runValidators: true,
     }).populate("company unit");
     if (!client) {
-      return res.status(404).json({ message: "Client not found" });
+      return res.status(404).json({ message: "CoworkingClient not found" });
     }
-    res.status(200).json({ message: "Client updated successfully", client });
+    res
+      .status(200)
+      .json({ message: "CoworkingClient updated successfully", client });
   } catch (error) {
     next(error);
   }
@@ -307,15 +354,17 @@ const deleteClient = async (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid client ID provided" });
     }
-    const client = await Client.findByIdAndUpdate(
+    const client = await CoworkingClient.findByIdAndUpdate(
       id,
       { isActive: false },
       { new: true }
     );
     if (!client) {
-      return res.status(404).json({ message: "Client not found" });
+      return res.status(404).json({ message: "CoworkingClient not found" });
     }
-    res.status(200).json({ message: "Client deactivated successfully" });
+    res
+      .status(200)
+      .json({ message: "CoworkingClient deactivated successfully" });
   } catch (error) {
     next(error);
   }
@@ -336,7 +385,7 @@ const getClientsUnitWise = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid unit ID provided" });
     }
 
-    const clients = await Client.find({ unit: unitId });
+    const clients = await CoworkingClient.find({ unit: unitId });
 
     if (!clients.length) {
       return res.status(200).json([]);
