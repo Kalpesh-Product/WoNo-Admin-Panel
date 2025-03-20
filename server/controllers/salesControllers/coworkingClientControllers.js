@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const Desk = require("../../models/sales/Desk");
 const { createLog } = require("../../utils/moduleLogs");
 const CustomError = require("../../utils/customErrorlogs");
+const ClientService = require("../../models/sales/ClientService");
 
 const createClient = async (req, res, next) => {
   const logPath = "sales/SalesLog";
@@ -61,6 +62,26 @@ const createClient = async (req, res, next) => {
     if (!unitExists) {
       throw new CustomError(
         "Unit doesn't exist",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(service)) {
+      throw new CustomError(
+        "Invalid service ID provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    const coworkingService = await ClientService.findOne({ _id: service });
+
+    if (!coworkingService) {
+      throw new CustomError(
+        "Provide co-working service ID",
         logPath,
         logAction,
         logSourceKey
@@ -146,48 +167,46 @@ const createClient = async (req, res, next) => {
       },
     });
 
-    const savedClient = await client.save();
-
     //Creating deskBooking entry
+    const totalDesks = unitExists.cabinDesks + unitExists.openDesks;
+    const availableDesks = totalDesks - bookedDesks;
 
     const now = new Date();
     const year = now.getFullYear();
     const month = now.getMonth();
+
     const startOfMonth = new Date(year, month, 1);
     const endOfMonth = new Date(year, month + 1, 1);
 
-    const fetchedBookedDesks = await Desk.find({
+    const bookingExists = await Desk.findOne({
       unit,
       month: { $gte: startOfMonth, $lt: endOfMonth },
     });
 
-    const totalDesks = unitExists.cabinDesks + unitExists.openDesks;
+    let newbooking = null;
 
-    console.log("fetchedBookedDesks", fetchedBookedDesks);
+    if (bookingExists) {
+      const totalBookedDesks = bookedDesks + bookingExists.bookedDesks;
+      await Desk.findOneAndUpdate(
+        { _id: bookingExists._id },
+        {
+          bookedDesks: totalBookedDesks,
+          availableDesks: totalDesks - totalBookedDesks,
+        }
+      );
+    } else {
+      const booking = await Desk({
+        unit,
+        bookedDesks,
+        availableDesks,
+        month: startDate,
+        company,
+      });
 
-    let availableDesks = totalDesks - bookedDesks;
-    let totalBookedDesks;
-
-    if (!fetchedBookedDesks) {
-      totalBookedDesks = fetchedBookedDesks.reduce((acc, desk) => {
-        acc + desk.bookedSeats;
-      }, 0);
-
-      availableDesks = totalDesks - totalBookedDesks;
+      newbooking = await booking.save();
     }
 
-    const booking = await Desk({
-      unit,
-      bookedDesks,
-      availableDesks,
-      month: startDate,
-      service,
-      client: savedClient._id,
-      company,
-    });
-
-    const newbooking = await booking.save();
-
+    const savedClient = await client.save();
     await createLog({
       path: logPath,
       action: logAction,
@@ -208,7 +227,7 @@ const createClient = async (req, res, next) => {
           unit,
           cabinDesks,
           openDesks,
-          totalDesks: totalBookedDesks,
+          totalDesks: bookedDesks,
           ratePerDesk,
           annualIncrement,
           perDeskMeetingCredits,

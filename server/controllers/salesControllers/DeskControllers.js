@@ -51,7 +51,7 @@ const getAvailableDesks = async (req, res, next) => {
     }
 
     const bookedDesks = await Desk.find(
-      { company, availableSeats: { $ne: 0 } },
+      { company, unit: unitId },
       { createdAt: 0, updatedAt: 0, __v: 0 }
     )
       .populate([
@@ -59,10 +59,6 @@ const getAvailableDesks = async (req, res, next) => {
           path: "unit",
           select: "unitNo unitName",
           populate: { path: "building", select: "buildingName" },
-        },
-        {
-          path: "client",
-          select: "clientName",
         },
         {
           path: "service",
@@ -74,8 +70,6 @@ const getAvailableDesks = async (req, res, next) => {
     if (!bookedDesks.length) {
       return res.status(200).json([]);
     }
-    s;
-
     return res.status(200).json(bookedDesks);
   } catch (error) {
     next(error);
