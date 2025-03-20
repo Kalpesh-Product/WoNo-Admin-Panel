@@ -223,6 +223,15 @@ import ItSettings from "../pages/Dashboard/ItDashboard/ItSettings/ItSettings";
 import ItBulkUpload from "../pages/Dashboard/ItDashboard/ItSettings/ItBulkUpload";
 import ItSops from "../pages/Dashboard/ItDashboard/ItSettings/ItSops";
 import ItPolicies from "../pages/Dashboard/ItDashboard/ItSettings/ItPolicies";
+import AdminOffices from "../pages/Dashboard/AdminDashboard/AdminOffices/AdminOffices";
+import AdminExpenses from "../pages/Dashboard/AdminDashboard/AdminExpenses/AdminExpenses";
+import AdminOfficeLayout from "../pages/Dashboard/AdminDashboard/AdminOffices/AdminOfficesLayout";
+import AdminOfficesLayout from "../pages/Dashboard/AdminDashboard/AdminOffices/AdminOfficesLayout";
+import AdminOfficesOccupied from "../pages/Dashboard/AdminDashboard/AdminOffices/AdminOfficesOccupied";
+import AdminOfficesClear from "../pages/Dashboard/AdminDashboard/AdminOffices/AdminOfficesClear";
+import AdminExpensesLayout from "../pages/Dashboard/AdminDashboard/AdminExpenses/AdminExpensesLayout";
+import AdminExpensesOccupied from "../pages/Dashboard/AdminDashboard/AdminExpenses/AdminExpensesOccupied";
+import AdminExpensesClear from "../pages/Dashboard/AdminDashboard/AdminExpenses/AdminExpensesClear";
 import ItPerSqExpense from "../pages/Dashboard/ItDashboard/ItPerSqExpense";
 
 export const routes = createBrowserRouter([
@@ -399,6 +408,44 @@ export const routes = createBrowserRouter([
                           {
                             path: "policies",
                             element: <AdminPolicies />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "admin-offices",
+                        element: <AdminOffices />,
+                      },
+                      {
+                        path: "admin-offices/admin-offices-layout/:client",
+                        element: <AdminOfficesLayout />,
+                        children: [
+                          {
+                            path: "admin-offices-occupied",
+                            index: true,
+                            element: <AdminOfficesOccupied />,
+                          },
+                          {
+                            path: "admin-offices-clear",
+                            element: <AdminOfficesClear />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "admin-expenses",
+                        element: <AdminExpenses />,
+                      },
+                      {
+                        path: "admin-expenses/admin-expenses-layout/:client",
+                        element: <AdminExpensesLayout />,
+                        children: [
+                          {
+                            path: "admin-expenses-occupied",
+                            index: true,
+                            element: <AdminExpensesOccupied />,
+                          },
+                          {
+                            path: "admin-expenses-clear",
+                            element: <AdminExpensesClear />,
                           },
                         ],
                       },

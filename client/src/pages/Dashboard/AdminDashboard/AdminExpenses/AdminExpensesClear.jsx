@@ -5,7 +5,7 @@ import clearImage from "../../../../assets/biznest/clear-seats.png";
 import occupiedImage from "../../../../assets/biznest/occupied-seats.png";
 import { Chip } from "@mui/material";
 
-const Desks = () => {
+const AdminExpensesClear = () => {
   const navigate = useNavigate();
 
   const viewEmployeeColumns = [
@@ -30,7 +30,7 @@ const Desks = () => {
     //   ),
     // },
     { field: "employmentID", headerName: "Booked Seats" },
-    { field: "email", headerName: "Occupancy %", flex: 1 },
+    { field: "email", headerName: "Occupied Seats", flex: 1 },
     { field: "role", headerName: "Available Seats", flex: 1 },
     // {
     //   field: "status",
@@ -119,7 +119,7 @@ const Desks = () => {
   return (
     <div>
       <div className="w-full py-10 flex justify-around items-center">
-        <div className="">
+        {/* <div className="">
           <div className="py-2 text-center">
             <p className="text-primary text-lg font-bold">Occupied</p>
           </div>
@@ -131,12 +131,12 @@ const Desks = () => {
               alt="Image"
             />
           </div>
-        </div>
+        </div> */}
         <div className="">
-          <div className="py-2 text-center">
+          {/* <div className="py-2 text-center">
             {" "}
             <p className="text-primary text-lg font-bold">Clear</p>
-          </div>
+          </div> */}
           <div>
             <img
               // className="w-[90%] h-[80%] object-contain cursor-pointer"
@@ -159,4 +159,4 @@ const Desks = () => {
   );
 };
 
-export default Desks;
+export default AdminExpensesClear;
