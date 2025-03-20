@@ -68,6 +68,14 @@ const clientSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    clearImage: {
+      imageId: String,
+      imageUrl: String,
+    },
+    occupiedImage: {
+      imageId: String,
+      imageUrl: String,
+    },
     rentDate: { type: Date, required: true },
     nextIncrement: {
       type: Date,
