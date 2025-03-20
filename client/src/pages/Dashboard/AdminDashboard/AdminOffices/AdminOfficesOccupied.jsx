@@ -5,7 +5,7 @@ import clearImage from "../../../../assets/biznest/clear-seats.png";
 import occupiedImage from "../../../../assets/biznest/occupied-seats.png";
 import { Chip } from "@mui/material";
 
-const Desks = () => {
+const AdminOfficesOccupied = () => {
   const navigate = useNavigate();
 
   const viewEmployeeColumns = [
@@ -120,9 +120,9 @@ const Desks = () => {
     <div>
       <div className="w-full py-10 flex justify-around items-center">
         <div className="">
-          <div className="py-2 text-center">
+          {/* <div className="py-2 text-center">
             <p className="text-primary text-lg font-bold">Occupied</p>
-          </div>
+          </div> */}
           <div>
             <img
               // className="w-[90%] h-[80%] object-contain cursor-pointer"
@@ -132,7 +132,7 @@ const Desks = () => {
             />
           </div>
         </div>
-        <div className="">
+        {/* <div className="">
           <div className="py-2 text-center">
             {" "}
             <p className="text-primary text-lg font-bold">Clear</p>
@@ -145,7 +145,7 @@ const Desks = () => {
               alt="Image"
             />
           </div>
-        </div>
+        </div> */}
       </div>
       <div className="w-full">
         <AgTable
@@ -159,4 +159,4 @@ const Desks = () => {
   );
 };
 
-export default Desks;
+export default AdminOfficesOccupied;

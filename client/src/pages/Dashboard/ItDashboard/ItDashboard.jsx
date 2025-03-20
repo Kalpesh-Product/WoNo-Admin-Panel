@@ -7,6 +7,7 @@ import {
 import { SiCashapp, SiGoogleadsense } from "react-icons/si";
 import WidgetSection from "../../../components/WidgetSection";
 import LayerBarGraph from "../../../components/graphs/LayerBarGraph";
+import DataCard from "../../../components/DataCard";
 
 const ItDashboard = () => {
   const utilisedData = [125, 150, 99, 85, 70, 50, 80, 95, 100, 65, 50, 120];
@@ -116,6 +117,52 @@ const ItDashboard = () => {
           icon={<MdOutlineMiscellaneousServices />}
           title="Settings"
           route={"/app/dashboard/IT-dashboard/settings"}
+        />,
+      ],
+    },
+    {
+      layout: 3,
+      widgets: [
+        <DataCard
+          route={"revenue"}
+          title={"Total"}
+          data={"11"}
+          description={"IT Offices"}
+        />,
+        <DataCard
+          route={"revenue"}
+          title={"Total"}
+          data={"38"}
+          description={"Monthly Due Tasks"}
+        />,
+        <DataCard
+          route={"clients"}
+          title={"Average"}
+          data={"60000"}
+          description={"Monthly Expense"}
+        />,
+      ],
+    },
+    {
+      layout: 3,
+      widgets: [
+        <DataCard
+          route={"co-working-seats"}
+          title={"Total"}
+          data={"1000"}
+          description={"Co-working Seats"}
+        />,
+        <DataCard
+          route={"co-working-seats"}
+          title={"Booked"}
+          data={"800"}
+          description={"Co-working Seats"}
+        />,
+        <DataCard
+          route={"revenue"}
+          title={"Free"}
+          data={"200"}
+          description={"Co-working Seats"}
         />,
       ],
     },
