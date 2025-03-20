@@ -343,6 +343,7 @@ const bulkInsertCoworkingClients = async (req, res, next) => {
 
     let coWorkingClients = [];
     
+    
     stream
       .pipe(csvParser())
       .on("data", (row) => {
