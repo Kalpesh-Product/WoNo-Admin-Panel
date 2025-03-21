@@ -40,8 +40,12 @@ const AdminExpensesLayout = () => {
   return (
     <div className="p-4">
       <div>
-        <p>Unit Name</p>
-        <p>Admin Lead</p>
+        <p className="text-title text-primary font-pmedium p-6">
+          Office Layout ({client})
+        </p>
+        <p className="text-subtitle text-primary p-6">
+          <span className="font-bold">Admin Lead: </span>Machindranath Parkar
+        </p>
       </div>
 
       {/* Render tabs only if the current route is not EmployeeDetails */}

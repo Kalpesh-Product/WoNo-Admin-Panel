@@ -232,6 +232,22 @@ import AdminOfficesClear from "../pages/Dashboard/AdminDashboard/AdminOffices/Ad
 import AdminExpensesLayout from "../pages/Dashboard/AdminDashboard/AdminExpenses/AdminExpensesLayout";
 import AdminExpensesOccupied from "../pages/Dashboard/AdminDashboard/AdminExpenses/AdminExpensesOccupied";
 import AdminExpensesClear from "../pages/Dashboard/AdminDashboard/AdminExpenses/AdminExpensesClear";
+import MaintenanceOffices from "./../pages/Dashboard/MaintainanceDashboard/MaintenanceOffices/MaintenanceOffices";
+import MaintenanceOfficesLayout from "./../pages/Dashboard/MaintainanceDashboard/MaintenanceOffices/MaintenanceOfficesLayout";
+import MaintenanceOfficesOccupied from "./../pages/Dashboard/MaintainanceDashboard/MaintenanceOffices/MaintenanceOfficesOccupied";
+import MaintenanceOfficesClear from "./../pages/Dashboard/MaintainanceDashboard/MaintenanceOffices/MaintenanceOfficesClear";
+import MaintenanceExpenses from "./../pages/Dashboard/MaintainanceDashboard/MaintenanceExpenses/MaintenanceExpenses";
+import MaintenanceExpensesLayout from "./../pages/Dashboard/MaintainanceDashboard/MaintenanceExpenses/MaintenanceExpensesLayout";
+import MaintenanceExpensesOccupied from "./../pages/Dashboard/MaintainanceDashboard/MaintenanceExpenses/MaintenanceExpensesOccupied";
+import MaintenanceExpensesClear from "./../pages/Dashboard/MaintainanceDashboard/MaintenanceExpenses/MaintenanceExpensesClear";
+import ItOffices from "./../pages/Dashboard/ItDashboard/ItOffices/ItOffices";
+import ItOfficesLayout from "./../pages/Dashboard/ItDashboard/ItOffices/ItOfficesLayout";
+import ItOfficesOccupied from "./../pages/Dashboard/ItDashboard/ItOffices/ItOfficesOccupied";
+import ItOfficesClear from "./../pages/Dashboard/ItDashboard/ItOffices/ItOfficesClear";
+import ItExpenses from "./../pages/Dashboard/ItDashboard/ItExpenses/ItExpenses";
+import ItExpensesLayout from "./../pages/Dashboard/ItDashboard/ItExpenses/ItExpensesLayout";
+import ItExpensesOccupied from "./../pages/Dashboard/ItDashboard/ItExpenses/ItExpensesOccupied";
+import ItExpensesClear from "./../pages/Dashboard/ItDashboard/ItExpenses/ItExpensesClear";
 
 export const routes = createBrowserRouter([
   {
@@ -520,6 +536,44 @@ export const routes = createBrowserRouter([
                           },
                         ],
                       },
+                      {
+                        path: "maintenance-offices",
+                        element: <MaintenanceOffices />,
+                      },
+                      {
+                        path: "maintenance-offices/maintenance-offices-layout/:client",
+                        element: <MaintenanceOfficesLayout />,
+                        children: [
+                          {
+                            path: "maintenance-offices-occupied",
+                            index: true,
+                            element: <MaintenanceOfficesOccupied />,
+                          },
+                          {
+                            path: "maintenance-offices-clear",
+                            element: <MaintenanceOfficesClear />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "maintenance-expenses",
+                        element: <MaintenanceExpenses />,
+                      },
+                      {
+                        path: "maintenance-expenses/maintenance-expenses-layout/:client",
+                        element: <MaintenanceExpensesLayout />,
+                        children: [
+                          {
+                            path: "maintenance-expenses-occupied",
+                            index: true,
+                            element: <MaintenanceExpensesOccupied />,
+                          },
+                          {
+                            path: "maintenance-expenses-clear",
+                            element: <MaintenanceExpensesClear />,
+                          },
+                        ],
+                      },
                     ],
                   },
                   {
@@ -589,6 +643,44 @@ export const routes = createBrowserRouter([
                           {
                             path: "policies",
                             element: <ItPolicies />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "it-offices",
+                        element: <ItOffices />,
+                      },
+                      {
+                        path: "it-offices/it-offices-layout/:client",
+                        element: <ItOfficesLayout />,
+                        children: [
+                          {
+                            path: "it-offices-occupied",
+                            index: true,
+                            element: <ItOfficesOccupied />,
+                          },
+                          {
+                            path: "it-offices-clear",
+                            element: <ItOfficesClear />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "it-expenses",
+                        element: <ItExpenses />,
+                      },
+                      {
+                        path: "it-expenses/it-expenses-layout/:client",
+                        element: <ItExpensesLayout />,
+                        children: [
+                          {
+                            path: "it-expenses-occupied",
+                            index: true,
+                            element: <ItExpensesOccupied />,
+                          },
+                          {
+                            path: "it-expenses-clear",
+                            element: <ItExpensesClear />,
                           },
                         ],
                       },

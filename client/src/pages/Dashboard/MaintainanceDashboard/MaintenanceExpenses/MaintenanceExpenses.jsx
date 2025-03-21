@@ -14,7 +14,7 @@ import AgTable from "../../../../components/AgTable";
 import WidgetSection from "../../../../components/WidgetSection";
 import { useNavigate } from "react-router-dom";
 
-const AdminOffices = () => {
+const MaintenanceExpenses = () => {
   const navigate = useNavigate();
   const mockBusinessRevenueData = [
     {
@@ -393,7 +393,7 @@ const AdminOffices = () => {
       </div>
 
       {/* Bar Graph Component */}
-      <WidgetSection layout={1} title={"Admin Offices"} border>
+      <WidgetSection layout={1} title={"Maintenance Expenses"} border>
         <BarGraph data={graphData} options={options} height={400} />
       </WidgetSection>
 
@@ -412,7 +412,7 @@ const AdminOffices = () => {
                     onClick={() => {
                       localStorage.setItem("client", domain.name);
                       navigate(
-                        `/app/dashboard/admin-dashboard/admin-offices/admin-offices-layout/${domain.name}`
+                        `/app/dashboard/maintenance-dashboard/maintenance-expenses/maintenance-expenses-layout/${domain.name}`
                       );
                     }}>
                     {domain.name}
@@ -441,7 +441,7 @@ const AdminOffices = () => {
                       //     onClick={() => {
                       //       localStorage.setItem("client", params.data.client);
                       //       navigate(
-                      //         `/app/dashboard/admin-dashboard/admin-offices/admin-offices-layout/${params.data.client}`
+                      //         `/app/dashboard/maintenance-dashboard/maintenance-expenses/maintenance-expenses-layout/${params.data.client}`
                       //       );
                       //     }}>
                       //     {params.value}
@@ -501,4 +501,4 @@ const AdminOffices = () => {
   );
 };
 
-export default AdminOffices;
+export default MaintenanceExpenses;

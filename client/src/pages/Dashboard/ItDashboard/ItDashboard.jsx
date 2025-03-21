@@ -124,7 +124,7 @@ const ItDashboard = () => {
       layout: 3,
       widgets: [
         <DataCard
-          route={"revenue"}
+          route={"it-offices"}
           title={"Total"}
           data={"11"}
           description={"IT Offices"}
@@ -136,7 +136,7 @@ const ItDashboard = () => {
           description={"Monthly Due Tasks"}
         />,
         <DataCard
-          route={"clients"}
+          route={"it-expenses"}
           title={"Average"}
           data={"60000"}
           description={"Monthly Expense"}

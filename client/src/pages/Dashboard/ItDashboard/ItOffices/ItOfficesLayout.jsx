@@ -3,25 +3,25 @@ import React, { useEffect } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 
-const AdminOfficesLayout = () => {
+const ItOfficesLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { client } = useParams();
 
   // Map routes to tabs
   const tabs = [
-    { label: "Occupied", path: "admin-offices-occupied" },
-    { label: "Clear", path: "admin-offices-clear" },
+    { label: "Occupied", path: "it-offices-occupied" },
+    { label: "Clear", path: "it-offices-clear" },
   ];
 
   // Redirect to "view-employees" if the current path is "/hr-dashboard/compliances"
   useEffect(() => {
     if (
       location.pathname ===
-      `/app/dashboard/admin-dashboard/admin-offices/admin-offices-layout/${client}`
+      `/app/dashboard/it-dashboard/it-offices/it-offices-layout/${client}`
     ) {
       navigate(
-        `/app/dashboard/admin-dashboard/admin-offices/admin-offices-layout/${client}/admin-offices-occupied`,
+        `/app/dashboard/it-dashboard/it-offices/it-offices-layout/${client}/it-offices-occupied`,
         {
           replace: true,
         }
@@ -30,7 +30,7 @@ const AdminOfficesLayout = () => {
   }, [location, navigate]);
 
   // Determine whether to show the tabs
-  const showTabs = !location.pathname.includes("admin-offices-occupied/");
+  const showTabs = !location.pathname.includes("it-offices-occupied/");
 
   // Determine active tab based on location
   const activeTab = tabs.findIndex((tab) =>
@@ -44,7 +44,7 @@ const AdminOfficesLayout = () => {
           Office Layout ({client})
         </p>
         <p className="text-subtitle text-primary p-6">
-          <span className="font-bold">Admin Lead: </span>Machindranath Parkar
+          <span className="font-bold">IT Lead: </span>Machindranath Parkar
         </p>
       </div>
 
@@ -96,4 +96,4 @@ const AdminOfficesLayout = () => {
   );
 };
 
-export default AdminOfficesLayout;
+export default ItOfficesLayout;

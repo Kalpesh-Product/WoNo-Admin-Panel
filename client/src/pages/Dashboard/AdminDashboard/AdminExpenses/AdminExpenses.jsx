@@ -408,7 +408,7 @@ const AdminExpenses = () => {
                 id={`panel-${index}-header`}>
                 <div className="flex justify-between items-center w-full px-4">
                   <span
-                    className="text-subtitle font-pmedium"
+                    className="text-subtitle font-pmedium underline text-primary"
                     onClick={() => {
                       localStorage.setItem("client", domain.name);
                       navigate(

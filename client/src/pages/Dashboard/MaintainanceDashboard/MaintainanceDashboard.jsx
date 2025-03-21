@@ -124,7 +124,7 @@ const MaintainanceDashboard = () => {
       layout: 3,
       widgets: [
         <DataCard
-          route={"revenue"}
+          route={"maintenance-offices"}
           title={"Total"}
           data={"11"}
           description={"Offices Under Maintenance"}
@@ -136,7 +136,7 @@ const MaintainanceDashboard = () => {
           description={"Monthly Due Tasks"}
         />,
         <DataCard
-          route={"clients"}
+          route={"maintenance-expenses"}
           title={"Average"}
           data={"60000"}
           description={"Monthly Expense"}
