@@ -281,6 +281,8 @@ const addMeetings = async (req, res, next) => {
 const getAvaliableUsers = async (req, res, next) => {
   try {
     const { startTime, endTime } = req.query;
+    console.log("start time from frontend", startTime);
+    console.log("end time from frontend", endTime);
     if (!startTime || !endTime) {
       return res.status(400).json({ message: "Please provide a valid date" });
     }
@@ -295,11 +297,14 @@ const getAvaliableUsers = async (req, res, next) => {
     const start = new Date(startTime);
     const end = new Date(endTime);
 
+    console.log("converted Start time : ", start);
+    console.log("Converted End Time : ", end);
+
     const meetings = await Meeting.find({
       company: req.company,
-      $and: [{ startDate: { $lte: end } }, { endDate: { $gte: start } }],
+      $and: [{ startTime: { $lte: end } }, { endTime: { $gte: start } }],
     })
-      .select("bookedBy internalParticipants")
+      .select("bookedBy internalParticipants startTime endTime")
       .lean()
       .exec();
 
@@ -314,13 +319,15 @@ const getAvaliableUsers = async (req, res, next) => {
     });
 
     // Fetch all users and filter out unavailable ones
-    const availableUsers = await UserData.find({
+    const availableUsers = await User.find({
       company: req.company,
-      _id: { $nin: Array.from(unavailableUserIds) }, // Exclude unavailable users
+      _id: { $nin: Array.from(unavailableUserIds) },
+      isActive: true,
     })
       .select("_id firstName lastName email")
       .lean()
       .exec();
+    console.log(availableUsers.length);
 
     res.status(200).json(availableUsers);
   } catch (error) {

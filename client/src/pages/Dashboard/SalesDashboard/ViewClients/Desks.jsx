@@ -30,7 +30,7 @@ const Desks = () => {
     //   ),
     // },
     { field: "employmentID", headerName: "Booked Seats" },
-    { field: "email", headerName: "Occupied Seats", flex: 1 },
+    { field: "email", headerName: "Occupancy %", flex: 1 },
     { field: "role", headerName: "Available Seats", flex: 1 },
     // {
     //   field: "status",

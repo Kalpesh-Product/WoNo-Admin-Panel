@@ -37,29 +37,6 @@ const HrCommonAttendance = () => {
     queryFn: fetchAttendance,
   });
 
-  const rows = [
-    {
-      id: 1,
-      kra: "2025-01-01",
-    },
-    {
-      id: 2,
-      kra: "2025-02-01",
-    },
-    {
-      id: 3,
-      kra: "2025-03-01",
-    },
-    {
-      id: 4,
-      kra: "2025-04-01",
-    },
-    {
-      id: 5,
-      kra: "2025-05-01",
-    },
-  ];
-
   return (
     <div className="flex flex-col gap-8">
       <div>

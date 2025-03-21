@@ -106,6 +106,7 @@ const BudgetDisplay = ({ budgetData }) => {
     chart: {
       type: "bar",
       stacked: true,
+      fontFamily : "Poppins-Regular"
     },
     plotOptions: {
       bar: {
@@ -127,9 +128,6 @@ const BudgetDisplay = ({ budgetData }) => {
     },
     xaxis: {
       categories: [
-        "January",
-        "February",
-        "March",
         "April",
         "May",
         "June",
@@ -139,6 +137,9 @@ const BudgetDisplay = ({ budgetData }) => {
         "October",
         "November",
         "December",
+        "January",
+        "February",
+        "March",
       ],
     },
     yaxis: {
@@ -186,8 +187,8 @@ const BudgetDisplay = ({ budgetData }) => {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="border-default border-borderGray rounded-md">
-        <WidgetSection layout={1} title={"BUDGET 2024"}>
+      <div className="rounded-md">
+        <WidgetSection border layout={1} title={"BUDGET 2024"}>
           <LayerBarGraph options={optionss} data={data} />
         </WidgetSection>
       </div>

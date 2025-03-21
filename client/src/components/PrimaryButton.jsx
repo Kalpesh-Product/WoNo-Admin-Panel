@@ -1,5 +1,6 @@
 import React from "react";
 import { CircularProgress } from "@mui/material"; // Import MUI Spinner
+import { motion } from "motion/react";
 
 const PrimaryButton = ({
   title,
@@ -11,7 +12,9 @@ const PrimaryButton = ({
   isLoading, // New prop for showing the spinner
 }) => {
   return (
-    <button
+    <motion.button
+      whileHover={{scale:1.050}}
+      whileTap={{scale:0.9}}
       disabled={disabled || isLoading} // Disable if loading
       type={type}
       className={`px-8 py-2 flex items-center justify-center gap-2 ${
@@ -21,9 +24,10 @@ const PrimaryButton = ({
       } ${externalStyles}`}
       onClick={handleSubmit}
     >
-      {isLoading && <CircularProgress size={16} color="inherit" />} {/* Spinner */}
+      {isLoading && <CircularProgress size={16} color="inherit" />}{" "}
+      {/* Spinner */}
       <span>{isLoading ? `${title}ing` : title}</span>
-    </button>
+    </motion.button>
   );
 };
 

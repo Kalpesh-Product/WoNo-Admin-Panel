@@ -14,6 +14,7 @@ import { Controller, useForm } from "react-hook-form";
 import useAuth from "../../hooks/useAuth";
 import { toast } from "sonner";
 import { queryClient } from "../../";
+import humanDate from "../../utils/humanDateForamt";
 
 const Reviews = () => {
   const axios = useAxiosPrivate();
@@ -183,11 +184,12 @@ const Reviews = () => {
                 id: review._id,
                 srno: index + 1,
                 nameofreview: review.reviewerName,
-                date: new Intl.DateTimeFormat("en-GB", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                }).format(new Date(review.meeting.startDate)),
+                // date: new Intl.DateTimeFormat("en-GB", {
+                //   day: "numeric",
+                //   month: "long",
+                //   year: "numeric",
+                // }).format(new Date(review.meeting.startDate)),
+                date : humanDate(review.createdAt),
                 rate: review.rate,
                 Reviews: review.review,
                 action: review?.reply ? "Replied" : "Reply Review",

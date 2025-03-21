@@ -1,9 +1,13 @@
 import React from "react";
 import Card from "../../../components/Card";
-import { MdFormatListBulleted, MdOutlineMiscellaneousServices } from "react-icons/md";
+import {
+  MdFormatListBulleted,
+  MdOutlineMiscellaneousServices,
+} from "react-icons/md";
 import { SiCashapp, SiGoogleadsense } from "react-icons/si";
 import WidgetSection from "../../../components/WidgetSection";
 import LayerBarGraph from "../../../components/graphs/LayerBarGraph";
+import DataCard from "../../../components/DataCard";
 
 const MaintainanceDashboard = () => {
   const utilisedData = [125, 150, 99, 85, 70, 50, 80, 95, 100, 65, 50, 120];
@@ -86,15 +90,79 @@ const MaintainanceDashboard = () => {
       ],
     },
     {
-      layout: 4,
+      layout: 6,
       widgets: [
+        <Card
+          icon={<MdFormatListBulleted />}
+          title="Annual Expenses"
+          route={"/app/dashboard/maintenance-dashboard/annual-expenses"}
+        />,
+        <Card
+          icon={<MdFormatListBulleted />}
+          title="Inventory"
+          route={"/app/dashboard/maintenance-dashboard/inventory"}
+        />,
+        <Card
+          icon={<SiCashapp />}
+          title="Finance"
+          route={"/app/dashboard/maintenance-dashboard/finance"}
+        />,
         <Card icon={<MdFormatListBulleted />} title="Mix-Bag" />,
-        <Card icon={<SiCashapp />} title="Finance" route={"finance"} />,
-        <Card icon={<SiGoogleadsense />} title="Data" />,
+        <Card
+          icon={<SiGoogleadsense />}
+          title="Data"
+          route={"/app/dashboard/maintenance-dashboard/data"}
+        />,
         <Card
           icon={<MdOutlineMiscellaneousServices />}
           title="Settings"
-          
+          route={"/app/dashboard/maintenance-dashboard/settings"}
+        />,
+      ],
+    },
+    {
+      layout: 3,
+      widgets: [
+        <DataCard
+          route={"revenue"}
+          title={"Total"}
+          data={"11"}
+          description={"Offices Under Maintenance"}
+        />,
+        <DataCard
+          route={"revenue"}
+          title={"Total"}
+          data={"38"}
+          description={"Monthly Due Tasks"}
+        />,
+        <DataCard
+          route={"clients"}
+          title={"Average"}
+          data={"60000"}
+          description={"Monthly Expense"}
+        />,
+      ],
+    },
+    {
+      layout: 3,
+      widgets: [
+        <DataCard
+          route={"co-working-seats"}
+          title={"Total"}
+          data={"1000"}
+          description={"Co-working Seats"}
+        />,
+        <DataCard
+          route={"co-working-seats"}
+          title={"Booked"}
+          data={"800"}
+          description={"Co-working Seats"}
+        />,
+        <DataCard
+          route={"revenue"}
+          title={"Free"}
+          data={"200"}
+          description={"Co-working Seats"}
         />,
       ],
     },
