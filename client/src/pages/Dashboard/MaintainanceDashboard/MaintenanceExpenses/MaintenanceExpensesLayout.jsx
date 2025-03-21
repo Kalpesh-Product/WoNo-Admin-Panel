@@ -3,25 +3,25 @@ import React, { useEffect } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 
-const AdminOfficesLayout = () => {
+const MaintenanceExpensesLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { client } = useParams();
 
   // Map routes to tabs
   const tabs = [
-    { label: "Occupied", path: "admin-offices-occupied" },
-    { label: "Clear", path: "admin-offices-clear" },
+    { label: "Occupied", path: "maintenance-expenses-occupied" },
+    { label: "Clear", path: "maintenance-expenses-clear" },
   ];
 
   // Redirect to "view-employees" if the current path is "/hr-dashboard/compliances"
   useEffect(() => {
     if (
       location.pathname ===
-      `/app/dashboard/admin-dashboard/admin-offices/admin-offices-layout/${client}`
+      `/app/dashboard/maintenance-dashboard/maintenance-expenses/maintenance-expenses-layout/${client}`
     ) {
       navigate(
-        `/app/dashboard/admin-dashboard/admin-offices/admin-offices-layout/${client}/admin-offices-occupied`,
+        `/app/dashboard/maintenance-dashboard/maintenance-expenses/maintenance-expenses-layout/${client}/maintenance-expenses-occupied`,
         {
           replace: true,
         }
@@ -30,7 +30,9 @@ const AdminOfficesLayout = () => {
   }, [location, navigate]);
 
   // Determine whether to show the tabs
-  const showTabs = !location.pathname.includes("admin-offices-occupied/");
+  const showTabs = !location.pathname.includes(
+    "maintenance-expenses-occupied/"
+  );
 
   // Determine active tab based on location
   const activeTab = tabs.findIndex((tab) =>
@@ -44,7 +46,7 @@ const AdminOfficesLayout = () => {
           Office Layout ({client})
         </p>
         <p className="text-subtitle text-primary p-6">
-          <span className="font-bold">Admin Lead: </span>Machindranath Parkar
+          <span className="font-bold">Maintenance Lead: </span>Amol Kakade
         </p>
       </div>
 
@@ -96,4 +98,4 @@ const AdminOfficesLayout = () => {
   );
 };
 
-export default AdminOfficesLayout;
+export default MaintenanceExpensesLayout;

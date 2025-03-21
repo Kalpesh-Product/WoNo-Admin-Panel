@@ -329,6 +329,7 @@ const ItDashboard = () => {
           data={"05"}
           title={"Offices"}
           description={"Under Management"}
+          route={"it-offices"}
         />,
         <DataCard
           data={"58"}
@@ -347,8 +348,9 @@ const ItDashboard = () => {
           description={"Expense per sq.ft"}
         />,
         <DataCard
-          data={"3500"}
-          title={"Avergae"}
+          route={"it-expenses"}
+          title={"Average"}
+          data={"60000"}
           description={"Monthly Expense"}
         />,
         <DataCard
