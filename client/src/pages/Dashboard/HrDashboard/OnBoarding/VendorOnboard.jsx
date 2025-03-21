@@ -21,11 +21,8 @@ const VendorOnboard = () => {
   const [selectedCountry, setSelectedCountry] = useState("");
   const [fetched, setFetched] = useState(false);
 
-  console.log(auth.user.departments.map((department)=>department._id))
-
   useEffect(() => {
     setCountries(Country.getAllCountries());
-    console.log(countries);
   }, []);
 
   // Fetch states when a country is selected
@@ -137,7 +134,6 @@ const VendorOnboard = () => {
   ];
 
   const onSubmit = (data) => {
-    console.log(data);
     vendorDetails(data);
   };
 
