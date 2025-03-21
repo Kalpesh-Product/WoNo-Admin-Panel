@@ -4,6 +4,7 @@ const {
   createCoworkingClient,
   getCoworkingClients,
   bulkInsertCoworkingClients,
+  uploadClientOccupancyImage,
 } = require("../controllers/salesControllers/coworkingClientControllers");
 const {
   createClientService,
@@ -26,13 +27,13 @@ const {
   getBookedDesks,
 } = require("../controllers/salesControllers/deskController");
 
-const {
-  uploadUnitImage,
-} = require("../controllers/salesControllers/coworkingClientControllers");
-
 router.post("/onboard-client", createCoworkingClient);
 router.get("/clients", getCoworkingClients);
-router.post("/upload-unit-image", upload.single("unitImage"), uploadUnitImage);
+router.post(
+  "/upload-unit-image",
+  upload.single("unitImage"),
+  uploadClientOccupancyImage
+);
 router.post("/create-service", createClientService);
 router.get("/services", getClientServices);
 router.post("/create-lead", createLead);

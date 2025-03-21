@@ -487,7 +487,7 @@ const bulkInsertCoworkingClients = async (req, res, next) => {
   }
 };
 
-const uploadUnitImage = async (req, res, next) => {
+const uploadClientOccupancyImage = async (req, res, next) => {
   const logPath = "sales/salesLog";
   const logAction = "Upload Unit Image";
   const logSourceKey = "client";
@@ -558,7 +558,7 @@ const uploadUnitImage = async (req, res, next) => {
     try {
       const buffer = await sharp(file.buffer).webp({ quality: 80 }).toBuffer();
       const base64Image = `data:image/webp;base64,${buffer.toString("base64")}`;
-      const folderPath = `${unit.company.companyName}/work-locations/${unit.building.buildingName}/${unit.unitName}`;
+      const folderPath = `${unit.company.companyName}/clients/co-working/${unit.building.buildingName}/${unit.unitName}/${client.clientName}`;
       const uploadResult = await handleFileUpload(base64Image, folderPath);
       if (!uploadResult.public_id) {
         throw new Error("Failed to upload image");
@@ -578,7 +578,21 @@ const uploadUnitImage = async (req, res, next) => {
 
     // Update the client document with the new image details
     client[imageType] = imageDetails;
-    await client.save();
+
+    const updatedClient = await CoworkingClient.findByIdAndUpdate(
+      { _id: clientId },
+      { $set: { [imageType]: imageDetails } },
+      { new: true }
+    );
+
+    if (!updatedClient || !updatedClient[imageType]) {
+      throw new CustomError(
+        "Failed to upload the image",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
 
     // Log the successful update
     await createLog({
@@ -615,5 +629,5 @@ module.exports = {
   deleteCoworkingClient,
   getCoworkingClients,
   bulkInsertCoworkingClients,
-  uploadUnitImage,
+  uploadClientOccupancyImage,
 };
