@@ -7,20 +7,24 @@ const clientSchema = new mongoose.Schema(
       ref: "Company",
     },
     clientName: {
-      type: String
+      type: String,
+      required: true,
     },
     service: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "ClientService",
     },
     sector: {
-      type: String
+      type: String,
+      required: true,
     },
     hoCity: {
-      type: String
+      type: String,
+      required: true,
     },
     hoState: {
-      type: String
+      type: String,
+      required: true,
     },
     unit: {
       type: mongoose.Schema.Types.ObjectId,
@@ -38,7 +42,8 @@ const clientSchema = new mongoose.Schema(
       type: Number,
     },
     ratePerDesk: {
-      type: Number
+      type: Number,
+      required: true,
     },
     annualIncrement: {
       type: Number,
@@ -52,13 +57,16 @@ const clientSchema = new mongoose.Schema(
       default: 0,
     },
     startDate: {
-      type: Date
+      type: Date,
+      required: true,
     },
     endDate: {
-      type: Date
+      type: Date,
+      required: true,
     },
     lockinPeriod: {
-      type: Number
+      type: Number,
+      required: true,
     },
     clearImage: {
       imageId: String,
@@ -68,10 +76,6 @@ const clientSchema = new mongoose.Schema(
       imageId: String,
       imageUrl: String,
     },
-    bookingType: {
-      type: String,
-      enum: ["SPV", "Direct"],
-    },
     rentDate: { type: Date, required: true },
     nextIncrement: {
       type: Date,
@@ -79,9 +83,11 @@ const clientSchema = new mongoose.Schema(
     localPoc: {
       name: {
         type: String,
+        required: true,
       },
       email: {
         type: String,
+        required: true,
         unique: true,
         trim: true,
         lowercase: true,
@@ -97,9 +103,11 @@ const clientSchema = new mongoose.Schema(
     hOPoc: {
       name: {
         type: String,
+        required: true,
       },
       email: {
         type: String,
+        required: true,
         unique: true,
         trim: true,
         lowercase: true,
