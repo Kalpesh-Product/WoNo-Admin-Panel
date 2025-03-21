@@ -367,9 +367,40 @@ const AdminDashboard = () => {
       };
     })
     .filter((item) => item.isUpcoming);
-
-  console.log("upcoming Birthdays : ", upcomingBirthdays);
   //-----------------------------------------------------------------------------------------------------------------//
+  const clientAnniversaryData = [
+    {client : "Zomato", dateOfJoin : '21-03-2023'},
+    {client : "Flipkart", dateOfJoin : '20-09-2023'},
+    {client : "Nykaa", dateOfJoin : '15-08-2019'},
+    {client : "SquadStack", dateOfJoin : '25-03-2024'}
+  ]
+
+  const upComingClientAnniversary = clientAnniversaryData.map((item) => {
+    const doj = dayjs(item.dateOfJoin,"DD-MM-YYYY");
+    const thisYearAnniversary = doj.set("year",today.year())
+    const anniversary = thisYearAnniversary.isBefore(today) ? thisYearAnniversary.add(1,"year") : thisYearAnniversary
+    const completedYears = today.diff(doj,'years')
+    const upComingIn = anniversary.diff(today,'days')
+
+    return{
+      ...item,
+      upComingIn : upComingIn,
+      completedYears : completedYears,
+      thisYearAnniversary : thisYearAnniversary.format("DD-MM-YYYY"),
+      isUpcoming : anniversary.isBefore(cutOff) && anniversary.isAfter(today.subtract(1,"day"))
+    }
+  }).filter((item)=>item.isUpcoming)
+
+  const upComingClientAnniversaryColumns = [
+    {id:"id", label : "ID", align : 'left'},
+    {id:"client", label : "Client", align : 'left'},
+    {id:"dateOfJoin", label : "Date of Join", align : 'left'},
+    {id:"completedYears", label : "Completed Years", align : 'left'},
+    {id:"upComingIn", label : "Upcoming in", align : 'left'},
+  ]
+ 
+
+  console.log("upcomingClientAnniversary : ", upComingClientAnniversary)
   //-----------------------------------------------------------------------------------------------------------------//
   const techWidgets = [
     {
@@ -551,6 +582,24 @@ const AdminDashboard = () => {
               upComingIn: (item.upComingIn === 0 ? 'Today' : item.upComingIn),
               company: item.company,
               completedYears: item.completedYears,
+            })),
+          ]}
+        />,
+        <MuiTable
+          columns={upComingClientAnniversaryColumns}
+          scroll
+          rowsToDisplay={3}
+          Title={"Upcoming Client Anniversaries"}
+          rows={
+            [
+            ...upComingClientAnniversary
+            .sort((a,b)=>a.upComingIn-b.upComingIn)
+            .map((item, index) => ({
+              id: index + 1,
+              client: item.client,
+              dateOfJoin : item.dateOfJoin,
+              upComingIn: (item.upComingIn === 0 ? 'Today' : `${item.upComingIn} days`),
+              completedYears: `${item.completedYears} years`,
             })),
           ]}
         />,
