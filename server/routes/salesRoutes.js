@@ -23,7 +23,8 @@ const {
 const {
   getAvailableDesks,
   getBookedDesks,
-} = require("../controllers/salesControllers/deskControllers");
+} = require("../controllers/salesControllers/deskController");
+
 const {
   uploadUnitImage,
 } = require("../controllers/salesControllers/coworkingClientControllers");
