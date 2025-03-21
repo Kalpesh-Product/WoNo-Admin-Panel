@@ -445,7 +445,7 @@ const bulkInsertCoworkingClients = async (req, res, next) => {
           lockinPeriod: parseInt(lockinPeriod) || 0,
           bookingType,
           rentDate: rentDate ? new Date(rentDate) : null,
-          nextIncrement: rentDate ? new Date(rentDate) : null, // Assuming next increment starts from rent date
+          nextIncrement: rentDate ? new Date(rentDate) : null, 
           localPoc: {
             name: localPocName,
             email: localPocEmail,
@@ -463,7 +463,7 @@ const bulkInsertCoworkingClients = async (req, res, next) => {
       })
       .on("end", async () => {
         try {
-          if (coWorkingClients.length === 0) {
+          if (!coWorkingClients.length) {
             return res
               .status(400)
               .json({ message: "No valid clients found in the file" });
@@ -553,7 +553,6 @@ const uploadClientOccupancyImage = async (req, res, next) => {
       await handleFileDelete(client[imageType].imageId);
     }
 
-    // Process image: resize, convert to WebP, and upload
     let imageDetails = null;
     try {
       const buffer = await sharp(file.buffer).webp({ quality: 80 }).toBuffer();
