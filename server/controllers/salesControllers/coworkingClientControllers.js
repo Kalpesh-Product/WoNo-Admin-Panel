@@ -200,7 +200,7 @@ const createCoworkingClient = async (req, res, next) => {
         }
       );
     } else {
-      const booking = await Desk({
+      const booking = new Desk({
         unit,
         bookedDesks,
         availableDesks,
@@ -313,7 +313,7 @@ const getCoworkingClients = async (req, res, next) => {
       .lean()
       .exec();
 
-    if (!clients || clients.length === 0) {
+    if (!clients?.length) {
       return res.status(404).json({ message: "No clients found" });
     }
 
@@ -382,7 +382,6 @@ const bulkInsertCoworkingClients = async (req, res, next) => {
 
     const unitMap = new Map(units.map((unit) => [unit.unitNo, unit._id]));
 
-    // Convert file buffer to readable stream
     const stream = Readable.from(file.buffer.toString("utf-8").trim());
 
     let coWorkingClients = [];
@@ -418,7 +417,7 @@ const bulkInsertCoworkingClients = async (req, res, next) => {
         const unitId = unitMap.get(unitNo);
         if (!unitId) {
           console.warn(`Unit not found for unitNo: ${unitNo}`);
-          return; // Skip this row if unit is not found
+          return; 
         }
 
         const totalDesks = parseInt(cabinDesks) + parseInt(openDesks);
@@ -469,7 +468,6 @@ const bulkInsertCoworkingClients = async (req, res, next) => {
               .json({ message: "No valid clients found in the file" });
           }
 
-          // Insert into MongoDB
           await CoworkingClient.insertMany(coWorkingClients);
           res.status(201).json({
             message: `${coWorkingClients.length} clients inserted successfully`,
