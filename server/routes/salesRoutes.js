@@ -27,8 +27,8 @@ const {
   getBookedDesks,
 } = require("../controllers/salesControllers/deskController");
 
-router.post("/onboard-client", createCoworkingClient);
-router.get("/clients", getCoworkingClients);
+router.post("/onboard-co-working-client", createCoworkingClient);
+router.get("/co-working-clients", getCoworkingClients);
 router.post(
   "/upload-unit-image",
   upload.single("unitImage"),
