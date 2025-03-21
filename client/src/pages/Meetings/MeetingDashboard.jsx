@@ -25,25 +25,7 @@ const MeetingDashboard = () => {
         "/api/meetings/get-meetings-type?type=Internal"
       );
 
-      const parseTime = (timeStr) => {
-        const [time, modifier] = timeStr.split(" ");
-        let [hours, minutes] = time.split(":").map(Number);
-        if (modifier === "PM" && hours !== 12) hours += 12;
-        if (modifier === "AM" && hours === 12) hours = 0;
-        return hours * 60 + minutes; // Convert to total minutes for comparison
-      };
-
-      const sortedMeetings = response.data.sort(
-        (a, b) => parseTime(a.endTime) - parseTime(b.endTime)
-      );
-
-      const formattedMeetings = sortedMeetings.map((meeting, index) => ({
-        srNo: index + 1, // Assign serial number after sorting
-        ...meeting,
-      }));
-
-      console.log("Sorted & Formatted Internal Meetings:", formattedMeetings);
-      return formattedMeetings;
+      return response.data;
     },
   });
 
@@ -54,124 +36,15 @@ const MeetingDashboard = () => {
       const response = await axios.get(
         "/api/meetings/get-meetings-type?type=External"
       );
-
-      const parseTime = (timeStr) => {
-        const [time, modifier] = timeStr.split(" ");
-        let [hours, minutes] = time.split(":").map(Number);
-        if (modifier === "PM" && hours !== 12) hours += 12;
-        if (modifier === "AM" && hours === 12) hours = 0;
-        return hours * 60 + minutes; // Convert to total minutes for comparison
-      };
-
-      const sortedMeetings = response.data.sort(
-        (a, b) => parseTime(a.endTime) - parseTime(b.endTime)
-      );
-
-      const formattedMeetings = sortedMeetings.map((meeting, index) => ({
-        srNo: index + 1, // Assign serial number after sorting
-        ...meeting,
-      }));
-
-      console.log("Sorted & Formatted External Meetings:", formattedMeetings);
-      return formattedMeetings;
+      return response.data;
     },
   });
 
   const meetingColumns = [
-    { id: "srNo", label: "ID", align: "left" },
-    { id: "company", label: "Company", align: "left" },
+    { id: "id", label: "ID", align: "left" },
     { id: "roomName", label: "Meeting Rooms", align: "left" },
-    { id: "location", label: "Location", align: "left" },
+    { id: "unitName", label: "Location", align: "left" },
     { id: "endTime", label: "End Time", align: "left" },
-  ];
-
-  const meetingInternalRows = [
-    {
-      id: 1,
-      company: "Zomato",
-      meetingRooms: "Baga",
-      location: "ST-701",
-      endTime: "02:30 PM",
-    },
-    {
-      id: 2,
-      company: "SquadStack",
-      meetingRooms: "Atlantis",
-      location: "ST-501",
-      endTime: "03:00 PM",
-    },
-    {
-      id: 3,
-      company: "Axis Bank",
-      meetingRooms: "Vatican",
-      location: "ST-601",
-      endTime: "03:45 PM",
-    },
-    {
-      id: 4,
-      company: "CloudNet",
-      meetingRooms: "Calangute",
-      location: "ST-701",
-      endTime: "04:15 PM",
-    },
-    {
-      id: 5,
-      company: "IBDO",
-      meetingRooms: "Miami",
-      location: "ST-601",
-      endTime: "04:45 PM",
-    },
-    {
-      id: 6,
-      company: "Turtlemint",
-      meetingRooms: "Arambol",
-      location: "ST-701",
-      endTime: "05:30 PM",
-    },
-    {
-      id: 7,
-      company: "Zimetrics",
-      meetingRooms: "Colosseum",
-      location: "ST-601",
-      endTime: "06:00 PM",
-    },
-  ];
-  const meetingExternalRows = [
-    {
-      id: 1,
-      company: "MCaffiene",
-      meetingRooms: "Baga",
-      location: "ST-701",
-      endTime: "02:30 PM",
-    },
-    {
-      id: 2,
-      company: "Google",
-      meetingRooms: "Atlantis",
-      location: "ST-501",
-      endTime: "03:00 PM",
-    },
-    {
-      id: 3,
-      company: "Facebook",
-      meetingRooms: "Vatican",
-      location: "ST-601",
-      endTime: "03:45 PM",
-    },
-    {
-      id: 4,
-      company: "Apple",
-      meetingRooms: "Calangute",
-      location: "ST-701",
-      endTime: "04:15 PM",
-    },
-    {
-      id: 5,
-      company: "Netflix",
-      meetingRooms: "Miami",
-      location: "ST-601",
-      endTime: "04:45 PM",
-    },
   ];
 
   const externalGuestsData = [
@@ -436,7 +309,7 @@ const MeetingDashboard = () => {
     //   yaxis: [
     //     {
     //       y: 100,
-    //       borderColor: "#ff0000", 
+    //       borderColor: "#ff0000",
     //       borderWidth: 3,
     //       strokeDashArray: 0, // Solid line
     //       label: {
@@ -670,15 +543,30 @@ const MeetingDashboard = () => {
         <MuiTable
           Title={"Internal Ongoing Meeting Hourly"}
           // rows={meetingInternalRows}
-          rows={meetingsInternal}
+          rows={[
+            ...meetingsInternal.map((item, index) => ({
+              id: index + 1,
+              roomName: item.roomName,
+              meetingType: item.meetingType,
+              endTime: item.endTime,
+              unitName: item.location?.unitName,
+            })),
+          ]}
           columns={meetingColumns}
           rowsToDisplay={5}
           scroll={true}
         />,
         <MuiTable
           Title={"External Ongoing Meeting Hourly"}
-          // rows={meetingExternalRows}
-          rows={meetingsExternal}
+          rows={[
+            ...meetingsExternal.map((item, index) => ({
+              id: index + 1,
+              roomName: item.roomName,
+              meetingType: item.meetingType,
+              endTime: item.endTime,
+              unitName: item.location?.unitName,
+            })),
+          ]}
           columns={meetingColumns}
           rowsToDisplay={5}
           scroll={true}

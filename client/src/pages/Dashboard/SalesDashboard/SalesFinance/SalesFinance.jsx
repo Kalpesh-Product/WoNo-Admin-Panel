@@ -51,8 +51,7 @@ const ManageAssets = () => {
               backgroundColor: "#1E3D73",
               color: "white",
             },
-          }}
-        >
+          }}>
           {tabs.map((tab, index) => (
             <NavLink
               key={index}
@@ -66,8 +65,7 @@ const ManageAssets = () => {
                 padding: "12px 16px",
                 display: "block",
                 backgroundColor: isActive ? "#1E3D73" : "white",
-              })}
-            >
+              })}>
               {tab.label}
             </NavLink>
           ))}

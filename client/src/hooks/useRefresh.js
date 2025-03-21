@@ -8,7 +8,6 @@ export default function useRefresh() {
       const response = await api.get("/api/auth/refresh", {
         withCredentials: true,
       });
-      console.log("response", response.data)
       setAuth((prevState) => {
         return {
           ...prevState,

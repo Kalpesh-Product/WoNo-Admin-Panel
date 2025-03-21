@@ -34,13 +34,11 @@ const ViewEmployees = () => {
             cursor: "pointer",
           }}
           onClick={() => {
-
-            localStorage.setItem("employeeName",params.data.employeeName) 
-            navigate(`/app/dashboard/HR-dashboard/employee/view-employees/${params.data.employmentID}`)
-        }
-        }
-
-        >
+            localStorage.setItem("employeeName", params.data.employeeName);
+            navigate(
+              `/app/dashboard/HR-dashboard/employee/view-employees/${params.data.employmentID}`
+            );
+          }}>
           {params.value}
         </span>
       ),
@@ -52,7 +50,6 @@ const ViewEmployees = () => {
       field: "status",
       headerName: "Status",
       cellRenderer: (params) => {
-
         const statusText = params.value ? "Active" : "InActive";
         const statusColorMap = {
           Active: { backgroundColor: "#90EE90", color: "#006400" },
@@ -82,15 +79,21 @@ const ViewEmployees = () => {
         <AgTable
           search={true}
           searchColumn="Email"
-          data={isLoading? []:[...employees.map((employee, index)=>({
-            id : employee._id,
-            srno: index + 1,
-            employeeName : employee.firstName,
-            employmentID : employee.empId,
-            email : employee.email,
-            role : employee.role.map(r=>r.roleTitle),
-            status : employee.isActive,
-           }))]}
+          data={
+            isLoading
+              ? []
+              : [
+                  ...employees.map((employee, index) => ({
+                    id: employee._id,
+                    srno: index + 1,
+                    employeeName: employee.firstName,
+                    employmentID: employee.empId,
+                    email: employee.email,
+                    role: employee.role.map((r) => r.roleTitle),
+                    status: employee.isActive,
+                  })),
+                ]
+          }
           columns={viewEmployeeColumns}
         />
       </div>

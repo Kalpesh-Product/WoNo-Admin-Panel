@@ -53,7 +53,7 @@ const Templates = () => {
         {templateData.map((template, index) => (
           <div
             key={index}
-            onClick={() => navigate(`view-template/${template.id}`)}
+            onClick={() => navigate(`${template.id}`)}
             className="bg-white shadow-md rounded-lg overflow-hidden border">
             <div className="h-48">
               <img
