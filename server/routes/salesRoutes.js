@@ -3,6 +3,7 @@ const router = require("express").Router();
 const {
   createCoworkingClient,
   getCoworkingClients,
+  bulkInsertCoworkingClients,
 } = require("../controllers/salesControllers/coworkingClientControllers");
 const {
   createClientService,
@@ -41,5 +42,10 @@ router.get("/booked-desks/:serviceId", getBookedDesks);
 router.post("/bulk-insert-leads", upload.single("leads"), bulkInsertLeads);
 router.post("/add-revenue", addRevenue);
 router.get("/fetch-revenues", getRevenues);
+router.post(
+  "/bulk-insert-co-working-clients",
+  upload.single("clients"),
+  bulkInsertCoworkingClients
+);
 
 module.exports = router;
