@@ -2,6 +2,7 @@ const Visitor = require("../../models/visitor/Visitor");
 
 const fetchVisitors = async (req, res, next) => {
   const { company } = req;
+  const { query } = req.query;
   try {
     let visitors;
 
@@ -55,4 +56,82 @@ const fetchVisitors = async (req, res, next) => {
   }
 };
 
-module.exports = { fetchVisitors };
+const addVisitor = async (req, res, next) => {
+  try {
+    const {
+      fullName,
+      email,
+      gender,
+      address,
+      phoneNumber,
+      purposeOfVisit,
+      idProof,
+      dateOfVisit,
+      checkIn,
+      checkOut,
+      toMeet,
+      department,
+      visitorType,
+      visitorCompany,
+    } = req.body;
+
+    const company = req.company;
+
+    if (!company) {
+      return res
+        .status(400)
+        .json({ message: "Company information is required." });
+    }
+
+    const newVisitor = new Visitor({
+      fullName,
+      email,
+      gender,
+      address,
+      phoneNumber,
+      purposeOfVisit,
+      idProof,
+      dateOfVisit,
+      checkIn,
+      checkOut,
+      toMeet,
+      company,
+      department,
+      visitorType,
+      visitorCompany,
+    });
+
+    await newVisitor.save();
+
+    res
+      .status(201)
+      .json({ message: "Visitor added successfully", visitor: newVisitor });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateVisitor = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    const updatedVisitor = await Visitor.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedVisitor) {
+      return res.status(404).json({ message: "Visitor not found" });
+    }
+
+    res.status(200).json({
+      message: "Visitor updated successfully",
+      visitor: updatedVisitor,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { fetchVisitors, addVisitor, updateVisitor };

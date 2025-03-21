@@ -41,9 +41,11 @@ const clientSchema = new mongoose.Schema(
     totalDesks: {
       type: Number,
     },
-    ratePerDesk: {
+    ratePerOpenDesk: {
       type: Number,
-      required: true,
+    },
+    ratePerOpenDesk: {
+      type: Number,
     },
     annualIncrement: {
       type: Number,
@@ -67,10 +69,6 @@ const clientSchema = new mongoose.Schema(
     lockinPeriod: {
       type: Number,
       required: true,
-    },
-    clearImage: {
-      imageId: String,
-      imageUrl: String,
     },
     occupiedImage: {
       imageId: String,
