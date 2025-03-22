@@ -1,4 +1,6 @@
 const Visitor = require("../../models/visitor/Visitor");
+const CustomError = require("../../utils/customErrorlogs");
+const { createLog } = require("../../utils/moduleLogs");
 
 const fetchVisitors = async (req, res, next) => {
   const { company } = req;
@@ -50,14 +52,28 @@ const fetchVisitors = async (req, res, next) => {
         );
     }
 
-    res.status(200).json(visitors);
+    return res.status(200).json(visitors);
   } catch (error) {
     next(error);
   }
 };
 
 const addVisitor = async (req, res, next) => {
+  const logPath = "visitor/VisitorLog";
+  const logAction = "Add Visitor";
+  const logSourceKey = "visitor";
+  const { user, ip, company } = req;
+
   try {
+    if (!company) {
+      throw new CustomError(
+        "Company information is required.",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
     const {
       fullName,
       email,
@@ -74,14 +90,6 @@ const addVisitor = async (req, res, next) => {
       visitorType,
       visitorCompany,
     } = req.body;
-
-    const company = req.company;
-
-    if (!company) {
-      return res
-        .status(400)
-        .json({ message: "Company information is required." });
-    }
 
     const newVisitor = new Visitor({
       fullName,
@@ -103,15 +111,40 @@ const addVisitor = async (req, res, next) => {
 
     await newVisitor.save();
 
-    res
-      .status(201)
-      .json({ message: "Visitor added successfully", visitor: newVisitor });
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Visitor added successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: newVisitor._id,
+      changes: { fullName, email, phoneNumber, purposeOfVisit },
+    });
+
+    return res.status(201).json({
+      message: "Visitor added successfully",
+      visitor: newVisitor,
+    });
   } catch (error) {
-    next(error);
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
 const updateVisitor = async (req, res, next) => {
+  const logPath = "visitor/VisitorLog";
+  const logAction = "Update Visitor";
+  const logSourceKey = "visitor";
+  const { user, ip, company } = req;
+
   try {
     const { id } = req.params;
     const updateData = req.body;
@@ -122,15 +155,39 @@ const updateVisitor = async (req, res, next) => {
     });
 
     if (!updatedVisitor) {
-      return res.status(404).json({ message: "Visitor not found" });
+      throw new CustomError(
+        "Visitor not found",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
-    res.status(200).json({
+    await createLog({
+      path: logPath,
+      action: logAction,
+      remarks: "Visitor updated successfully",
+      status: "Success",
+      user: user,
+      ip: ip,
+      company: company,
+      sourceKey: logSourceKey,
+      sourceId: updatedVisitor._id,
+      changes: updateData,
+    });
+
+    return res.status(200).json({
       message: "Visitor updated successfully",
       visitor: updatedVisitor,
     });
   } catch (error) {
-    next(error);
+    if (error instanceof CustomError) {
+      next(error);
+    } else {
+      next(
+        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+      );
+    }
   }
 };
 
