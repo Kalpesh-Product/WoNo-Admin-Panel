@@ -29,6 +29,7 @@ const techRoutes = require("./routes/techRoutes");
 const budgetRoutes = require("./routes/budgetRoutes");
 const payrollRoutes = require("./routes/payrollRoutes");
 const salesRoutes = require("./routes/salesRoutes");
+const visitorRoutes = require("./routes/visitorRoutes");
 const websiteRoutes = require("./routes/websiteTemplatesRoutes");
 const getLogs = require("./controllers/logController");
 const app = express();
@@ -76,6 +77,7 @@ app.use("/api/payroll", payrollRoutes);
 app.use("/api/tasks", verifyJwt, taskRoutes);
 app.use("/api/attendance", verifyJwt, attendanceRoutes);
 app.use("/api/sales", verifyJwt, salesRoutes);
+app.use("/api/visitors", verifyJwt, visitorRoutes);
 app.use("/api/logs/:path", verifyJwt, getLogs);
 app.all("*", (req, res) => {
   if (req.accepts("html")) {
