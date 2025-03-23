@@ -34,6 +34,7 @@ const getLogs = require("./controllers/logController");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+
 connectDb(process.env.DB_URL);
 
 app.use(credentials);
