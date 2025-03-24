@@ -11,6 +11,7 @@ const {
   handleFileUpload,
 } = require("../../config/cloudinaryConfig");
 const sharp = require("sharp");
+const ClientService = require("../../models/sales/ClientService");
 
 const createCoworkingClient = async (req, res, next) => {
   const logPath = "sales/SalesLog";
