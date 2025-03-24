@@ -407,14 +407,7 @@ const MaintenanceExpenses = () => {
                 aria-controls={`panel-${index}-content`}
                 id={`panel-${index}-header`}>
                 <div className="flex justify-between items-center w-full px-4">
-                  <span
-                    className="text-subtitle font-pmedium underline text-primary"
-                    onClick={() => {
-                      localStorage.setItem("client", domain.name);
-                      navigate(
-                        `/app/dashboard/maintenance-dashboard/maintenance-expenses/maintenance-expenses-layout/${domain.name}`
-                      );
-                    }}>
+                  <span className="text-subtitle font-pmedium  ">
                     {domain.name}
                   </span>
                   <span className="text-subtitle font-pmedium">
@@ -423,6 +416,31 @@ const MaintenanceExpenses = () => {
                 </div>
               </AccordionSummary>
               <AccordionDetails sx={{ borderTop: "1px solid  #d1d5db" }}>
+                {/* Details Start */}
+                <div className="flex justify-between">
+                  <div className="flex justify-between items-center w-80 px-4">
+                    <span
+                      className="text-subtitle font-pmedium underline text-primary"
+                      onClick={() => {
+                        localStorage.setItem("client", domain.name);
+                        navigate(
+                          `/app/dashboard/maintenance-dashboard/maintenance-expenses/maintenance-expenses-layout/${domain.name}`
+                        );
+                      }}>
+                      View Layout {domain.name}
+                    </span>
+                    {/* <span className="text-subtitle font-pmedium">
+                      {domain.revenue.toLocaleString()}
+                    </span> */}
+                  </div>
+                  <div className="w-4/12 ">
+                    <p className="text-subtitle text-primary p-6 w-fit">
+                      <span className="font-bold">Maintenance Lead: </span>
+                      Amol Kakade
+                    </p>
+                  </div>
+                </div>
+                {/* Details End */}
                 <AgTable
                   data={domain.clients}
                   hideFilter

@@ -39,7 +39,7 @@ const ItOfficesLayout = () => {
 
   return (
     <div className="p-4">
-      <div>
+      <div className="flex justify-between">
         <p className="text-title text-primary font-pmedium p-6">
           Office Layout ({client})
         </p>

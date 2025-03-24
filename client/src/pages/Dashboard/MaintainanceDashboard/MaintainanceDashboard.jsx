@@ -127,6 +127,35 @@ const MaintainanceDashboard = () => {
   const executiveTasksCount = executiveTasks.map((user) => user.tasks);
   const labels = executiveTasks.map((user) => user.name);
   const colors = ["#FF5733", "#FFC300", "#28B463"];
+
+  // ------------------------------------------------------------------------------------------------------------------//
+  // Due Maintenance
+  const dueMaintenance = [
+    { name: "AC", tasks: 10 },
+    { name: "Furniture", tasks: 20 },
+    { name: "Carpets", tasks: 30 },
+    { name: "Plumbing", tasks: 30 },
+    { name: "Glass Items", tasks: 30 },
+    { name: "Others", tasks: 30 },
+  ];
+
+  const executiveDueMaintenance = dueMaintenance.reduce(
+    (sum, user) => sum + user.tasks,
+    0
+  );
+  const pieDueMaintenanceData = dueMaintenance.map((user) =>
+    parseFloat(((user.tasks / executiveDueMaintenance) * 100).toFixed(1))
+  );
+  const dueMaintenanceCount = dueMaintenance.map((user) => user.tasks);
+  const labelsMaintenance = dueMaintenance.map((user) => user.name);
+  const colorsMaintenance = [
+    "#FF5733",
+    "#FFC300",
+    "#28B463",
+    "#28b49a",
+    "#7a02ad",
+    "#ff00e6",
+  ];
   //----------------------------------------------------------------------------------------------------------//
   const unitWiseExpense = [
     { unit: "ST-701A", expense: 12000 },
@@ -147,6 +176,43 @@ const MaintainanceDashboard = () => {
   }));
   const pieUnitWiseExpenseOptions = {
     labels: unitWiseExpense.map((item) => item.unit),
+    chart: {
+      fontFamily: "Poppins-Regular",
+    },
+    toolTip: {
+      y: {
+        formatter: (val) => `${((val / totalUnitWiseTask) * 100).toFixed(1)}%`,
+      },
+    },
+  };
+
+  //----------------------------------------------------------------------------------------------------------//
+  // Categoty Wise Maintenance
+  const categoryWiseMaintenance = [
+    { unit: "AC", expense: 12000 },
+    { unit: "Carpets", expense: 10000 },
+    { unit: "Plumbing", expense: 11500 },
+    { unit: "Furniture", expense: 10000 },
+    { unit: "Electronics", expense: 10000 },
+    { unit: "Stationery", expense: 10000 },
+    { unit: "Glass Items", expense: 10000 },
+    { unit: "Others", expense: 10000 },
+  ];
+  const totalCategoryWiseMaintenance = categoryWiseMaintenance.reduce(
+    (sum, item) => sum + item.expense,
+    0
+  );
+  const pieCategoryWiseMaintenanceData = categoryWiseMaintenance.map(
+    (item) => ({
+      label: `${item.unit} (${(
+        (item.expense / totalCategoryWiseMaintenance) *
+        100
+      ).toFixed(1)}%)`,
+      value: item.expense,
+    })
+  );
+  const pieCategoryWiseMaintenanceOptions = {
+    labels: categoryWiseMaintenance.map((item) => item.unit),
     chart: {
       fontFamily: "Poppins-Regular",
     },
@@ -180,6 +246,94 @@ const MaintainanceDashboard = () => {
     tooltip: {
       y: {
         formatter: (val) => `${((val / totalGenderCount) * 100).toFixed(1)}%`,
+      },
+    },
+  };
+  //----------------------------------------------------------------------------------------------------------//
+  // MonthlyDueTasks Data
+  const monthlyDueTasksData = [
+    { monthlyDueTasks: "Completed Tasks", count: "45" },
+    { monthlyDueTasks: "Pending Tasks", count: "40" },
+  ];
+  const totalMonthlyDueTasksCount = monthlyDueTasksData.reduce(
+    (sum, item) => sum + item.count,
+    0
+  );
+  const pieMonthlyDueTasksData = monthlyDueTasksData.map((item) => ({
+    label: `${item.monthlyDueTasks} ${(
+      (item.count / totalMonthlyDueTasksCount) *
+      100
+    ).toFixed(1)}%`,
+    value: item.count,
+  }));
+  const pieMonthlyDueTasksOptions = {
+    labels: monthlyDueTasksData.map((item) => item.monthlyDueTasks),
+    chart: {
+      fontFamily: "Poppins-Regular",
+    },
+    tooltip: {
+      y: {
+        formatter: (val) =>
+          `${((val / totalMonthlyDueTasksCount) * 100).toFixed(1)}%`,
+      },
+    },
+  };
+  //----------------------------------------------------------------------------------------------------------//
+  // YearlyDueTasks Data
+  const yearlyDueTasksData = [
+    { yearlyDueTasks: "Completed Tasks", count: "360" },
+    { yearlyDueTasks: "Pending Tasks", count: "480" },
+  ];
+  const totalYearlyDueTasksCount = yearlyDueTasksData.reduce(
+    (sum, item) => sum + item.count,
+    0
+  );
+  const pieYearlyDueTasksData = yearlyDueTasksData.map((item) => ({
+    label: `${item.yearlyDueTasks} ${(
+      (item.count / totalYearlyDueTasksCount) *
+      100
+    ).toFixed(1)}%`,
+    value: item.count,
+  }));
+  const pieYearlyDueTasksOptions = {
+    labels: yearlyDueTasksData.map((item) => item.yearlyDueTasks),
+    chart: {
+      fontFamily: "Poppins-Regular",
+    },
+    tooltip: {
+      y: {
+        formatter: (val) =>
+          `${((val / totalYearlyDueTasksCount) * 100).toFixed(1)}%`,
+      },
+    },
+  };
+
+  //----------------------------------------------------------------------------------------------------------//
+  // Execution Channel
+  const executionChannelData = [
+    { executionChannel: "Internal", count: "45" },
+    { executionChannel: "External", count: "40" },
+  ];
+  const totalExecutionChannelCount = executionChannelData.reduce(
+    (sum, item) => sum + item.count,
+    0
+  );
+  const pieExecutionChannelData = executionChannelData.map((item) => ({
+    label: `${item.executionChannel} ${(
+      (item.count / totalExecutionChannelCount) *
+      100
+    ).toFixed(1)}%`,
+    value: item.count,
+  }));
+  const pieExecutionChannelOptions = {
+    labels: executionChannelData.map((item) => item.executionChannel),
+    chart: {
+      fontFamily: "Poppins-Regular",
+    },
+    tooltip: {
+      y: {
+        formatter: (val) =>
+          `${((val / totalExecutionChannelCount) * 100).toFixed(1)}%`,
       },
     },
   };
@@ -247,10 +401,14 @@ const MaintainanceDashboard = () => {
   ];
   //----------------------------------------------------------------------------------------------------------//
   const clientComplaints = [
-    { client: "Zomato", complaints: "5" },
-    { client: "SqaudStack", complaints: "6" },
-    { client: "Swiggy", complaints: "3" },
-    { client: "Zimetrics", complaints: "8" },
+    { client: "ST-701A", complaints: "5" },
+    { client: "ST-701B", complaints: "6" },
+    { client: "ST-601A", complaints: "3" },
+    { client: "ST-601B", complaints: "8" },
+    { client: "ST-501A", complaints: "8" },
+    { client: "ST-501B", complaints: "8" },
+    { client: "G-1", complaints: "8" },
+    { client: "G-7", complaints: "8" },
   ];
 
   const totalClientComplaints = clientComplaints.reduce(
@@ -377,7 +535,7 @@ const MaintainanceDashboard = () => {
           route={"revenue"}
           title={"Free"}
           data={"200"}
-          description={"Co-working Seats"}
+          description={"Yearly Expense"}
         />,
       ],
     },
@@ -387,17 +545,17 @@ const MaintainanceDashboard = () => {
       widgets: [
         <WidgetSection border title={"Category Wise Maintenance"}>
           <PieChartMui
-            data={pieUnitWiseExpenseData}
-            options={pieUnitWiseExpenseOptions}
+            data={pieCategoryWiseMaintenanceData}
+            options={pieCategoryWiseMaintenanceOptions}
           />
         </WidgetSection>,
         <WidgetSection border title={"Due Maintenance"}>
           <DonutChart
-            centerLabel="Tasks"
-            labels={labels}
-            colors={colors}
-            series={pieExecutiveData}
-            tooltipValue={executiveTasksCount}
+            centerLabel="Due Tasks"
+            labels={labelsMaintenance}
+            colors={colorsMaintenance}
+            series={pieDueMaintenanceData}
+            tooltipValue={dueMaintenanceCount}
           />
         </WidgetSection>,
       ],
@@ -427,11 +585,9 @@ const MaintainanceDashboard = () => {
           />
         </WidgetSection>,
         <WidgetSection border title={"Maintenance Execution Channel"}>
-          <DonutChart
-            centerLabel={``}
-            labels={complaintTypeLabels}
-            series={donutComplaintTypeData}
-            tooltipValue={complaintCounts}
+          <PieChartMui
+            data={pieExecutionChannelData}
+            options={pieExecutionChannelOptions}
           />
         </WidgetSection>,
       ],
@@ -440,10 +596,16 @@ const MaintainanceDashboard = () => {
       layout: 2,
       widgets: [
         <WidgetSection border title={"Average Monthly Due Maintenance"}>
-          <PieChartMui data={pieGenderData} options={pieGenderOptions} />
+          <PieChartMui
+            data={pieMonthlyDueTasksData}
+            options={pieMonthlyDueTasksOptions}
+          />
         </WidgetSection>,
         <WidgetSection border title={"Average Yearly Due Maintenance"}>
-          <PieChartMui data={pieGenderData} options={pieGenderOptions} />
+          <PieChartMui
+            data={pieYearlyDueTasksData}
+            options={pieYearlyDueTasksOptions}
+          />
         </WidgetSection>,
       ],
     },

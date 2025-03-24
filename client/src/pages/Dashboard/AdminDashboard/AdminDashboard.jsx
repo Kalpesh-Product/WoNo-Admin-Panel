@@ -89,6 +89,12 @@ const AdminDashboard = () => {
   const taskData = [
     { unit: "ST-701A", tasks: 25 },
     { unit: "ST-701B", tasks: 30 },
+    { unit: "ST-701A", tasks: 25 },
+    { unit: "ST-701B", tasks: 30 },
+    { unit: "ST-701A", tasks: 25 },
+    { unit: "ST-701B", tasks: 30 },
+    { unit: "ST-701A", tasks: 25 },
+    { unit: "ST-701B", tasks: 30 },
   ];
 
   const totalUnitWiseTask = taskData.reduce((sum, item) => sum + item.tasks, 0);
