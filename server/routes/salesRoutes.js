@@ -4,7 +4,8 @@ const {
   createCoworkingClient,
   getCoworkingClients,
   bulkInsertCoworkingClients,
-} = require("../controllers/salesControllers/coworkingClientController");
+  uploadClientOccupancyImage,
+} = require("../controllers/salesControllers/coworkingClientControllers");
 const {
   createClientService,
   getClientServices,
@@ -15,27 +16,37 @@ const {
   bulkInsertLeads,
 } = require("../controllers/salesControllers/leadsControllers");
 const upload = require("../config/multerConfig");
-const getBookedDesks = require("../controllers/salesControllers/DeskControllers");
 
 const {
   addRevenue,
   getRevenues,
 } = require("../controllers/salesControllers/revenueController");
 
-router.post("/onboard-client", createCoworkingClient);
-router.get("/clients", getCoworkingClients);
+const {
+  getAvailableDesks,
+  getBookedDesks,
+} = require("../controllers/salesControllers/deskController");
+
+router.post("/onboard-co-working-client", createCoworkingClient);
+router.get("/co-working-clients", getCoworkingClients);
 router.post(
-  "/bulk-insert-co-working-clients",
-  upload.single("clients"),
-  bulkInsertCoworkingClients
+  "/upload-unit-image",
+  upload.single("unitImage"),
+  uploadClientOccupancyImage
 );
 router.post("/create-service", createClientService);
 router.get("/services", getClientServices);
 router.post("/create-lead", createLead);
 router.get("/leads", getLeads);
+router.get("/available-desks/:unitId", getAvailableDesks);
 router.get("/booked-desks/:serviceId", getBookedDesks);
 router.post("/bulk-insert-leads", upload.single("leads"), bulkInsertLeads);
 router.post("/add-revenue", addRevenue);
 router.get("/fetch-revenues", getRevenues);
+router.post(
+  "/bulk-insert-co-working-clients",
+  upload.single("clients"),
+  bulkInsertCoworkingClients
+);
 
 module.exports = router;

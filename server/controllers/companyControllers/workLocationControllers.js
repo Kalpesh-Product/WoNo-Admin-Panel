@@ -334,7 +334,7 @@ const bulkInsertUnits = async (req, res, next) => {
         });
       })
       .on("end", async () => {
-        if (units.length === 0) {
+        if (!units.length) {
           return res
             .status(400)
             .json({ message: "No valid work locations found in the CSV" });
