@@ -249,6 +249,12 @@ import ItExpensesLayout from "./../pages/Dashboard/ItDashboard/ItExpenses/ItExpe
 import ItExpensesOccupied from "./../pages/Dashboard/ItDashboard/ItExpenses/ItExpensesOccupied";
 import ItExpensesClear from "./../pages/Dashboard/ItDashboard/ItExpenses/ItExpensesClear";
 import ItPerSqExpense from "../pages/Dashboard/ItDashboard/ItPerSqExpense";
+import ItPerSqInternetExpense from "../pages/Dashboard/ItDashboard/ItPerSqInternetExpense";
+import AdminPerSqFtExpense from "../pages/Dashboard/AdminDashboard/AdminPerSqFtExpense";
+import AdminPerSqFtElectricityExpense from "../pages/Dashboard/AdminDashboard/AdminPerSqFtElectricityExpense";
+import AdminExecutiveExpenses from "../pages/Dashboard/AdminDashboard/AdminExecutiveExpenses";
+import MaintenancePerSqFtExpense from "../pages/Dashboard/MaintainanceDashboard/MaintenancePerSqFtExpense";
+import MaintenanceAssets from "../pages/Dashboard/MaintainanceDashboard/MaintenanceAssets";
 
 export const routes = createBrowserRouter([
   {
@@ -428,6 +434,18 @@ export const routes = createBrowserRouter([
                         ],
                       },
                       {
+                        path: "per-sq-ft-expense",
+                        element: <AdminPerSqFtExpense />,
+                      },
+                      {
+                        path: "per-sq-ft-electricity-expense",
+                        element: <AdminPerSqFtElectricityExpense />,
+                      },
+                      {
+                        path: "admin-executive-expense",
+                        element: <AdminExecutiveExpenses />,
+                      },
+                      {
                         path: "admin-offices",
                         element: <AdminOffices />,
                       },
@@ -536,6 +554,14 @@ export const routes = createBrowserRouter([
                             element: <MaintenancePolicies />,
                           },
                         ],
+                      },
+                      {
+                        path: "per-sq-ft-expense",
+                        element: <MaintenancePerSqFtExpense />,
+                      },
+                      {
+                        path: "maintenance-assets",
+                        element: <MaintenanceAssets />,
                       },
                       {
                         path: "maintenance-offices",
@@ -650,6 +676,10 @@ export const routes = createBrowserRouter([
                       {
                         path: "per-sq-ft-expense",
                         element: <ItPerSqExpense />,
+                      },
+                      {
+                        path: "per-sq-ft-internet-expense",
+                        element: <ItPerSqInternetExpense />,
                       },
                       {
                         path: "it-offices",

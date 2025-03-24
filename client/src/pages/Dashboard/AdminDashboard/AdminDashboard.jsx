@@ -363,44 +363,51 @@ const AdminDashboard = () => {
         ...item,
         upComingIn: upComingIn,
         completedYears,
-        isUpcoming: birthday.isBefore(cutOff) && birthday.isAfter(today.subtract(1, "day")),
+        isUpcoming:
+          birthday.isBefore(cutOff) &&
+          birthday.isAfter(today.subtract(1, "day")),
       };
     })
     .filter((item) => item.isUpcoming);
   //-----------------------------------------------------------------------------------------------------------------//
   const clientAnniversaryData = [
-    {client : "Zomato", dateOfJoin : '21-03-2023'},
-    {client : "Flipkart", dateOfJoin : '20-09-2023'},
-    {client : "Nykaa", dateOfJoin : '15-08-2019'},
-    {client : "SquadStack", dateOfJoin : '25-03-2024'}
-  ]
+    { client: "Zomato", dateOfJoin: "21-03-2023" },
+    { client: "Flipkart", dateOfJoin: "20-09-2023" },
+    { client: "Nykaa", dateOfJoin: "15-08-2019" },
+    { client: "SquadStack", dateOfJoin: "25-03-2024" },
+  ];
 
-  const upComingClientAnniversary = clientAnniversaryData.map((item) => {
-    const doj = dayjs(item.dateOfJoin,"DD-MM-YYYY");
-    const thisYearAnniversary = doj.set("year",today.year())
-    const anniversary = thisYearAnniversary.isBefore(today) ? thisYearAnniversary.add(1,"year") : thisYearAnniversary
-    const completedYears = today.diff(doj,'years')
-    const upComingIn = anniversary.diff(today,'days')
+  const upComingClientAnniversary = clientAnniversaryData
+    .map((item) => {
+      const doj = dayjs(item.dateOfJoin, "DD-MM-YYYY");
+      const thisYearAnniversary = doj.set("year", today.year());
+      const anniversary = thisYearAnniversary.isBefore(today)
+        ? thisYearAnniversary.add(1, "year")
+        : thisYearAnniversary;
+      const completedYears = today.diff(doj, "years");
+      const upComingIn = anniversary.diff(today, "days");
 
-    return{
-      ...item,
-      upComingIn : upComingIn,
-      completedYears : completedYears,
-      thisYearAnniversary : thisYearAnniversary.format("DD-MM-YYYY"),
-      isUpcoming : anniversary.isBefore(cutOff) && anniversary.isAfter(today.subtract(1,"day"))
-    }
-  }).filter((item)=>item.isUpcoming)
+      return {
+        ...item,
+        upComingIn: upComingIn,
+        completedYears: completedYears,
+        thisYearAnniversary: thisYearAnniversary.format("DD-MM-YYYY"),
+        isUpcoming:
+          anniversary.isBefore(cutOff) &&
+          anniversary.isAfter(today.subtract(1, "day")),
+      };
+    })
+    .filter((item) => item.isUpcoming);
 
   const upComingClientAnniversaryColumns = [
-    {id:"id", label : "ID", align : 'left'},
-    {id:"client", label : "Client", align : 'left'},
-    {id:"dateOfJoin", label : "Date of Join", align : 'left'},
-    {id:"completedYears", label : "Completed Years", align : 'left'},
-    {id:"upComingIn", label : "Upcoming in", align : 'left'},
-  ]
- 
+    { id: "id", label: "ID", align: "left" },
+    { id: "client", label: "Client", align: "left" },
+    { id: "dateOfJoin", label: "Date of Join", align: "left" },
+    { id: "completedYears", label: "Completed Years", align: "left" },
+    { id: "upComingIn", label: "Upcoming in", align: "left" },
+  ];
 
-  console.log("upcomingClientAnniversary : ", upComingClientAnniversary)
+  console.log("upcomingClientAnniversary : ", upComingClientAnniversary);
   //-----------------------------------------------------------------------------------------------------------------//
   const techWidgets = [
     {
@@ -469,22 +476,22 @@ const AdminDashboard = () => {
       layout: 3,
       widgets: [
         <DataCard
-          route={"co-working-seats"}
-          title={"Total"}
-          data={"1000"}
-          description={"Co-working Seats"}
+          route={"per-sq-ft-expense"}
+          title={"Total INR"}
+          data={"14"}
+          description={"Expense Per Sq. Ft."}
         />,
         <DataCard
-          route={"co-working-seats"}
-          title={"Booked"}
-          data={"800"}
-          description={"Co-working Seats"}
+          route={"per-sq-ft-electricity-expense"}
+          title={"Total INR"}
+          data={"8"}
+          description={"Electricity Expense Per Sq. Ft."}
         />,
         <DataCard
-          route={"revenue"}
-          title={"Free"}
-          data={"200"}
-          description={"Co-working Seats"}
+          route={"admin-executive-expense"}
+          title={"Top Executive"}
+          data={""}
+          description={"Mr. Machindranath Parkar"}
         />,
       ],
     },
@@ -572,17 +579,16 @@ const AdminDashboard = () => {
           scroll
           rowsToDisplay={3}
           Title={"Upcoming Client Member Birthdays"}
-          rows={
-            [
+          rows={[
             ...upcomingBirthdays
-            .sort((a,b)=>a.upComingIn-b.upComingIn)
-            .map((item, index) => ({
-              id: index + 1,
-              name: item.name,
-              upComingIn: (item.upComingIn === 0 ? 'Today' : item.upComingIn),
-              company: item.company,
-              completedYears: item.completedYears,
-            })),
+              .sort((a, b) => a.upComingIn - b.upComingIn)
+              .map((item, index) => ({
+                id: index + 1,
+                name: item.name,
+                upComingIn: item.upComingIn === 0 ? "Today" : item.upComingIn,
+                company: item.company,
+                completedYears: item.completedYears,
+              })),
           ]}
         />,
         <MuiTable
@@ -590,17 +596,17 @@ const AdminDashboard = () => {
           scroll
           rowsToDisplay={3}
           Title={"Upcoming Client Anniversaries"}
-          rows={
-            [
+          rows={[
             ...upComingClientAnniversary
-            .sort((a,b)=>a.upComingIn-b.upComingIn)
-            .map((item, index) => ({
-              id: index + 1,
-              client: item.client,
-              dateOfJoin : item.dateOfJoin,
-              upComingIn: (item.upComingIn === 0 ? 'Today' : `${item.upComingIn} days`),
-              completedYears: `${item.completedYears} years`,
-            })),
+              .sort((a, b) => a.upComingIn - b.upComingIn)
+              .map((item, index) => ({
+                id: index + 1,
+                client: item.client,
+                dateOfJoin: item.dateOfJoin,
+                upComingIn:
+                  item.upComingIn === 0 ? "Today" : `${item.upComingIn} days`,
+                completedYears: `${item.completedYears} years`,
+              })),
           ]}
         />,
       ],

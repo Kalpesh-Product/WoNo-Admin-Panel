@@ -246,40 +246,52 @@ const ItDashboard = () => {
   ];
   //----------------------------------------------------------------------------------------------------------//
   const clientComplaints = [
-    {client : "Zomato", complaints : '5'},
-    {client : "SqaudStack", complaints : '6'},
-    {client : "Swiggy", complaints : '3'},
-    {client : "Zimetrics", complaints : '8'}
-  ]
+    { client: "Zomato", complaints: "5" },
+    { client: "SqaudStack", complaints: "6" },
+    { client: "Swiggy", complaints: "3" },
+    { client: "Zimetrics", complaints: "8" },
+  ];
 
-  const totalClientComplaints = clientComplaints.reduce((sum,item)=>sum+item.complaints,0)
-  const pieComplaintsData = clientComplaints.map((item)=>({
-    label : `${item.client} (${((item.complaints/totalClientComplaints)*100).toFixed(1)}%)`,
-    value : item.complaints
-  }))
+  const totalClientComplaints = clientComplaints.reduce(
+    (sum, item) => sum + item.complaints,
+    0
+  );
+  const pieComplaintsData = clientComplaints.map((item) => ({
+    label: `${item.client} (${(
+      (item.complaints / totalClientComplaints) *
+      100
+    ).toFixed(1)}%)`,
+    value: item.complaints,
+  }));
   const pieComplaintsOptions = {
-    labels : clientComplaints.map((item)=>item.client),
-    chart :{
-      fontFamily : "Poppins-Regular"
+    labels: clientComplaints.map((item) => item.client),
+    chart: {
+      fontFamily: "Poppins-Regular",
     },
-    tooltip:{
-      y:{
-        formatter : (val)=>`${((val/totalClientComplaints)*100).toFixed(1)}`
-      }
-    }
-  }
+    tooltip: {
+      y: {
+        formatter: (val) =>
+          `${((val / totalClientComplaints) * 100).toFixed(1)}`,
+      },
+    },
+  };
   //----------------------------------------------------------------------------------------------------------//
   const complaintTypes = [
-    {type : "WiFi", count : 8},
-    {type : "Assets", count : 12},
-    {type : "Biometrics", count : 6},
-    {type : "Others", count : 12}
-  ]
+    { type: "WiFi", count: 8 },
+    { type: "Assets", count: 12 },
+    { type: "Biometrics", count: 6 },
+    { type: "Others", count: 12 },
+  ];
 
-  const totalComplaintTypes = complaintTypes.reduce((sum,item)=>sum+item.count,0);
-  const donutComplaintTypeData = complaintTypes.map((item)=>parseFloat(((item.count/totalComplaintTypes)*100).toFixed(1)))
-  const complaintCounts = complaintTypes.map((item)=>item.count)
-  const complaintTypeLabels = complaintTypes.map((item)=>item.type)
+  const totalComplaintTypes = complaintTypes.reduce(
+    (sum, item) => sum + item.count,
+    0
+  );
+  const donutComplaintTypeData = complaintTypes.map((item) =>
+    parseFloat(((item.count / totalComplaintTypes) * 100).toFixed(1))
+  );
+  const complaintCounts = complaintTypes.map((item) => item.count);
+  const complaintTypeLabels = complaintTypes.map((item) => item.type);
   //----------------------------------------------------------------------------------------------------------//
 
   const techWidgets = [
@@ -340,12 +352,13 @@ const ItDashboard = () => {
           data={"500"}
           title={"Total"}
           description={"Internet Expense per sq.ft"}
-          route={"per-sq-ft-expense"}
+          route={"per-sq-ft-internet-expense"}
         />,
         <DataCard
           data={"350"}
           title={"Total"}
           description={"Expense per sq.ft"}
+          route={"per-sq-ft-expense"}
         />,
         <DataCard
           route={"it-expenses"}
@@ -387,7 +400,7 @@ const ItDashboard = () => {
           />
         </WidgetSection>,
         <WidgetSection border title={"Biometrics Gender Data"}>
-          <PieChartMui data={pieGenderData} options={pieGenderOptions}  />
+          <PieChartMui data={pieGenderData} options={pieGenderOptions} />
         </WidgetSection>,
       ],
     },
@@ -401,8 +414,13 @@ const ItDashboard = () => {
             options={pieComplaintsOptions}
           />
         </WidgetSection>,
-        <WidgetSection border title={"Biometrics Gender Data"}>
-          <DonutChart centerLabel={``} labels={complaintTypeLabels} series={donutComplaintTypeData} tooltipValue={complaintCounts}/>
+        <WidgetSection border title={"Type Of IT Complaints"}>
+          <DonutChart
+            centerLabel={``}
+            labels={complaintTypeLabels}
+            series={donutComplaintTypeData}
+            tooltipValue={complaintCounts}
+          />
         </WidgetSection>,
       ],
     },
