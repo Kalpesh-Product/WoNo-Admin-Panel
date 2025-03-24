@@ -483,7 +483,6 @@ const bulkInsertCoworkingClients = async (req, res, next) => {
       })
       .on("end", async () => {
         try {
-          console.log(coWorkingClients.map(client => client.ratePerDesk).length)
           if (coWorkingClients.length === 0) {
             return res
               .status(400)
