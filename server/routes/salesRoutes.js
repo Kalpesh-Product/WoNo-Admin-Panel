@@ -30,7 +30,7 @@ const {
 router.post("/onboard-co-working-client", createCoworkingClient);
 router.get("/co-working-clients", getCoworkingClients);
 router.post(
-  "/upload-unit-image",
+  "/upload-client-unit-image",
   upload.single("unitImage"),
   uploadClientOccupancyImage
 );

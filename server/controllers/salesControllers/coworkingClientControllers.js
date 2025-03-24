@@ -508,7 +508,7 @@ const uploadClientOccupancyImage = async (req, res, next) => {
     }
 
     // Validate image type
-    if (!["occupiedImage", "clearImage"].includes(imageType)) {
+    if (!["occupiedImage"].includes(imageType)) {
       throw new CustomError(
         "Invalid image type",
         logPath,
@@ -566,7 +566,7 @@ const uploadClientOccupancyImage = async (req, res, next) => {
 
     // Update the client document with the new image details
     client[imageType] = imageDetails;
-
+    console.log(imageDetails);
     const updatedClient = await CoworkingClient.findByIdAndUpdate(
       { _id: clientId },
       { $set: { [imageType]: imageDetails } },
