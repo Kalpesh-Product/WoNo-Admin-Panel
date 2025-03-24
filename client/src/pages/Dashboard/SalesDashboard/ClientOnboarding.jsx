@@ -6,6 +6,9 @@ import SecondaryButton from "../../../components/SecondaryButton";
 import { State, City } from "country-state-city";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import dayjs from "dayjs";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 const ClientOnboarding = () => {
   const {
@@ -22,17 +25,17 @@ const ClientOnboarding = () => {
       hoState: "",
       unit: "",
       cabinDesks: "",
-      cabinDeskRate: "20",
+      ratePerCabinDesk: "20",
       openDesks: "",
-      openDeskRate: "",
+      ratePerOpenDesk: "20",
       annualIncrement: "",
       perDeskMeetingCredits: "",
       totalMeetingCredits: "",
-      startDate: "",
-      endDate: "",
+      startDate: null,
+      endDate: null,
       lockinPeriod: "",
-      rentDate: "",
-      nextIncrement: "",
+      rentDate: null,
+      nextIncrement: null,
       localPocName: "",
       localPocEmail: "",
       localPocPhone: "",
@@ -41,14 +44,22 @@ const ClientOnboarding = () => {
       hOPocPhone: "",
     },
   });
-
+  //-----------------------------------------------------Calculation------------------------------------------------//
   const cabinDesks = useWatch({ control, name: "cabinDesks" });
-  const cabinDeskRate = useWatch({ control, name: "cabinDeskRate" });
+  const cabinDeskRate = useWatch({ control, name: "ratePerCabinDesk" });
   const totalCabinCost =
     (parseFloat(cabinDesks) || 0) * (parseFloat(cabinDeskRate) || 0);
 
-  console.log("Cabin Desks:", cabinDesks, "Rate:", cabinDeskRate);
+  const openDesks = useWatch({ control, name: "openDesks" });
+  const openDesksRate = useWatch({ control, name: "ratePerOpenDesk" });
+  const totalOpenDeskCost =
+    (parseFloat(openDesks) || 0) * (parseFloat(openDesksRate) || 0);
 
+  const perDeskCredit = useWatch({ control, name: "perDeskMeetingCredits" });
+  const totalMeetingCredits =
+    (parseFloat(openDesks || 0) + parseFloat(cabinDesks || 0)) *
+    (perDeskCredit || 0);
+  //-----------------------------------------------------Calculation------------------------------------------------------------//
   const axios = useAxiosPrivate();
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
@@ -73,8 +84,24 @@ const ClientOnboarding = () => {
     },
     enabled: false,
   });
+  const {
+    data: services = [],
+    isLoading: isServicesPending,
+    error: isServicesError,
+    refetch: fetchServices,
+  } = useQuery({
+    queryKey: ["services"],
+    queryFn: async () => {
+      const response = await axios.get("/api/sales/services");
+      return response.data;
+    },
+    // enabled: false,
+  });
 
-  const onSubmit = (data) => {};
+  const onSubmit = (data) => {
+    console.log(data);
+    reset()
+  };
 
   const handleReset = () => {
     reset();
@@ -109,7 +136,7 @@ const ClientOnboarding = () => {
             <MenuItem value="Virtual Office">Virtual Office</MenuItem>
           </Select>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-4">
           <div>
             {/* Section: Basic Information */}
             <div className="py-4 border-b-default border-borderGray">
@@ -151,9 +178,9 @@ const ClientOnboarding = () => {
                     <MenuItem value="" disabled>
                       Select a Service
                     </MenuItem>
-                    <MenuItem value="co-working" disabled>
-                      Co-Working
-                    </MenuItem>
+                    {!isServicesPending ? services.map((item) => (
+                      <MenuItem key={item._id} value={item._id}>{item.serviceName}</MenuItem>
+                    )) : <CircularProgress />}
                   </TextField>
                 )}
               />
@@ -262,7 +289,7 @@ const ClientOnboarding = () => {
                 )}
               />
               <div className="flex gap-2">
-                <div className="w-1/4">
+                <div className="w-1/2">
                   <Controller
                     name="cabinDesks"
                     control={control}
@@ -270,20 +297,22 @@ const ClientOnboarding = () => {
                       <TextField
                         {...field}
                         size="small"
+                        type="number"
                         label="Cabin Desks"
                         fullWidth
                       />
                     )}
                   />
                 </div>
-                <div className="w-1/4">
+                <div className="w-1/2">
                   <Controller
-                    name="cabinDeskRate"
+                    name="ratePerCabinDesk"
                     control={control}
                     render={({ field }) => (
                       <TextField
                         {...field}
                         size="small"
+                        type="number"
                         label="Cabin Desk Rate"
                         fullWidth
                       />
@@ -295,483 +324,338 @@ const ClientOnboarding = () => {
                     value={totalCabinCost}
                     size="small"
                     disabled
+                    type="number"
                     label={"Total"}
                     fullWidth
                   />
                 </div>
               </div>
-
-              <Controller
-                name="employeeType"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
+              <div className="flex gap-2">
+                <div className="w-1/2">
+                  <Controller
+                    name="openDesks"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        size="small"
+                        type="number"
+                        label="Open Desks"
+                        fullWidth
+                      />
+                    )}
+                  />
+                </div>
+                <div className="w-1/2">
+                  <Controller
+                    name="ratePerOpenDesk"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        size="small"
+                        type="number"
+                        label="Open Desk Rate"
+                        fullWidth
+                      />
+                    )}
+                  />
+                </div>
+                <div className="w-full">
                   <TextField
-                    {...field}
+                    value={totalOpenDeskCost}
                     size="small"
-                    label="Nature of Business"
+                    disabled
+                    type="number"
+                    label={"Total"}
                     fullWidth
                   />
-                )}
-              />
-
-              <Controller
-                name="department"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    size="small"
-                    label="Details of the Signing Authority"
-                    fullWidth
-                  />
-                )}
-              />
-              <Controller
-                name="reportsTo"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    size="small"
-                    label="Credits"
-                    fullWidth
-                  />
-                )}
-              />
-              {/* <Controller
-                name="jobTitle"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    size="small"
-                    label="Job Title"
-                    fullWidth
-                  />
-                )}
-              />
-              <Controller
-                name="jobDescription"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    size="small"
-                    label="Job Description"
-                    fullWidth
-                  />
-                )}
-              /> */}
+                </div>
+              </div>
             </div>
           </div>
-          {/* <div>
-        
+          <div>
             <div className="py-4 border-b-default border-borderGray">
-              <span className="text-subtitle font-pmedium">Policies</span>
+              <span className="text-subtitle font-pmedium">
+                Commercial Terms
+              </span>
             </div>
             <div className="grid grid-cols sm:grid-cols-1 md:grid-cols-1 gap-4 p-4">
               <Controller
-                name="shift"
+                name="annualIncrement"
                 control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField {...field} size="small" label="Shift" fullWidth />
-                )}
-              />
-
-              <Controller
-                name="workSchedulePolicy"
-                control={control}
-                defaultValue=""
+                rules={{ required: "Annual Increment is required" }}
                 render={({ field }) => (
                   <TextField
                     {...field}
                     size="small"
-                    label="Work Schedule Policy"
+                    label="Annual Increment"
+                    type="number"
+                    error={!!errors.annualIncrement}
+                    helperText={errors.annualIncrement?.message}
                     fullWidth
                   />
                 )}
               />
-
-              <Controller
-                name="attendanceSource"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    size="small"
-                    label="Attendance Source"
-                    fullWidth
-                  />
-                )}
-              />
-
-              <Controller
-                name="leavePolicy"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    size="small"
-                    label="Leave Policy"
-                    fullWidth
-                  />
-                )}
-              />
-              <Controller
-                name="holidayPolicy"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    size="small"
-                    label="Holiday Policy"
-                    fullWidth
-                  />
-                )}
-              />
+              <div className="flex gap-2">
+                <Controller
+                  name="perDeskMeetingCredits"
+                  control={control}
+                  rules={{ required: "Per Desk Meeting Credits is required" }}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      size="small"
+                      type="number"
+                      error={!!errors.perDeskMeetingCredits}
+                      helperText={errors.perDeskMeetingCredits?.message}
+                      label="Per Desk Meeting Credits"
+                      fullWidth
+                    />
+                  )}
+                />
+                <Controller
+                  name="totalMeetingCredits"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      size="small"
+                      type="number"
+                      disabled
+                      label={"Total Meeting Credits"}
+                      value={totalMeetingCredits}
+                      fullWidth
+                    />
+                  )}
+                />
+              </div>
             </div>
-          </div> */}
-          {/* <div>
-         
+          </div>
+          <div>
             <div className="py-4 border-b-default border-borderGray">
               <span className="text-subtitle font-pmedium">KYC</span>
             </div>
             <div className="grid grid-cols sm:grid-cols-1 md:grid-cols-1 gap-4 p-4">
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <Controller
+                  name="startDate"
+                  control={control}
+                  rules={{ required: "Start Date is required" }}
+                  render={({ field }) => (
+                    <DatePicker
+                      {...field}
+                      label={"Start Date"}
+                      format="DD-MM-YYYY"
+                      value={field.value || null}
+                      onChange={(e) => field.onChange(e)}
+                      slotProps={{
+                        textField: {
+                          size: "small",
+                          fullWidth: true,
+                          error: !!errors.startDate,
+                          helperText: errors.startDate?.message,
+                        },
+                      }}
+                    />
+                  )}
+                />
+              </LocalizationProvider>
+
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <Controller
+                  name="endDate"
+                  control={control}
+                  rules={{ required: "End Date is Required" }}
+                  render={({ field }) => (
+                    <DatePicker
+                      {...field}
+                      format="DD-MM-YYYY"
+                      label="Select End Date"
+                      value={field.value || null}
+                      onChange={(e) => field.onChange(e)}
+                      slotProps={{
+                        textField: {
+                          size: "small",
+                          fullWidth: true,
+                          error: !!errors.endDate,
+                          helperText: errors.endDate?.message,
+                        },
+                      }}
+                    />
+                  )}
+                />
+              </LocalizationProvider>
+
               <Controller
-                name="aadharID"
+                name="lockinPeriod"
                 control={control}
-                defaultValue=""
+                rules={{ required: "Lock-in period is required" }}
                 render={({ field }) => (
                   <TextField
                     {...field}
                     size="small"
-                    label="Aadhar ID"
+                    label="Lock-in Period (Months)"
+                    type="number"
+                    error={!!errors.lockinPeriod}
+                    helperText={errors.lockinPeriod?.message}
                     fullWidth
                   />
                 )}
               />
 
-              <Controller
-                name="pan"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField {...field} size="small" label="PAN" fullWidth />
-                )}
-              />
-
-              <Controller
-                name="pfAcNo"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    size="small"
-                    label="PF A/c No"
-                    fullWidth
-                  />
-                )}
-              />
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <Controller
+                  name="rentDate"
+                  control={control}
+                  rules={{ required: "Rent Date is required" }}
+                  render={({ field }) => (
+                    <DatePicker
+                      {...field}
+                      label={"Rent Date"}
+                      format="DD-MM-YYYY"
+                      value={field.value || null}
+                      onChange={(e) => field.onChange(e)}
+                      slotProps={{
+                        textField: {
+                          size: "small",
+                          fullWidth: true,
+                          error: !!errors.rentDate,
+                          helperText: errors.rentDate?.message,
+                        },
+                      }}
+                    />
+                  )}
+                />
+              </LocalizationProvider>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <Controller
+                  name="nextIncrement"
+                  control={control}
+                  rules={{ required: "Next Increment is required" }}
+                  render={({ field }) => (
+                    <DatePicker
+                      {...field}
+                      label={"Next Increment"}
+                      format="DD-MM-YYYY"
+                      value={field.value || null}
+                      onChange={(e) => field.onChange(e)}
+                      slotProps={{
+                        textField: {
+                          size: "small",
+                          fullWidth: true,
+                          error: !!errors.nextIncrement,
+                          helperText: errors.nextIncrement?.message,
+                        },
+                      }}
+                    />
+                  )}
+                />
+              </LocalizationProvider>
             </div>
-          </div> */}
-          {/* <div>
-   
+          </div>
+          <div>
             <div className="py-4 border-b-default border-borderGray">
               <span className="text-subtitle font-pmedium">
-                Home Address Information
+                Points Of Contact
               </span>
             </div>
             <div className="grid grid-cols sm:grid-cols-1 md:grid-cols-1 gap-4 p-4">
               <Controller
-                name="addressLine1"
+                name="localPocName"
                 control={control}
-                defaultValue=""
+                rules={{ required: "Local POC Name is required" }}
                 render={({ field }) => (
                   <TextField
                     {...field}
                     size="small"
-                    label="Address Line 1"
+                    label="Local POC Name"
+                    error={!!errors.localPocName}
+                    helperText={errors.localPocName?.message}
                     fullWidth
                   />
                 )}
               />
               <Controller
-                name="addressLine2"
+                name="localPocEmail"
                 control={control}
-                defaultValue=""
+                rules={{ required: "Local POC Email is required" }}
                 render={({ field }) => (
                   <TextField
                     {...field}
                     size="small"
-                    label="Address Line 2"
+                    label="Local POC Email"
+                    error={!!errors.localPocEmail}
+                    helperText={errors.localPocEmail?.message}
+                    fullWidth
+                  />
+                )}
+              />
+              <Controller
+                name="localPocPhone"
+                control={control}
+                rules={{ required: "Local POC Phone is required" }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    size="small"
+                    type="number"
+                    label="Local POC Phone"
+                    error={!!errors.localPocPhone}
+                    helperText={errors.localPocPhone?.message}
                     fullWidth
                   />
                 )}
               />
 
               <Controller
-                name="state"
+                name="hOPocName"
                 control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField {...field} size="small" label="State" fullWidth />
-                )}
-              />
-
-              <Controller
-                name="city"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField {...field} size="small" label="City" fullWidth />
-                )}
-              />
-
-              <Controller
-                name="pinCode"
-                control={control}
-                defaultValue=""
+                rules={{ required: "HO POC Name is required" }}
                 render={({ field }) => (
                   <TextField
                     {...field}
                     size="small"
-                    label="Pin Code"
+                    label="HO POC Name"
+                    error={!!errors.hOPocName}
+                    helperText={errors.hOPocName?.message}
+                    fullWidth
+                  />
+                )}
+              />
+              <Controller
+                name="hOPocEmail"
+                control={control}
+                rules={{ required: "HO POC Email is required" }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    size="small"
+                    label="HO POC Name"
+                    error={!!errors.hOPocEmail}
+                    helperText={errors.hOPocEmail?.message}
+                    fullWidth
+                  />
+                )}
+              />
+              <Controller
+                name="hOPocPhone"
+                control={control}
+                rules={{ required: "HO POC Phone is required" }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    size="small"
+                    label="HO POC Phone"
+                    type="number"
+                    error={!!errors.hOPocPhone}
+                    helperText={errors.hOPocPhone?.message}
                     fullWidth
                   />
                 )}
               />
             </div>
-          </div> */}
-          {/* <div>
-         
-            <div className="py-4 border-b-default border-borderGray">
-              <span className="text-subtitle font-pmedium">
-                Payroll Information
-              </span>
-            </div>
-            <div className="grid grid-cols sm:grid-cols-1 md:grid-cols-1 gap-4 p-4">
-              <Controller
-                name="includeInPayroll"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    size="small"
-                    label="Include In Payroll"
-                    fullWidth
-                  />
-                )}
-              />
-
-              <Controller
-                name="payrollBatch"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    size="small"
-                    label="Payroll Batch"
-                    fullWidth
-                  />
-                )}
-              />
-
-              <Controller
-                name="professionTaxExemption"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    size="small"
-                    label="Profession Tax Exemption"
-                    fullWidth
-                  />
-                )}
-              />
-
-              <Controller
-                name="includePF"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    size="small"
-                    label="Include PF"
-                    fullWidth
-                  />
-                )}
-              />
-              <Controller
-                name="pfContributionRate"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    size="small"
-                    label="PF Contribution Rate"
-                    fullWidth
-                  />
-                )}
-              />
-              <Controller
-                name="employeePF"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    size="small"
-                    label="Employee PF"
-                    fullWidth
-                  />
-                )}
-              />
-            </div>
-          </div> */}
-          {/* <div>
-        
-            <div className="py-4 border-b-default border-borderGray">
-              <span className="text-subtitle font-pmedium">
-                Bank Information
-              </span>
-            </div>
-            <div className="grid grid-cols sm:grid-cols-1 md:grid-cols-1 gap-4 p-4">
-              <Controller
-                name="bankIfsc"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    size="small"
-                    label="Bank IFSC"
-                    fullWidth
-                  />
-                )}
-              />
-
-              <Controller
-                name="bankName"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    size="small"
-                    label="Bank Name"
-                    fullWidth
-                  />
-                )}
-              />
-
-              <Controller
-                name="branchName"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    size="small"
-                    label="Branch Name"
-                    fullWidth
-                  />
-                )}
-              />
-
-              <Controller
-                name="nameOnAccount"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    size="small"
-                    label="Name On Account"
-                    fullWidth
-                  />
-                )}
-              />
-              <Controller
-                name="accountNumber"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    size="small"
-                    label="AccountNumber"
-                    fullWidth
-                  />
-                )}
-              />
-            </div>
-          </div> */}
-          {/* <div>
-     
-            <div className="py-4 border-b-default border-borderGray">
-              <span className="text-subtitle font-pmedium">
-                Family Information
-              </span>
-            </div>
-            <div className="grid grid-cols sm:grid-cols-1 md:grid-cols-1 gap-4 p-4">
-              <Controller
-                name="fatherName"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    size="small"
-                    label="Father Name"
-                    fullWidth
-                  />
-                )}
-              />
-
-              <Controller
-                name="motherName"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    size="small"
-                    label="Mother Name"
-                    fullWidth
-                  />
-                )}
-              />
-
-              <Controller
-                name="martialStatus"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    size="small"
-                    label="Marital Status"
-                    fullWidth
-                  />
-                )}
-              />
-            </div>
-          </div> */}
+          </div>
         </div>
 
         {/* Submit Button */}

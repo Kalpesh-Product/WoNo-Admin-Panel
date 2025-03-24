@@ -28,7 +28,8 @@ const createCoworkingClient = async (req, res, next) => {
       unit,
       cabinDesks,
       openDesks,
-      ratePerDesk,
+      ratePerOpenDesk,
+      ratePerCabinDesk,
       annualIncrement,
       perDeskMeetingCredits,
       totalMeetingCredits,
@@ -99,7 +100,8 @@ const createCoworkingClient = async (req, res, next) => {
       !sector ||
       !hoCity ||
       !hoState ||
-      !ratePerDesk ||
+      !ratePerOpenDesk ||
+      !ratePerCabinDesk ||
       !annualIncrement ||
       !startDate ||
       !endDate ||
@@ -122,7 +124,12 @@ const createCoworkingClient = async (req, res, next) => {
     }
 
     const bookedDesks = cabinDesks + openDesks;
-    if (bookedDesks < 1 || ratePerDesk <= 0 || annualIncrement < 0) {
+    if (
+      bookedDesks < 1 ||
+      ratePerOpenDesk <= 0 ||
+      ratePerCabinDesk <= 0 ||
+      annualIncrement < 0
+    ) {
       throw new CustomError(
         "Invalid numerical values",
         logPath,
@@ -151,7 +158,8 @@ const createCoworkingClient = async (req, res, next) => {
       cabinDesks,
       openDesks,
       totalDesks: bookedDesks,
-      ratePerDesk,
+      ratePerOpenDesk,
+      ratePerCabinDesk,
       annualIncrement,
       perDeskMeetingCredits,
       totalMeetingCredits,
@@ -172,7 +180,6 @@ const createCoworkingClient = async (req, res, next) => {
       },
     });
 
-    //Creating deskBooking entry
     const totalDesks = unitExists.cabinDesks + unitExists.openDesks;
     const availableDesks = totalDesks - bookedDesks;
 
@@ -233,7 +240,8 @@ const createCoworkingClient = async (req, res, next) => {
           cabinDesks,
           openDesks,
           totalDesks: bookedDesks,
-          ratePerDesk,
+          ratePerOpenDesk,
+          ratePerCabinDesk,
           annualIncrement,
           perDeskMeetingCredits,
           totalMeetingCredits,
@@ -398,7 +406,8 @@ const bulkInsertCoworkingClients = async (req, res, next) => {
           unitNo,
           cabinDesks,
           openDesks,
-          ratePerDesk,
+          ratePerOpenDesk,
+          ratePerCabinDesk,
           annualIncrement,
           perDeskMeetingCredits,
           startDate,
@@ -417,7 +426,7 @@ const bulkInsertCoworkingClients = async (req, res, next) => {
         const unitId = unitMap.get(unitNo);
         if (!unitId) {
           console.warn(`Unit not found for unitNo: ${unitNo}`);
-          return; 
+          return;
         }
 
         const totalDesks = parseInt(cabinDesks) + parseInt(openDesks);
@@ -435,7 +444,8 @@ const bulkInsertCoworkingClients = async (req, res, next) => {
           cabinDesks: parseInt(cabinDesks) || 0,
           openDesks: parseInt(openDesks) || 0,
           totalDesks,
-          ratePerDesk: parseFloat(ratePerDesk) || 0,
+          ratePerOpenDesk,
+          ratePerCabinDesk: parseFloat(ratePerOpenDesk, ratePerCabinDesk) || 0,
           annualIncrement: parseFloat(annualIncrement) || 0,
           perDeskMeetingCredits: parseInt(perDeskMeetingCredits) || 0,
           totalMeetingCredits,
@@ -444,7 +454,7 @@ const bulkInsertCoworkingClients = async (req, res, next) => {
           lockinPeriod: parseInt(lockinPeriod) || 0,
           bookingType,
           rentDate: rentDate ? new Date(rentDate) : null,
-          nextIncrement: rentDate ? new Date(rentDate) : null, 
+          nextIncrement: rentDate ? new Date(rentDate) : null,
           localPoc: {
             name: localPocName,
             email: localPocEmail,
