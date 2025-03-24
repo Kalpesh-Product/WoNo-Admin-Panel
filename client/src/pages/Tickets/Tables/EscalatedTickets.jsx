@@ -25,6 +25,13 @@ const EscalatedTickets = ({title}) => {
       ? []
       : tickets.map((ticket,index) => {
 
+        console.log('escalatee',ticket)
+      //  const  escalatedStatus =  ticket.escalatedTo.length > 0 ?ticket.escalatedTo[ticket.length - 1].status : null
+      //   const  escalatedTo = ticket.escalatedTo.length > 0 ? ticket.escalatedTo[ticket.length - 1].raisedToDepartment : null
+
+      //   console.log('escalatedStatus',escalatedStatus)
+      //   console.log('escalateTo',escalatedTo)
+
         const escalatedTicket = {
           srno: index + 1,
           raisedBy: ticket.raisedBy?.firstName || "Unknown",
@@ -32,6 +39,8 @@ const EscalatedTickets = ({title}) => {
           ticketTitle: ticket?.ticket || "No Title",
           tickets: ticket?.assignees.length > 0 ? "Ticket Assigned": ticket?.acceptedBy ? "Ticket Accepted": "N/A",
           status: ticket.status || "Pending",
+          // escalatedStatus: ticket.escalatedTo[ticket.length - 1].status,
+          // escalatedTo: ticket.escalatedTo[ticket.length - 1].raisedToDepartment
         }
 
         return escalatedTicket
@@ -104,6 +113,38 @@ const EscalatedTickets = ({title}) => {
         );
       },
     },
+     {
+      field: "escalatedStatus",
+      headerName: "Escalated Status",
+      cellRenderer: (params) => {
+        const statusColorMap = {
+          Pending: { backgroundColor: "#FFECC5", color: "#CC8400" }, // Light orange bg, dark orange font
+          "In Progress": { backgroundColor: "#ADD8E6", color: "#00008B" }, // Light blue bg, dark blue font
+          Closed: { backgroundColor: "#90EE90", color: "#006400" }, // Light green bg, dark green font
+          Open: { backgroundColor: "#E6E6FA", color: "#4B0082" }, // Light purple bg, dark purple font
+          Completed: { backgroundColor: "#D3D3D3", color: "#696969" }, // Light gray bg, dark gray font
+        }; 
+
+        const { backgroundColor, color } = statusColorMap[params.value] || {
+          backgroundColor: "gray",
+          color: "white",
+        };
+        return (
+          <div className="flex flex-col justify-center pt-4">
+            <Chip
+              label={params.value}
+              style={{
+                backgroundColor,
+                color,
+              }}
+            />
+            <span className="text-small text-borderGray text-center h-full">
+              By ABC
+            </span>
+          </div>
+        );
+      },
+    },
     {
       field: "escalatedTo",
       headerName: "Escalated To",
@@ -121,6 +162,28 @@ const EscalatedTickets = ({title}) => {
               }}
             >
               Admin Department
+            </button>
+          </div>
+        </>
+      ),
+    },
+    {
+      field: "action",
+      headerName: "Action",
+      cellRenderer: (params) => (
+        <>
+          <div className="p-2 mb-2 flex gap-2">
+            <button
+              style={{
+                backgroundColor: "#39A4F6",
+                color: "white",
+                border: "none",
+                padding: "0.1rem 0.5rem",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              Close
             </button>
           </div>
         </>

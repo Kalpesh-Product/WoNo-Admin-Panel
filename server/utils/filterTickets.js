@@ -32,7 +32,7 @@ async function fetchTickets(query) {
           },
         },
         { path: "raisedToDepartment", select: "name" },
-        { path: "escalatedTo", select: "name" },
+        { path: "escalatedTo" },
       ])
       .lean()
       .exec();

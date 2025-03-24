@@ -645,10 +645,21 @@ const escalateTicket = async (req, res, next) => {
       );
     }
 
+    const newTicket = new Ticket({
+      ticket: foundTicket.ticket,
+      description: foundTicket.description,
+      raisedToDepartment: foundTicket.departmentId,
+      raisedBy: user,
+      company: company,
+      image: foundTicket.image ? foundTicket.image : null,
+    });
+
+    const savedTicket = await newTicket.save();
+
     // Update the ticket: add the departmentId to the escalatedTo array
     const updatedTicket = await Tickets.findByIdAndUpdate(
       ticketId,
-      { $push: { escalatedTo: departmentId } },
+      { $push: { escalatedTo: savedTicket._id } },
       { new: true }
     );
 
@@ -672,7 +683,7 @@ const escalateTicket = async (req, res, next) => {
       company: company,
       sourceKey: logSourceKey,
       sourceId: updatedTicket._id,
-      changes: { escalatedTo: departmentId, escalatedBy: user },
+      changes: { escalatedTo: savedTicket._id, escalatedBy: user },
     });
 
     return res.status(200).json({ message: "Ticket escalated successfully" });
