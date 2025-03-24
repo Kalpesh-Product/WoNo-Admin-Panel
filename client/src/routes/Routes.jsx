@@ -823,7 +823,7 @@ export const routes = createBrowserRouter([
                             element: <ViewClients />,
                           },
                           {
-                            path: "view-clients/:id",
+                            path: "view-clients/:clientName",
                             element: <ViewClientLayout />,
                             children: [
                               {
@@ -852,22 +852,8 @@ export const routes = createBrowserRouter([
                             path: "client-onboarding",
                             element: <ClientOnboarding />,
                           },
-                          // {
-                          //   path: "view-member/:id",
-                          //   element: <MemberDetails />,
-                          // },
                         ],
                       },
-                      // {
-                      //   path: "settings",
-                      //   element: <HrSettings />,
-                      //   children: [
-                      //     {
-                      //       path: "bulk-upload",
-                      //       element: <BulkUpload />,
-                      //     },
-                      //   ],
-                      // },
                       {
                         path: "settings",
                         element: <SalesSettings />,

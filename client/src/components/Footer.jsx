@@ -4,21 +4,27 @@ import wonoLogo from "../assets/WONO_images/img/WONO.png";
 const Footer = ({ changeActiveTab }) => {
   const footerLinks = [
     {
+      id: 1,
       title: "About",
     },
     {
+      id: 2,
       title: "Career",
     },
     {
+      id: 3,
       title: "Contact",
     },
     {
+      id: 4,
       title: "Privacy",
     },
     {
+      id: 5,
       title: "FAQS",
     },
     {
+      id: 6,
       title: "T&C",
     },
   ];
@@ -56,11 +62,11 @@ const Footer = ({ changeActiveTab }) => {
         </div>
 
         <div className="w-full grid grid-cols-3 sm:grid-cols-1 md:grid-cols-3 gap-8 uppercase">
-          {footerLinks.map((links,index)=>(
+          {footerLinks.map((links) => (
             <>
-            <div className="text-center">
-              <span className="text-content text-white">{links.title}</span>
-            </div>
+              <div key={links.id} className="text-center">
+                <span className="text-content text-white">{links.title}</span>
+              </div>
             </>
           ))}
         </div>

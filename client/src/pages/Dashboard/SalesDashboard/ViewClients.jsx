@@ -1,16 +1,26 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import AgTable from "../../../components/AgTable";
-import { Chip } from "@mui/material";
+import { Chip, CircularProgress } from "@mui/material";
 import BarGraph from "../../../components/graphs/BarGraph";
 import UniqueClients from "./ViewClients/LeadsLayout";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import { toast } from "sonner";
+import { setSelectedClient } from "../../../redux/slices/clientSlice";
+import { useDispatch } from "react-redux";
 
 const ViewClients = () => {
   const navigate = useNavigate();
   const axios = useAxiosPrivate();
+  const dispatch = useDispatch();
+
+  const handleClickRow = (clientData) => {
+    dispatch(setSelectedClient(clientData));
+    navigate(
+      `/app/dashboard/sales-dashboard/clients/view-clients/${clientData.clientName}`
+    );
+  };
 
   const domainData = [
     {
@@ -286,7 +296,7 @@ const ViewClients = () => {
   ];
 
   const viewEmployeeColumns = [
-    { field: "srno", headerName: "SR No" },
+    { field: "id", headerName: "ID" },
     {
       field: "clientName",
       headerName: "Client Name",
@@ -297,110 +307,38 @@ const ViewClients = () => {
             textDecoration: "underline",
             cursor: "pointer",
           }}
-          onClick={() =>
-            navigate(
-              `/app/dashboard/sales-dashboard/clients/view-clients/${params.data.clientID}`
-            )
-          }
+          onClick={() => handleClickRow(params.data)}
         >
           {params.value}
         </span>
       ),
     },
-    { field: "clientID", headerName: "Client ID" },
-    { field: "email", headerName: "Email", flex: 1 },
-    { field: "credits", headerName: "Credits", flex: 1 },
-    { field: "typeOfClient", headerName: "Type Of Client", flex: 1 },
-    {
-      field: "status",
-      headerName: "Status",
-      cellRenderer: (params) => {
-        const statusColorMap = {
-          Active: { backgroundColor: "#90EE90", color: "#006400" },
-          Inactive: { backgroundColor: "#D3D3D3", color: "#696969" },
-        };
+    { field: "hoPocEmail", headerName: "Email", flex: 1 },
+    { field: "totalMeetingCredits", headerName: "Credits" },
+    // {
+    //   field: "status",
+    //   headerName: "Status",
+    //   cellRenderer: (params) => {
+    //     const statusColorMap = {
+    //       Active: { backgroundColor: "#90EE90", color: "#006400" },
+    //       Inactive: { backgroundColor: "#D3D3D3", color: "#696969" },
+    //     };
 
-        const { backgroundColor, color } = statusColorMap[params.value] || {
-          backgroundColor: "gray",
-          color: "white",
-        };
-        return (
-          <Chip
-            label={params.value}
-            style={{
-              backgroundColor,
-              color,
-            }}
-          />
-        );
-      },
-    },
-  ];
-
-  const rows = [
-    {
-      srno: "1",
-      clientName: "Zomato",
-      clientID: "CO001",
-      email: "aiwinraj.wono@gmail.com",
-      credits: "200",
-      typeOfClient: "Coworking",
-      status: "Active",
-    },
-    {
-      srno: "2",
-      clientName: "91 HR",
-      clientID: "CO002",
-      email: "allan.wono@gmail.com",
-      credits: "200",
-      typeOfClient: "Coworking",
-      status: "Active",
-    },
-    {
-      srno: "3",
-      clientName: "WoNo",
-      clientID: "CO003",
-      email: "sankalp.wono@gmail.com",
-      credits: "200",
-      typeOfClient: "Coworking",
-      status: "Active",
-    },
-    {
-      srno: "4",
-      clientName: "Axis Bank",
-      clientID: "CO004",
-      email: "anushri.wono@gmail.com",
-      credits: "200",
-      typeOfClient: "Coworking",
-      status: "Active",
-    },
-    {
-      srno: "5",
-      clientName: "Turtle Mint",
-      clientID: "CO005",
-      email: "muskan.wono@gmail.com",
-      credits: "200",
-      typeOfClient: "Coworking",
-      status: "Active",
-    },
-    {
-      srno: "6",
-      clientName: "Zimetrics",
-      clientID: "CO006",
-      email: "kalpesh.wono@gmail.com",
-      credits: "200",
-      typeOfClient: "Coworking",
-      status: "Active",
-    },
-    {
-      srno: "7",
-      clientName: "mCaffiene",
-      clientID: "CO007",
-      email: "allan2.wono@gmail.com",
-      credits: "200",
-      typeOfClient: "Coworking",
-      status: "InActive",
-    },
+    //     const { backgroundColor, color } = statusColorMap[params.value] || {
+    //       backgroundColor: "gray",
+    //       color: "white",
+    //     };
+    //     return (
+    //       <Chip
+    //         label={params.value}
+    //         style={{
+    //           backgroundColor,
+    //           color,
+    //         }}
+    //       />
+    //     );
+    //   },
+    // },
   ];
 
   const { data: clientsData, isPending: isClientsDataPending } = useQuery({
@@ -423,14 +361,58 @@ const ViewClients = () => {
         <UniqueClients data={domainData} hideAccordion />
       </div>
 
-      <div className="w-full">
-        <AgTable
-          search={true}
-          searchColumn="Email"
-          data={rows}
-          columns={viewEmployeeColumns}
-        />
-      </div>
+      {!isClientsDataPending ? (
+        <>
+          <div className="w-full">
+            <AgTable
+              search={true}
+              key={clientsData.length}
+              data={[
+                ...clientsData.map((item, index) => ({
+                  id: index + 1,
+                  _id: item._id,
+                  company: item.company,
+                  clientName: item.clientName,
+                  serviceName: item.service?.serviceName,
+                  serviceDescription: item.service?.description,
+                  sector: item.sector,
+                  hoCity: item.hoCity,
+                  hoState: item.hoState,
+                  unitName: item.unit?.unitName,
+                  unitNo: item.unit?.unitNo,
+                  buildingName: item.unit?.building?.buildingName,
+                  buildingAddress: item.unit?.building?.fullAddress,
+                  cabinDesks: item.cabinDesks,
+                  openDesks: item.openDesks,
+                  totalDesks: item.totalDesks,
+                  ratePerOpenDesk: item.ratePerOpenDesk,
+                  ratePerCabinDesk: item.ratePerCabinDesk,
+                  annualIncrement: item.annualIncrement,
+                  perDeskMeetingCredits: item.perDeskMeetingCredits,
+                  totalMeetingCredits: item.totalMeetingCredits,
+                  startDate: item.startDate,
+                  endDate: item.endDate,
+                  lockinPeriod: item.lockinPeriod,
+                  rentDate: item.rentDate,
+                  nextIncrement: item.nextIncrement,
+                  localPocName: item.localPoc?.name,
+                  localPocEmail: item.localPoc?.email,
+                  localPocPhone: item.localPoc?.phone,
+                  hoPocName: item.hOPoc?.name,
+                  hoPocEmail: item.hOPoc?.email,
+                  hoPocPhone: item.hOPoc?.phone,
+                  isActive: item.isActive,
+                  createdAt: item.createdAt,
+                  updatedAt: item.updatedAt,
+                })),
+              ]}
+              columns={viewEmployeeColumns}
+            />
+          </div>
+        </>
+      ) : (
+        <CircularProgress />
+      )}
     </div>
   );
 };

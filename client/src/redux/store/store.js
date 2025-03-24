@@ -1,10 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
-import meetingsReducer from '../slices/meetingSlice'
+import clientReducer from "../slices/clientSlice";
+import meetingsReducer from "../slices/meetingSlice";
 
 const store = configureStore({
-    reducer : {
-        meetings : meetingsReducer
-    }
-})
+  reducer: {
+    meetings: meetingsReducer,
+    client: clientReducer,
+  },
+});
 
-export default store
+export default store;
