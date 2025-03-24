@@ -22,6 +22,8 @@ const createCoworkingClient = async (req, res, next) => {
   try {
     const {
       clientName,
+      email,
+      phone,
       service,
       sector,
       hoCity,
@@ -97,6 +99,8 @@ const createCoworkingClient = async (req, res, next) => {
 
     if (
       !clientName ||
+      !email ||
+      !phone ||
       !service ||
       !sector ||
       !hoCity ||
@@ -151,6 +155,8 @@ const createCoworkingClient = async (req, res, next) => {
     const client = new CoworkingClient({
       company,
       clientName,
+      email,
+      phone,
       service,
       sector,
       hoCity,
@@ -231,33 +237,7 @@ const createCoworkingClient = async (req, res, next) => {
       sourceKey: logSourceKey,
       sourceId: savedClient._id,
       changes: {
-        client: {
-          clientName,
-          service,
-          sector,
-          hoCity,
-          hoState,
-          unit,
-          cabinDesks,
-          openDesks,
-          totalDesks: bookedDesks,
-          ratePerOpenDesk,
-          ratePerCabinDesk,
-          annualIncrement,
-          perDeskMeetingCredits,
-          totalMeetingCredits,
-          startDate,
-          endDate,
-          lockinPeriod,
-          rentDate,
-          nextIncrement,
-          hOPoc: { name: hOPocName, email: hOPocEmail, phone: hOPocPhone },
-          localPoc: {
-            name: localPocName,
-            email: localPocEmail,
-            phone: localPocPhone,
-          },
-        },
+        client: savedClient,
         desks: {
           deskId: newbooking ? newbooking._id : bookingExists._id,
           unit,
