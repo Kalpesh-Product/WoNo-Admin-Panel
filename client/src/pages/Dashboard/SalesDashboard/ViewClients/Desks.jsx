@@ -1,131 +1,53 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AgTable from "../../../../components/AgTable";
 import clearImage from "../../../../assets/biznest/clear-seats.png";
 import occupiedImage from "../../../../assets/biznest/occupied-seats.png";
-import { Chip } from "@mui/material";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Chip,
+} from "@mui/material";
+import { IoIosArrowDown } from "react-icons/io";
 
 const Desks = () => {
   const navigate = useNavigate();
+  const [expanded, setExpanded] = useState(0); // default open the first one (index 0)
+
+  const handleChange = (index) => (event, isExpanded) => {
+    setExpanded(isExpanded ? index : false);
+  };
 
   const viewEmployeeColumns = [
-    { field: "srno", headerName: "Total Seats" },
-    // {
-    //   field: "employeeName",
-    //   headerName: "Employee Name",
-    //   cellRenderer: (params) => (
-    //     <span
-    //       style={{
-    //         color: "#1E3D73",
-    //         textDecoration: "underline",
-    //         cursor: "pointer",
-    //       }}
-    //       onClick={() =>
-    //         navigate(
-    //           `/app/dashboard/HR-dashboard/employee/view-employees/${params.data.employmentID}`
-    //         )
-    //       }>
-    //       {params.value}
-    //     </span>
-    //   ),
-    // },
-    { field: "employmentID", headerName: "Booked Seats" },
-    { field: "email", headerName: "Occupancy %", flex: 1 },
-    { field: "role", headerName: "Available Seats", flex: 1 },
-    // {
-    //   field: "status",
-    //   headerName: "Status",
-    //   cellRenderer: (params) => {
-    //     const statusColorMap = {
-    //       Active: { backgroundColor: "#90EE90", color: "#006400" },
-    //       Inactive: { backgroundColor: "#D3D3D3", color: "#696969" },
-    //     };
-
-    //     const { backgroundColor, color } = statusColorMap[params.value] || {
-    //       backgroundColor: "gray",
-    //       color: "white",
-    //     };
-    //     return (
-    //       <Chip
-    //         label={params.value}
-    //         style={{
-    //           backgroundColor,
-    //           color,
-    //         }}
-    //       />
-    //     );
-    //   },
-    // },
+    { field: "totalSeats", headerName: "Total Seats" },
+    { field: "bookedSeats", headerName: "Booked Seats" },
+    { field: "occupancy", headerName: "Occupancy %", flex: 1 },
+    { field: "availableSeats", headerName: "Available Seats", flex: 1 },
   ];
 
   const rows = [
     {
-      srno: "8",
-      // employeeName: "Aiwinraj",
-      employmentID: "4",
-      email: "3",
-      role: "4",
+      totalSeats: "8",
+      bookedSeats: "4",
+      occupancy: "50%",
+      availableSeats: "4",
     },
-    // {
-    //   srno: "2",
-    //   employeeName: "Allan",
-    //   employmentID: "WO002",
-    //   email: "allan.wono@gmail.com",
-    //   role: "Employee",
-    //   status: "Active",
-    // },
-    // {
-    //   srno: "3",
-    //   employeeName: "Sankalp",
-    //   employmentID: "WO003",
-    //   email: "sankalp.wono@gmail.com",
-    //   role: "Employee",
-    //   status: "Active",
-    // },
-    // {
-    //   srno: "4",
-    //   employeeName: "Anushri",
-    //   employmentID: "WO004",
-    //   email: "anushri.wono@gmail.com",
-    //   role: "Employee",
-    //   status: "Active",
-    // },
-    // {
-    //   srno: "5",
-    //   employeeName: "Muskan",
-    //   employmentID: "WO005",
-    //   email: "muskan.wono@gmail.com",
-    //   role: "Employee",
-    //   status: "Active",
-    // },
-    // {
-    //   srno: "6",
-    //   employeeName: "Kalpesh",
-    //   employmentID: "WO006",
-    //   email: "kalpesh.wono@gmail.com",
-    //   role: "Employee",
-    //   status: "Active",
-    // },
-    // {
-    //   srno: "7",
-    //   employeeName: "Allan2",
-    //   employmentID: "WO007",
-    //   email: "allan2.wono@gmail.com",
-    //   role: "Employee",
-    //   status: "InActive",
-    // },
+  ];
+  const currentRoomData = [
+    { id: 1, title: "Occupied", image: occupiedImage },
+    { id: 2, title: "Available", image: clearImage },
   ];
 
   return (
     <div>
-      <div className="w-full py-10 flex justify-around items-center">
-        <div className="">
+      <div className="w-full ">
+        {/* <div className="">
           <div className="py-2 text-center">
             <p className="text-primary text-lg font-bold">Occupied</p>
           </div>
           <div>
             <img
-              // className="w-[90%] h-[80%] object-contain cursor-pointer"
               className="w-full h-[80%] object-contain cursor-pointer"
               src={occupiedImage}
               alt="Image"
@@ -145,15 +67,48 @@ const Desks = () => {
               alt="Image"
             />
           </div>
-        </div>
-      </div>
-      <div className="w-full">
-        <AgTable
-          search={true}
-          searchColumn="Email"
-          data={rows}
-          columns={viewEmployeeColumns}
-        />
+        </div> */}
+        {currentRoomData.map((item, index) => (
+          <Accordion
+            expanded={expanded === index}
+            onChange={handleChange(index)}
+          >
+            <AccordionSummary
+              expandIcon={<IoIosArrowDown />}
+              id={index}
+              sx={{ borderBottom: "1px solid #d1d5db" }}
+            >
+              <div className="p-2 w-full flex justify-between items-center">
+                <span className="text-subtitle">{item.title}</span>
+                {rows.map((row, index) => (
+                  <span key={index} className="text-subtitle">
+                    {item.title === "Occupied"
+                      ? row.totalSeats
+                      : row.availableSeats}
+                  </span>
+                ))}
+              </div>
+            </AccordionSummary>
+            <AccordionDetails>
+              <div className="w-full flex flex-col gap-4">
+                <div className="flex justify-center items-center">
+                  <img
+                    className="w-[50%] h-[80%] object-contain cursor-pointer"
+                    src={occupiedImage}
+                    alt="Image"
+                  />
+                </div>
+                <AgTable
+                  search={true}
+                  searchColumn="Email"
+                  data={rows}
+                  columns={viewEmployeeColumns}
+                  tableHeight={150}
+                />
+              </div>
+            </AccordionDetails>
+          </Accordion>
+        ))}
       </div>
     </div>
   );

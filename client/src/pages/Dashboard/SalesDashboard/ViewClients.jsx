@@ -4,9 +4,13 @@ import AgTable from "../../../components/AgTable";
 import { Chip } from "@mui/material";
 import BarGraph from "../../../components/graphs/BarGraph";
 import UniqueClients from "./ViewClients/LeadsLayout";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import { toast } from "sonner";
 
 const ViewClients = () => {
   const navigate = useNavigate();
+  const axios = useAxiosPrivate();
 
   const domainData = [
     {
@@ -297,7 +301,8 @@ const ViewClients = () => {
             navigate(
               `/app/dashboard/sales-dashboard/clients/view-clients/${params.data.clientID}`
             )
-          }>
+          }
+        >
           {params.value}
         </span>
       ),
@@ -397,6 +402,20 @@ const ViewClients = () => {
       status: "InActive",
     },
   ];
+
+  const { data: clientsData, isPending: isClientsDataPending } = useQuery({
+    queryKey: ["clientsData"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/sales/co-working-clients");
+        return response.data;
+      } catch (error) {
+        toast.error(error.message);
+      }
+    },
+  });
+
+  console.log(clientsData);
 
   return (
     <div className="flex flex-col gap-4">

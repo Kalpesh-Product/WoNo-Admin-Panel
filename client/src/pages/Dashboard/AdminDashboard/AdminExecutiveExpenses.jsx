@@ -13,7 +13,7 @@ import { IoIosArrowDown } from "react-icons/io";
 import AgTable from "../../../components/AgTable";
 import WidgetSection from "../../../components/WidgetSection";
 
-const ItPerSqExpense = () => {
+const AdminExecutiveExpenses = () => {
   const mockBusinessRevenueData = [
     {
       month: "April",
@@ -452,4 +452,4 @@ const ItPerSqExpense = () => {
   );
 };
 
-export default ItPerSqExpense;
+export default AdminExecutiveExpenses;
