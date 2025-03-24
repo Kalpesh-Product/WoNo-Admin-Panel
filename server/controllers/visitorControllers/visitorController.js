@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Visitor = require("../../models/visitor/Visitor");
 const CustomError = require("../../utils/customErrorlogs");
 const { createLog } = require("../../utils/moduleLogs");
@@ -5,13 +6,15 @@ const { createLog } = require("../../utils/moduleLogs");
 const fetchVisitors = async (req, res, next) => {
   const { company } = req;
   const { query } = req.query;
+
   try {
+    const companyId = new mongoose.Types.ObjectId(company);
     let visitors;
 
     switch (query) {
       case "department":
         visitors = await Visitor.aggregate([
-          { $match: { company: company } },
+          { $match: { company: companyId } },
           { $match: { department: { $ne: null } } },
           {
             $group: {
@@ -40,13 +43,13 @@ const fetchVisitors = async (req, res, next) => {
         endOfDay.setHours(23, 59, 59, 999);
 
         visitors = await Visitor.find({
-          company,
+          company: companyId,
           dateOfVisit: { $gte: startOfDay, $lte: endOfDay },
         }).populate("department", "name");
         break;
 
       default:
-        visitors = await Visitor.find({ company }).populate(
+        visitors = await Visitor.find({ company: companyId }).populate(
           "department",
           "name"
         );
@@ -146,13 +149,17 @@ const updateVisitor = async (req, res, next) => {
   const { user, ip, company } = req;
 
   try {
-    const { id } = req.params;
+    const { visitorId } = req.params;
     const updateData = req.body;
 
-    const updatedVisitor = await Visitor.findByIdAndUpdate(id, updateData, {
-      new: true,
-      runValidators: true,
-    });
+    const updatedVisitor = await Visitor.findByIdAndUpdate(
+      visitorId,
+      updateData,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
     if (!updatedVisitor) {
       throw new CustomError(
