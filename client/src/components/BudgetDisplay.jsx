@@ -23,7 +23,9 @@ import { Controller, useForm } from "react-hook-form";
 
 const BudgetDisplay = ({ budgetData }) => {
   const axios = useAxiosPrivate();
+
   const [openModal, setOpenModal] = useState(false);
+
 
   const { control, handleSubmit, reset } = useForm({
     defaultValues: {
@@ -69,7 +71,9 @@ const BudgetDisplay = ({ budgetData }) => {
       expanseName: item.expanseName,
       department: item.department,
       expanseType: item.expanseType,
-      amount: item.amount.toLocaleString("en-IN", { maximumFractionDigits: 0 }), // Ensuring two decimal places
+      amount: item.projectedAmount.toLocaleString("en-IN", {
+        maximumFractionDigits: 0,
+      }), // Ensuring two decimal places
       dueDate: dayjs(item.dueDate).format("DD-MM-YYYY"),
       status: item.status,
     });
@@ -106,7 +110,7 @@ const BudgetDisplay = ({ budgetData }) => {
     chart: {
       type: "bar",
       stacked: true,
-      fontFamily : "Poppins-Regular"
+      fontFamily: "Poppins-Regular",
     },
     plotOptions: {
       bar: {
