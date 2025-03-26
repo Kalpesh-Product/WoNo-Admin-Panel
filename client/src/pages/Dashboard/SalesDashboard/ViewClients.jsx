@@ -353,12 +353,59 @@ const ViewClients = () => {
     },
   });
 
-  console.log(clientsData);
+  const transformClientsGroupedByMonth = (clientsArray) => {
+    const grouped = {};
+  
+    // helper to title-case each word
+    const toTitleCase = (str) =>
+      str
+        .toLowerCase()
+        .split("-")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join("-");
+  
+    clientsArray.forEach((client) => {
+      const date = client.startDate ? new Date(client.startDate) : null;
+  
+      const formattedDate = date ? date.toISOString().split("T")[0] : "N/A";
+      const month = date
+        ? date.toLocaleString("default", { month: "long" })
+        : "Unknown";
+  
+      const rawServiceName = client.service?.serviceName || "Unknown";
+      const formattedServiceName = toTitleCase(rawServiceName);
+  
+      const transformedClient = {
+        client: client.clientName || "Unknown",
+        typeOfClient: formattedServiceName,
+        date: formattedDate,
+      };
+  
+      if (!grouped[month]) {
+        grouped[month] = [];
+      }
+  
+      grouped[month].push(transformedClient);
+    });
+  
+    return Object.entries(grouped).map(([month, clients]) => ({
+      month,
+      clients,
+    }));
+  };
+  
 
+  const transformedData = isClientsDataPending
+  ? []
+  : transformClientsGroupedByMonth(clientsData);
+
+console.log("Grouped Transformed Data:", transformedData);
+
+  
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <UniqueClients data={domainData} hideAccordion />
+        <UniqueClients data={transformedData} hideAccordion />
       </div>
 
       {!isClientsDataPending ? (
@@ -404,6 +451,7 @@ const ViewClients = () => {
                   isActive: item.isActive,
                   createdAt: item.createdAt,
                   updatedAt: item.updatedAt,
+                  occupiedImage : item.occupiedImage?.imageUrl,
                 })),
               ]}
               columns={viewEmployeeColumns}

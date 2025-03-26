@@ -55,7 +55,7 @@ const ClientDetails = () => {
         hoCity: selectedClient.hoCity,
         hoState: selectedClient.hoState,
         unitName: selectedClient.unit?.unitName || "",
-        unitNo: selectedClient.unit?.unitNo || "",
+        unitNo: selectedClient.unitNo || "",
         buildingName: selectedClient.unit?.building?.buildingName || "",
         buildingAddress: selectedClient.unit?.building?.fullAddress || "",
         cabinDesks: selectedClient.cabinDesks,
@@ -71,19 +71,18 @@ const ClientDetails = () => {
         lockinPeriod: selectedClient.lockinPeriod,
         rentDate: selectedClient.rentDate,
         nextIncrement: selectedClient.nextIncrement,
-        localPocName: selectedClient.localPoc?.name || "",
-        localPocEmail: selectedClient.localPoc?.email || "",
-        localPocPhone: selectedClient.localPoc?.phone || "",
-        hoPocName: selectedClient.hOPoc?.name || "",
-        hoPocEmail: selectedClient.hOPoc?.email || "",
-        hoPocPhone: selectedClient.hOPoc?.phone || "",
+        localPocName: selectedClient.localPocName || "",
+        localPocEmail: selectedClient.localPocEmail || "",
+        localPocPhone: selectedClient.localPocPhone || "",
+        hoPocName: selectedClient.hoPocName || "",
+        hoPocEmail: selectedClient.hoPocEmail || "",
+        hoPocPhone: selectedClient.hoPocPhone || "",
         isActive: selectedClient.isActive,
         createdAt: selectedClient.createdAt,
         updatedAt: selectedClient.updatedAt,
       });
     }
   }, [selectedClient, reset]);
-  
 
   console.log(selectedClient);
 
@@ -181,7 +180,7 @@ const ClientDetails = () => {
 
                 <div className="grid grid-cols sm:grid-cols-1 md:grid-cols-1 gap-4 p-4">
                   {[
-                    "unit",
+                    "unitNo",
                     "cabinDesks",
                     "ratePerCabinDesk",
                     "openDesks",
@@ -295,9 +294,9 @@ const ClientDetails = () => {
                     "localPocName",
                     "localPocEmail",
                     "localPocPhone",
-                    "hOPocName",
-                    "hOPocEmail",
-                    "hOPocPhone",
+                    "hoPocName",
+                    "hoPocEmail",
+                    "hoPocPhone",
                   ].map((fieldKey) => (
                     <div key={fieldKey}>
                       {isEditing ? (
