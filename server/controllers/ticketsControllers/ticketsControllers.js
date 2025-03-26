@@ -24,7 +24,7 @@ const raiseTicket = async (req, res, next) => {
   const logAction = "Raise Ticket";
   const logSourceKey = "ticket";
   const { departmentId, issueId, newIssue, description } = req.body;
-  const image = req.file; // Get the uploaded file
+  const image = req.file; 
   const { user, ip, company } = req;
 
   try {
