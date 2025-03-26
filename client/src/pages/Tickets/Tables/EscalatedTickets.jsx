@@ -1,8 +1,10 @@
 import React from "react";
 import AgTable from "../../../components/AgTable";
 import { Chip } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import { toast } from "sonner";
+import { queryClient } from "../../..";
 
 const EscalatedTickets = ({title}) => {
 
@@ -10,13 +12,34 @@ const EscalatedTickets = ({title}) => {
 
    // Fetch Supported Tickets
    const { data: escalatedTickets = [], isLoading } = useQuery({
-    queryKey: ["esccalate-tickets"],
+    queryKey: ["tickets","escalate-tickets"],
     queryFn: async () => {
       const response = await axios.get("/api/tickets/ticket-filter/escalate");
 
       return response.data;
     },
   });
+
+  const { mutate } = useMutation({
+      mutationKey: ["close-ticket"],
+      mutationFn: async (ticketId) => {
+       
+        const response = await axios.patch("/api/tickets/close-ticket", {
+          ticketId,
+        });
+        return response.data;
+      },
+  
+      onSuccess: (data) => {
+        toast.success(data.message || "Ticket closed successfully");
+        
+
+        queryClient.invalidateQueries({ queryKey: ["tickets","escalate-tickets"] });  
+      },
+      onError: (err) => {
+        toast.error(err.response.data.message || "Failed to close ticket");
+      },
+    });
 
    // Transform Tickets Data
    const transformTicketsData = (tickets) => {
@@ -25,22 +48,20 @@ const EscalatedTickets = ({title}) => {
       ? []
       : tickets.map((ticket,index) => {
 
-        console.log('escalatee',ticket)
-      //  const  escalatedStatus =  ticket.escalatedTo.length > 0 ?ticket.escalatedTo[ticket.length - 1].status : null
-      //   const  escalatedTo = ticket.escalatedTo.length > 0 ? ticket.escalatedTo[ticket.length - 1].raisedToDepartment : null
-
-      //   console.log('escalatedStatus',escalatedStatus)
-      //   console.log('escalateTo',escalatedTo)
+       const escalatedIndex = ticket.escalatedTo.length - 1
+       const  escalatedStatus =  ticket.escalatedTo.length > 0 ?ticket.escalatedTo[escalatedIndex].status: null
+        const  escalatedTo = ticket.escalatedTo.length > 0 ? ticket.escalatedTo[escalatedIndex].raisedToDepartment.name : null
 
         const escalatedTicket = {
           srno: index + 1,
+          id:ticket._id,
           raisedBy: ticket.raisedBy?.firstName || "Unknown",
           selectedDepartment: ticket.raisedBy?.departments.map((dept) => dept.name) || "N/A",
           ticketTitle: ticket?.ticket || "No Title",
           tickets: ticket?.assignees.length > 0 ? "Ticket Assigned": ticket?.acceptedBy ? "Ticket Accepted": "N/A",
           status: ticket.status || "Pending",
-          // escalatedStatus: ticket.escalatedTo[ticket.length - 1].status,
-          // escalatedTo: ticket.escalatedTo[ticket.length - 1].raisedToDepartment
+          escalatedStatus,
+          escalatedTo 
         }
 
         return escalatedTicket
@@ -138,9 +159,6 @@ const EscalatedTickets = ({title}) => {
                 color,
               }}
             />
-            <span className="text-small text-borderGray text-center h-full">
-              By ABC
-            </span>
           </div>
         );
       },
@@ -161,7 +179,7 @@ const EscalatedTickets = ({title}) => {
                 cursor: "pointer",
               }}
             >
-              Admin Department
+              {params.value}
             </button>
           </div>
         </>
@@ -175,13 +193,16 @@ const EscalatedTickets = ({title}) => {
           <div className="p-2 mb-2 flex gap-2">
             <button
               style={{
-                backgroundColor: "#39A4F6",
+                backgroundColor: params.data.escalatedStatus === "Closed" ? "#39A4F6": "grey",
                 color: "white",
                 border: "none",
                 padding: "0.1rem 0.5rem",
                 borderRadius: "4px",
                 cursor: "pointer",
               }}
+              onClick={ () => {
+                console.log(params)
+                return mutate(params.data.id)}}
             >
               Close
             </button>
