@@ -11,7 +11,7 @@ const {
 const sharp = require("sharp");
 const Unit = require("../../models/locations/Unit");
 const Building = require("../../models/locations/Building");
-const UserData = require("../../models/hr/UserData");
+const CoworkingClient = require("../../models/sales/CoworkingClient")
 
 const addBuilding = async (req, res, next) => {
   const logPath = "hr/HrLog";
@@ -211,11 +211,10 @@ const addUnit = async (req, res, next) => {
 
 const fetchUnits = async (req, res, next) => {
   const { company } = req;
-  const { unitId } = req.query;
+  const { unitId, deskCalculated } = req.query;
 
   try {
-    const companyExists = await Company.findById(company);
-
+    const companyExists = await Company.findById(company).lean().exec();
     if (!companyExists) {
       return res.status(400).json({ message: "Company not found" });
     }
@@ -223,29 +222,85 @@ const fetchUnits = async (req, res, next) => {
     let locations;
 
     if (unitId) {
-      locations = await Unit.findOne({ _id: unitId, company }).populate("building",
-        "_id buildingName fullAddress").lean().exec();
+      locations = await Unit.findOne({ _id: unitId, company })
+        .populate("building", "_id buildingName fullAddress")
+        .lean()
+        .exec();
+
       if (!locations) {
-        return res.status(400).json([])
+        return res.status(400).json([]);
       }
+
+      if (!deskCalculated || deskCalculated !== "true") {
+        return res.status(200).json(locations);
+      }
+
+      const coworkingClients = await CoworkingClient.find({ company, unit: unitId })
+        .select("cabinDesks openDesks")
+        .lean()
+        .exec();
+
+      const occupiedCabinDesks = coworkingClients.reduce((sum, client) => sum + (client.cabinDesks || 0), 0);
+      const occupiedOpenDesks = coworkingClients.reduce((sum, client) => sum + (client.openDesks || 0), 0);
+
+      locations.remainingCabinDesks = Math.max(0, locations.cabinDesks - occupiedCabinDesks);
+      locations.remainingOpenDesks = Math.max(0, locations.openDesks - occupiedOpenDesks);
+
       return res.status(200).json(locations);
     }
 
-    locations = await Unit.find().populate(
-      "building",
-      "_id buildingName fullAddress"
-    );
+    locations = await Unit.find({ company })
+      .populate("building", "_id buildingName fullAddress")
+      .lean()
+      .exec();
 
     if (!locations.length) {
       return res.status(200).json([]);
     }
 
-    return res.status(200).json(locations);
+    if (!deskCalculated || deskCalculated !== "true") {
+      return res.status(200).json(locations);
+    }
 
+    const clientData = await CoworkingClient.aggregate([
+      { $match: { company: new mongoose.Types.ObjectId(company) } },
+      {
+        $group: {
+          _id: "$unit",
+          totalCabinDesks: { $sum: "$cabinDesks" },
+          totalOpenDesks: { $sum: "$openDesks" },
+        },
+      },
+    ]);
+
+    // Convert aggregation result into a map for easy lookup
+    const clientMap = {};
+    clientData.forEach((data) => {
+      clientMap[data._id] = {
+        totalCabinDesks: data.totalCabinDesks || 0,
+        totalOpenDesks: data.totalOpenDesks || 0,
+      };
+    });
+
+    // Attach remaining desks to each unit
+    locations = locations.map((unit) => {
+      const occupiedCabinDesks = clientMap[unit._id]?.totalCabinDesks || 0;
+      const occupiedOpenDesks = clientMap[unit._id]?.totalOpenDesks || 0;
+
+      return {
+        ...unit,
+        remainingCabinDesks: Math.max(0, unit.cabinDesks - occupiedCabinDesks),
+        remainingOpenDesks: Math.max(0, unit.openDesks - occupiedOpenDesks),
+      };
+    });
+
+    return res.status(200).json(locations);
   } catch (error) {
     next(error);
   }
 };
+
+
 
 const uploadUnitImage = async (req, res, next) => {
   try {
