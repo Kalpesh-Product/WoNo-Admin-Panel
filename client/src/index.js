@@ -7,19 +7,22 @@ import { SidebarProvider } from "./context/SideBarContext";
 import AuthContextProvider from "./context/AuthContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Provider } from "react-redux";
-import store from "./redux/store/store";
+import store, { persistor } from "./redux/store/store";
+import { PersistGate } from "redux-persist/integration/react";
 
 export const queryClient = new QueryClient();
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Provider store={store}>
-    <AuthContextProvider>
-      <QueryClientProvider client={queryClient}>
-        <SidebarProvider>
-          <App />
-        </SidebarProvider>
-      </QueryClientProvider>
-    </AuthContextProvider>
+    <PersistGate loading={null} persistor={persistor}>
+      <AuthContextProvider>
+        <QueryClientProvider client={queryClient}>
+          <SidebarProvider>
+            <App />
+          </SidebarProvider>
+        </QueryClientProvider>
+      </AuthContextProvider>
+    </PersistGate>
   </Provider>
 );

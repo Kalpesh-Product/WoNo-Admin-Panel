@@ -63,7 +63,6 @@ const Reviews = () => {
     },
   });
 
-  useEffect(() => console.log(reviewData), [reviewData]);
 
   const departmentsColumn = [
     { field: "srno", headerName: "SR No" },
@@ -184,11 +183,6 @@ const Reviews = () => {
                 id: review._id,
                 srno: index + 1,
                 nameofreview: review.reviewerName,
-                // date: new Intl.DateTimeFormat("en-GB", {
-                //   day: "numeric",
-                //   month: "long",
-                //   year: "numeric",
-                // }).format(new Date(review.meeting.startDate)),
                 date : humanDate(review.createdAt),
                 rate: review.rate,
                 Reviews: review.review,

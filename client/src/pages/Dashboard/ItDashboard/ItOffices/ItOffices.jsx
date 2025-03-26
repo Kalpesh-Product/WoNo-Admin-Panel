@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import BarGraph from "../../../components/graphs/BarGraph";
+import BarGraph from "../../../../components/graphs/BarGraph";
 import {
   Select,
   MenuItem,
@@ -10,20 +10,22 @@ import {
   AccordionDetails,
 } from "@mui/material";
 import { IoIosArrowDown } from "react-icons/io";
-import AgTable from "../../../components/AgTable";
-import WidgetSection from "../../../components/WidgetSection";
+import AgTable from "../../../../components/AgTable";
+import WidgetSection from "../../../../components/WidgetSection";
+import { useNavigate } from "react-router-dom";
 
-const ItPerSqExpense = () => {
+const ItOffices = () => {
+  const navigate = useNavigate();
   const mockBusinessRevenueData = [
     {
       month: "April",
       domains: [
         {
           name: "ST-701A",
-          revenue: 12000,
+          revenue: 10,
           clients: [
             {
-              unitNo: "Zomato",
+              client: "Zomato",
               representative: "John Doe",
               registerDate: "2024-01-15",
               actualRevenue: 5000,
@@ -44,7 +46,7 @@ const ItPerSqExpense = () => {
         },
         {
           name: "ST-701B",
-          revenue: 8000,
+          revenue: 10,
           clients: [
             {
               client: "Client D",
@@ -62,7 +64,7 @@ const ItPerSqExpense = () => {
         },
         {
           name: "ST-601A",
-          revenue: 15000,
+          revenue: 10,
           clients: [
             { client: "Client F", revenue: 5000 },
             { client: "Client G", revenue: 7000 },
@@ -71,7 +73,7 @@ const ItPerSqExpense = () => {
         },
         {
           name: "ST-601B",
-          revenue: 15000,
+          revenue: 10,
           clients: [
             {
               client: "Client F",
@@ -95,7 +97,7 @@ const ItPerSqExpense = () => {
         },
         {
           name: "ST-501A",
-          revenue: 15000,
+          revenue: 10,
           clients: [
             {
               client: "Client F",
@@ -124,7 +126,7 @@ const ItPerSqExpense = () => {
       domains: [
         {
           name: "Co-Working",
-          revenue: 15000,
+          revenue: 10,
           clients: [
             {
               client: "Client I",
@@ -362,7 +364,7 @@ const ItPerSqExpense = () => {
     xaxis: {
       categories: selectedMonthData.domains.map((domain) => domain.name),
     },
-    yaxis: { title: { text: "Revenue (in Rupees)" } },
+    yaxis: { title: { text: "Number Of Offices" } },
     plotOptions: {
       bar: { horizontal: false, columnWidth: "30%", borderRadius: 5 },
     },
@@ -391,7 +393,7 @@ const ItPerSqExpense = () => {
       </div>
 
       {/* Bar Graph Component */}
-      <WidgetSection layout={1} title={"Expense Per Sq Ft"} border>
+      <WidgetSection layout={1} title={"IT Offices"} border>
         <BarGraph data={graphData} options={options} height={400} />
       </WidgetSection>
 
@@ -405,28 +407,93 @@ const ItPerSqExpense = () => {
                 aria-controls={`panel-${index}-content`}
                 id={`panel-${index}-header`}>
                 <div className="flex justify-between items-center w-full px-4">
-                  <span className="text-subtitle font-pmedium">
+                  <span className="text-subtitle font-pmedium  ">
                     {domain.name}
                   </span>
                   <span className="text-subtitle font-pmedium">
-                    {domain.revenue.toLocaleString()} INR
+                    {domain.revenue.toLocaleString()}
                   </span>
                 </div>
               </AccordionSummary>
               <AccordionDetails sx={{ borderTop: "1px solid  #d1d5db" }}>
+                {/* Details Start */}
+                <div className="flex justify-between">
+                  <div className="flex justify-between items-center w-80 px-4">
+                    <span
+                      className="text-subtitle font-pmedium underline text-primary"
+                      onClick={() => {
+                        localStorage.setItem("client", domain.name);
+                        navigate(
+                          `/app/dashboard/it-dashboard/it-offices/it-offices-layout/${domain.name}`
+                        );
+                      }}>
+                      View Layout {domain.name}
+                    </span>
+                    {/* <span className="text-subtitle font-pmedium">
+                      {domain.revenue.toLocaleString()}
+                    </span> */}
+                  </div>
+                  <div className="w-4/12 ">
+                    <p className="text-subtitle text-primary p-6 w-fit">
+                      <span className="font-bold">Admin Lead: </span>
+                      Machindranath Parkar
+                    </p>
+                  </div>
+                </div>
+                {/* Details End */}
                 <AgTable
                   data={domain.clients}
                   hideFilter
                   columns={[
-                    { header: "Client", field: "client", flex: 1 },
                     {
-                      header: "Representative",
+                      header: "Sr. No.",
+                      field: "client",
+                      flex: 1,
+                      // cellRenderer: (params) => (
+                      //   <span
+                      //     style={{
+                      //       color: "#1E3D73",
+                      //       textDecoration: "underline",
+                      //       cursor: "pointer",
+                      //     }}
+                      //     onClick={() => {
+                      //       localStorage.setItem("client", params.data.client);
+                      //       navigate(
+                      //         `/app/dashboard/it-dashboard/it-offices/it-offices-layout/${params.data.client}`
+                      //       );
+                      //     }}>
+                      //     {params.value}
+                      //   </span>
+                      // ),
+                    },
+                    {
+                      header: "Unit No.",
                       field: "representative",
                       flex: 1,
                     },
-                    { header: "Register Date", field: "registerDate", flex: 1 },
+                    { header: "Unit Floor", field: "registerDate", flex: 1 },
                     {
-                      header: "Actual Revenue",
+                      header: "Unit Name",
+                      field: "actualRevenue",
+                      flex: 1,
+                    },
+                    {
+                      header: "Building",
+                      field: "actualRevenue",
+                      flex: 1,
+                    },
+                    {
+                      header: "Location",
+                      field: "actualRevenue",
+                      flex: 1,
+                    },
+                    {
+                      header: "Annual Expense",
+                      field: "actualRevenue",
+                      flex: 1,
+                    },
+                    {
+                      header: "Action",
                       field: "actualRevenue",
                       flex: 1,
                     },
@@ -452,4 +519,4 @@ const ItPerSqExpense = () => {
   );
 };
 
-export default ItPerSqExpense;
+export default ItOffices;

@@ -578,7 +578,7 @@ const escalateTicket = async (req, res, next) => {
   const logAction = "Escalate Ticket";
   const logSourceKey = "ticket";
   const { user, company, ip } = req;
-  const { ticketId, departmentId } = req.body;
+  const { ticketId, description, departmentId } = req.body;
 
   try {
     const foundUser = await User.findOne({ _id: user })
@@ -587,6 +587,14 @@ const escalateTicket = async (req, res, next) => {
       .exec();
     if (!foundUser) {
       throw new CustomError("User not found", logPath, logAction, logSourceKey);
+    }
+    if (!description) {
+      throw new CustomError(
+        "Description not provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     if (!mongoose.Types.ObjectId.isValid(departmentId)) {
@@ -645,10 +653,22 @@ const escalateTicket = async (req, res, next) => {
       );
     }
 
+    const newTicket = new Ticket({
+      ticket: foundTicket.ticket,
+      description,
+      raisedToDepartment: departmentId,
+      raisedBy: user,
+      company: company,
+      image: foundTicket.image ? foundTicket.image : null,
+    });
+
+    console.log("NewTicket", newTicket);
+    const savedTicket = await newTicket.save();
+
     // Update the ticket: add the departmentId to the escalatedTo array
     const updatedTicket = await Tickets.findByIdAndUpdate(
       ticketId,
-      { $push: { escalatedTo: departmentId } },
+      { $push: { escalatedTo: savedTicket._id } },
       { new: true }
     );
 
@@ -672,7 +692,7 @@ const escalateTicket = async (req, res, next) => {
       company: company,
       sourceKey: logSourceKey,
       sourceId: updatedTicket._id,
-      changes: { escalatedTo: departmentId, escalatedBy: user },
+      changes: { escalatedTo: savedTicket._id, escalatedBy: user },
     });
 
     return res.status(200).json({ message: "Ticket escalated successfully" });
@@ -832,7 +852,7 @@ const fetchFilteredTickets = async (req, res, next) => {
           roles,
           userDepartments
         );
-        console.log(filteredTickets);
+
         break;
       case "accept":
         filteredTickets = await filterAcceptedTickets(

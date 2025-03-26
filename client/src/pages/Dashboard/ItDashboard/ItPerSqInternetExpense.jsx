@@ -13,7 +13,7 @@ import { IoIosArrowDown } from "react-icons/io";
 import AgTable from "../../../components/AgTable";
 import WidgetSection from "../../../components/WidgetSection";
 
-const ItPerSqExpense = () => {
+const ItPerSqInternetExpense = () => {
   const mockBusinessRevenueData = [
     {
       month: "April",
@@ -391,7 +391,7 @@ const ItPerSqExpense = () => {
       </div>
 
       {/* Bar Graph Component */}
-      <WidgetSection layout={1} title={"Expense Per Sq Ft"} border>
+      <WidgetSection layout={1} title={"Internet Expense Per Sq Ft"} border>
         <BarGraph data={graphData} options={options} height={400} />
       </WidgetSection>
 
@@ -452,4 +452,4 @@ const ItPerSqExpense = () => {
   );
 };
 
-export default ItPerSqExpense;
+export default ItPerSqInternetExpense;
