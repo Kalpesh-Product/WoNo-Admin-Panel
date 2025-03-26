@@ -232,7 +232,29 @@ import AdminOfficesClear from "../pages/Dashboard/AdminDashboard/AdminOffices/Ad
 import AdminExpensesLayout from "../pages/Dashboard/AdminDashboard/AdminExpenses/AdminExpensesLayout";
 import AdminExpensesOccupied from "../pages/Dashboard/AdminDashboard/AdminExpenses/AdminExpensesOccupied";
 import AdminExpensesClear from "../pages/Dashboard/AdminDashboard/AdminExpenses/AdminExpensesClear";
+import MaintenanceOffices from "./../pages/Dashboard/MaintainanceDashboard/MaintenanceOffices/MaintenanceOffices";
+import MaintenanceOfficesLayout from "./../pages/Dashboard/MaintainanceDashboard/MaintenanceOffices/MaintenanceOfficesLayout";
+import MaintenanceOfficesOccupied from "./../pages/Dashboard/MaintainanceDashboard/MaintenanceOffices/MaintenanceOfficesOccupied";
+import MaintenanceOfficesClear from "./../pages/Dashboard/MaintainanceDashboard/MaintenanceOffices/MaintenanceOfficesClear";
+import MaintenanceExpenses from "./../pages/Dashboard/MaintainanceDashboard/MaintenanceExpenses/MaintenanceExpenses";
+import MaintenanceExpensesLayout from "./../pages/Dashboard/MaintainanceDashboard/MaintenanceExpenses/MaintenanceExpensesLayout";
+import MaintenanceExpensesOccupied from "./../pages/Dashboard/MaintainanceDashboard/MaintenanceExpenses/MaintenanceExpensesOccupied";
+import MaintenanceExpensesClear from "./../pages/Dashboard/MaintainanceDashboard/MaintenanceExpenses/MaintenanceExpensesClear";
+import ItOffices from "./../pages/Dashboard/ItDashboard/ItOffices/ItOffices";
+import ItOfficesLayout from "./../pages/Dashboard/ItDashboard/ItOffices/ItOfficesLayout";
+import ItOfficesOccupied from "./../pages/Dashboard/ItDashboard/ItOffices/ItOfficesOccupied";
+import ItOfficesClear from "./../pages/Dashboard/ItDashboard/ItOffices/ItOfficesClear";
+import ItExpenses from "./../pages/Dashboard/ItDashboard/ItExpenses/ItExpenses";
+import ItExpensesLayout from "./../pages/Dashboard/ItDashboard/ItExpenses/ItExpensesLayout";
+import ItExpensesOccupied from "./../pages/Dashboard/ItDashboard/ItExpenses/ItExpensesOccupied";
+import ItExpensesClear from "./../pages/Dashboard/ItDashboard/ItExpenses/ItExpensesClear";
 import ItPerSqExpense from "../pages/Dashboard/ItDashboard/ItPerSqExpense";
+import ItPerSqInternetExpense from "../pages/Dashboard/ItDashboard/ItPerSqInternetExpense";
+import AdminPerSqFtExpense from "../pages/Dashboard/AdminDashboard/AdminPerSqFtExpense";
+import AdminPerSqFtElectricityExpense from "../pages/Dashboard/AdminDashboard/AdminPerSqFtElectricityExpense";
+import AdminExecutiveExpenses from "../pages/Dashboard/AdminDashboard/AdminExecutiveExpenses";
+import MaintenancePerSqFtExpense from "../pages/Dashboard/MaintainanceDashboard/MaintenancePerSqFtExpense";
+import MaintenanceAssets from "../pages/Dashboard/MaintainanceDashboard/MaintenanceAssets";
 
 export const routes = createBrowserRouter([
   {
@@ -412,6 +434,18 @@ export const routes = createBrowserRouter([
                         ],
                       },
                       {
+                        path: "per-sq-ft-expense",
+                        element: <AdminPerSqFtExpense />,
+                      },
+                      {
+                        path: "per-sq-ft-electricity-expense",
+                        element: <AdminPerSqFtElectricityExpense />,
+                      },
+                      {
+                        path: "admin-executive-expense",
+                        element: <AdminExecutiveExpenses />,
+                      },
+                      {
                         path: "admin-offices",
                         element: <AdminOffices />,
                       },
@@ -521,6 +555,52 @@ export const routes = createBrowserRouter([
                           },
                         ],
                       },
+                      {
+                        path: "per-sq-ft-expense",
+                        element: <MaintenancePerSqFtExpense />,
+                      },
+                      {
+                        path: "maintenance-assets",
+                        element: <MaintenanceAssets />,
+                      },
+                      {
+                        path: "maintenance-offices",
+                        element: <MaintenanceOffices />,
+                      },
+                      {
+                        path: "maintenance-offices/maintenance-offices-layout/:client",
+                        element: <MaintenanceOfficesLayout />,
+                        children: [
+                          {
+                            path: "maintenance-offices-occupied",
+                            index: true,
+                            element: <MaintenanceOfficesOccupied />,
+                          },
+                          {
+                            path: "maintenance-offices-clear",
+                            element: <MaintenanceOfficesClear />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "maintenance-expenses",
+                        element: <MaintenanceExpenses />,
+                      },
+                      {
+                        path: "maintenance-expenses/maintenance-expenses-layout/:client",
+                        element: <MaintenanceExpensesLayout />,
+                        children: [
+                          {
+                            path: "maintenance-expenses-occupied",
+                            index: true,
+                            element: <MaintenanceExpensesOccupied />,
+                          },
+                          {
+                            path: "maintenance-expenses-clear",
+                            element: <MaintenanceExpensesClear />,
+                          },
+                        ],
+                      },
                     ],
                   },
                   {
@@ -596,6 +676,48 @@ export const routes = createBrowserRouter([
                       {
                         path: "per-sq-ft-expense",
                         element: <ItPerSqExpense />,
+                      },
+                      {
+                        path: "per-sq-ft-internet-expense",
+                        element: <ItPerSqInternetExpense />,
+                      },
+                      {
+                        path: "it-offices",
+                        element: <ItOffices />,
+                      },
+                      {
+                        path: "it-offices/it-offices-layout/:client",
+                        element: <ItOfficesLayout />,
+                        children: [
+                          {
+                            path: "it-offices-occupied",
+                            index: true,
+                            element: <ItOfficesOccupied />,
+                          },
+                          {
+                            path: "it-offices-clear",
+                            element: <ItOfficesClear />,
+                          },
+                        ],
+                      },
+                      {
+                        path: "it-expenses",
+                        element: <ItExpenses />,
+                      },
+                      {
+                        path: "it-expenses/it-expenses-layout/:client",
+                        element: <ItExpensesLayout />,
+                        children: [
+                          {
+                            path: "it-expenses-occupied",
+                            index: true,
+                            element: <ItExpensesOccupied />,
+                          },
+                          {
+                            path: "it-expenses-clear",
+                            element: <ItExpensesClear />,
+                          },
+                        ],
                       },
                     ],
                   },
@@ -701,7 +823,7 @@ export const routes = createBrowserRouter([
                             element: <ViewClients />,
                           },
                           {
-                            path: "view-clients/:id",
+                            path: "view-clients/:clientName",
                             element: <ViewClientLayout />,
                             children: [
                               {
@@ -730,22 +852,8 @@ export const routes = createBrowserRouter([
                             path: "client-onboarding",
                             element: <ClientOnboarding />,
                           },
-                          // {
-                          //   path: "view-member/:id",
-                          //   element: <MemberDetails />,
-                          // },
                         ],
                       },
-                      // {
-                      //   path: "settings",
-                      //   element: <HrSettings />,
-                      //   children: [
-                      //     {
-                      //       path: "bulk-upload",
-                      //       element: <BulkUpload />,
-                      //     },
-                      //   ],
-                      // },
                       {
                         path: "settings",
                         element: <SalesSettings />,

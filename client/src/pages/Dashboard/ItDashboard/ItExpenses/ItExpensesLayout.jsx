@@ -3,25 +3,25 @@ import React, { useEffect } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 
-const AdminExpensesLayout = () => {
+const ItExpensesLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { client } = useParams();
 
   // Map routes to tabs
   const tabs = [
-    { label: "Occupied", path: "admin-expenses-occupied" },
-    { label: "Clear", path: "admin-expenses-clear" },
+    { label: "Occupied", path: "it-expenses-occupied" },
+    { label: "Clear", path: "it-expenses-clear" },
   ];
 
   // Redirect to "view-employees" if the current path is "/hr-dashboard/compliances"
   useEffect(() => {
     if (
       location.pathname ===
-      `/app/dashboard/admin-dashboard/admin-expenses/admin-expenses-layout/${client}`
+      `/app/dashboard/it-dashboard/it-expenses/it-expenses-layout/${client}`
     ) {
       navigate(
-        `/app/dashboard/admin-dashboard/admin-expenses/admin-expenses-layout/${client}/admin-expenses-occupied`,
+        `/app/dashboard/it-dashboard/it-expenses/it-expenses-layout/${client}/it-expenses-occupied`,
         {
           replace: true,
         }
@@ -30,7 +30,7 @@ const AdminExpensesLayout = () => {
   }, [location, navigate]);
 
   // Determine whether to show the tabs
-  const showTabs = !location.pathname.includes("admin-expenses-occupied/");
+  const showTabs = !location.pathname.includes("it-expenses-occupied/");
 
   // Determine active tab based on location
   const activeTab = tabs.findIndex((tab) =>
@@ -44,7 +44,7 @@ const AdminExpensesLayout = () => {
           Office Layout ({client})
         </p>
         <p className="text-subtitle text-primary p-6">
-          <span className="font-bold">Admin Lead: </span>Machindranath Parkar
+          <span className="font-bold">IT Lead: </span>Machindranath Parkar
         </p>
       </div>
 
@@ -96,4 +96,4 @@ const AdminExpensesLayout = () => {
   );
 };
 
-export default AdminExpensesLayout;
+export default ItExpensesLayout;
