@@ -8,6 +8,9 @@ import DataCard from "../../../../components/DataCard";
 import PrimaryButton from "../../../../components/PrimaryButton";
 import { useNavigate } from "react-router-dom";
 import MuiModal from "../../../../components/MuiModal";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosPrivate from "../../../../hooks/useAxiosPrivate";
+import { toast } from "sonner";
 
 // JSON data structure for coworking seats and client details
 const jsonData = {
@@ -271,12 +274,29 @@ const jsonData = {
 
 const CoWorkingSeats = () => {
   const navigate = useNavigate();
+  const axios = useAxiosPrivate();
   const [openModal, setOpenModal] = useState(false);
   const [location, setLocation] = useState({});
   const handleViewDetails = (data) => {
     setOpenModal(true);
     setLocation(data);
   };
+
+  //---------------------------------------------------------API---------------------------------------------------------//
+  const { data: coworkingClients, isPending: isCoWorkingClients } = useQuery({
+    queryKey: ["coworking-clients"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/sales/co-working-clients");
+        return response.data;
+      } catch (error) {
+        toast.error(error.message);
+      }
+    },
+  });
+
+  console.log("co-working-clients : ", coworkingClients);
+  //---------------------------------------------------------API---------------------------------------------------------//
   // Prepare data for the BarGraph from jsonData
   const totalSeats = jsonData.totalSeats;
   const categories = jsonData.months.map((m) => m.month);
@@ -332,7 +352,8 @@ const CoWorkingSeats = () => {
           layout={1}
           border
           padding
-          title={"Co-Working Seats 24-25"}>
+          title={"Co-Working Seats 24-25"}
+        >
           <BarGraph
             data={series}
             options={options}
@@ -372,7 +393,8 @@ const CoWorkingSeats = () => {
               expandIcon={<IoIosArrowDown />}
               aria-controls={`panel-${index}-content`}
               id={`panel-${index}-header`}
-              className="border-b-[1px] border-borderGray">
+              className="border-b-[1px] border-borderGray"
+            >
               <div className="flex justify-between items-center w-full px-4">
                 <span className="text-subtitle font-pmedium">
                   {domain.month}
@@ -420,7 +442,8 @@ const CoWorkingSeats = () => {
         onClose={() => {
           setOpenModal(false);
           setLocation({});
-        }}>
+        }}
+      >
         <div className="grid grid-cols-2 gap-8 px-2 pb-8 border-b-default border-borderGray">
           <div className="flex items-center justify-between">
             <span className="text-content">Location</span>
