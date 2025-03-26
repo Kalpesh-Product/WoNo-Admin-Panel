@@ -27,6 +27,10 @@ async function fetchTickets(query) {
             model: "Department",
           },
         },
+        {
+          path: "acceptedBy",
+          select: "firstName lastName",
+        },
         { path: "raisedToDepartment", select: "name" },
         {
           path: "escalatedTo",

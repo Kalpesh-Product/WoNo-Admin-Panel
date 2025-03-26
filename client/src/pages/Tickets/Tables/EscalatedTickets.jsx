@@ -52,10 +52,13 @@ const EscalatedTickets = ({title}) => {
        const  escalatedStatus =  ticket.escalatedTo.length > 0 ?ticket.escalatedTo[escalatedIndex].status: null
         const  escalatedTo = ticket.escalatedTo.length > 0 ? ticket.escalatedTo[escalatedIndex].raisedToDepartment.name : null
 
+        const raisedBy = `${ticket.raisedBy?.firstName} ${ticket.raisedBy?.lastName}`
+        const acceptedBy = `${ticket.acceptedBy?.firstName} ${ticket.acceptedBy?.lastName}`
         const escalatedTicket = {
           srno: index + 1,
           id:ticket._id,
-          raisedBy: ticket.raisedBy?.firstName || "Unknown",
+          raisedBy: raisedBy || "Unknown",
+          acceptedBy: acceptedBy || "Unknown",
           selectedDepartment: ticket.raisedBy?.departments.map((dept) => dept.name) || "N/A",
           ticketTitle: ticket?.ticket || "No Title",
           tickets: ticket?.assignees.length > 0 ? "Ticket Assigned": ticket?.acceptedBy ? "Ticket Accepted": "N/A",
@@ -90,7 +93,7 @@ const EscalatedTickets = ({title}) => {
           color: "white",
         };
         return (
-          <>
+          <div className="flex flex-col justify-center pt-4">
             <Chip
               label={params.value}
               style={{
@@ -98,7 +101,10 @@ const EscalatedTickets = ({title}) => {
                 color,
               }}
             />
-          </>
+             <span className="text-small text-borderGray text-center h-full">
+              {params.data.acceptedBy}
+            </span>
+          </div>
         );
       },
     },
@@ -119,7 +125,7 @@ const EscalatedTickets = ({title}) => {
           color: "white",
         };
         return (
-          <div className="flex flex-col justify-center pt-4">
+          <>
             <Chip
               label={params.value}
               style={{
@@ -127,10 +133,7 @@ const EscalatedTickets = ({title}) => {
                 color,
               }}
             />
-            <span className="text-small text-borderGray text-center h-full">
-              By ABC
-            </span>
-          </div>
+          </>
         );
       },
     },
