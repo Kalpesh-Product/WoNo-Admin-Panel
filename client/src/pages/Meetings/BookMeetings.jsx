@@ -13,12 +13,15 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import AgTable from "../../components/AgTable";
+import useAuth from "../../hooks/useAuth";
 
 const BookMeetings = () => {
   // ------------------------------Initializations ------------------------------------//
   const navigate = useNavigate();
   const axios = useAxiosPrivate();
+  const { auth } = useAuth();
   const [selectedUnitId, setSelectedUnitId] = useState("");
+  const locations = auth.user.company.workLocations
   // ------------------------------Initializations ------------------------------------//
 
   // ------------------------------Form Control ------------------------------------//
@@ -53,6 +56,7 @@ const BookMeetings = () => {
     },
   });
 
+
   // Filter meeting rooms based on selected location
   const filteredMeetingRooms = selectedUnitId
     ? allMeetingRooms.filter(
@@ -71,10 +75,16 @@ const BookMeetings = () => {
         const response = await axios.get("/api/meetings/my-meetings");
         return response.data;
       } catch (error) {
-        toast.error(error.message || "Failed to load your bookings");
+        toast.error(error || "Failed to load your bookings");
       }
     },
   });
+ 
+  const buildings = locations.map((location)=>({
+    _id:location._id,
+    buildingName: location.buildingName
+  }))
+
 
   const myMeetingsColumn = [
     { field: "id", headerName: "SR NO", sort: "desc" },
@@ -130,14 +140,14 @@ const BookMeetings = () => {
               control={control}
               rules={{ required: "Please select a Location" }}
               render={({ field }) => {
-                const uniqueBuildings = [
-                  ...new Map(
-                    allMeetingRooms.map((room) => [
-                      room.location?.building?._id,
-                      room.location?.building,
-                    ])
-                  ).values(),
-                ];
+                // const uniqueBuildings = [
+                //   ...new Map(
+                //     allMeetingRooms.map((room) => [
+                //       room.location?.building?._id,
+                //       room.location?.building,
+                //     ])
+                //   ).values(),
+                // ];
                 return (
                   <TextField
                     {...field}
@@ -151,17 +161,17 @@ const BookMeetings = () => {
                       const locationId = e.target.value;
                       field.onChange(e.target.value);
 
-                      const selectedLocation = uniqueBuildings.find(
+                      const selectedLocation = buildings.find(
                         (building) => building?._id === locationId
                       );
                       setSelectedUnitId(selectedLocation?._id || "");
                     }}
                   >
                     <MenuItem value="" disabled>
-                      {" "}
+                      {" "}  
                       Seletc Location
                     </MenuItem>
-                    {uniqueBuildings.map((building) => (
+                    {buildings.map((building) => (
                       <MenuItem key={building?._id} value={building?._id}>
                         {building?.buildingName}
                       </MenuItem>

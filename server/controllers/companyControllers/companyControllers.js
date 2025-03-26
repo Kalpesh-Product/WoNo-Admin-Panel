@@ -249,11 +249,13 @@ const getCompanyData = async (req, res, next) => {
       shifts: "",
     };
 
-    let query = Company.findOne({ _id: companyId }).select(field);
+    let query = Company.findOne({ _id: companyId })
+      .populate(fieldsToPopulate[field])
+      .select(field);
 
     // Populate if the field is in the fieldsToPopulate map
-    if (fieldsToPopulate[field]) {
-      query = query.populate(fieldsToPopulate[field]);
+    if (field === "workLocations") {
+      query = query.populate({ path: "workLocations", select: "-company" });
     }
 
     const fetchedData = await query.exec();

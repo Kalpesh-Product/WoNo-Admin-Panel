@@ -93,11 +93,6 @@ const MeetingFormLayout = () => {
       const formattedStartTime = dayjs(startTime).format("YYYY-MM-DD HH:mm:ss");
       const formattedEndTime = dayjs(endTime).format("YYYY-MM-DD HH:mm:ss");
     
-      console.log("Formatted Start Date:", formattedStartDate);
-      console.log("Formatted End Date:", formattedEndDate);
-      console.log("Formatted Start Time:", formattedStartTime);
-      console.log("Formatted End Time:", formattedEndTime);
-    
       const response = await axios.get("/api/meetings/get-available-users", {
         params: {
           startDate: formattedStartDate, // Send as string (not Date object)
@@ -185,10 +180,28 @@ const MeetingFormLayout = () => {
     },
   });
 
+  const {
+    data: externalParticipants = [],
+    isLoading: externalParticipantsLoading,
+    error: externalParticipantsError,
+  } = useQuery({
+    queryKey: ["visitors"],
+    queryFn: async () => {
+      const response = await axios.get("/api/visitors/fetch-visitors");
+      return response.data;
+    },
+     enabled: meetingType === "External"
+  });
+
   const onSubmit = (data) => {
     createMeeting(data);
     console.log(data);
   };
+
+  useEffect(()=>{
+
+    console.log(externalParticipants)
+  },[externalParticipants])
 
   return (
     <div className="p-4">
@@ -299,7 +312,7 @@ const MeetingFormLayout = () => {
                   <TimePicker
                     {...field}
                     slotProps={{ textField: { size: "small" } }}
-                    label={"Select an End Date"}
+                    label={"Select an End Time"}
                     viewRenderers={(params) => (
                       <TextField {...params} fullWidth size="small" />
                     )}
@@ -308,7 +321,8 @@ const MeetingFormLayout = () => {
               />
             </LocalizationProvider>
             <div className="col-span-2 sm:col-span-1 md:col-span-2">
-              <Controller
+             <div className="mb-6">
+             <Controller
                 name="internalParticipants"
                 control={control}
                 render={({ field }) => (
@@ -332,7 +346,7 @@ const MeetingFormLayout = () => {
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label="Select Participants"
+                        label="Select Internal Participants"
                         size="small"
                         fullWidth
                       />
@@ -340,6 +354,43 @@ const MeetingFormLayout = () => {
                   />
                 )}
               />
+             </div>
+             {
+              meetingType === "External" ? <div>
+              <Controller
+                 name="externalParticipants"
+                 control={control}
+                 render={({ field }) => (
+                   <Autocomplete
+                     multiple
+                     options={externalParticipants} // The user list
+                     getOptionLabel={(user) =>
+                       `${user.fullName}`
+                     } // Display names
+                     onChange={(_, newValue) => field.onChange(newValue)} // Sync selected users with form state
+                     renderTags={(selected, getTagProps) =>
+                       selected.map((user, index) => (
+                         <Chip
+                           key={user._id}
+                           label={`${user.fullName}`}
+                           {...getTagProps({ index })}
+                           deleteIcon={<IoMdClose />}
+                         />
+                       ))
+                     }
+                     renderInput={(params) => (
+                       <TextField
+                         {...params}
+                         label="Select External Participants"
+                         size="small"
+                         fullWidth
+                       />
+                     )}
+                   />
+                 )}
+               />
+              </div> : <></>
+             }
             </div>
             <div className="col-span-2 sm:col-span-1 md:col-span-2">
               <Controller

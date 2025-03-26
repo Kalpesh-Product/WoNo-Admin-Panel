@@ -7,7 +7,7 @@
 const multer = require("multer");
 const { createLog } = require("../utils/moduleLogs");
 
-const errorHandler = async (err, req, res) => {
+const errorHandler = async (err, req, res, next) => {
   try {
     const { user, ip, company } = req;
     const statusCode = err.statusCode || 500;

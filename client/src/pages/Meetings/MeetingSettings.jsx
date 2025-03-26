@@ -29,6 +29,7 @@ const MeetingSettings = () => {
   const { auth } = useAuth();
   const inputRef = useRef();
 
+
   // Fetch Meeting Rooms from API
   const { data: meetingRooms = [], isPending:isMeetingRoomsLoading } = useQuery({
     queryKey: ["meetingRooms"],
@@ -220,8 +221,8 @@ const MeetingSettings = () => {
                       <MenuItem value="">Select Location</MenuItem>
                       {auth.user.company.workLocations.length > 0 ? (
                         auth.user.company.workLocations.map((loc) => (
-                          <MenuItem key={loc._id} value={loc.name}>
-                            {loc.name}
+                          <MenuItem key={loc._id} value={loc.buildingName}>
+                            {loc.buildingName}
                           </MenuItem>
                         ))
                       ) : (
