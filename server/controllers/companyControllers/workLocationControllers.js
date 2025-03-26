@@ -211,6 +211,7 @@ const addUnit = async (req, res, next) => {
 
 const fetchUnits = async (req, res, next) => {
   const { company } = req;
+  const { unitId } = req.query;
 
   try {
     const companyExists = await Company.findById(company);
@@ -219,7 +220,18 @@ const fetchUnits = async (req, res, next) => {
       return res.status(400).json({ message: "Company not found" });
     }
 
-    const locations = await Unit.find().populate(
+    let locations;
+
+    if (unitId) {
+      locations = await Unit.findOne({ _id: unitId, company }).populate("building",
+        "_id buildingName fullAddress").lean().exec();
+      if (!locations) {
+        return res.status(400).json([])
+      }
+      return res.status(200).json(locations);
+    }
+
+    locations = await Unit.find().populate(
       "building",
       "_id buildingName fullAddress"
     );
@@ -229,6 +241,7 @@ const fetchUnits = async (req, res, next) => {
     }
 
     return res.status(200).json(locations);
+
   } catch (error) {
     next(error);
   }

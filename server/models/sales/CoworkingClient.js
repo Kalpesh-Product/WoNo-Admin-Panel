@@ -7,24 +7,20 @@ const clientSchema = new mongoose.Schema(
       ref: "Company",
     },
     clientName: {
-      type: String,
-      required: true,
+      type: String
     },
     service: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "ClientService",
     },
     sector: {
-      type: String,
-      required: true,
+      type: String
     },
     hoCity: {
-      type: String,
-      required: true,
+      type: String
     },
     hoState: {
-      type: String,
-      required: true,
+      type: String
     },
     unit: {
       type: mongoose.Schema.Types.ObjectId,
@@ -59,34 +55,28 @@ const clientSchema = new mongoose.Schema(
       default: 0,
     },
     startDate: {
-      type: Date,
-      required: true,
+      type: Date
     },
     endDate: {
-      type: Date,
-      required: true,
+      type: Date
     },
     lockinPeriod: {
-      type: Number,
-      required: true,
+      type: Number
     },
     occupiedImage: {
       imageId: String,
       imageUrl: String,
     },
-    rentDate: { type: Date, required: true },
+    rentDate: { type: Date },
     nextIncrement: {
       type: Date,
     },
     localPoc: {
       name: {
         type: String,
-        required: true,
       },
       email: {
         type: String,
-        required: true,
-        unique: true,
         trim: true,
         lowercase: true,
         match: [/^\S+@\S+\.\S+$/, "Invalid email format"],
@@ -101,12 +91,9 @@ const clientSchema = new mongoose.Schema(
     hOPoc: {
       name: {
         type: String,
-        required: true,
       },
       email: {
         type: String,
-        required: true,
-        unique: true,
         trim: true,
         lowercase: true,
         match: [/^\S+@\S+\.\S+$/, "Invalid email format"],

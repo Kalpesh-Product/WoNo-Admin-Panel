@@ -179,7 +179,7 @@ const uploadDepartmentDocument = async (req, res, next) => {
       );
     }
 
-    const foundCompany = await Company.findOne({ _id: foundUser.company._id })
+    const foundCompany = await Company.findOne({ _id: foundUser.company })
       .select("selectedDepartments")
       .populate([{ path: "selectedDepartments.department", select: "name" }])
       .lean()

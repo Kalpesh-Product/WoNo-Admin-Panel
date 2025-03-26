@@ -37,7 +37,11 @@ const AccessTree = () => {
   // Handle selecting a user (adds to stack)
   const handleSelectUser = (user) => {
     if (!user.subordinates.length) return; // Prevent selecting users with no subordinates
-    setSelectedUsers((prev) => [...prev, user]); // Add to stack
+    if (selectedUsers.length) {
+      return null;
+    } else {
+      setSelectedUsers((prev) => [...prev, user]);
+    } // Add to stack
   };
 
   // Handle going back (removes from stack)
