@@ -63,7 +63,33 @@ const visitorSchema = new mongoose.Schema(
       default: "Walk In",
     },
     visitorCompany: {
-      type: String,
+      companyName: {
+        type: String,
+        required: true,
+      },
+      registeredCompanyName: {
+        type: String,
+      },
+      companyURL: {
+        type: String,
+      },
+      email: {
+        type: String,
+        required: true,
+      },
+      mobileNumber: {
+        type: String,
+        required: true,
+      },
+      gstNumber: {
+        type: String,
+      },
+      panNumber: {
+        type: String,
+      },
+      address: {
+        type: String,
+      },
     },
   },
   { timestamps: true }
