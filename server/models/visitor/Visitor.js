@@ -63,33 +63,8 @@ const visitorSchema = new mongoose.Schema(
       default: "Walk In",
     },
     visitorCompany: {
-      companyName: {
-        type: String,
-        required: true,
-      },
-      registeredCompanyName: {
-        type: String,
-      },
-      companyURL: {
-        type: String,
-      },
-      email: {
-        type: String,
-        required: true,
-      },
-      mobileNumber: {
-        type: String,
-        required: true,
-      },
-      gstNumber: {
-        type: String,
-      },
-      panNumber: {
-        type: String,
-      },
-      address: {
-        type: String,
-      },
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ExternalClient",
     },
   },
   { timestamps: true }

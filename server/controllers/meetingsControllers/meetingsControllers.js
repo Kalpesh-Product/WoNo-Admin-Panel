@@ -11,6 +11,7 @@ const {
 const Department = require("../../models/Departments");
 const { createLog } = require("../../utils/moduleLogs");
 const CustomError = require("../../utils/customErrorlogs");
+const Visitor = require("../../models/visitor/Visitor");
 
 const addMeetings = async (req, res, next) => {
   const logPath = "meetings/MeetingLog";
@@ -29,7 +30,6 @@ const addMeetings = async (req, res, next) => {
       agenda,
       internalParticipants,
       externalParticipants,
-      externalCompanyData,
     } = req.body;
 
     const company = req.company;
@@ -105,8 +105,9 @@ const addMeetings = async (req, res, next) => {
       );
     }
 
-    let participants = [];
-    let externalClientData;
+    let totalParticipants = [];
+    let internalUsers = [];
+    let externalUsers = [];
 
     if (internalParticipants) {
       const invalidIds = internalParticipants.filter(
@@ -137,47 +138,77 @@ const addMeetings = async (req, res, next) => {
         );
       }
 
-      participants = users.map((user) => user._id);
-    } else if (externalCompanyData) {
-      const {
-        companyName,
-        registeredCompanyName,
-        companyURL,
-        email,
-        mobileNumber,
-        gstNumber,
-        panNumber,
-        address,
-        personName,
-      } = externalCompanyData;
+      internalUsers = users.map((user) => user._id);
+    }
+    if (externalParticipants) {
+      // const {
+      //   companyName,
+      //   registeredCompanyName,
+      //   companyURL,
+      //   email,
+      //   mobileNumber,
+      //   gstNumber,
+      //   panNumber,
+      //   address,
+      //   personName,
+      // } = externalCompanyData;
 
-      if (!companyName || !email || !mobileNumber || !personName) {
+      // if (!companyName || !email || !mobileNumber || !personName) {
+      //   throw new CustomError(
+      //     "Missing required fields for external participants",
+      //     logPath,
+      //     logAction,
+      //     logSourceKey
+      //   );
+      // }
+
+      // const newExternalClient = new ExternalClient({
+      //   companyName,
+      //   registeredCompanyName,
+      //   companyURL,
+      //   email,
+      //   mobileNumber,
+      //   gstNumber: gstNumber,
+      //   panNumber: panNumber,
+      //   address: address || "",
+      //   personName,
+      // });
+
+      // const savedExternalClient = await newExternalClient.save();
+
+      // externalClientData = {
+      //   participants: [...externalParticipants],
+      //   company: savedExternalClient._id,
+      // };
+      const invalidIds = externalParticipants.filter(
+        (id) => !mongoose.Types.ObjectId.isValid(id)
+      );
+
+      if (invalidIds.length > 0) {
         throw new CustomError(
-          "Missing required fields for external participants",
+          "Invalid internal participant IDs",
           logPath,
           logAction,
           logSourceKey
         );
       }
 
-      const newExternalClient = new ExternalClient({
-        companyName,
-        registeredCompanyName,
-        companyURL,
-        email,
-        mobileNumber,
-        gstNumber: gstNumber,
-        panNumber: panNumber,
-        address: address || "",
-        personName,
-      });
+      const users = await Visitor.find({ _id: { $in: externalParticipants } });
 
-      const savedExternalClient = await newExternalClient.save();
+      const unmatchedIds = externalParticipants.filter(
+        (id) => !users.find((user) => user._id.toString() === id)
+      );
 
-      externalClientData = {
-        participants: [...externalParticipants],
-        company: savedExternalClient._id,
-      };
+      if (unmatchedIds.length > 0) {
+        throw new CustomError(
+          "Some external participant IDs did not match any user",
+          logPath,
+          logAction,
+          logSourceKey
+        );
+      }
+
+      externalUsers = users.map((user) => user._id);
     }
 
     const conflictingMeeting = await Meeting.findOne({
@@ -226,8 +257,8 @@ const addMeetings = async (req, res, next) => {
       subject,
       agenda,
       company,
-      internalParticipants: internalParticipants ? participants : [],
-      externalParticipants: externalParticipants ? externalClientData : {},
+      internalParticipants: internalParticipants ? internalUsers : [],
+      externalParticipants: externalParticipants ? externalUsers : [],
     });
 
     await meeting.save();
@@ -349,8 +380,8 @@ const getMeetings = async (req, res, next) => {
         },
       })
       .populate("bookedBy", "firstName lastName")
-      .populate("internalParticipants", "firstName lastName")
-      .populate("externalParticipants", "fullName");
+      .populate("internalParticipants", "firstName lastName email")
+      .populate("externalParticipants", "fullName email");
 
     const departments = await User.findById({ _id: user }).select(
       "departments"
@@ -375,6 +406,7 @@ const getMeetings = async (req, res, next) => {
           ...meeting.externalParticipants,
         ];
       }
+
       return {
         _id: meeting._id,
         name: meeting.bookedBy?.name,
@@ -394,7 +426,9 @@ const getMeetings = async (req, res, next) => {
         subject: meeting.subject,
         housekeepingChecklist: [...(meeting.housekeepingChecklist ?? [])],
         participants:
-          internalParticipants[index].length > 0
+          totalParticipants.length > 0
+            ? totalParticipants
+            : internalParticipants[index].length > 0
             ? internalParticipants[index]
             : meeting.externalParticipants,
         company: meeting.company,
@@ -428,7 +462,8 @@ const getMyMeetings = async (req, res, next) => {
         },
       })
       .populate("bookedBy", "firstName lastName email")
-      .populate("internalParticipants", "firstName lastName email _id");
+      .populate("internalParticipants", "firstName lastName email _id")
+      .populate("externalParticipants", "fullName email");
 
     const departments = await User.findById({ _id: user }).select(
       "departments"
@@ -443,6 +478,17 @@ const getMyMeetings = async (req, res, next) => {
     );
 
     const transformedMeetings = meetings.map((meeting, index) => {
+      let totalParticipants = [];
+      if (
+        internalParticipants[index].length &&
+        meeting.externalParticipants.length
+      ) {
+        totalParticipants = [
+          ...internalParticipants[index],
+          ...meeting.externalParticipants,
+        ];
+      }
+
       return {
         _id: meeting._id,
         name: meeting.bookedBy?.name,
@@ -462,7 +508,9 @@ const getMyMeetings = async (req, res, next) => {
         subject: meeting.subject,
         housekeepingChecklist: [...(meeting.housekeepingChecklist ?? [])],
         participants:
-          internalParticipants[index].length > 0
+          totalParticipants.length > 0
+            ? totalParticipants
+            : internalParticipants[index].length > 0
             ? internalParticipants[index]
             : meeting.externalParticipants,
         company: meeting.company,
