@@ -140,14 +140,6 @@ const BookMeetings = () => {
               control={control}
               rules={{ required: "Please select a Location" }}
               render={({ field }) => {
-                // const uniqueBuildings = [
-                //   ...new Map(
-                //     allMeetingRooms.map((room) => [
-                //       room.location?.building?._id,
-                //       room.location?.building,
-                //     ])
-                //   ).values(),
-                // ];
                 return (
                   <TextField
                     {...field}

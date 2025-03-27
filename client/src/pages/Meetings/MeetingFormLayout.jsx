@@ -175,8 +175,10 @@ const MeetingFormLayout = () => {
       setOpen(false);
       navigate("/app/meetings/calendar");
     },
-    onError: () => {
-      toast.error("Failed to book meeting");
+    onError: (error) => {
+      const errorMessage =
+      error?.response?.data?.message || "Failed to book meeting";
+      toast.error(errorMessage);
     },
   });
 
