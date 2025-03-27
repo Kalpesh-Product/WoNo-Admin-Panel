@@ -127,6 +127,6 @@ const clientSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Client = mongoose.model("CoworkingClient", clientSchema);
+const CoworkingClient = mongoose.model("CoworkingClient", clientSchema);
 
-module.exports = Client;
+module.exports = CoworkingClient;

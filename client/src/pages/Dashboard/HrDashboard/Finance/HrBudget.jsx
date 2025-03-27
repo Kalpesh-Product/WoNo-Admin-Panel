@@ -21,15 +21,20 @@ import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import MuiModal from "../../../../components/MuiModal";
 import { Controller, useForm } from "react-hook-form";
+import useAuth from "../../../../hooks/useAuth";
 
 const HrBudget = () => {
   const axios = useAxiosPrivate();
+  const { auth } = useAuth();
   const [openModal, setOpenModal] = useState(false);
   const { data: hrFinance = [] } = useQuery({
     queryKey: ["hrFinance"],
     queryFn: async () => {
       try {
-        const response = await axios.get("/api/budget/company-budget");
+        const response = await axios.get(
+          `/api/budget/company-budget?departmentId=6798bab9e469e809084e249e
+          `
+        );
         return response.data.allBudgets;
       } catch (error) {
         throw new Error("Error fetching data");
@@ -67,7 +72,7 @@ const HrBudget = () => {
             { field: "expanseName", headerName: "Expense Name", flex: 1 },
             // { field: "department", headerName: "Department", flex: 200 },
             { field: "expanseType", headerName: "Expense Type", flex: 1 },
-            { field: "amount", headerName: "Amount", flex: 1 },
+            { field: "projectedAmount", headerName: "Amount", flex: 1 },
             { field: "dueDate", headerName: "Due Date", flex: 1 },
             { field: "status", headerName: "Status", flex: 1 },
           ],
@@ -75,13 +80,13 @@ const HrBudget = () => {
       };
     }
 
-    acc[month].amount += item.amount; // Summing the total amount per month
+    acc[month].amount += item.projectedAmount; // Summing the total amount per month
     acc[month].tableData.rows.push({
       id: item._id,
       expanseName: item.expanseName,
       department: item.department,
       expanseType: item.expanseType,
-      amount: item.amount.toFixed(2), // Ensuring two decimal places
+      projectedAmount: item.projectedAmount.toFixed(2), // Ensuring two decimal places
       dueDate: dayjs(item.dueDate).format("DD-MM-YYYY"),
       status: item.status,
     });
@@ -196,7 +201,6 @@ const HrBudget = () => {
     },
   };
 
-
   return (
     <div className="flex flex-col gap-8">
       <div className="border-default border-borderGray rounded-md">
@@ -283,7 +287,9 @@ const HrBudget = () => {
             render={({ field, fieldState }) => (
               <FormControl fullWidth error={!!fieldState.error}>
                 <Select {...field} size="small" displayEmpty>
-                  <MenuItem value="" disabled>Select Expense Type</MenuItem>
+                  <MenuItem value="" disabled>
+                    Select Expense Type
+                  </MenuItem>
                   <MenuItem value="Internal">Internal</MenuItem>
                   <MenuItem value="External">External</MenuItem>
                 </Select>
