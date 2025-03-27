@@ -24,7 +24,7 @@ const raiseTicket = async (req, res, next) => {
   const logAction = "Raise Ticket";
   const logSourceKey = "ticket";
   const { departmentId, issueId, newIssue, description } = req.body;
-  const image = req.file; 
+  const image = req.file;
   const { user, ip, company } = req;
 
   try {
@@ -662,7 +662,6 @@ const escalateTicket = async (req, res, next) => {
       image: foundTicket.image ? foundTicket.image : null,
     });
 
-    console.log("NewTicket", newTicket);
     const savedTicket = await newTicket.save();
 
     // Update the ticket: add the departmentId to the escalatedTo array
