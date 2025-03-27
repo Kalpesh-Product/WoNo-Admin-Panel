@@ -9,6 +9,8 @@ import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import DetalisFormatted from "../../../components/DetalisFormatted";
+import { useSelector } from "react-redux";
 
 const ClientOnboarding = () => {
   const {
@@ -44,6 +46,10 @@ const ClientOnboarding = () => {
       hOPocPhone: "",
     },
   });
+  const clientsData = useSelector((state) => state.sales.clientsData);
+  const [selectedUnit, setSelectedUnit] = useState("");
+  console.log("Clients Data : ", clientsData)
+
   //-----------------------------------------------------Calculation------------------------------------------------//
   const cabinDesks = useWatch({ control, name: "cabinDesks" });
   const cabinDeskRate = useWatch({ control, name: "ratePerCabinDesk" });
@@ -59,6 +65,7 @@ const ClientOnboarding = () => {
   const totalMeetingCredits =
     (parseFloat(openDesks || 0) + parseFloat(cabinDesks || 0)) *
     (perDeskCredit || 0);
+
   //-----------------------------------------------------Calculation------------------------------------------------------------//
   const axios = useAxiosPrivate();
   const [states, setStates] = useState([]);
@@ -82,7 +89,6 @@ const ClientOnboarding = () => {
       const response = await axios.get("/api/company/fetch-units");
       return response.data;
     },
-    enabled: false,
   });
   const {
     data: services = [],
@@ -100,7 +106,7 @@ const ClientOnboarding = () => {
 
   const onSubmit = (data) => {
     console.log(data);
-    reset()
+    reset();
   };
 
   const handleReset = () => {
@@ -178,9 +184,15 @@ const ClientOnboarding = () => {
                     <MenuItem value="" disabled>
                       Select a Service
                     </MenuItem>
-                    {!isServicesPending ? services.map((item) => (
-                      <MenuItem key={item._id} value={item._id}>{item.serviceName}</MenuItem>
-                    )) : <CircularProgress />}
+                    {!isServicesPending ? (
+                      services.map((item) => (
+                        <MenuItem key={item._id} value={item._id}>
+                          {item.serviceName}
+                        </MenuItem>
+                      ))
+                    ) : (
+                      <CircularProgress />
+                    )}
                   </TextField>
                 )}
               />
@@ -268,6 +280,11 @@ const ClientOnboarding = () => {
                   <TextField
                     {...field}
                     onClick={fetchUnits}
+                    onChange={(e) => {
+                      field.onChange(e)
+                      setSelectedUnit(e.target.value);
+                      console.log("Selected Unit : ",selectedUnit);
+                    }}
                     size="small"
                     select
                     label="Unit"
@@ -288,6 +305,9 @@ const ClientOnboarding = () => {
                   </TextField>
                 )}
               />
+              <div>
+                <DetalisFormatted title={"Available Cabin Desks"} detail={5} />
+              </div>
               <div className="flex gap-2">
                 <div className="w-1/2">
                   <Controller
