@@ -281,8 +281,6 @@ const addMeetings = async (req, res, next) => {
 const getAvaliableUsers = async (req, res, next) => {
   try {
     const { startTime, endTime } = req.query;
-    console.log("start time from frontend", startTime);
-    console.log("end time from frontend", endTime);
     if (!startTime || !endTime) {
       return res.status(400).json({ message: "Please provide a valid date" });
     }
@@ -296,9 +294,6 @@ const getAvaliableUsers = async (req, res, next) => {
 
     const start = new Date(startTime);
     const end = new Date(endTime);
-
-    console.log("converted Start time : ", start);
-    console.log("Converted End Time : ", end);
 
     const meetings = await Meeting.find({
       company: req.company,
@@ -327,7 +322,6 @@ const getAvaliableUsers = async (req, res, next) => {
       .select("_id firstName lastName email")
       .lean()
       .exec();
-    console.log(availableUsers.length);
 
     res.status(200).json(availableUsers);
   } catch (error) {
@@ -354,8 +348,9 @@ const getMeetings = async (req, res, next) => {
           },
         },
       })
-      .populate("bookedBy", "firstName lastName email")
-      .populate("internalParticipants", "firstName lastName email _id");
+      .populate("bookedBy", "firstName lastName")
+      .populate("internalParticipants", "firstName lastName")
+      .populate("externalParticipants", "fullName");
 
     const departments = await User.findById({ _id: user }).select(
       "departments"
@@ -370,6 +365,16 @@ const getMeetings = async (req, res, next) => {
     );
 
     const transformedMeetings = meetings.map((meeting, index) => {
+      let totalParticipants = [];
+      if (
+        internalParticipants[index].length &&
+        meeting.externalParticipants.length
+      ) {
+        totalParticipants = [
+          ...internalParticipants[index],
+          ...meeting.externalParticipants,
+        ];
+      }
       return {
         _id: meeting._id,
         name: meeting.bookedBy?.name,

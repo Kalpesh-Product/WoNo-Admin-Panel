@@ -57,6 +57,8 @@ const MeetingFormLayout = () => {
       endTime: null,
       subject: "",
       agenda: "",
+      internalParticipants:[],
+      externalParticipants:[]
     },
   });
 
@@ -65,6 +67,8 @@ const MeetingFormLayout = () => {
   const endDate = watch("endDate"); // Watch endDate
   const startTime = watch("startTime");
   const endTime = watch("endTime");
+  const internalParticipants = watch("internalParticipants");
+  const externalParticipants = watch("externalParticipants");
 
   const handleDateClick = (arg) => {
     if (!arg.start) return;
@@ -158,6 +162,7 @@ const MeetingFormLayout = () => {
   const { mutate: createMeeting, isPending: isCreateMeeting } = useMutation({
     mutationKey: ["createMeeting"],
     mutationFn: async (data) => {
+      console.log('participants',data)
       await axios.post("/api/meetings/create-meeting", {
         bookedRoom: meetingRoomId,
         meetingType: data.meetingType,
@@ -167,6 +172,8 @@ const MeetingFormLayout = () => {
         endTime: data.endTime,
         subject: data.subject,
         agenda: data.agenda,
+        internalParticipants: data.internalParticipants,
+        externalParticipants: data.externalParticipants
       });
     },
     onSuccess: () => {
@@ -183,9 +190,9 @@ const MeetingFormLayout = () => {
   });
 
   const {
-    data: externalParticipants = [],
-    isLoading: externalParticipantsLoading,
-    error: externalParticipantsError,
+    data: externalUsers = [],
+    isLoading: externalUsersLoading,
+    error: externalUsersError,
   } = useQuery({
     queryKey: ["visitors"],
     queryFn: async () => {
@@ -200,10 +207,7 @@ const MeetingFormLayout = () => {
     console.log(data);
   };
 
-  useEffect(()=>{
-
-    console.log(externalParticipants)
-  },[externalParticipants])
+ 
 
   return (
     <div className="p-4">
@@ -329,12 +333,13 @@ const MeetingFormLayout = () => {
                 control={control}
                 render={({ field }) => (
                   <Autocomplete
-                    multiple
+                    multiple  
                     options={availableUsers} // The user list
                     getOptionLabel={(user) =>
                       `${user.firstName} ${user.lastName}`
                     } // Display names
-                    onChange={(_, newValue) => field.onChange(newValue)} // Sync selected users with form state
+                    onChange={(_, newValue) => (field.onChange(newValue.map(user => user._id)))
+                    } // Sync selected users with form state
                     renderTags={(selected, getTagProps) =>
                       selected.map((user, index) => (
                         <Chip
@@ -365,11 +370,12 @@ const MeetingFormLayout = () => {
                  render={({ field }) => (
                    <Autocomplete
                      multiple
-                     options={externalParticipants} // The user list
+                     options={externalUsers} // The user list
                      getOptionLabel={(user) =>
                        `${user.fullName}`
                      } // Display names
-                     onChange={(_, newValue) => field.onChange(newValue)} // Sync selected users with form state
+                     onChange={(_, newValue) =>  field.onChange(newValue.map(user => user._id))
+                     } // Sync selected users with form state
                      renderTags={(selected, getTagProps) =>
                        selected.map((user, index) => (
                          <Chip
