@@ -37,22 +37,12 @@ const meetingSchema = new mongoose.Schema(
         ref: "UserData",
       },
     ],
-    externalParticipants: {
-      participants: [
-        {
-          email: {
-            type: String,
-          },
-          name: {
-            type: String,
-          },
-        },
-      ],
-      company: {
+    externalParticipants: [
+      {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "ExternalClient",
+        ref: "Visitor",
       },
-    },
+    ],
     agenda: {
       type: String,
       required: true,

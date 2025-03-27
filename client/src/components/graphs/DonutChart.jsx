@@ -12,7 +12,7 @@ const DonutChart = ({ centerLabel, labels, colors, series, tooltipValue }) => {
   const chartOptions = {
     chart: {
       type: "donut",
-      fontFamily:"Poppins-Regular"
+      fontFamily: "Poppins-Regular"
     },
     colors: chartData.colors,
     labels: chartData.labels,
@@ -26,7 +26,7 @@ const DonutChart = ({ centerLabel, labels, colors, series, tooltipValue }) => {
     tooltip: {
       enabled: true,
       y: {
-        formatter: (val,{seriesIndex}) => `${tooltipValue[seriesIndex]} tasks (${val.toFixed(1)}%)`,
+        formatter: (val, { seriesIndex }) => `${tooltipValue[seriesIndex]} tasks (${val.toFixed(1)}%)`,
       },
     },
     plotOptions: {

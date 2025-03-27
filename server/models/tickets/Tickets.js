@@ -29,7 +29,7 @@ const ticketsSchema = new mongoose.Schema(
     escalatedTo: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Department",
+        ref: "Ticket",
       },
     ],
     assignees: [

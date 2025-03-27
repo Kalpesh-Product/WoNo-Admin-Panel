@@ -4,23 +4,27 @@ import { TextField, Select, MenuItem, CircularProgress } from "@mui/material";
 import PrimaryButton from "../../../components/PrimaryButton";
 import SecondaryButton from "../../../components/SecondaryButton";
 import { State, City } from "country-state-city";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import DetalisFormatted from "../../../components/DetalisFormatted";
 import { useSelector } from "react-redux";
+import { toast } from "sonner";
 
 const ClientOnboarding = () => {
   const {
     control,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues: {
       clientName: "",
+      email: "",
+      phone: "",
       service: "",
       sector: "",
       hoCity: "",
@@ -48,7 +52,6 @@ const ClientOnboarding = () => {
   });
   const clientsData = useSelector((state) => state.sales.clientsData);
   const [selectedUnit, setSelectedUnit] = useState("");
-  console.log("Clients Data : ", clientsData)
 
   //-----------------------------------------------------Calculation------------------------------------------------//
   const cabinDesks = useWatch({ control, name: "cabinDesks" });
@@ -66,6 +69,15 @@ const ClientOnboarding = () => {
     (parseFloat(openDesks || 0) + parseFloat(cabinDesks || 0)) *
     (perDeskCredit || 0);
 
+  useEffect(() => {
+    const computed = (
+      (parseFloat(openDesks || 0) + parseFloat(cabinDesks || 0)) *
+      (parseFloat(perDeskCredit) || 0)
+    ).toFixed(2);
+
+    setValue("totalMeetingCredits", computed);
+  }, [openDesks, cabinDesks, perDeskCredit, setValue]);
+
   //-----------------------------------------------------Calculation------------------------------------------------------------//
   const axios = useAxiosPrivate();
   const [states, setStates] = useState([]);
@@ -74,7 +86,6 @@ const ClientOnboarding = () => {
     setStates(State.getStatesOfCountry("IN"));
   }, []);
   const handleStateSelect = (stateCode) => {
-    console.log("state code : ", stateCode);
     const city = City.getCitiesOfState("IN", stateCode);
     setCities(city);
   };
@@ -86,10 +97,16 @@ const ClientOnboarding = () => {
   } = useQuery({
     queryKey: ["units"],
     queryFn: async () => {
-      const response = await axios.get("/api/company/fetch-units");
+      const response = await axios.get(
+        `/api/company/fetch-units?deskCalculated=true`
+      );
       return response.data;
     },
   });
+
+  const availableCabinDesks = units.filter(
+    (item) => item._id?.trim() === selectedUnit.trim()
+  );
   const {
     data: services = [],
     isLoading: isServicesPending,
@@ -104,9 +121,28 @@ const ClientOnboarding = () => {
     // enabled: false,
   });
 
+  const { mutate: mutateClientData, isPending: isMutateClientPending } =
+    useMutation({
+      mutationKey: "clientData",
+      mutationFn: async (data) => {
+        console.log("Mutation Data : ", data);
+        const response = await axios.post(
+          `/api/sales/onboard-co-working-client`,
+          data
+        );
+        return response.data;
+      },
+      onSuccess: (data) => {
+        toast.success(data.message);
+        reset();
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    });
+
   const onSubmit = (data) => {
-    console.log(data);
-    reset();
+    mutateClientData(data);
   };
 
   const handleReset = () => {
@@ -162,6 +198,36 @@ const ClientOnboarding = () => {
                     label="Client Name"
                     error={!!errors.clientName}
                     helperText={errors.clientName?.message}
+                    fullWidth
+                  />
+                )}
+              />
+              <Controller
+                name="email"
+                control={control}
+                rules={{ required: "Email is required" }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    size="small"
+                    label="Email"
+                    error={!!errors.email}
+                    helperText={errors.email?.message}
+                    fullWidth
+                  />
+                )}
+              />
+              <Controller
+                name="phone"
+                control={control}
+                rules={{ required: "Phone is required" }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    size="small"
+                    label="Phone"
+                    error={!!errors.phone}
+                    helperText={errors.phone?.message}
                     fullWidth
                   />
                 )}
@@ -281,9 +347,10 @@ const ClientOnboarding = () => {
                     {...field}
                     onClick={fetchUnits}
                     onChange={(e) => {
-                      field.onChange(e)
+                      field.onChange(e);
                       setSelectedUnit(e.target.value);
-                      console.log("Selected Unit : ",selectedUnit);
+                      fetchUnits();
+                      console.log("Selected Unit : ", selectedUnit);
                     }}
                     size="small"
                     select
@@ -306,7 +373,14 @@ const ClientOnboarding = () => {
                 )}
               />
               <div>
-                <DetalisFormatted title={"Available Cabin Desks"} detail={5} />
+                <DetalisFormatted
+                  title={"Available Cabin Desks"}
+                  detail={
+                    availableCabinDesks.map(
+                      (item) => item.remainingCabinDesks
+                    ) || 2
+                  }
+                />
               </div>
               <div className="flex gap-2">
                 <div className="w-1/2">
@@ -349,6 +423,16 @@ const ClientOnboarding = () => {
                     fullWidth
                   />
                 </div>
+              </div>
+              <div>
+                <DetalisFormatted
+                  title={"Available Open Desks"}
+                  detail={
+                    availableCabinDesks.map(
+                      (item) => item.remainingOpenDesks
+                    ) || 2
+                  }
+                />
               </div>
               <div className="flex gap-2">
                 <div className="w-1/2">
@@ -443,8 +527,7 @@ const ClientOnboarding = () => {
                       size="small"
                       type="number"
                       disabled
-                      label={"Total Meeting Credits"}
-                      value={totalMeetingCredits}
+                      label="Total Meeting Credits"
                       fullWidth
                     />
                   )}
@@ -651,7 +734,7 @@ const ClientOnboarding = () => {
                   <TextField
                     {...field}
                     size="small"
-                    label="HO POC Name"
+                    label="HO POC Email"
                     error={!!errors.hOPocEmail}
                     helperText={errors.hOPocEmail?.message}
                     fullWidth
@@ -680,7 +763,12 @@ const ClientOnboarding = () => {
 
         {/* Submit Button */}
         <div className="flex items-center justify-center gap-4">
-          <PrimaryButton type="submit" title={"Submit"} />
+          <PrimaryButton
+            type="submit"
+            title={"Submit"}
+            isLoading={isMutateClientPending}
+            disabled={isMutateClientPending}
+          />
           <SecondaryButton handleSubmit={handleReset} title={"Reset"} />
         </div>
       </form>

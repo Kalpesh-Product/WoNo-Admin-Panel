@@ -229,7 +229,7 @@ const getCompanyLogo = async (req, res, next) => {
 
 const getCompanyData = async (req, res, next) => {
   const { field } = req.query; // employeeTypes | workLocations | leaveTypes | shifts
-  const companyId = req.userData.company;
+  const companyId = req.company;
 
   try {
     if (!field) {

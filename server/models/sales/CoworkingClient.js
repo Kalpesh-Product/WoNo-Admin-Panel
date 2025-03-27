@@ -9,6 +9,20 @@ const clientSchema = new mongoose.Schema(
     clientName: {
       type: String
     },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      lowercase: true,
+      match: [/^\S+@\S+\.\S+$/, "Invalid email format"],
+    },
+    phone: {
+      type: String,
+      minlength: 7,
+      maxlength: 20,
+      match: [/^\+?[0-9]+$/, "Invalid phone number format"],
+    },
     service: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "ClientService",
@@ -113,6 +127,6 @@ const clientSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Client = mongoose.model("CoworkingClient", clientSchema);
+const CoworkingClient = mongoose.model("CoworkingClient", clientSchema);
 
-module.exports = Client;
+module.exports = CoworkingClient;

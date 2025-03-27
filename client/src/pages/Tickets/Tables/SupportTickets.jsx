@@ -39,28 +39,28 @@ const SupportTickets = ({ title }) => {
     return !tickets.length
       ? []
       : tickets.map((ticket, index) => {
-          const supportTicket = {
-            id: ticket.ticket?._id,
-            srno: index + 1,
-            raisedBy:
-              `${ticket.ticket.raisedBy?.firstName} ${ticket.ticket.raisedBy?.lastName}` ||
-              "Unknown",
-            selectedDepartment:
-              [
-                ...ticket.ticket.raisedBy.departments.map((dept) => dept.name),
-              ] || "N/A",
-            ticketTitle: ticket.reason || "No Title",
-            tickets:
-              ticket.ticket?.assignees.length > 0
-                ? "Assigned Ticket"
-                : ticket.ticket?.acceptedBy
+        const supportTicket = {
+          id: ticket.ticket?._id,
+          srno: index + 1,
+          raisedBy:
+            `${ticket.ticket.raisedBy?.firstName} ${ticket.ticket.raisedBy?.lastName}` ||
+            "Unknown",
+          selectedDepartment:
+            [
+              ...ticket.ticket.raisedBy.departments.map((dept) => dept.name),
+            ] || "N/A",
+          ticketTitle: ticket.reason || "No Title",
+          tickets:
+            ticket.ticket?.assignees.length > 0
+              ? "Assigned Ticket"
+              : ticket.ticket?.acceptedBy
                 ? "Accepted Ticket"
                 : "N/A",
-            status: ticket.ticket.status || "Pending",
-          };
+          status: ticket.ticket.status || "Pending",
+        };
 
-          return supportTicket;
-        });
+        return supportTicket;
+      });
   };
 
   const rows = isLoading ? [] : transformTicketsData(supportedTickets);
@@ -225,6 +225,10 @@ const SupportTickets = ({ title }) => {
                 label: "Re-Assign",
                 onClick: () => handleOpenAssignModal(params.data.id),
               },
+              {
+                label: "Escalate",
+                onClick: () => { }
+              }
             ]}
           />
         </>
