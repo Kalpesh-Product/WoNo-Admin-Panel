@@ -772,7 +772,7 @@ const SalesDashboard = () => {
               width={"100%"}
             />
           ) : (
-            <CircularProgress />
+            <CircularProgress color="#1E3D73"/>
           )}
         </WidgetSection>,
         <WidgetSection layout={1} title={"Client-wise Occupancy"} border>
@@ -781,7 +781,7 @@ const SalesDashboard = () => {
             <TreemapGraph data={totalDeskPercent} options={clientsDesksPieOptions} width={"100%"} />
 
           ) : (
-            <CircularProgress />
+            <CircularProgress color="#1E3D73" />
           )}
         </WidgetSection>,
       ],

@@ -146,7 +146,7 @@ const Calender = () => {
                     })}
                   </FormGroup>
                 ) : (
-                  <CircularProgress />
+                  <CircularProgress color="#1E3D73" size={15}/>
                 )}
               </div>
             </div>

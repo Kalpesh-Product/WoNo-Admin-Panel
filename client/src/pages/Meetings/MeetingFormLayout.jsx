@@ -219,7 +219,7 @@ const MeetingFormLayout = () => {
       <div className="w-full h-full overflow-y-auto">
         {isCheckingAvailability ? (
           <div className="h-full justify-center items-center">
-            <CircularProgress />
+            <CircularProgress color="#1E3D73" />
           </div>
         ) : (
           <FullCalendar

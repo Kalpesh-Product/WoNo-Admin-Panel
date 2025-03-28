@@ -257,7 +257,7 @@ const ClientOnboarding = () => {
                         </MenuItem>
                       ))
                     ) : (
-                      <CircularProgress />
+                      <CircularProgress color="#1E3D73"/>
                     )}
                   </TextField>
                 )}
@@ -366,7 +366,7 @@ const ClientOnboarding = () => {
                       ))
                     ) : (
                       <>
-                        <CircularProgress />
+                        <CircularProgress color="#1E3D73"/>
                       </>
                     )}
                   </TextField>

@@ -250,7 +250,7 @@ const SupportTickets = ({ title }) => {
           />
         ) : (
           <>
-            <CircularProgress />
+            <CircularProgress color="#1E3D73" />
           </>
         )}
       </div>
@@ -279,7 +279,7 @@ const SupportTickets = ({ title }) => {
                 </div>
               ))
             ) : (
-              <CircularProgress />
+              <CircularProgress color="#1E3D73" />
             )}
           </ul>
 

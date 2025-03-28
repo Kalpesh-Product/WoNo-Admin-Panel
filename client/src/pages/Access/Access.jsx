@@ -7,7 +7,6 @@ const Access = () => {
     <>
     <div>
       <div>
-        {/* <HierarchyTree /> */}
         <AccessTree />
       </div>
     </div>

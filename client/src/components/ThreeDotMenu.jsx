@@ -38,7 +38,7 @@ const ThreeDotMenu = ({ rowId, menuItems, isLoading }) => {
               }}
               className="bg-white text-primary p-4 py-2 border-b-[1px] border-borderGray cursor-pointer text-content hover:bg-gray-200"
             >
-              {isLoading ? <CircularProgress /> : label}
+              {isLoading ? <CircularProgress color="#1E3D73"/> : label}
             </div>
           ))}
         </div>

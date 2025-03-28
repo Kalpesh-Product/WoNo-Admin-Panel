@@ -49,7 +49,7 @@ const Card = ({
 
 
       <h3
-        className="text-base font-bold"
+        className="text-base font-bold whitespace-nowrap"
         style={{ color: titleColor || "inherit" }}
       >
         {title}

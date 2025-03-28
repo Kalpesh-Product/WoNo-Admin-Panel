@@ -2,11 +2,10 @@ import React from "react";
 import ReactApexChart from "react-apexcharts";
 
 const DonutChart = ({ centerLabel, labels, colors, series, tooltipValue }) => {
-  // Example data
   const chartData = {
-    series: series, // High, Medium, Low percentages
+    series: series, 
     labels: labels,
-    colors: colors, // Red, Yellow, Green
+    colors: colors, 
   };
 
   const chartOptions = {

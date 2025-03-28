@@ -154,7 +154,7 @@ const MeetingSettings = () => {
                 </div>
               </CardContent>
             </Card>
-          )) : <CircularProgress/>}
+          )) : <CircularProgress color="#1E3D73"/>}
         </div>
       </div>
 
