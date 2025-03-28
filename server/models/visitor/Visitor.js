@@ -2,7 +2,14 @@ const mongoose = require("mongoose");
 
 const visitorSchema = new mongoose.Schema(
   {
-    fullName: {
+    firstName: {
+      type: String,
+      required: true,
+    },
+    middleName: {
+      type: String,
+    },
+    lastName: {
       type: String,
       required: true,
     },
@@ -63,7 +70,8 @@ const visitorSchema = new mongoose.Schema(
       default: "Walk In",
     },
     visitorCompany: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ExternalClient",
     },
   },
   { timestamps: true }

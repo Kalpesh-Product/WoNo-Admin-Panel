@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Visitor = require("../../models/visitor/Visitor");
 const CustomError = require("../../utils/customErrorlogs");
 const { createLog } = require("../../utils/moduleLogs");
+const ExternalCompany = require("../../models/meetings/ExternalClients");
 
 const fetchVisitors = async (req, res, next) => {
   const { company } = req;
@@ -78,7 +79,9 @@ const addVisitor = async (req, res, next) => {
     }
 
     const {
-      fullName,
+      firstName,
+      middleName,
+      lastName,
       email,
       gender,
       address,
@@ -92,10 +95,45 @@ const addVisitor = async (req, res, next) => {
       department,
       visitorType,
       visitorCompany,
+      visitorCompanyId,
     } = req.body;
 
+    if (visitorCompanyId) {
+      if (!mongoose.Types.ObjectId(visitorCompanyId)) {
+        throw new CustomError(
+          "Invalid visitor company Id provided",
+          logPath,
+          logAction,
+          logSourceKey
+        );
+      }
+    }
+
+    let externalCompany = null;
+    if (!visitorCompanyId) {
+      const newExternalCompany = new ExternalCompany(visitorCompany);
+
+      externalCompany = await newExternalCompany.save();
+    } else {
+      externalCompany = await ExternalCompany.findById({
+        _id: visitorCompanyId,
+        company,
+      });
+
+      if (!externalCompany) {
+        throw new CustomError(
+          "Company not found",
+          logPath,
+          logAction,
+          logSourceKey
+        );
+      }
+    }
+
     const newVisitor = new Visitor({
-      fullName,
+      firstName,
+      middleName,
+      lastName,
       email,
       gender,
       address,
@@ -109,7 +147,7 @@ const addVisitor = async (req, res, next) => {
       company,
       department,
       visitorType,
-      visitorCompany,
+      visitorCompany: externalCompany._id,
     });
 
     await newVisitor.save();
@@ -124,7 +162,13 @@ const addVisitor = async (req, res, next) => {
       company: company,
       sourceKey: logSourceKey,
       sourceId: newVisitor._id,
-      changes: { fullName, email, phoneNumber, purposeOfVisit },
+      changes: {
+        fullName,
+        email,
+        phoneNumber,
+        purposeOfVisit,
+        visitorCompany: externalCompany._id,
+      },
     });
 
     return res.status(201).json({

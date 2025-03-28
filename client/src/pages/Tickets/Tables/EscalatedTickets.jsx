@@ -203,9 +203,7 @@ const EscalatedTickets = ({title}) => {
                 borderRadius: "4px",
                 cursor: "pointer",
               }}
-              onClick={ () => {
-                console.log(params)
-                return mutate(params.data.id)}}
+              onClick={ () => (mutate(params.data.id))}
             >
               Close
             </button>
@@ -214,58 +212,6 @@ const EscalatedTickets = ({title}) => {
       ),
     },
   ];
-
-  // const rows = [
-  //   {
-  //     srno:"1",
-  //     raisedBy: "Abrar Shaikh",
-  //     selectedDepartment: "IT",
-  //     ticketTitle: "Monitor dead pixel",
-  //     tickets: "Accepted Ticket",
-  //     status: "pending",
-  //   },
-  //   {
-  //     srno:"2",
-  //     raisedBy: "John Doe",
-  //     selectedDepartment: "HR",
-  //     ticketTitle: "System login issue",
-  //     tickets: "Accepted Ticket",
-  //     status: "pending",
-  //   },
-  //   {
-  //     srno:"3",
-  //     raisedBy: "Jane Smith",
-  //     selectedDepartment: "Finance",
-  //     ticketTitle: "Printer not working",
-  //     tickets: "Accepted Ticket",
-  //     status: "pending",
-  //   },
-  //   {
-  //     srno:"4",
-  //     raisedBy: "Mike Brown",
-  //     selectedDepartment: "Operations",
-  //     ticketTitle: "Software installation request",
-  //     tickets: "Assigned Ticket",
-  //     status: "pending",
-  //   },
-  //   {
-  //     srno:"5",
-  //     raisedBy: "Emily Davis",
-  //     selectedDepartment: "Marketing",
-  //     ticketTitle: "Email access problem",
-  //     tickets: "Accepted Ticket",
-  //     status: "pending",
-  //   },
-  //   {
-  //     srno:"6",
-  //     raisedBy: "Chris Johnson",
-  //     selectedDepartment: "Admin",
-  //     ticketTitle: "Air conditioner maintenance",
-  //     tickets: "Assigned Ticket",
-  //     status: "pending",
-  //   },
-  // ];
-  
   
   return (
     <div className="p-4 border-default border-borderGray rounded-md">

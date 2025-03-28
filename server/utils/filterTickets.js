@@ -284,16 +284,7 @@ async function filterEscalatedTickets(roles, userDepartments) {
     return [];
   }
 
-  const tickets = await fetchTickets(query);
-
-  // const escalatedTickets = tickets.filter((ticket) => {
-  //   const escalateIndex = ticket.escalatedTo.length - 1;
-  //   const status = ticket.escalatedTo[escalateIndex].status;
-
-  //   return status === "Closed";
-  // });
-
-  return tickets;
+  return await fetchTickets(query);
 }
 
 async function filterCloseTickets(user, roles, userDepartments) {
