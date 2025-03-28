@@ -21,6 +21,7 @@ import {
   recentAssetsColumnsVX,
   recentAssetsDataVX,
 } from "./VisitorsData/VisitorsData";
+import humanDate from "../../utils/humanDateForamt";
 
 const VisitorDashboard = () => {
   const axios = useAxiosPrivate();
@@ -37,14 +38,16 @@ const VisitorDashboard = () => {
     },
   });
 
-  const visitorCategories = Array.isArray(visitorsData) ? visitorsData.map((item)=>item.visitorType) : [];
-  console.log("Visitor Categories",visitorCategories)
+  const visitorCategories = Array.isArray(visitorsData)
+    ? visitorsData.map((item) => item.visitorType)
+    : [];
+  console.log("Visitor Categories", visitorCategories);
 
-  const visitorMap = {}
-  visitorsData.forEach(({visitorType})=>{
-    if(!visitorType) return;
-    visitorMap[visitorType] = (visitorMap[visitorType] || 0) + 1
-  })
+  const visitorMap = {};
+  visitorsData.forEach(({ visitorType }) => {
+    if (!visitorType) return;
+    visitorMap[visitorType] = (visitorMap[visitorType] || 0) + 1;
+  });
   const visitorTypeRawData = Object.entries(visitorMap).map(
     ([type, count]) => ({
       label: type,
@@ -52,7 +55,7 @@ const VisitorDashboard = () => {
     })
   );
 
-  console.log("Visitor Type :",visitorTypeRawData)
+  console.log("Visitor Type :", visitorTypeRawData);
   //---------------------------------------------------Category Wise Visitors Donut Data---------------------------------------------------//
   const totalVisitorCategories = visitorTypeRawData.reduce(
     (sum, visitor) => sum + visitor.count,
@@ -61,12 +64,32 @@ const VisitorDashboard = () => {
   const donutVisitorCategoryData = visitorTypeRawData.map((visitor) =>
     parseFloat(((visitor.count / totalVisitorCategories) * 100).toFixed(1))
   );
-  const executiveTasksCount = visitorTypeRawData.map((visitor) => visitor.count);
+  const executiveTasksCount = visitorTypeRawData.map(
+    (visitor) => visitor.count
+  );
   const labels = visitorTypeRawData.map((visitor) => visitor.label);
-  const colors = ["#1E3D73", "#4C66A1","#637BB8"];
+  const colors = ["#1E3D73", "#4C66A1", "#637BB8"];
   //---------------------------------------------------Category Wise Visitors Donut Data---------------------------------------------------//
-
-
+  //---------------------------------------------------Visitors Table Data---------------------------------------------------//
+  const recentAssetsColumnsVX = [
+    { id: "id", label: "Sr No" },
+    { id: "firstName", label: "First Name" },
+    { id: "lastName", label: "Last Name" },
+    { id: "address", label: "Address" },
+    { id: "email", label: "Email" },
+    { id: "phoneNumber", label: "Phone No" },
+    { id: "purposeOfVisit", label: "Purpose", align: "right" },
+    { id: "toMeet", label: "To Meet", align: "right" },
+    { id: "checkIn", label: "Check In" },
+    { id: "checkOut", label: "Checkout" },
+    //   {
+    //     id: "actions",
+    //     label: "Actions",
+    //     align: "center",
+    //     renderCell: () => <PrimaryButton title={"View"} />,
+    //   },
+  ];
+  //---------------------------------------------------Visitors Table Data---------------------------------------------------//
 
   const meetings = [
     { meetingId: 1, meetingTime: "30min", mostUsedRoom: "Baga" },
@@ -183,42 +206,6 @@ const VisitorDashboard = () => {
     //   ],
     // },
   };
-
-  const rows3 = [
-    {
-      ranks: "1",
-      employeeName: "John Doe",
-      department: "Abrar Shaikh",
-      "Performance (%)": "10:00 AM",
-    },
-    {
-      ranks: "2",
-      employeeName: "Aman Gupta",
-      department: "Abrar Shaikh",
-      "Performance (%)": "09:45 AM",
-    },
-    {
-      ranks: 3,
-      employeeName: "Jeff Bezos",
-      department: "Abrar Shaikh",
-      "Performance (%)": "10:00 AM",
-    },
-    {
-      ranks: 4,
-      employeeName: "Elon Musk",
-      department: "Abrar Shaikh",
-      "Performance (%)": "09:45 AM",
-    },
-    {
-      ranks: 5,
-      employeeName: "Satya Nadela",
-      department: "Abrar Shaikh",
-      "Performance (%)": "10:00 AM",
-    },
-  ];
-
-
-
   const meetingsWidgets = [
     {
       layout: 1,
@@ -287,17 +274,24 @@ const VisitorDashboard = () => {
         />,
         <DataCard
           title={"Total"}
-          data={visitorsData.filter((item)=>item.visitorType === "Walk In").length}
+          data={
+            visitorsData.filter((item) => item.visitorType === "Walk In").length
+          }
           description={"Walk In Visits"}
         />,
         <DataCard
           title={"Total"}
-          data={visitorsData.filter((item)=>item.visitorType === "Scheduled").length}
+          data={
+            visitorsData.filter((item) => item.visitorType === "Scheduled")
+              .length
+          }
           description={"Scheduled Visits"}
         />,
         <DataCard
           title={"Total"}
-          data={visitorsData.filter((item)=>item.visitorType === "Meeting").length}
+          data={
+            visitorsData.filter((item) => item.visitorType === "Meeting").length
+          }
           description={"Meeting Booking"}
         />,
       ],
@@ -310,11 +304,13 @@ const VisitorDashboard = () => {
           title={"Visitor Categories This Month"}
           border
         >
-          <DonutChart  centerLabel="Visitors"
+          <DonutChart
+            centerLabel="Visitors"
             labels={labels}
             colors={colors}
             series={donutVisitorCategoryData}
-            tooltipValue={executiveTasksCount}  />
+            tooltipValue={executiveTasksCount}
+          />
         </WidgetSection>,
         <WidgetSection
           layout={1}
@@ -348,9 +344,9 @@ const VisitorDashboard = () => {
       widgets: [
         // <WidgetSection title={"Visitor Gender Data"} border>
         //   <PieChartMui
-        //     percent={true} 
+        //     percent={true}
         //     title={"Visitor Gender Data"}
-        //     data={genderData} 
+        //     data={genderData}
         //     options={genderPieChart}
         //   />
         // </WidgetSection>,
@@ -369,7 +365,18 @@ const VisitorDashboard = () => {
           <MuiTable
             Title="Visitors Today"
             columns={recentAssetsColumnsVX}
-            rows={recentAssetsDataVX}
+            rows={visitorsData.map((item, index) => ({
+              id: index + 1,
+              firstName: item.firstName,
+              lastName: item.lastName,
+              address: item.address,
+              phoneNumber: item.phoneNumber,
+              email: item.email,
+              purposeOfVisit: item.purposeOfVisit,
+              toMeet: item.toMeet,
+              checkIn: humanDate(item.checkIn),
+              checkOut: humanDate(item.checkOut),
+            }))}
             rowKey="id"
             rowsToDisplay={10}
             scroll={true}

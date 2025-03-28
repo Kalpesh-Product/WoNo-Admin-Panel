@@ -9,6 +9,7 @@ import DataCard from "../../../components/DataCard";
 import MuiTable from "../../../components/Tables/MuiTable";
 import BarGraph from "../../../components/graphs/BarGraph";
 import PieChartMui from "../../../components/graphs/PieChartMui";
+import TreemapGraph from "../../../components/graphs/TreemapGraph";
 import {
   financialYearMonths,
   sourcingChannelsOptions,
@@ -63,7 +64,7 @@ const SalesDashboard = () => {
       console.error("Error fetching leads:", error);
     },
   });
-  const { data: clientsData=[], isPending: isClientsDataPending } = useQuery({
+  const { data: clientsData = [], isPending: isClientsDataPending } = useQuery({
     queryKey: ["clientsData"],
     queryFn: async () => {
       try {
@@ -256,10 +257,11 @@ const SalesDashboard = () => {
     }),
     chart: {
       fontFamily: "Poppins-Regular",
+      toolbar: false
     },
     tooltip: {
       y: {
-        formatter: (val) => `${((val / totalClientsDesks) * 100).toFixed(1)}%`,
+        formatter: (val) => val,
       },
     },
     legend: {
@@ -272,9 +274,9 @@ const SalesDashboard = () => {
 
   const sectorwiseData = Array.isArray(clientsData)
     ? clientsData.map((item) => ({
-        clientName: item.clientName,
-        sector: item.sector,
-      }))
+      clientName: item.clientName,
+      sector: item.sector,
+    }))
     : [];
 
   const totalClients = sectorwiseData.length;
@@ -685,7 +687,7 @@ const SalesDashboard = () => {
         <DataCard
           route={"revenue"}
           title={"Actual"}
-          data={`${((totalClientsDesks/totalCoWorkingSeats)*100).toFixed(1)}%`}
+          data={`${((totalClientsDesks / totalCoWorkingSeats) * 100).toFixed(1)}%`}
           description={"Occupancy"}
         />,
         <DataCard
@@ -775,11 +777,9 @@ const SalesDashboard = () => {
         </WidgetSection>,
         <WidgetSection layout={1} title={"Client-wise Occupancy"} border>
           {!isClientsDataPending ? (
-            <PieChartMui
-              data={totalDeskPercent}
-              options={clientsDesksPieOptions}
-              width={"100%"}
-            />
+
+            <TreemapGraph data={totalDeskPercent} options={clientsDesksPieOptions} width={"100%"} />
+
           ) : (
             <CircularProgress />
           )}

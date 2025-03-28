@@ -10,6 +10,7 @@ const handleRefreshToken = async (req, res, next) => {
     }
 
     const refreshToken = cookies.clientCookie;
+    console.log(refreshToken)
 
     const userExists = await User.findOne({ refreshToken })
       .select(
