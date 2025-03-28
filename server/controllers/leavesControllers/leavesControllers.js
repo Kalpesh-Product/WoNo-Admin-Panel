@@ -15,10 +15,18 @@ const requestLeave = async (req, res, next) => {
   const { user, ip, company } = req;
 
   try {
-    const { fromDate, toDate, leaveType, leavePeriod, hours, description } =
-      req.body;
+    const {
+      userId,
+      fromDate,
+      toDate,
+      leaveType,
+      leavePeriod,
+      hours,
+      description,
+    } = req.body;
 
     if (
+      !userId ||
       !fromDate ||
       !toDate ||
       !leaveType ||
@@ -26,16 +34,12 @@ const requestLeave = async (req, res, next) => {
       !hours ||
       !description
     ) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "All fields are required",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(400).json({ message: "All fields are required" });
     }
 
     const startDate = new Date(fromDate);
@@ -43,33 +47,25 @@ const requestLeave = async (req, res, next) => {
     const currDate = new Date();
 
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Invalid date format",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(400).json({ message: "Invalid date format" });
     }
 
     // Ensure the leave starts in the future
     if (startDate < currDate) {
-      await createLog(
-        path,
-        action,
+      throw new CustomError(
         "Please select future date",
-        "Failed",
-        user,
-        ip,
-        company
+        logPath,
+        logAction,
+        logSourceKey
       );
-      return res.status(400).json({ message: "Please select future date" });
     }
 
-    const foundUser = await UserData.findById({ _id: user }).populate({
+    const foundUser = await UserData.findById({ _id: userId }).populate({
       path: "company",
       select: "employeeTypes",
     });
@@ -79,7 +75,7 @@ const requestLeave = async (req, res, next) => {
     }
 
     // Check if the user has already taken leaves that exceed the granted limit
-    const leaves = await Leave.find({ takenBy: user });
+    const leaves = await Leave.find({ takenBy: foundUser });
     if (leaves) {
       const singleLeaves = leaves.filter(
         (leave) =>
@@ -100,16 +96,12 @@ const requestLeave = async (req, res, next) => {
       const takenLeaveHours = singleLeaveHours + partialLeaveHours;
 
       if (takenLeaveHours > grantedLeaveHours) {
-        await createLog(
-          path,
-          action,
+        throw new CustomError(
           "Can't request more leaves",
-          "Failed",
-          user,
-          ip,
-          company
+          logPath,
+          logAction,
+          logSourceKey
         );
-        return res.status(400).json({ message: "Can't request more leaves" });
       }
     }
 
@@ -136,24 +128,26 @@ const requestLeave = async (req, res, next) => {
     await newLeave.save();
 
     // Success log with details of the leave request
-    await createLog(
-      path,
-      action,
-      "Leave request sent successfully",
-      "Success",
+
+    await createLog({
+      path: path,
+      action: logAction,
+      remarks: "Leave request sent successfully",
+      status: "Success",
       user,
       ip,
       company,
-      newLeave._id,
-      {
+      sourceKey: logSourceKey,
+      sourceId: newLeave._id,
+      changes: {
         fromDate,
         toDate,
         leaveType: updatedLeaveType ? updatedLeaveType : leaveType,
         leavePeriod,
         hours,
         description,
-      }
-    );
+      },
+    });
 
     return res.status(201).json({ message: "Leave request sent" });
   } catch (error) {
