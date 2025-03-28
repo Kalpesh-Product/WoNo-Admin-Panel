@@ -41,7 +41,7 @@ const addRevenue = async (req, res, next) => {
 const getRevenues = async (req, res, next) => {
   try {
     const company = req.company;
-    const serviceId = req.query;
+    const { serviceId } = req.query;
 
     let revenues;
     if (serviceId) {
