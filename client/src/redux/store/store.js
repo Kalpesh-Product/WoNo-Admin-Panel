@@ -4,6 +4,7 @@ import sessionStorage from "redux-persist/lib/storage/session";
 import { encryptTransform } from "redux-persist-transform-encrypt";
 import clientReducer from "../slices/clientSlice";
 import meetingsReducer from "../slices/meetingSlice";
+import salesReducer from '../slices/salesSlice'
 
 const persistConfig = {
   key: "root",
@@ -21,6 +22,7 @@ const persistConfig = {
 const rootreducer = combineReducers({
   meetings: meetingsReducer,
   client: clientReducer,
+  sales : salesReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootreducer);

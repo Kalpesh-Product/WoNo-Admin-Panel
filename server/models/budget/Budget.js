@@ -34,7 +34,6 @@ const budgetSchema = new mongoose.Schema({
   },
   typeOfBudget: {
     type: String,
-    enum: ["Internal", "External"],
     required: true,
   },
 });

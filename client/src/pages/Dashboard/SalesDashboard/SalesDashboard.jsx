@@ -3,7 +3,7 @@ import { RiArchiveDrawerLine, RiPagesLine } from "react-icons/ri";
 import { MdFormatListBulleted, MdMiscellaneousServices } from "react-icons/md";
 import { CgProfile } from "react-icons/cg";
 import Card from "../../../components/Card";
-import DonutChart from "../../../components/graphs/DonutChart";
+import dayjs from "dayjs";
 import WidgetSection from "../../../components/WidgetSection";
 import DataCard from "../../../components/DataCard";
 import MuiTable from "../../../components/Tables/MuiTable";
@@ -12,7 +12,6 @@ import PieChartMui from "../../../components/graphs/PieChartMui";
 import {
   annualMonthlyRawData,
   financialYearMonths,
-  monthlyLeadsData,
   sourcingChannelsData,
   sourcingChannelsOptions,
   clientOccupancyPieData,
@@ -28,21 +27,99 @@ import {
   upcomingBirthdaysColumns,
   upcomingBirthdays,
 } from "./SalesData/SalesData";
-import RevenueGraph from "../../../components/graphs/RevenueGraph";
 import { useNavigate } from "react-router-dom";
 import ParentRevenue from "./ParentRevenue";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import { useQuery } from "@tanstack/react-query";
+import { useDispatch } from "react-redux";
+import { setLeadsData } from "../../../redux/slices/salesSlice";
 
 const SalesDashboard = () => {
   const navigate = useNavigate();
+  const axios = useAxiosPrivate();
+  const dispatch = useDispatch();
 
+  const monthShortToFull = {
+    Apr: "April",
+    May: "May",
+    Jun: "June",
+    Jul: "July",
+    Aug: "August",
+    Sep: "September",
+    Oct: "October",
+    Nov: "November",
+    Dec: "December",
+    Jan: "January",
+    Feb: "February",
+    Mar: "March",
+  };
+
+  //-----------------------------------------------API-----------------------------------------------------------//
+  const { data: leadsData, isPending: isLeadsPending } = useQuery({
+    queryKey: ["leads"],
+    queryFn: async () => {
+      const response = await axios.get("/api/sales/leads");
+      return response.data;
+    },
+    onSuccess: (data) => {
+      dispatch(setLeadsData(data));
+    },
+    onError: (error) => {
+      console.error("Error fetching leads:", error);
+    },
+  });
+
+  const transformedLeadsData = [];
+
+  if (Array.isArray(leadsData)) {
+    const domainMap = {};
+
+    leadsData.forEach((lead) => {
+      const domain = lead.serviceCategory?.serviceName;
+      if (!domain) return;
+
+      const createdMonth = dayjs(lead.startDate).month(); // 0 = Jan, 11 = Dec
+
+      // Initialize if domain not yet seen
+      if (!domainMap[domain]) {
+        domainMap[domain] = Array(12).fill(0);
+      }
+
+      domainMap[domain][createdMonth]++;
+    });
+
+    // Convert domainMap to array format
+    for (const domain in domainMap) {
+      transformedLeadsData.push({
+        domain,
+        leads: domainMap[domain],
+      });
+    }
+  }
+  const reorderToFinancialYear = (leadsArray) => {
+    return [
+      ...leadsArray.slice(3), // Apr to Dec (indexes 3 to 11)
+      ...leadsArray.slice(0, 3), // Jan to Mar (indexes 0 to 2)
+    ];
+  };
+
+  const monthlyLeadsData = transformedLeadsData.map((domain) => ({
+    name: domain.domain,
+    data: reorderToFinancialYear(domain.leads),
+  }));
+  //-----------------------------------------------API-----------------------------------------------------------//
   const monthlyLeadsOptions = {
     chart: {
       type: "bar",
-      stacked: true, // Enable stacking for domains
+      stacked: true,
       fontFamily: "Poppins-Regular",
       events: {
-        dataPointSelection: () => {
-          navigate("unique-leads"); // Navigates to the same component for any bar click
+        dataPointSelection: (event, chartContext, config) => {
+          const selectedMonthAbbr = financialYearMonths[config.dataPointIndex];
+          const selectedMonthFull = monthShortToFull[selectedMonthAbbr];
+          navigate(
+            `unique-leads?month=${encodeURIComponent(selectedMonthFull)}`
+          );
         },
       },
     },
@@ -440,11 +517,6 @@ const SalesDashboard = () => {
           data={"400"}
           description={"Clients"}
         />,
-      ],
-    },
-    {
-      layout: 3,
-      widgets: [
         <DataCard
           route={"co-working-seats"}
           title={"Total"}
@@ -465,6 +537,7 @@ const SalesDashboard = () => {
         />,
       ],
     },
+
     {
       layout: 1,
       widgets: [

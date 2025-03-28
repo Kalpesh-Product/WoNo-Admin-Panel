@@ -384,6 +384,7 @@ const bulkInsertCoworkingClients = async (req, res, next) => {
       return res.status(400).json({ message: "Please provide a CSV file" });
     }
 
+    // Fetch all units for the company and map them by unit number
     const units = await Unit.find({ company })
       .populate([{ path: "building", select: "buildingName" }])
       .lean()
@@ -391,7 +392,9 @@ const bulkInsertCoworkingClients = async (req, res, next) => {
 
     const unitMap = new Map(units.map((unit) => [unit.unitNo, unit._id]));
 
+    // Convert file buffer to readable stream
     const stream = Readable.from(file.buffer.toString("utf-8").trim());
+    const getClientService = await ClientService.findOne({ serviceName: "Co-working", company });
 
     let coWorkingClients = [];
 
@@ -399,29 +402,28 @@ const bulkInsertCoworkingClients = async (req, res, next) => {
       .pipe(csvParser())
       .on("data", (row) => {
         const {
-          clientName,
-          service,
-          sector,
-          hoCity,
-          hoState,
-          unitNo,
-          cabinDesks,
-          openDesks,
-          ratePerOpenDesk,
-          ratePerCabinDesk,
-          annualIncrement,
-          perDeskMeetingCredits,
-          startDate,
-          endDate,
-          lockinPeriod,
-          bookingType,
-          rentDate,
-          localPocName,
-          localPocEmail,
-          localPocPhone,
-          hoPocName,
-          hoPocEmail,
-          hoPocPhone,
+          "Client Name": clientName,
+          "Sector": sector,
+          "Booking Type": bookingType,
+          "HO City": hoCity,
+          "HO State": hoState,
+          "Unit": unitNo,
+          "Cabin Desks": cabinDesks,
+          "Open Desks": openDesks,
+          "Rate Per Desk": ratePerDesk,
+          "Annual Increment": annualIncrement,
+          "Per Desk Meeting Credits": perDeskMeetingCredits,
+          "Start Date": startDate,
+          "End Date": endDate,
+          "Lockin Period": lockinPeriod,
+          "Rent Date": rentDate,
+          "Next Increment": nextIncrement,
+          "Local POC Name": localPocName,
+          "Local POC Email": localPocEmail,
+          "Local POC Mobile": localPocPhone,
+          "HO POC Name": hoPocName,
+          "HO POC Email": hoPocEmail,
+          "HO POC Mobile": hoPocPhone,
         } = row;
 
         const unitId = unitMap.get(unitNo);
@@ -430,32 +432,40 @@ const bulkInsertCoworkingClients = async (req, res, next) => {
           return;
         }
 
-        const totalDesks = parseInt(cabinDesks) + parseInt(openDesks);
-        const totalMeetingCredits =
-          totalDesks * parseInt(perDeskMeetingCredits);
+        const parsedCabinDesks = parseInt(cabinDesks) || 0;
+        const parsedOpenDesks = parseInt(openDesks) || 0;
+        const totalDesks = parsedCabinDesks + parsedOpenDesks;
+        const parsedMeetingCredits = parseInt(perDeskMeetingCredits) || 0;
+        const totalMeetingCredits = totalDesks * parsedMeetingCredits;
+        const parsedAnnualIncrement = parseFloat(annualIncrement) || 0;
+        const parsedLockinPeriod = parseInt(lockinPeriod) || 0;
+
+        const parsedStartDate = startDate ? new Date(startDate) : null;
+        const parsedEndDate = endDate ? new Date(endDate) : null;
+
 
         const newClientObj = {
           company,
           clientName,
-          service,
           sector,
+          bookingType,
           hoCity,
+          service: getClientService._id,
           hoState,
           unit: unitId,
-          cabinDesks: parseInt(cabinDesks) || 0,
-          openDesks: parseInt(openDesks) || 0,
+          cabinDesks: parsedCabinDesks,
+          openDesks: parsedOpenDesks,
           totalDesks,
-          ratePerOpenDesk,
-          ratePerCabinDesk: parseFloat(ratePerOpenDesk, ratePerCabinDesk) || 0,
-          annualIncrement: parseFloat(annualIncrement) || 0,
-          perDeskMeetingCredits: parseInt(perDeskMeetingCredits) || 0,
+          ratePerCabinDesk: ratePerDesk,
+          ratePerOpenDesk: ratePerDesk,
+          annualIncrement: parsedAnnualIncrement,
+          perDeskMeetingCredits: parsedMeetingCredits,
           totalMeetingCredits,
-          startDate: startDate ? new Date(startDate) : null,
-          endDate: endDate ? new Date(endDate) : null,
-          lockinPeriod: parseInt(lockinPeriod) || 0,
-          bookingType,
-          rentDate: rentDate ? new Date(rentDate) : null,
-          nextIncrement: rentDate ? new Date(rentDate) : null,
+          startDate: parsedStartDate,
+          endDate: parsedEndDate,
+          lockinPeriod: parsedLockinPeriod,
+          rentDate,
+          nextIncrement,
           localPoc: {
             name: localPocName,
             email: localPocEmail,
@@ -473,7 +483,7 @@ const bulkInsertCoworkingClients = async (req, res, next) => {
       })
       .on("end", async () => {
         try {
-          if (!coWorkingClients.length) {
+          if (coWorkingClients.length === 0) {
             return res
               .status(400)
               .json({ message: "No valid clients found in the file" });
@@ -495,6 +505,7 @@ const bulkInsertCoworkingClients = async (req, res, next) => {
     next(error);
   }
 };
+
 
 const uploadClientOccupancyImage = async (req, res, next) => {
   const logPath = "sales/salesLog";
