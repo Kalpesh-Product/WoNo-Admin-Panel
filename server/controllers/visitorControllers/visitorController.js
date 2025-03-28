@@ -79,7 +79,9 @@ const addVisitor = async (req, res, next) => {
     }
 
     const {
-      fullName,
+      firstName,
+      middleName,
+      lastName,
       email,
       gender,
       address,
@@ -129,7 +131,9 @@ const addVisitor = async (req, res, next) => {
     }
 
     const newVisitor = new Visitor({
-      fullName,
+      firstName,
+      middleName,
+      lastName,
       email,
       gender,
       address,
