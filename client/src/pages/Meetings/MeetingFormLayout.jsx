@@ -57,6 +57,8 @@ const MeetingFormLayout = () => {
       endTime: null,
       subject: "",
       agenda: "",
+      internalParticipants:[],
+      externalParticipants:[]
     },
   });
 
@@ -65,6 +67,8 @@ const MeetingFormLayout = () => {
   const endDate = watch("endDate"); // Watch endDate
   const startTime = watch("startTime");
   const endTime = watch("endTime");
+  const internalParticipants = watch("internalParticipants");
+  const externalParticipants = watch("externalParticipants");
 
   const handleDateClick = (arg) => {
     if (!arg.start) return;
@@ -92,11 +96,6 @@ const MeetingFormLayout = () => {
       const formattedEndDate = dayjs(endDate).format("YYYY-MM-DD");
       const formattedStartTime = dayjs(startTime).format("YYYY-MM-DD HH:mm:ss");
       const formattedEndTime = dayjs(endTime).format("YYYY-MM-DD HH:mm:ss");
-    
-      console.log("Formatted Start Date:", formattedStartDate);
-      console.log("Formatted End Date:", formattedEndDate);
-      console.log("Formatted Start Time:", formattedStartTime);
-      console.log("Formatted End Time:", formattedEndTime);
     
       const response = await axios.get("/api/meetings/get-available-users", {
         params: {
@@ -163,6 +162,7 @@ const MeetingFormLayout = () => {
   const { mutate: createMeeting, isPending: isCreateMeeting } = useMutation({
     mutationKey: ["createMeeting"],
     mutationFn: async (data) => {
+      console.log('participants',data)
       await axios.post("/api/meetings/create-meeting", {
         bookedRoom: meetingRoomId,
         meetingType: data.meetingType,
@@ -172,6 +172,8 @@ const MeetingFormLayout = () => {
         endTime: data.endTime,
         subject: data.subject,
         agenda: data.agenda,
+        internalParticipants: data.internalParticipants,
+        externalParticipants: data.externalParticipants
       });
     },
     onSuccess: () => {
@@ -180,15 +182,32 @@ const MeetingFormLayout = () => {
       setOpen(false);
       navigate("/app/meetings/calendar");
     },
-    onError: () => {
-      toast.error("Failed to book meeting");
+    onError: (error) => {
+      const errorMessage =
+      error?.response?.data?.message || "Failed to book meeting";
+      toast.error(errorMessage);
     },
+  });
+
+  const {
+    data: externalUsers = [],
+    isLoading: externalUsersLoading,
+    error: externalUsersError,
+  } = useQuery({
+    queryKey: ["visitors"],
+    queryFn: async () => {
+      const response = await axios.get("/api/visitors/fetch-visitors");
+      return response.data;
+    },
+     enabled: meetingType === "External"
   });
 
   const onSubmit = (data) => {
     createMeeting(data);
     console.log(data);
   };
+
+ 
 
   return (
     <div className="p-4">
@@ -299,7 +318,7 @@ const MeetingFormLayout = () => {
                   <TimePicker
                     {...field}
                     slotProps={{ textField: { size: "small" } }}
-                    label={"Select an End Date"}
+                    label={"Select an End Time"}
                     viewRenderers={(params) => (
                       <TextField {...params} fullWidth size="small" />
                     )}
@@ -308,17 +327,19 @@ const MeetingFormLayout = () => {
               />
             </LocalizationProvider>
             <div className="col-span-2 sm:col-span-1 md:col-span-2">
-              <Controller
+             <div className="mb-6">
+             <Controller
                 name="internalParticipants"
                 control={control}
                 render={({ field }) => (
                   <Autocomplete
-                    multiple
+                    multiple  
                     options={availableUsers} // The user list
                     getOptionLabel={(user) =>
                       `${user.firstName} ${user.lastName}`
                     } // Display names
-                    onChange={(_, newValue) => field.onChange(newValue)} // Sync selected users with form state
+                    onChange={(_, newValue) => (field.onChange(newValue.map(user => user._id)))
+                    } // Sync selected users with form state
                     renderTags={(selected, getTagProps) =>
                       selected.map((user, index) => (
                         <Chip
@@ -332,7 +353,7 @@ const MeetingFormLayout = () => {
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label="Select Participants"
+                        label="Select Internal Participants"
                         size="small"
                         fullWidth
                       />
@@ -340,6 +361,44 @@ const MeetingFormLayout = () => {
                   />
                 )}
               />
+             </div>
+             {
+              meetingType === "External" ? <div>
+              <Controller
+                 name="externalParticipants"
+                 control={control}
+                 render={({ field }) => (
+                   <Autocomplete
+                     multiple
+                     options={externalUsers} // The user list
+                     getOptionLabel={(user) =>
+                       `${user.fullName}`
+                     } // Display names
+                     onChange={(_, newValue) =>  field.onChange(newValue.map(user => user._id))
+                     } // Sync selected users with form state
+                     renderTags={(selected, getTagProps) =>
+                       selected.map((user, index) => (
+                         <Chip
+                           key={user._id}
+                           label={`${user.fullName}`}
+                           {...getTagProps({ index })}
+                           deleteIcon={<IoMdClose />}
+                         />
+                       ))
+                     }
+                     renderInput={(params) => (
+                       <TextField
+                         {...params}
+                         label="Select External Participants"
+                         size="small"
+                         fullWidth
+                       />
+                     )}
+                   />
+                 )}
+               />
+              </div> : <></>
+             }
             </div>
             <div className="col-span-2 sm:col-span-1 md:col-span-2">
               <Controller

@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const externalClientSchema = new mongoose.Schema(
+const externalCompanySchema = new mongoose.Schema(
   {
     companyName: {
       type: String,
@@ -37,5 +37,8 @@ const externalClientSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const ExternalClient = mongoose.model("ExternalClient", externalClientSchema);
-module.exports = ExternalClient;
+const ExternalCompany = mongoose.model(
+  "ExternalCompany",
+  externalCompanySchema
+);
+module.exports = ExternalCompany;

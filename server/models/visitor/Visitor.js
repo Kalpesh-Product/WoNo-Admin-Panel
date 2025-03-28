@@ -63,7 +63,8 @@ const visitorSchema = new mongoose.Schema(
       default: "Walk In",
     },
     visitorCompany: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ExternalClient",
     },
   },
   { timestamps: true }
