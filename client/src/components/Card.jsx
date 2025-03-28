@@ -27,7 +27,7 @@ const Card = ({
       initial="rest"
       whileHover="hover"
       onClick={() => navigate(route)}
-      className="group relative w-full max-w-sm p-6 bg-white rounded-2xl shadow-md hover:shadow-xl cursor-pointer flex flex-col items-center text-center transition-all"
+      className="group relative w-full p-6 bg-white rounded-2xl shadow-md hover:shadow-xl cursor-pointer flex flex-col items-center text-center transition-all"
       style={{
         backgroundColor: bgcolor || "#ffffff",
         color: fontColor || "#111111",
@@ -49,7 +49,7 @@ const Card = ({
 
 
       <h3
-        className="text-base font-bold"
+        className="text-base font-bold whitespace-nowrap"
         style={{ color: titleColor || "inherit" }}
       >
         {title}

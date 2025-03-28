@@ -34,7 +34,7 @@ const SalesBudget = () => {
           </div>
         )
       ) : (
-        <CircularProgress />
+        <CircularProgress color="#1E3D73" />
       )}
     </div>
   );

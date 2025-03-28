@@ -39,7 +39,7 @@ const MeetingLayout = () => {
     <div>
       {isMeetingsPending ? (
         <div className="h-screen flex justify-center items-center">
-          <CircularProgress />
+          <CircularProgress color="#1E3D73" />
         </div>
       ) : (
         <Outlet />

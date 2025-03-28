@@ -7,7 +7,6 @@ import { RiArchiveDrawerLine } from "react-icons/ri";
 import { RiPagesLine } from "react-icons/ri";
 import { MdFormatListBulleted } from "react-icons/md";
 import { CgProfile } from "react-icons/cg";
-import { Outlet } from "react-router-dom";
 
 const TicketDashboard = () => {
   const ticketWidgets = [
@@ -63,6 +62,7 @@ const TicketDashboard = () => {
             labels={["High", "Medium", "Low"]}
             colors={["#ff4d4d", "#ffc107", "#28a745"]}
             centerLabel={"Tickets"}
+            tooltipValue={[49, 21, 30]}
           />
         </WidgetSection>,
         <WidgetSection
@@ -76,6 +76,7 @@ const TicketDashboard = () => {
             labels={["IT", "Maintainance", "Admin"]}
             colors={["#86D1DE", "#67B6DB", "#00CDD1"]}
             centerLabel={"Tickets"}
+            tooltipValue={[30, 44, 50]}
           />
         </WidgetSection>,
       ],

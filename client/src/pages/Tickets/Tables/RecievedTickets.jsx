@@ -261,7 +261,7 @@ const RecievedTickets = ({ title }) => {
                 </div>
               ))
             ) : (
-              <CircularProgress />
+              <CircularProgress color="#1E3D73" />
             )}
           </ul>
 

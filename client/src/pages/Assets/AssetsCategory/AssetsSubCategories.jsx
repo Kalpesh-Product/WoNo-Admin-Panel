@@ -128,7 +128,7 @@ const AssetsSubCategories = () => {
       </Box>
 
       {isRevoking || isPendingAssetsSubCategories ||  isCategoryPending ? (
-        <CircularProgress />
+        <CircularProgress color="#1E3D73"/>
       ) : assetsSubCategories.length > 0 ? (
         assetsSubCategories.map((category) => (
           <Accordion key={category._id}>

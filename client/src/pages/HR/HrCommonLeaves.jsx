@@ -40,7 +40,7 @@ const HrCommonLeaves = () => {
         <div>
           {isLoading ? (
             <div className="flex justify-center items-center">
-              <CircularProgress />
+              <CircularProgress color="#1E3D73" />
             </div>
           ) : (
             <AgTable

@@ -4,21 +4,20 @@ import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import { toast } from "sonner";
 import PrimaryButton from "./PrimaryButton";
 import { useNavigate } from "react-router-dom";
+import { CircularProgress } from "@mui/material";
 
 const AccessTree = () => {
-  const [selectedUsers, setSelectedUsers] = useState([]); // Stack to track selected users
+  const [selectedUsers, setSelectedUsers] = useState([]);
   const axios = useAxiosPrivate();
-  const navigate = useNavigate();
 
   useEffect(() => {
     console.log("Selected Users Stack: ", selectedUsers);
   }, [selectedUsers]);
 
-  // Fetch hierarchy data from API
   const fetchHierarchy = async () => {
     try {
       const response = await axios.get("/api/company/company-hierarchy");
-      return response.data.generateHierarchy; // Extract main hierarchy object
+      return response.data.generateHierarchy;
     } catch (error) {
       toast.error(error.message);
       throw new Error(error);
@@ -34,45 +33,71 @@ const AccessTree = () => {
     queryFn: fetchHierarchy,
   });
 
-  // Handle selecting a user (adds to stack)
   const handleSelectUser = (user) => {
-    if (!user.subordinates.length) return; // Prevent selecting users with no subordinates
-    if (selectedUsers.length) {
-      return null;
-    } else {
-      setSelectedUsers((prev) => [...prev, user]);
-    } // Add to stack
+    setSelectedUsers((prev) => {
+      const lastUser = prev[prev.length - 1];
+      if (lastUser && lastUser.empId === user.empId) {
+        return prev.slice(0, -1);
+      }
+      return [...prev, user];
+    });
   };
+  
 
-  // Handle going back (removes from stack)
+
   const handleBack = () => {
-    setSelectedUsers((prev) => prev.slice(0, -1)); // Remove last user from stack
+    setSelectedUsers((prev) => prev.slice(0, -1)); 
   };
 
-  if (isPending)
-    return <p className="text-center mt-6">Loading hierarchy...</p>;
-  if (isError || !hierarchy)
+  if (isPending) {
     return (
-      <p className="text-center text-red-500 mt-6">Failed to load hierarchy.</p>
+      <div className="flex flex-col items-center justify-center min-h-screen text-blue-900">
+        <CircularProgress color="#1E3D73"/>
+        <p className="text-lg font-medium">Loading hierarchy...</p>
+      </div>
     );
+  }
+
+  if (isError || !hierarchy) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen text-red-600">
+        <svg
+          className="w-10 h-10 mb-4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.668 1.732-3L13.732 4c-.77-1.332-2.694-1.332-3.464 0L3.34 16c-.77 1.332.192 3 1.732 3z"
+          ></path>
+        </svg>
+        <p className="text-lg font-semibold">Failed to load hierarchy.</p>
+        <p className="text-sm text-red-500 mt-1">
+          Please try refreshing the page.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center p-6 pt-10 min-h-screen">
-      {/* Root Hierarchy (Top Level) */}
       <HierarchyCard
         user={hierarchy}
         handleSelectUser={handleSelectUser}
         isTopLevel={true}
       />
 
-      {/* Render each level separately */}
       {selectedUsers.map((user, index) => (
         <div
           key={user.empId}
           className="w-full mt-6 p-4 border-t border-gray-300 rounded-lg"
         >
           <div className="flex items-center mb-10">
-            {index === selectedUsers.length - 1 && ( // Only show back button on last level
+            {index === selectedUsers.length - 1 && ( 
               <div className="w-[10%]">
                 <PrimaryButton title={"Back"} handleSubmit={handleBack} />
               </div>
@@ -124,7 +149,6 @@ const HierarchyCard = ({ user, handleSelectUser, isTopLevel }) => {
       </span>
       <span className="text-small text-primary">{user.email}</span>
 
-      {/* Show subordinates count if applicable */}
       {user.subordinates && user.subordinates.length > 0 && (
         <p
           onClick={() => handleSelectUser(user)}
