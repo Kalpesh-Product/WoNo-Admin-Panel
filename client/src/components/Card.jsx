@@ -1,53 +1,61 @@
 import { useNavigate } from "react-router-dom";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import { FaArrowRight } from "react-icons/fa";
 
 const Card = ({
   title,
   icon,
-  data,
   bgcolor,
   fontColor,
-  height,
   fontFamily,
   titleColor,
   route,
 }) => {
   const navigate = useNavigate();
 
+  const cardVariants = {
+    rest: { scale: 1 },
+    hover: {
+      scale: 1.03,
+      transition: { duration: 0.2, ease: "easeOut" },
+    },
+  };
+
   return (
-    <div
+    <motion.div
+      variants={cardVariants}
+      initial="rest"
+      whileHover="hover"
       onClick={() => navigate(route)}
-      className="shadow-lg p-4 rounded-xl text-center flex flex-col justify-between items-center cursor-pointer 
-        transform transition-all duration-300 hover:shadow-xl min-w-[180px] relative group"
+      className="group relative w-full max-w-sm p-6 bg-white rounded-2xl shadow-md hover:shadow-xl cursor-pointer flex flex-col items-center text-center transition-all"
       style={{
-        backgroundColor: bgcolor || "#fff",
-        color: fontColor || "#000",
-        height: height || "auto",
+        backgroundColor: bgcolor || "#ffffff",
+        color: fontColor || "#111111",
         fontFamily: fontFamily || "'Poppins', sans-serif",
       }}
     >
-      <div className="flex items-center justify-center text-4xl mb-4 transition-transform duration-300 hover:scale-110">
-        {icon || data}
-      </div>
-      <div className="flex justify-between items-center gap-4">
-        <span
-          className="text-content font-semibold"
-          style={{ color: titleColor || "inherit" }}
-        >
-          {title}
-        </span>
+      {/* Hover arrow top-right */}
+      <motion.span
+        className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        whileHover={{ x: 4 }}
+        transition={{ type: "spring", stiffness: 300 }}
+      >
+        <FaArrowRight size={14} />
+      </motion.span>
 
-        <motion.div
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.8 }}
-          className="bg-primary text-white p-2 rounded-full cursor-pointer"
-          onClick={() => navigate(route)}
-        >
-         <FaArrowRight size={12} />
-        </motion.div>
+      {/* Icon bubble */}
+      <div className="w-16 h-16 flex items-center justify-center rounded-full bg-gray-100 mb-4 text-3xl group-hover:scale-110 transition-transform duration-300">
+        {icon}
       </div>
-    </div>
+
+      {/* Title */}
+      <h3
+        className="text-base font-bold"
+        style={{ color: titleColor || "inherit" }}
+      >
+        {title}
+      </h3>
+    </motion.div>
   );
 };
 
