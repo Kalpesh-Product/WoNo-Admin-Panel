@@ -22,6 +22,7 @@ import {
   recentAssetsDataVX,
 } from "./VisitorsData/VisitorsData";
 import humanDate from "../../utils/humanDateForamt";
+import humanTime from "../../utils/humanTime";
 
 const VisitorDashboard = () => {
   const axios = useAxiosPrivate();
@@ -75,7 +76,6 @@ const VisitorDashboard = () => {
     { id: "id", label: "Sr No" },
     { id: "firstName", label: "First Name" },
     { id: "lastName", label: "Last Name" },
-    { id: "address", label: "Address" },
     { id: "email", label: "Email" },
     { id: "phoneNumber", label: "Phone No" },
     { id: "purposeOfVisit", label: "Purpose", align: "right" },
@@ -374,8 +374,8 @@ const VisitorDashboard = () => {
               email: item.email,
               purposeOfVisit: item.purposeOfVisit,
               toMeet: item.toMeet,
-              checkIn: humanDate(item.checkIn),
-              checkOut: humanDate(item.checkOut),
+              checkIn: humanTime(item.checkIn),
+              checkOut: humanTime(item.checkOut),
             }))}
             rowKey="id"
             rowsToDisplay={10}
