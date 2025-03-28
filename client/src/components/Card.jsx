@@ -34,7 +34,6 @@ const Card = ({
         fontFamily: fontFamily || "'Poppins', sans-serif",
       }}
     >
-      {/* Hover arrow top-right */}
       <motion.span
         className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
         whileHover={{ x: 4 }}
@@ -43,12 +42,12 @@ const Card = ({
         <FaArrowRight size={14} />
       </motion.span>
 
-      {/* Icon bubble */}
+   
       <div className="w-16 h-16 flex items-center justify-center rounded-full bg-gray-100 mb-4 text-3xl group-hover:scale-110 transition-transform duration-300">
         {icon}
       </div>
 
-      {/* Title */}
+
       <h3
         className="text-base font-bold"
         style={{ color: titleColor || "inherit" }}
