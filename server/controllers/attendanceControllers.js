@@ -474,7 +474,7 @@ const getAttendance = async (req, res, next) => {
 
 const correctAttendance = async (req, res, next) => {
   const { user, ip, company } = req;
-  const { targetedDay, inTime, outTime } = req.body;
+  const { userId, targetedDay, inTime, outTime } = req.body;
   const logPath = "hr/HrLog";
   const logAction = "Correct Attendance";
   const logSourceKey = "attendance";
@@ -500,10 +500,9 @@ const correctAttendance = async (req, res, next) => {
     const startOfDay = new Date(targetDateOnly.setUTCHours(0, 0, 0, 0)); // 00:00 UTC
     const endOfDay = new Date(targetDateOnly.setUTCHours(23, 59, 59, 999)); // 23:59 UTC
 
-    console.log("🔍 Searching attendance for:", startOfDay, "to", endOfDay);
-
     // ✅ Find the attendance record using the corrected date range
     const foundDate = await Attendance.findOne({
+      user: userId,
       createdAt: { $gte: startOfDay, $lt: endOfDay },
     });
 
@@ -520,15 +519,25 @@ const correctAttendance = async (req, res, next) => {
     const clockOut = outTime ? new Date(outTime) : foundDate.outTime;
 
     if (inTime && isNaN(clockIn.getTime())) {
-      throw new CustomError("Invalid inTime format", logPath, logAction, logSourceKey);
+      throw new CustomError(
+        "Invalid inTime format",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
     if (outTime && isNaN(clockOut.getTime())) {
-      throw new CustomError("Invalid outTime format", logPath, logAction, logSourceKey);
+      throw new CustomError(
+        "Invalid outTime format",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     // ✅ Update attendance record
     await Attendance.findOneAndUpdate(
-      { createdAt: { $gte: startOfDay, $lt: endOfDay } },
+      { user: userId, createdAt: { $gte: startOfDay, $lt: endOfDay } },
       { $set: { inTime: clockIn, outTime: clockOut } }
     );
 
@@ -561,7 +570,6 @@ const correctAttendance = async (req, res, next) => {
     }
   }
 };
-
 
 const bulkInsertAttendance = async (req, res, next) => {
   try {

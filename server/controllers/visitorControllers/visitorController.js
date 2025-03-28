@@ -46,14 +46,29 @@ const fetchVisitors = async (req, res, next) => {
         visitors = await Visitor.find({
           company: companyId,
           dateOfVisit: { $gte: startOfDay, $lte: endOfDay },
-        }).populate("department", "name");
+        }).populate([
+          {
+            path: "department",
+            select: "name",
+          },
+          {
+            path: "toMeet",
+            select: "firstName lastName email",
+          },
+        ]);
         break;
 
       default:
-        visitors = await Visitor.find({ company: companyId }).populate(
-          "department",
-          "name"
-        );
+        visitors = await Visitor.find({ company: companyId }).populate([
+          {
+            path: "department",
+            select: "name",
+          },
+          {
+            path: "toMeet",
+            select: "firstName lastName email",
+          },
+        ]);
     }
 
     return res.status(200).json(visitors);
@@ -91,6 +106,23 @@ const addVisitor = async (req, res, next) => {
     } = req.body;
 
     //Validate date format
+
+    const visitDate = new Date(dateOfVisit);
+    const clockIn = new Date(checkIn);
+    const clockOut = new Date(checkOut);
+
+    if (
+      isNaN(visitDate.getTime()) ||
+      isNaN(clockIn.getTime()) ||
+      isNaN(clockOut.getTime())
+    ) {
+      throw new CustomError(
+        "Invalid date format",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
 
     if (
       visitorCompanyId &&
@@ -159,9 +191,9 @@ const addVisitor = async (req, res, next) => {
         idType: idProof.idType,
         idNumber: idProof.idNumber,
       },
-      dateOfVisit,
-      checkIn,
-      checkOut,
+      dateOfVisit: visitDate,
+      checkIn: clockIn,
+      checkOut: clockOut,
       toMeet,
       company,
       department,
@@ -183,15 +215,7 @@ const addVisitor = async (req, res, next) => {
       company,
       sourceKey: logSourceKey,
       sourceId: savedVisitor._id,
-      changes: {
-        firstName,
-        middleName,
-        lastName,
-        email,
-        phoneNumber,
-        purposeOfVisit,
-        ...(externalCompany && { visitorCompany: externalCompany._id }),
-      },
+      changes: newVisitor,
     });
 
     return res.status(201).json({
@@ -282,7 +306,7 @@ const fetchExternalCompanies = async (req, res, next) => {
     } else {
       externalCompanies = await ExternalCompany.find();
     }
-    console.log("object");
+
     if (!externalCompanies) {
       return res
         .status(400)

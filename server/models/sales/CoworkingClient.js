@@ -7,7 +7,7 @@ const clientSchema = new mongoose.Schema(
       ref: "Company",
     },
     clientName: {
-      type: String
+      type: String,
     },
     email: {
       type: String,
@@ -28,13 +28,13 @@ const clientSchema = new mongoose.Schema(
       ref: "ClientService",
     },
     sector: {
-      type: String
+      type: String,
     },
     hoCity: {
-      type: String
+      type: String,
     },
     hoState: {
-      type: String
+      type: String,
     },
     unit: {
       type: mongoose.Schema.Types.ObjectId,
@@ -69,13 +69,13 @@ const clientSchema = new mongoose.Schema(
       default: 0,
     },
     startDate: {
-      type: Date
+      type: Date,
     },
     endDate: {
-      type: Date
+      type: Date,
     },
     lockinPeriod: {
-      type: Number
+      type: Number,
     },
     occupiedImage: {
       imageId: String,
@@ -84,6 +84,23 @@ const clientSchema = new mongoose.Schema(
     rentDate: { type: Date },
     nextIncrement: {
       type: Date,
+    },
+    goaLead: {
+      name: {
+        type: String,
+      },
+      email: {
+        type: String,
+        trim: true,
+        lowercase: true,
+        match: [/^\S+@\S+\.\S+$/, "Invalid email format"],
+      },
+      phone: {
+        type: String,
+        minlength: 7,
+        maxlength: 20,
+        match: [/^\+?[0-9]+$/, "Invalid phone number format"],
+      },
     },
     localPoc: {
       name: {
