@@ -15,11 +15,11 @@ const revenueSchema = new mongoose.Schema(
     },
     client: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Client",
+      ref: "CoworkingClient",
     },
     service: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Service",
+      ref: "ClientService",
     },
     company: {
       type: mongoose.Schema.Types.ObjectId,

@@ -1,14 +1,10 @@
 const mongoose = require("mongoose");
 const SupportTicket = require("../models/tickets/supportTickets");
 const Ticket = require("../models/tickets/Tickets");
-const Company = require("../models/hr/Company");
 
 function generateQuery(queryMapping, roles) {
   const roleHierarchy = ["Master Admin", "Super Admin", "Admin", "Employee"]; // For users with multiple roles, use query of higher entity
 
-  if (!roles) {
-    throw new Error("stupid add the roles!");
-  }
   const matchedRole =
     roleHierarchy.find((roleTitle) =>
       roles.some(
@@ -31,8 +27,29 @@ async function fetchTickets(query) {
             model: "Department",
           },
         },
+        {
+          path: "acceptedBy",
+          select: "firstName lastName",
+        },
         { path: "raisedToDepartment", select: "name" },
-        { path: "escalatedTo", select: "name" },
+        {
+          path: "escalatedTo",
+          populate: [
+            {
+              path: "raisedBy",
+              select: "firstName lastName departments",
+              populate: {
+                path: "departments",
+                select: "name",
+                model: "Department",
+              },
+            },
+            {
+              path: "raisedToDepartment",
+              model: "Department",
+            },
+          ],
+        },
       ])
       .lean()
       .exec();
@@ -239,14 +256,24 @@ async function filterEscalatedTickets(roles, userDepartments) {
   const queryMapping = {
     "Master Admin": {
       escalatedTo: { $exists: true, $ne: [] },
+      status: { $ne: "Closed" },
     },
     "Super Admin": {
       escalatedTo: { $exists: true, $ne: [] },
+      status: { $ne: "Closed" },
     },
     Admin: {
       $and: [
-        { raisedToDepartment: { $in: userDepartments } },
-        { escalatedTo: { $exists: true, $ne: [] } },
+        {
+          raisedToDepartment: { $in: userDepartments },
+          status: { $ne: "Closed" },
+        },
+        {
+          escalatedTo: {
+            $exists: true,
+            $ne: [],
+          },
+        },
       ],
     },
   };
@@ -256,7 +283,17 @@ async function filterEscalatedTickets(roles, userDepartments) {
   if (!Object.keys(query).length) {
     return [];
   }
-  return await fetchTickets(query);
+
+  const tickets = await fetchTickets(query);
+
+  // const escalatedTickets = tickets.filter((ticket) => {
+  //   const escalateIndex = ticket.escalatedTo.length - 1;
+  //   const status = ticket.escalatedTo[escalateIndex].status;
+
+  //   return status === "Closed";
+  // });
+
+  return tickets;
 }
 
 async function filterCloseTickets(user, roles, userDepartments) {
@@ -276,10 +313,18 @@ async function filterCloseTickets(user, roles, userDepartments) {
     Employee: {
       $or: [
         {
-          $and: [{ status: "Closed" }],
+          $and: [
+            { status: "Closed" },
+            { raisedToDepartment: { $in: userDepartments } },
+            { acceptedBy: user },
+          ],
         },
         {
-          $and: [{ status: "Closed" }, { assignees: [user] }],
+          $and: [
+            { status: "Closed" },
+            { assignees: [user] },
+            { raisedToDepartment: { $in: userDepartments } },
+          ],
         },
       ],
     },

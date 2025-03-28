@@ -216,7 +216,6 @@ const UniqueLeads = () => {
               <Accordion key={index} className="py-4">
                 <AccordionSummary
                   expandIcon={<IoIosArrowDown />}
-                  className="border-b-[1px] border-borderGray"
                 >
                   <div className="flex justify-between items-center w-full px-4">
                     <span className="text-subtitle font-medium">
@@ -224,9 +223,10 @@ const UniqueLeads = () => {
                     </span>
                   </div>
                 </AccordionSummary>
-                <AccordionDetails>
+                <AccordionDetails sx={{borderTop:'0.5px solid gray'}}>
                   <AgTable
                     data={domain.clients}
+
                     columns={[
                       { field: "client", headerName: "Client Name", flex: 1 },
                       {
@@ -252,7 +252,7 @@ const UniqueLeads = () => {
                         )},
                       },
                     ]}
-                    tableHeight={300}
+                    tableHeight={500}
                   />
                 </AccordionDetails>
               </Accordion>
@@ -262,7 +262,7 @@ const UniqueLeads = () => {
                 <Accordion key={index} className="py-4">
                   <AccordionSummary
                     expandIcon={<IoIosArrowDown />}
-                    className="border-b-[1px] border-borderGray"
+                   
                   >
                     <div className="flex justify-between items-center w-full px-4">
                       <span className="text-subtitle font-medium">
@@ -270,7 +270,7 @@ const UniqueLeads = () => {
                       </span>
                     </div>
                   </AccordionSummary>
-                  <AccordionDetails>
+                  <AccordionDetails  sx={{borderTop:'0.5px solid gray'}}>
                     <AgTable
                       data={data.clients}
                       columns={[

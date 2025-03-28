@@ -198,6 +198,13 @@ const sourcingChannelsOptions = {
     categories: financialYearMonths,
     title: { text: "Months" },
   },
+  yaxis: {
+    title: { text: "Source Count" },
+    tickAmount: 12,
+    labels: {
+      formatter: (val) => `${val}`, // optional, for clean display
+    },
+  },
   plotOptions: {
     bar: {
       dataLabels: { position: "top" },
@@ -206,33 +213,33 @@ const sourcingChannelsOptions = {
     },
   },
   legend: { position: "top", show: false },
-  dataLabels: { enabled: false, position: "top" },
-  tooltip: {
-    shared: false, // ✅ Show all stacked values in a single tooltip
-    custom: ({ series, seriesIndex, dataPointIndex, w }) => {
-      if (!w || !w.globals.seriesNames) return "";
+  dataLabels: { enabled: true, position: "middle" },
+  // tooltip: {
+  //   shared: false, 
+  //   custom: ({ series, seriesIndex, dataPointIndex, w }) => {
+  //     if (!w || !w.globals.seriesNames) return "";
 
-      // Extract values for the current hovered month
-      const allLeads = w.globals.series
-        .map(
-          (data, index) =>
-            `${w.globals.seriesNames[index]}: ${data[dataPointIndex]}`
-        )
-        .join("<br>");
+  //     // Extract values for the current hovered month
+  //     const allLeads = w.globals.series
+  //       .map(
+  //         (data, index) =>
+  //           `${w.globals.seriesNames[index]}: ${data[dataPointIndex]}`
+  //       )
+  //       .join("<br>");
 
-      return `<div style="
-        background: white; 
-        padding: 10px; 
-        border-radius: 5px; 
-        box-shadow: 0px 0px 5px rgba(0,0,0,0.2);
-        font-family: Poppins, sans-serif;
-        font-size: 12px;
-        color: #333;
-      ">
-        ${allLeads}
-      </div>`;
-    },
-  },
+  //     return `<div style="
+  //       background: white; 
+  //       padding: 10px; 
+  //       border-radius: 5px; 
+  //       box-shadow: 0px 0px 5px rgba(0,0,0,0.2);
+  //       font-family: Poppins, sans-serif;
+  //       font-size: 12px;
+  //       color: #333;
+  //     ">
+  //       ${allLeads}
+  //     </div>`;
+  //   },
+  // },
 };
 
 // -----------------------Sourcing Channels End--------------------
@@ -393,21 +400,7 @@ const sectorPieChartData = Object.keys(sectorMap).map((sector) => ({
   value: ((sectorMap[sector] / totalSeats) * 100).toFixed(2), // Convert to percentage
 }));
 
-const sectorPieChartOptions = {
-  chart: {
-    type: "pie",
-    fontFamily: "Poppins-Regular",
-  },
-  labels: sectorPieChartData.map((item) => item.label),
-  tooltip: {
-    y: {
-      formatter: (val) => `${val.toFixed(2)}%`, // Show as percentage
-    },
-  },
-  legend: {
-    position: "right",
-  },
-};
+
 
 // -----------------------Sector categories Pie Data End--------------------
 
@@ -558,7 +551,6 @@ export {
   clientOccupancyPieData,
   clientOccupancyPieOptions,
   sectorPieChartData,
-  sectorPieChartOptions,
   clientGenderData,
   clientGenderPieChartOptions,
   locationPieChartData,

@@ -36,7 +36,7 @@ const Footer = ({ changeActiveTab }) => {
           Copyright 2024-25
         </p>
       </div>
-      <div className="py-4 px-16 flex items-center">
+      <div className="py-4 px-16 flex-wrap lg:flex-nowrap items-center">
         <div className=" w-full flex flex-col gap-2">
           <div className="h-20 w-40">
             <img
@@ -61,7 +61,7 @@ const Footer = ({ changeActiveTab }) => {
           </div>
         </div>
 
-        <div className="w-full grid grid-cols-3 sm:grid-cols-1 md:grid-cols-3 gap-8 uppercase">
+        <div className="w-full grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 gap-8 uppercase">
           {footerLinks.map((links) => (
             <>
               <div key={links.id} className="text-center">
