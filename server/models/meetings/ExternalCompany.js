@@ -29,9 +29,13 @@ const externalCompanySchema = new mongoose.Schema(
     address: {
       type: String,
     },
-    personName: {
+    pocName: {
       type: String,
       required: true,
+    },
+    company: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
     },
   },
   { timestamps: true }

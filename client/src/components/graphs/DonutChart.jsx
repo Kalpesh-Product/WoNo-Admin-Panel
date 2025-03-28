@@ -26,7 +26,7 @@ const DonutChart = ({ centerLabel, labels, colors, series, tooltipValue }) => {
     tooltip: {
       enabled: true,
       y: {
-        formatter: (val, { seriesIndex }) => `${tooltipValue[seriesIndex]} tasks (${val.toFixed(1)}%)`,
+        formatter: (val, { seriesIndex }) => `${tooltipValue[seriesIndex]} (${val.toFixed(1)}%)`,
       },
     },
     plotOptions: {

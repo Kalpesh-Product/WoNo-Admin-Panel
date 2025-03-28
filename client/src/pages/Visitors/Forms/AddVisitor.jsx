@@ -66,7 +66,7 @@ const AddVisitor = () => {
   const {mutate : addVisitor , isPending : isMutateVisitor} = useMutation({
     mutationKey: ["addVisitor"],
     mutationFn: async (data) => {
-      const response = await axios.post("/api/visitors/add-visitor", JSON.stringify(data));
+      const response = await axios.post("/api/visitors/add-visitor", data);
       return response.data
     },
     onSuccess:(data)=>{
