@@ -146,7 +146,7 @@ const addVisitor = async (req, res, next) => {
       visitorCompany: externalCompany._id,
     });
 
-    await newVisitor.save();
+    const savedVisitor = await newVisitor.save();
 
     await createLog({
       path: logPath,
@@ -157,7 +157,7 @@ const addVisitor = async (req, res, next) => {
       ip: ip,
       company: company,
       sourceKey: logSourceKey,
-      sourceId: newVisitor._id,
+      sourceId: savedVisitor._id,
       changes: {
         fullName,
         email,
