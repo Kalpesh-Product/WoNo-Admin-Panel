@@ -46,14 +46,29 @@ const fetchVisitors = async (req, res, next) => {
         visitors = await Visitor.find({
           company: companyId,
           dateOfVisit: { $gte: startOfDay, $lte: endOfDay },
-        }).populate("department", "name");
+        }).populate([
+          {
+            path: "department",
+            select: "name",
+          },
+          {
+            path: "toMeet",
+            select: "firstName lastName email",
+          },
+        ]);
         break;
 
       default:
-        visitors = await Visitor.find({ company: companyId }).populate(
-          "department",
-          "name"
-        );
+        visitors = await Visitor.find({ company: companyId }).populate([
+          {
+            path: "department",
+            select: "name",
+          },
+          {
+            path: "toMeet",
+            select: "firstName lastName email",
+          },
+        ]);
     }
 
     return res.status(200).json(visitors);

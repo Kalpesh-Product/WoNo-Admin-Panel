@@ -58,7 +58,8 @@ const visitorSchema = new mongoose.Schema(
       type: Date,
     },
     toMeet: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "UserData",
     },
     company: {
       type: mongoose.Schema.Types.ObjectId,
