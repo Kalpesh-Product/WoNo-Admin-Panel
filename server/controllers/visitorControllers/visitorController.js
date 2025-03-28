@@ -282,7 +282,7 @@ const fetchExternalCompanies = async (req, res, next) => {
     } else {
       externalCompanies = await ExternalCompany.find();
     }
-
+    console.log("object");
     if (!externalCompanies) {
       return res
         .status(400)
