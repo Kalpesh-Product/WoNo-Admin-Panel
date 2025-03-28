@@ -13,6 +13,7 @@ import DonutChart from "../../../components/graphs/DonutChart";
 import MuiTable from "../../../components/Tables/MuiTable";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import TreemapGraph from "../../../components/graphs/TreemapGraph";
 dayjs.extend(customParseFormat);
 const AdminDashboard = () => {
   const utilisedData = [125, 150, 99, 85, 70, 50, 80, 95, 100, 65, 50, 120];
@@ -105,10 +106,11 @@ const AdminDashboard = () => {
     value: item.tasks,
   }));
 
-  const unitPieChartOptions = {
+  const unitTreemapOptions = {
     labels: unitWisePieData.map((item) => item.label),
     chart: {
       fontFamily: "Poppins-Regular",
+      toolbar: false,
     },
     toolTip: {
       y: {
@@ -505,7 +507,7 @@ const AdminDashboard = () => {
       layout: 2,
       widgets: [
         <WidgetSection border title={"Unit Wise Due Tasks"}>
-          <PieChartMui data={unitWisePieData} options={unitPieChartOptions} />
+          <TreemapGraph data={unitWisePieData} options={unitTreemapOptions} />
         </WidgetSection>,
         <WidgetSection border title={"Executive Wise Due Tasks"}>
           <DonutChart

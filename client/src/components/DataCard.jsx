@@ -1,28 +1,29 @@
 import { useNavigate } from "react-router-dom";
+import { FaArrowRight } from "react-icons/fa";
+import { motion } from "motion/react";
 
-const DataCard = ({ data, title, description, route }) => {
+const DataCard = ({ title, description, data, route }) => {
   const navigate = useNavigate();
+
   return (
-    <div>
-      <div
-        onClick={() => navigate(route)}
-        className="bg-white shadow-md p-4 rounded-md text-center cursor-pointer">
-        <div className="flex w-full justify-between items-center">
-          <div
-            className={`text-5xl font-pmedium text-black border-gray-300 border-r-default w-1/2 bg-white py-2`}>
-            {data}
-          </div>
-          <hr />
-          <div className="text-end flex flex-col gap-2">
-            <div className="font-pmedium text-xl">{title}</div>
-            <hr />
-            <div className="w-full">
-              <span className="text-content text-gray-400 w-full ">
-                {description}
-              </span>
-            </div>
-          </div>
+    <div className="hover:bg-gray-200 transition-colors duration-200 p-6 rounded-xl text-left w-full max-w-sm shadow-md">
+      <div className="flex justify-between items-center mb-4">
+        <div className="text-title font-semibold text-black">{title}</div>
+        <div>
+          <div className="text-2xl font-bold text-black">{data}</div>
         </div>
+      </div>
+      <hr className="border-gray-300 mb-4" />
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-gray-800 capitalize">{description}</div>
+        <motion.div
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.8 }}
+          className="bg-primary text-white p-2 rounded-full cursor-pointer"
+          onClick={() => navigate(route)}
+        >
+          <FaArrowRight size={12} />
+        </motion.div>
       </div>
     </div>
   );
