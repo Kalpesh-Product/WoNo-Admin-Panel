@@ -1,24 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { RiArchiveDrawerLine, RiPagesLine } from "react-icons/ri";
 import { MdFormatListBulleted, MdMiscellaneousServices } from "react-icons/md";
 import { CgProfile } from "react-icons/cg";
 import Card from "../../../components/Card";
-import DonutChart from "../../../components/graphs/DonutChart";
+import dayjs from "dayjs";
 import WidgetSection from "../../../components/WidgetSection";
 import DataCard from "../../../components/DataCard";
 import MuiTable from "../../../components/Tables/MuiTable";
 import BarGraph from "../../../components/graphs/BarGraph";
 import PieChartMui from "../../../components/graphs/PieChartMui";
 import {
-  annualMonthlyRawData,
   financialYearMonths,
-  monthlyLeadsData,
-  sourcingChannelsData,
   sourcingChannelsOptions,
-  clientOccupancyPieData,
-  clientOccupancyPieOptions,
-  sectorPieChartData,
-  sectorPieChartOptions,
   clientGenderData,
   clientGenderPieChartOptions,
   locationPieChartData,
@@ -28,21 +21,132 @@ import {
   upcomingBirthdaysColumns,
   upcomingBirthdays,
 } from "./SalesData/SalesData";
-import RevenueGraph from "../../../components/graphs/RevenueGraph";
 import { useNavigate } from "react-router-dom";
 import ParentRevenue from "./ParentRevenue";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import { useQuery } from "@tanstack/react-query";
+import { useDispatch } from "react-redux";
+import { setClientData, setLeadsData } from "../../../redux/slices/salesSlice";
+import { CircularProgress, Skeleton } from "@mui/material";
 
 const SalesDashboard = () => {
   const navigate = useNavigate();
+  const axios = useAxiosPrivate();
+  const dispatch = useDispatch();
+
+  const monthShortToFull = {
+    Apr: "April",
+    May: "May",
+    Jun: "June",
+    Jul: "July",
+    Aug: "August",
+    Sep: "September",
+    Oct: "October",
+    Nov: "November",
+    Dec: "December",
+    Jan: "January",
+    Feb: "February",
+    Mar: "March",
+  };
+
+  //-----------------------------------------------API-----------------------------------------------------------//
+  const { data: leadsData, isPending: isLeadsPending } = useQuery({
+    queryKey: ["leads"],
+    queryFn: async () => {
+      const response = await axios.get("/api/sales/leads");
+      return response.data;
+    },
+    onSuccess: (data) => {
+      dispatch(setLeadsData(data));
+    },
+    onError: (error) => {
+      console.error("Error fetching leads:", error);
+    },
+  });
+  const { data: clientsData=[], isPending: isClientsDataPending } = useQuery({
+    queryKey: ["clientsData"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/sales/co-working-clients");
+        dispatch(setClientData(response.data));
+        return response.data;
+      } catch (error) {
+        console.error("Error fetching clients data:", error);
+      }
+    },
+  });
+  const { data: unitsData = [], isPending: isUnitsPending } = useQuery({
+    queryKey: ["unitsData"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/company/fetch-units");
+        console.log(response.data);
+        return response.data;
+      } catch (error) {
+        console.error("Error fetching clients data:", error);
+      }
+    },
+  });
+  //-----------------------------------------------API-----------------------------------------------------------//
+  //-----------------------------------------------For Data cards-----------------------------------------------------------//
+  const totalCoWorkingSeats = unitsData.reduce(
+    (sum, item) => sum + (item.openDesks + item.cabinDesks),
+    0
+  );
+  //-----------------------------------------------For Data cards-----------------------------------------------------------//
+  //-----------------------------------------------Conversion of leads into graph-----------------------------------------------------------//
+
+  const transformedLeadsData = [];
+
+  if (Array.isArray(leadsData)) {
+    const domainMap = {};
+
+    leadsData.forEach((lead) => {
+      const domain = lead.serviceCategory?.serviceName;
+      if (!domain) return;
+
+      const createdMonth = dayjs(lead.startDate).month(); // 0 = Jan, 11 = Dec
+
+      // Initialize if domain not yet seen
+      if (!domainMap[domain]) {
+        domainMap[domain] = Array(12).fill(0);
+      }
+
+      domainMap[domain][createdMonth]++;
+    });
+
+    // Convert domainMap to array format
+    for (const domain in domainMap) {
+      transformedLeadsData.push({
+        domain,
+        leads: domainMap[domain],
+      });
+    }
+  }
+  const reorderToFinancialYear = (leadsArray) => {
+    return [
+      ...leadsArray.slice(3), // Apr to Dec (indexes 3 to 11)
+      ...leadsArray.slice(0, 3), // Jan to Mar (indexes 0 to 2)
+    ];
+  };
+
+  const monthlyLeadsData = transformedLeadsData.map((domain) => ({
+    name: domain.domain,
+    data: reorderToFinancialYear(domain.leads),
+  }));
 
   const monthlyLeadsOptions = {
     chart: {
       type: "bar",
-      stacked: true, // Enable stacking for domains
+      stacked: true,
       fontFamily: "Poppins-Regular",
       events: {
-        dataPointSelection: () => {
-          navigate("unique-leads"); // Navigates to the same component for any bar click
+        dataPointSelection: (event, chartContext, config) => {
+          const selectedMonthAbbr = financialYearMonths[config.dataPointIndex];
+          const selectedMonthFull = monthShortToFull[selectedMonthAbbr];
+          navigate(
+            `unique-leads?month=${encodeURIComponent(selectedMonthFull)}`
+          );
         },
       },
     },
@@ -79,6 +183,162 @@ const SalesDashboard = () => {
       "#1976D2", // Medium Blue (Alt Revenues)
     ],
   };
+  //-----------------------------------------------Conversion of leads into graph-----------------------------------------------------------//
+  //-----------------------------------------------Conversion of Sources into graph-----------------------------------------------------------//
+  const transformedSourceData = [];
+  if (Array.isArray(leadsData)) {
+    const sourceMap = {};
+    leadsData.forEach((item) => {
+      const source = item.leadSource;
+      if (!source) return;
+
+      const createdMonth = dayjs(item.startDate).month();
+
+      if (!sourceMap[source]) {
+        sourceMap[source] = Array(12).fill(0);
+      }
+      sourceMap[source][createdMonth]++;
+    });
+    for (const source in sourceMap) {
+      transformedSourceData.push({
+        source,
+        sources: sourceMap[source],
+      });
+    }
+  }
+  const monthlySourceData = transformedSourceData.map((item) => ({
+    name: item.source,
+    data: reorderToFinancialYear(item.sources),
+  }));
+  //-----------------------------------------------Conversion of Sources into graph-----------------------------------------------------------//
+  //-----------------------------------------------Conversion of Clients into Pie-graph-----------------------------------------------------------//
+  let simplifiedClientsPie = [];
+
+  if (!isClientsDataPending && Array.isArray(clientsData)) {
+    let otherTotalDesks = 0;
+
+    simplifiedClientsPie = clientsData.reduce((acc, item) => {
+      const { clientName: companyName, totalDesks } = item;
+
+      if (totalDesks < 15) {
+        otherTotalDesks += totalDesks;
+        return acc;
+      }
+
+      acc.push({ companyName, totalDesks });
+      return acc;
+    }, []);
+
+    if (otherTotalDesks > 0) {
+      simplifiedClientsPie.push({
+        companyName: "Other",
+        totalDesks: otherTotalDesks,
+      });
+    }
+  }
+
+  const totalClientsDesks = simplifiedClientsPie.reduce(
+    (sum, item) => sum + item.totalDesks,
+    0
+  );
+
+  const totalDeskPercent = simplifiedClientsPie.map((item) => ({
+    label: `${item.companyName} ${(
+      (item.totalDesks / totalClientsDesks) *
+      100
+    ).toFixed(1)}%`,
+    value: item.totalDesks,
+  }));
+  const clientsDesksPieOptions = {
+    labels: simplifiedClientsPie.map((item) => {
+      const label = item?.companyName || "Unknown";
+      return label.length > 10 ? label.slice(0, 15) + "..." : label;
+    }),
+    chart: {
+      fontFamily: "Poppins-Regular",
+    },
+    tooltip: {
+      y: {
+        formatter: (val) => `${((val / totalClientsDesks) * 100).toFixed(1)}%`,
+      },
+    },
+    legend: {
+      position: "right",
+    },
+  };
+
+  //-----------------------------------------------Conversion of Clients into Pie-graph-----------------------------------------------------------//
+  //-----------------------------------------------Conversion of Sector-wise into Pie-graph-----------------------------------------------------------//
+
+  const sectorwiseData = Array.isArray(clientsData)
+    ? clientsData.map((item) => ({
+        clientName: item.clientName,
+        sector: item.sector,
+      }))
+    : [];
+
+  const totalClients = sectorwiseData.length;
+  const sectorMap = {};
+
+  sectorwiseData.forEach(({ sector }) => {
+    if (!sector) return;
+    sectorMap[sector] = (sectorMap[sector] || 0) + 1;
+  });
+
+  const sectorWiseRawData = Object.entries(sectorMap).map(
+    ([sector, count]) => ({
+      label: sector,
+      count,
+    })
+  );
+
+  // Step 3: Sort descending by count
+  sectorWiseRawData.sort((a, b) => b.count - a.count);
+
+  // Step 4: Group sectors below 4% into "Other"
+  let otherCount = 0;
+  const filteredData = [];
+
+  sectorWiseRawData.forEach((item) => {
+    const percent = (item.count / totalClients) * 100;
+    if (percent < 4) {
+      otherCount += item.count;
+    } else {
+      filteredData.push(item);
+    }
+  });
+
+  if (otherCount > 0) {
+    filteredData.push({
+      label: "Other",
+      count: otherCount,
+    });
+  }
+
+  const sectorPieData = filteredData.map((item) => ({
+    label: `${item.count} ${((item.count / totalClients) * 100).toFixed(1)}%`,
+    value: item.count,
+  }));
+
+  const sectorPieChartOptions = {
+    chart: {
+      fontFamily: "Poppins-Regular",
+    },
+    labels: filteredData.map((item) => {
+      const label = item?.label || "Unknown";
+      return label.length > 10 ? label.slice(0, 15) + "..." : label;
+    }),
+    tooltip: {
+      y: {
+        formatter: (val) => `${((val / totalClients) * 100).toFixed(1)}%`, // Show as percentage
+      },
+    },
+    legend: {
+      position: "right",
+    },
+  };
+
+  //-----------------------------------------------Conversion of Sector-wise Pie-graph-----------------------------------------------------------//
 
   const mockSalesData = [
     {
@@ -425,7 +685,7 @@ const SalesDashboard = () => {
         <DataCard
           route={"revenue"}
           title={"Actual"}
-          data={"92%"}
+          data={`${((totalClientsDesks/totalCoWorkingSeats)*100).toFixed(1)}%`}
           description={"Occupancy"}
         />,
         <DataCard
@@ -437,43 +697,46 @@ const SalesDashboard = () => {
         <DataCard
           route={"clients"}
           title={"Unique"}
-          data={"400"}
+          data={clientsData.length || '0'}
           description={"Clients"}
         />,
-      ],
-    },
-    {
-      layout: 3,
-      widgets: [
         <DataCard
           route={"co-working-seats"}
           title={"Total"}
-          data={"1000"}
+          data={totalCoWorkingSeats}
           description={"Co-working Seats"}
         />,
         <DataCard
           route={"co-working-seats"}
           title={"Booked"}
-          data={"800"}
+          data={totalClientsDesks}
           description={"Co-working Seats"}
         />,
         <DataCard
           route={"revenue"}
           title={"Free"}
-          data={"200"}
+          data={(totalCoWorkingSeats - totalClientsDesks).toString()}
           description={"Co-working Seats"}
         />,
       ],
     },
+
     {
       layout: 1,
       widgets: [
         <WidgetSection layout={1} title={"Monthly Unique Leads"} border>
-          <BarGraph
-            height={400}
-            data={monthlyLeadsData}
-            options={monthlyLeadsOptions}
-          />
+          {isLeadsPending ? (
+            <div className="space-y-4">
+              <Skeleton variant="rectangular" width="100%" height={40} />
+              <Skeleton variant="rectangular" width="100%" height={300} />
+            </div>
+          ) : (
+            <BarGraph
+              height={400}
+              data={monthlyLeadsData}
+              options={monthlyLeadsOptions}
+            />
+          )}
         </WidgetSection>,
       ],
     },
@@ -481,28 +744,45 @@ const SalesDashboard = () => {
       layout: 1,
       widgets: [
         <WidgetSection layout={1} title={"Sourcing Channels"} border>
-          <BarGraph
-            height={400}
-            data={sourcingChannelsData}
-            options={sourcingChannelsOptions}
-          />
+          {isLeadsPending ? (
+            <div className="space-y-4">
+              <Skeleton variant="rectangular" width="100%" height={40} />
+              <Skeleton variant="rectangular" width="100%" height={300} />
+            </div>
+          ) : (
+            <BarGraph
+              height={400}
+              data={monthlySourceData}
+              options={sourcingChannelsOptions}
+            />
+          )}
         </WidgetSection>,
       ],
     },
     {
       layout: 2,
       widgets: [
-        <WidgetSection layout={1} title={"Client-wise Occupancy"} border>
-          <PieChartMui
-            data={clientOccupancyPieData}
-            options={clientOccupancyPieOptions}
-          />
-        </WidgetSection>,
         <WidgetSection layout={1} title={"Sector-wise Occupancy"} border>
-          <PieChartMui
-            data={sectorPieChartData}
-            options={sectorPieChartOptions}
-          />
+          {!isClientsDataPending ? (
+            <PieChartMui
+              data={sectorPieData}
+              options={sectorPieChartOptions}
+              width={"100%"}
+            />
+          ) : (
+            <CircularProgress />
+          )}
+        </WidgetSection>,
+        <WidgetSection layout={1} title={"Client-wise Occupancy"} border>
+          {!isClientsDataPending ? (
+            <PieChartMui
+              data={totalDeskPercent}
+              options={clientsDesksPieOptions}
+              width={"100%"}
+            />
+          ) : (
+            <CircularProgress />
+          )}
         </WidgetSection>,
       ],
     },
@@ -512,6 +792,7 @@ const SalesDashboard = () => {
         <WidgetSection layout={1} title={"Gender-wise data"} border>
           <PieChartMui
             data={clientGenderData}
+            width={"100%"}
             options={clientGenderPieChartOptions}
           />
         </WidgetSection>,

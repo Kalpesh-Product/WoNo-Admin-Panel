@@ -12,8 +12,24 @@ import {
 import { IoIosArrowDown } from "react-icons/io";
 import AgTable from "../../../../components/AgTable";
 import WidgetSection from "../../../../components/WidgetSection";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosPrivate from "../../../../hooks/useAxiosPrivate";
 
 const ActualBusinessRevenue = () => {
+  const axios = useAxiosPrivate()
+  const { data: revenueData = [], isPending: isRevenuePending } = useQuery({
+    queryKey: ["revenueData"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/sales/fetch-revenues");
+        console.log("Revenue Data",response.data);
+        return response.data;
+      } catch (error) {
+        console.error("Error fetching clients data:", error);
+      }
+    },
+  });
+
   const mockBusinessRevenueData = [
     {
       month: "April",

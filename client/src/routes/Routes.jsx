@@ -255,6 +255,7 @@ import AdminPerSqFtElectricityExpense from "../pages/Dashboard/AdminDashboard/Ad
 import AdminExecutiveExpenses from "../pages/Dashboard/AdminDashboard/AdminExecutiveExpenses";
 import MaintenancePerSqFtExpense from "../pages/Dashboard/MaintainanceDashboard/MaintenancePerSqFtExpense";
 import MaintenanceAssets from "../pages/Dashboard/MaintainanceDashboard/MaintenanceAssets";
+import NotFoundPage from "../pages/NotFoundPage";
 
 export const routes = createBrowserRouter([
   {
@@ -1442,4 +1443,8 @@ export const routes = createBrowserRouter([
       },
     ],
   },
+  {
+    path: '*',
+    element: <NotFoundPage />,
+  }
 ]);

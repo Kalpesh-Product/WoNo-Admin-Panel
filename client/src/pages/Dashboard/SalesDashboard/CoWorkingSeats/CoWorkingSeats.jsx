@@ -283,19 +283,18 @@ const CoWorkingSeats = () => {
   };
 
   //---------------------------------------------------------API---------------------------------------------------------//
-  const { data: coworkingClients, isPending: isCoWorkingClients } = useQuery({
-    queryKey: ["coworking-clients"],
+
+  const { data: units, isPending: isUnitsPending } = useQuery({
+    queryKey: ["units"],
     queryFn: async () => {
       try {
-        const response = await axios.get("/api/sales/co-working-clients");
+        const response = await axios.get("/api/company/fetch-units");
         return response.data;
       } catch (error) {
         toast.error(error.message);
       }
     },
   });
-
-  console.log("co-working-clients : ", coworkingClients);
   //---------------------------------------------------------API---------------------------------------------------------//
   // Prepare data for the BarGraph from jsonData
   const totalSeats = jsonData.totalSeats;
