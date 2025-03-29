@@ -1,0 +1,6 @@
+Base	#1E3D73	Original deep navy blue
+1	#35528A	Slightly lighter
+2	#4C66A1	Noticeably lighter
+3	#637BB8	Softer, more pastel-like
+4	#7A90CF	Muted medium-light blue
+5	#91A5E6	Soft bluish-gray tint

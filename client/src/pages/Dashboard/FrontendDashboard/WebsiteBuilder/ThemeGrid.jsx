@@ -154,7 +154,7 @@ const ThemeGrid = () => {
             ))}
           </div>
         ) : (
-          <CircularProgress />
+          <CircularProgress color="#1E3D73"/>
         )}
 
         {/* <div className="themePage-content-grid grid grid-cols-2 gap-8 py-4 bg-white">

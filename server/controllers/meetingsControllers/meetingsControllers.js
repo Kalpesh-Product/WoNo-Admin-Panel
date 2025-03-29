@@ -1,5 +1,4 @@
 const Meeting = require("../../models/meetings/Meetings");
-const ExternalClient = require("../../models/meetings/ExternalClients");
 const User = require("../../models/hr/UserData");
 const { default: mongoose } = require("mongoose");
 const Room = require("../../models/meetings/Rooms");
@@ -162,7 +161,7 @@ const addMeetings = async (req, res, next) => {
       //   );
       // }
 
-      // const newExternalClient = new ExternalClient({
+      // const newExternalCompany = new ExternalCompany({
       //   companyName,
       //   registeredCompanyName,
       //   companyURL,
@@ -174,11 +173,11 @@ const addMeetings = async (req, res, next) => {
       //   personName,
       // });
 
-      // const savedExternalClient = await newExternalClient.save();
+      // const savedExternalCompany = await newExternalCompany.save();
 
       // externalClientData = {
       //   participants: [...externalParticipants],
-      //   company: savedExternalClient._id,
+      //   company: savedExternalCompany._id,
       // };
       const invalidIds = externalParticipants.filter(
         (id) => !mongoose.Types.ObjectId.isValid(id)

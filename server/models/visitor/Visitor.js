@@ -41,6 +41,7 @@ const visitorSchema = new mongoose.Schema(
       idNumber: {
         type: String,
         required: true,
+        unique: true,
       },
     },
     dateOfVisit: {
@@ -53,8 +54,12 @@ const visitorSchema = new mongoose.Schema(
     checkOut: {
       type: Date,
     },
+    scheduledTime: {
+      type: Date,
+    },
     toMeet: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "UserData",
     },
     company: {
       type: mongoose.Schema.Types.ObjectId,

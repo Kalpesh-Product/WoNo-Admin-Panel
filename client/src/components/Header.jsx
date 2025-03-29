@@ -183,7 +183,7 @@ const Header = () => {
             <ListItem
               button
               onClick={handleProfileClick}
-              className="hover:text-primary transition-all duration-100 text-gray-500"
+              className="hover:text-primary transition-all duration-100 text-gray-500 cursor-pointer"
             >
               <ListItemIcon>
                 <FaUserTie className="text-gray-500" />
@@ -197,7 +197,7 @@ const Header = () => {
             <ListItem
               button
               onClick={handleSignOut}
-              className="hover:text-red-600 transition-all duration-100 text-gray-500"
+              className="hover:text-red-600 transition-all duration-100 text-gray-500 cursor-pointer"
             >
               <ListItemIcon>
                 <FiLogOut className="text-gray-500" />

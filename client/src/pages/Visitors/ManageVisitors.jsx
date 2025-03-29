@@ -1,44 +1,31 @@
 import { useState } from "react";
 import AgTable from "../../components/AgTable";
 import PrimaryButton from "../../components/PrimaryButton";
-import AssetModal from "../Assets/AssetsCategory/AssetModal";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
-import ViewVisitorDetails from "./Forms/ViewVisitorDetails";
+import humanTime from "../../utils/humanTime";
+import DetalisFormatted from "../../components/DetalisFormatted";
+import MuiModal from "../../components/MuiModal";
+import { Controller, useForm } from "react-hook-form";
+import { TextField } from "@mui/material";
+import {
+  LocalizationProvider,
+  TimePicker,
+} from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 const ManageVisitors = () => {
   const axios = useAxiosPrivate();
   const [modalMode, setModalMode] = useState("add");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedAsset, setSelectedAsset] = useState(null);
+  const [selectedVisitor, setSelectedVisitor] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
 
-  const assetColumns = [
-    { field: "id", headerName: "Name" },
-    { field: "address", headerName: "Address" },
-    // { field: "assetNumber", headerName: "Asset Number" },
-    { field: "category", headerName: "Email" },
-    { field: "brand", headerName: "Phone No" },
-    { field: "price", headerName: "Purpose" },
-    { field: "quantity", headerName: "To Meet" },
-    { field: "purchaseDate", headerName: "Check In" },
-    { field: "warranty", headerName: "Check Out" },
-    {
-      field: "actions",
-      headerName: "Actions",
-      cellRenderer: (params) => (
-        <PrimaryButton
-          title="Details"
-          handleSubmit={() => handleDetailsClick(params.data)}
-        />
-      ),
-    },
-  ];
-
-  const { data: assetsList = [] } = useQuery({
-    queryKey: "assetsList",
+  const { data: visitorsData = [], isPending: isVisitorsData } = useQuery({
+    queryKey: ["visitors"],
     queryFn: async () => {
       try {
-        const response = await axios.get("/api/assets/get-assets");
+        const response = await axios.get("/api/visitors/fetch-visitors");
         return response.data;
       } catch (error) {
         throw new Error(error.response.data.message);
@@ -46,165 +33,77 @@ const ManageVisitors = () => {
     },
   });
 
-  const assets = [
-    {
-      id: "John Doe",
-      address: "Margao",
-      assetNumber: "A1001",
-      category: "email@gmail.com",
-      brand: "9876543201",
-      price: "Investor Meeting",
-      quantity: "Abrar Shaikh",
-      purchaseDate: "09:30",
-      warranty: " ",
-      modelName: "Inspiron 1522",
-      location: "Office A",
-      vendorName: "Dell Technologies India",
-      // invalid URL
-      assetImage:
-        "https://i.dell.com/is/image/DellContent/content/dam/ss2/product-images/dell-client-products/notebooks/inspiron-notebooks/15-3520/media-gallery/notebook-inspiron-15-3520-gallery-1.psd?fmt=png-alpha&pscan=auto&scl=1&wid=3653&hei=2548&qlt=100,0&resMode=sharp2&size=3653,2548",
+  const { handleSubmit, reset, control } = useForm({
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phoneNumber: "",
+      purposeOfVisit: "",
+      toMeet: "",
+      checkIn: "",
     },
+  });
+  const handleEditToggle = () => {
+    if (!isEditing && selectedVisitor) {
+      reset({
+        firstName: selectedVisitor.firstName || "",
+        lastName: selectedVisitor.lastName || "",
+        address: selectedVisitor.address || "",
+        email: selectedVisitor.email || "",
+        phoneNumber: selectedVisitor.phoneNumber || "",
+        purposeOfVisit: selectedVisitor.purposeOfVisit || "",
+        toMeet: selectedVisitor.toMeet || "",
+        checkIn: selectedVisitor.checkIn ? selectedVisitor.checkIn : "",
+      });
+    }
+    setIsEditing(!isEditing);
+  };
+
+  const visitorsColumns = [
+    { field: "id", headerName: "ID" },
+    { field: "firstName", headerName: "First Name" },
+    { field: "lastName", headerName: "Last Name" },
+    { field: "email", headerName: "Email" },
+    { field: "phoneNumber", headerName: "Phone No" },
+    { field: "purposeOfVisit", headerName: "Purpose", align: "right" },
+    { field: "toMeet", headerName: "To Meet", align: "right" },
+    { field: "checkIn", headerName: "Check In" },
+    { field: "checkOut", headerName: "Checkout" },
     {
-      id: "Jane Doe",
-      address: "Margao",
-      assetNumber: "A1001",
-      category: "email@gmail.com",
-      brand: "9876543201",
-      price: "Client Demo",
-      quantity: "Abrar Shaikh",
-      purchaseDate: "09:30",
-      warranty: " ",
-      modelName: "Pavilion 15",
-      location: "Office B",
-      vendorName: "HP India Pvt Ltd",
-      // valid URL as on 7 feb 2025
-      assetImage:
-        "https://i.dell.com/is/image/DellContent/content/dam/ss2/product-images/dell-client-products/notebooks/inspiron-notebooks/14-2-in-1-7440-intel/media-gallery/notebook-inspiron-14-7440-t-ice-blue-gallery-10.psd?fmt=pjpg&pscan=auto&scl=1&wid=3924&hei=2565&qlt=100,1&resMode=sharp2&size=3924,2565&chrss=full&imwidth=5000",
+      field: "actions",
+      headerName: "Actions",
+      cellRenderer: (params) => (
+        <div className="p-2">
+          <PrimaryButton
+            title={"View"}
+            handleSubmit={() => handleDetailsClick(params.data)}
+          />
+        </div>
+      ),
     },
-    // {
-    //   id: 3,
-    //   address: "IT",
-    //   assetNumber: "A1003",
-    //   category: "Laptop",
-    //   brand: "Apple",
-    //   price: "120000",
-    //   quantity: 8,
-    //   purchaseDate: "01-02-2024",
-    //   warranty: 36,
-    //   modelName: "MacBook Pro 16",
-    //   location: "Office A",
-    //   vendorName: "Apple India Pvt Ltd",
-    // },
-    // {
-    //   id: 4,
-    //   address: "IT",
-    //   assetNumber: "A1004",
-    //   category: "Laptop",
-    //   brand: "Lenovo",
-    //   price: "40000",
-    //   quantity: 15,
-    //   purchaseDate: "20-01-2024",
-    //   warranty: 12,
-    //   modelName: "ThinkPad X1",
-    //   location: "Warehouse",
-    //   vendorName: "Lenovo India Pvt Ltd",
-    // },
-    // {
-    //   id: 5,
-    //   address: "IT",
-    //   assetNumber: "A1005",
-    //   category: "Laptop",
-    //   brand: "Acer",
-    //   price: "20000",
-    //   quantity: 3,
-    //   purchaseDate: "05-01-2024",
-    //   warranty: 24,
-    //   modelName: "Aspire 5",
-    //   location: "Office B",
-    //   vendorName: "Acer India Pvt Ltd",
-    // },
-    // {
-    //   id: 6,
-    //   address: "IT",
-    //   assetNumber: "A1006",
-    //   category: "Laptop",
-    //   brand: "Asus",
-    //   price: "60000",
-    //   quantity: 12,
-    //   purchaseDate: "05-02-2024",
-    //   warranty: 18,
-    //   modelName: "ZenBook 14",
-    //   location: "Warehouse",
-    //   vendorName: "Asus India Pvt Ltd",
-    // },
-    // {
-    //   id: 7,
-    //   address: "HR",
-    //   assetNumber: "A1007",
-    //   category: "Projector",
-    //   brand: "Epson",
-    //   price: "20000",
-    //   quantity: 2,
-    //   purchaseDate: "30-11-2023",
-    //   warranty: 24,
-    //   modelName: "PowerLite 1781W",
-    //   location: "Office A",
-    //   vendorName: "Epson India Pvt Ltd",
-    // },
-    // {
-    //   id: 8,
-    //   address: "Administration",
-    //   assetNumber: "A1008",
-    //   category: "Printer",
-    //   brand: "HP",
-    //   price: "5000",
-    //   quantity: 6,
-    //   purchaseDate: "15-12-2023",
-    //   warranty: 36,
-    //   modelName: "LaserJet Pro M15w",
-    //   location: "Office B",
-    //   vendorName: "HP India Pvt Ltd",
-    // },
-    // {
-    //   id: 9,
-    //   address: "Finance",
-    //   assetNumber: "A1009",
-    //   category: "Scanner",
-    //   brand: "Canon",
-    //   price: "6000",
-    //   quantity: 4,
-    //   purchaseDate: "28-01-2024",
-    //   warranty: 24,
-    //   modelName: "imageFORMULA R40",
-    //   location: "Warehouse",
-    //   vendorName: "Canon India Pvt Ltd",
-    // },
   ];
 
   const handleDetailsClick = (asset) => {
-    setSelectedAsset(asset);
+    setSelectedVisitor(asset);
     setModalMode("view");
     setIsModalOpen(true);
   };
 
   const handleAddAsset = () => {
     setModalMode("add");
-    setSelectedAsset(null);
+    setSelectedVisitor(null);
     setIsModalOpen(true);
   };
 
-  const handleSubmit = async (assetData) => {
+  const handleSumit = async (assetData) => {
     if (modalMode === "add") {
-      // Logic to add new asset
       try {
-        // await axios.post('/api/assets', assetData);
       } catch (error) {
         console.error("Error adding asset:", error);
       }
     } else if (modalMode === "edit") {
-      // Logic to update existing asset
       try {
-        // await axios.put(`/api/assets/${assetData.id}`, assetData);
       } catch (error) {
         console.error("Error updating asset:", error);
       }
@@ -214,36 +113,221 @@ const ManageVisitors = () => {
   return (
     <div className="p-4">
       <AgTable
-        key={assets.length}
+        key={visitorsData.length}
         search={true}
         searchColumn={"Asset Number"}
         tableTitle={"Visitors Today"}
         // buttonTitle={"Add Asset"}
         data={[
-          ...assets.map((asset, index) => ({
-            id: asset.id,
-            address: asset.address,
-            category: asset.category,
-            brand: asset.brand,
-            price: asset.price,
-            quantity: asset.quantity,
-            purchaseDate: asset.purchaseDate,
-            warranty: asset.warranty,
-            vendorName: asset.vendorName,
+          ...visitorsData.map((item, index) => ({
+            id: index + 1,
+            firstName: item.firstName,
+            lastName: item.lastName,
+            address: item.address,
+            phoneNumber: item.phoneNumber,
+            email: item.email,
+            purposeOfVisit: item.purposeOfVisit,
+            toMeet: item.toMeet,
+            checkIn: humanTime(item.checkIn),
+            checkOut: humanTime(item.checkOut),
           })),
         ]}
-        columns={assetColumns}
+        columns={visitorsColumns}
         handleClick={handleAddAsset}
       />
-
-      <ViewVisitorDetails
-        mode={modalMode}
-        isOpen={isModalOpen}
+      <MuiModal
+        open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSubmit={handleSubmit}
-        assetData={selectedAsset}
-        onModeChange={setModalMode}
-      />
+        title={"Visitor Detail"}
+      >
+        <div className="flex flex-col gap-4">
+          <div className="flex justify-end">
+            <PrimaryButton handleSubmit={handleEditToggle} title={"Edit"} />
+          </div>
+          <form>
+            {!isVisitorsData ? (
+              <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-4">
+                {/* First Name */}
+                {isEditing ? (
+                  <Controller
+                    name="firstName"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        size="small"
+                        label="First Name"
+                        fullWidth
+                      />
+                    )}
+                  />
+                ) : (
+                  <DetalisFormatted
+                    title="First Name"
+                    detail={selectedVisitor.firstName}
+                  />
+                )}
+
+                {/* Last Name */}
+                {isEditing ? (
+                  <Controller
+                    name="lastName"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        size="small"
+                        label="Last Name"
+                        fullWidth
+                      />
+                    )}
+                  />
+                ) : (
+                  <DetalisFormatted
+                    title="Last Name"
+                    detail={selectedVisitor.lastName}
+                  />
+                )}
+
+                {/* Address */}
+                {isEditing ? (
+                  <Controller
+                    name="address"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        size="small"
+                        label="Address"
+                        fullWidth
+                      />
+                    )}
+                  />
+                ) : (
+                  <DetalisFormatted
+                    title="Address"
+                    detail={selectedVisitor.address}
+                  />
+                )}
+
+                {/* Phone Number */}
+                {isEditing ? (
+                  <Controller
+                    name="phoneNumber"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        size="small"
+                        label="Phone Number"
+                        type="tel"
+                        fullWidth
+                      />
+                    )}
+                  />
+                ) : (
+                  <DetalisFormatted
+                    title="Phone Number"
+                    detail={selectedVisitor.phoneNumber}
+                  />
+                )}
+
+                {/* Email */}
+                {isEditing ? (
+                  <Controller
+                    name="email"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        size="small"
+                        label="Email"
+                        type="email"
+                        fullWidth
+                      />
+                    )}
+                  />
+                ) : (
+                  <DetalisFormatted
+                    title="Email"
+                    detail={selectedVisitor.email}
+                  />
+                )}
+
+                {/* Purpose of Visit */}
+                {isEditing ? (
+                  <Controller
+                    name="purposeOfVisit"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        size="small"
+                        label="Purpose of Visit"
+                        fullWidth
+                      />
+                    )}
+                  />
+                ) : (
+                  <DetalisFormatted
+                    title="Purpose of Visit"
+                    detail={selectedVisitor.purposeOfVisit}
+                  />
+                )}
+
+                {/* To Meet */}
+                {isEditing ? (
+                  <Controller
+                    name="toMeet"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        size="small"
+                        label="To Meet"
+                        fullWidth
+                      />
+                    )}
+                  />
+                ) : (
+                  <DetalisFormatted
+                    title="To Meet"
+                    detail={selectedVisitor.toMeet}
+                  />
+                )}
+
+                {/* Check In */}
+                {/* {isEditing ? (
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <Controller
+                      name="checkIn"
+                      control={control}
+                      render={({ field }) => (
+                        <TimePicker
+                          {...field}
+                          size="small"
+                          label="Check In"
+                          slotProps={{
+                            textField: { fullWidth: true, size: "small" },
+                          }}
+                          render={(params) => <TextField {...params} />}
+                        />
+                      )}
+                    />
+                  </LocalizationProvider>
+                ) : (
+                  <DetalisFormatted
+                    title="Check In"
+                    detail={selectedVisitor.checkIn}
+                  />
+                )} */}
+              </div>
+            ) : (
+              []
+            )}
+          </form>
+        </div>
+      </MuiModal>
     </div>
   );
 };

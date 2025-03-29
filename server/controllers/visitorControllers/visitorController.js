@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Visitor = require("../../models/visitor/Visitor");
 const CustomError = require("../../utils/customErrorlogs");
 const { createLog } = require("../../utils/moduleLogs");
-const ExternalCompany = require("../../models/meetings/ExternalClients");
+const ExternalCompany = require("../../models/meetings/ExternalCompany");
 
 const fetchVisitors = async (req, res, next) => {
   const { company } = req;
@@ -46,14 +46,29 @@ const fetchVisitors = async (req, res, next) => {
         visitors = await Visitor.find({
           company: companyId,
           dateOfVisit: { $gte: startOfDay, $lte: endOfDay },
-        }).populate("department", "name");
+        }).populate([
+          {
+            path: "department",
+            select: "name",
+          },
+          {
+            path: "toMeet",
+            select: "firstName lastName email",
+          },
+        ]);
         break;
 
       default:
-        visitors = await Visitor.find({ company: companyId }).populate(
-          "department",
-          "name"
-        );
+        visitors = await Visitor.find({ company: companyId }).populate([
+          {
+            path: "department",
+            select: "name",
+          },
+          {
+            path: "toMeet",
+            select: "firstName lastName email",
+          },
+        ]);
     }
 
     return res.status(200).json(visitors);
@@ -69,15 +84,6 @@ const addVisitor = async (req, res, next) => {
   const { user, ip, company } = req;
 
   try {
-    if (!company) {
-      throw new CustomError(
-        "Company information is required.",
-        logPath,
-        logAction,
-        logSourceKey
-      );
-    }
-
     const {
       firstName,
       middleName,
@@ -91,6 +97,7 @@ const addVisitor = async (req, res, next) => {
       dateOfVisit,
       checkIn,
       checkOut,
+      scheduledTime,
       toMeet,
       department,
       visitorType,
@@ -98,10 +105,49 @@ const addVisitor = async (req, res, next) => {
       visitorCompanyId,
     } = req.body;
 
-    if (visitorCompanyId) {
-      if (!mongoose.Types.ObjectId(visitorCompanyId)) {
+    //Validate date format
+
+    const visitDate = new Date(dateOfVisit);
+    const clockIn = new Date(checkIn);
+    const clockOut = new Date(checkOut);
+
+    if (
+      isNaN(visitDate.getTime()) ||
+      isNaN(clockIn.getTime()) ||
+      isNaN(clockOut.getTime())
+    ) {
+      throw new CustomError(
+        "Invalid date format",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    if (
+      visitorCompanyId &&
+      !mongoose.Types.ObjectId.isValid(visitorCompanyId)
+    ) {
+      throw new CustomError(
+        "Invalid visitor company Id provided",
+        logPath,
+        logAction,
+        logSourceKey
+      );
+    }
+
+    if (visitorType === "Scheduled") {
+      const existingVisitor = await Visitor.findOne({
+        toMeet,
+        dateOfVisit,
+        scheduledTime,
+        visitorType: "Scheduled",
+        company,
+      });
+
+      if (existingVisitor) {
         throw new CustomError(
-          "Invalid visitor company Id provided",
+          "A scheduled visitor is already meeting this person at the same time.",
           logPath,
           logAction,
           logSourceKey
@@ -110,19 +156,21 @@ const addVisitor = async (req, res, next) => {
     }
 
     let externalCompany = null;
-    if (!visitorCompanyId) {
-      const newExternalCompany = new ExternalCompany(visitorCompany);
-
-      externalCompany = await newExternalCompany.save();
-    } else {
-      externalCompany = await ExternalCompany.findById({
-        _id: visitorCompanyId,
+    if (visitorCompany) {
+      const newExternalCompany = new ExternalCompany({
+        ...visitorCompany,
         company,
       });
-
+      externalCompany = await newExternalCompany.save();
+    }
+    //Add company chekc after bulk insertion
+    if (visitorCompanyId) {
+      externalCompany = await ExternalCompany.findById({
+        _id: visitorCompanyId,
+      });
       if (!externalCompany) {
         throw new CustomError(
-          "Company not found",
+          "Visitor's Company not found",
           logPath,
           logAction,
           logSourceKey
@@ -139,50 +187,47 @@ const addVisitor = async (req, res, next) => {
       address,
       phoneNumber,
       purposeOfVisit,
-      idProof,
-      dateOfVisit,
-      checkIn,
-      checkOut,
+      idProof: {
+        idType: idProof.idType,
+        idNumber: idProof.idNumber,
+      },
+      dateOfVisit: visitDate,
+      checkIn: clockIn,
+      checkOut: clockOut,
       toMeet,
       company,
       department,
       visitorType,
-      visitorCompany: externalCompany._id,
     });
+    if (externalCompany) {
+      newVisitor.visitorCompany = externalCompany._id;
+    }
 
-    await newVisitor.save();
+    const savedVisitor = await newVisitor.save();
 
     await createLog({
       path: logPath,
       action: logAction,
       remarks: "Visitor added successfully",
       status: "Success",
-      user: user,
-      ip: ip,
-      company: company,
+      user,
+      ip,
+      company,
       sourceKey: logSourceKey,
-      sourceId: newVisitor._id,
-      changes: {
-        fullName,
-        email,
-        phoneNumber,
-        purposeOfVisit,
-        visitorCompany: externalCompany._id,
-      },
+      sourceId: savedVisitor._id,
+      changes: newVisitor,
     });
 
     return res.status(201).json({
       message: "Visitor added successfully",
-      visitor: newVisitor,
+      visitor: savedVisitor,
     });
   } catch (error) {
-    if (error instanceof CustomError) {
-      next(error);
-    } else {
-      next(
-        new CustomError(error.message, logPath, logAction, logSourceKey, 500)
-      );
-    }
+    next(
+      error instanceof CustomError
+        ? error
+        : new CustomError(error.message, logPath, logAction, logSourceKey, 500)
+    );
   }
 };
 
@@ -242,4 +287,41 @@ const updateVisitor = async (req, res, next) => {
   }
 };
 
-module.exports = { fetchVisitors, addVisitor, updateVisitor };
+const fetchExternalCompanies = async (req, res, next) => {
+  const { company } = req;
+  const { externalCompanyId } = req.query;
+
+  try {
+    if (!mongoose.Types.ObjectId.isValid(company)) {
+      return res.status(400).json({ message: "Company not found" });
+    }
+
+    let externalCompanies = [];
+    if (externalCompanyId) {
+      externalCompanies = await ExternalCompany.find({
+        _id: externalCompanyId,
+      }).sort({
+        createdAt: -1,
+      });
+    } else {
+      externalCompanies = await ExternalCompany.find();
+    }
+
+    if (!externalCompanies) {
+      return res
+        .status(400)
+        .json({ message: "Failed to load external companies" });
+    }
+
+    return res.status(200).json(externalCompanies);
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  fetchVisitors,
+  addVisitor,
+  updateVisitor,
+  fetchExternalCompanies,
+};
