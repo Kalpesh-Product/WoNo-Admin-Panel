@@ -21,4 +21,3 @@ router.patch("/update-single-user", upload.single("profilePic"), updateProfile);
 router.post("/bulk-insert-users", upload.single("users"), bulkInsertUsers);
 
 module.exports = router;
-a;

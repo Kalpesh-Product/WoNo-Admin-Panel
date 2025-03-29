@@ -15,8 +15,15 @@ const requestLeave = async (req, res, next) => {
   const { user, ip, company } = req;
 
   try {
-    const { fromDate, toDate, leaveType, leavePeriod, hours, description } =
-      req.body;
+    const {
+      empId,
+      fromDate,
+      toDate,
+      leaveType,
+      leavePeriod,
+      hours,
+      description,
+    } = req.body;
 
     if (
       !fromDate ||
@@ -69,7 +76,7 @@ const requestLeave = async (req, res, next) => {
       return res.status(400).json({ message: "Please select future date" });
     }
 
-    const foundUser = await UserData.findById({ _id: user }).populate({
+    const foundUser = await UserData.findOne({ empId }).populate({
       path: "company",
       select: "employeeTypes",
     });
@@ -79,7 +86,7 @@ const requestLeave = async (req, res, next) => {
     }
 
     // Check if the user has already taken leaves that exceed the granted limit
-    const leaves = await Leave.find({ takenBy: user });
+    const leaves = await Leave.find({ takenBy: foundUser._id });
     if (leaves) {
       const singleLeaves = leaves.filter(
         (leave) =>
@@ -124,7 +131,7 @@ const requestLeave = async (req, res, next) => {
 
     const newLeave = new Leave({
       company,
-      takenBy: user,
+      takenBy: foundUser._id,
       leaveType: updatedLeaveType ? updatedLeaveType : leaveType,
       fromDate,
       toDate,
@@ -152,6 +159,7 @@ const requestLeave = async (req, res, next) => {
         leavePeriod,
         hours,
         description,
+        requester: foundUser._id,
       }
     );
 

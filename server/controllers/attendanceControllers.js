@@ -474,7 +474,7 @@ const getAttendance = async (req, res, next) => {
 
 const correctAttendance = async (req, res, next) => {
   const { user, ip, company } = req;
-  const { targetedDay, inTime, outTime, userId } = req.body;
+  const { targetedDay, inTime, outTime, empId } = req.body;
   const logPath = "hr/HrLog";
   const logAction = "Correct Attendance";
   const logSourceKey = "attendance";
@@ -511,9 +511,14 @@ const correctAttendance = async (req, res, next) => {
       999
     );
 
-    // ✅ Find the attendance record using the corrected date range
+    const foundUser = await UserData.findOne({ empId });
+
+    if (!foundUser) {
+      throw new CustomError("User not found", logPath, logAction, logSourceKey);
+    }
+
     const foundDate = await Attendance.findOne({
-      user: userId,
+      user: foundUser._id,
       createdAt: { $gte: startOfDay, $lt: endOfDay },
     });
 
@@ -548,7 +553,7 @@ const correctAttendance = async (req, res, next) => {
 
     // ✅ Update attendance record
     await Attendance.findOneAndUpdate(
-      { user: userId, createdAt: { $gte: startOfDay, $lt: endOfDay } },
+      { user: foundUser._id, createdAt: { $gte: startOfDay, $lt: endOfDay } },
       { $set: { inTime: clockIn, outTime: clockOut } }
     );
 
@@ -563,7 +568,7 @@ const correctAttendance = async (req, res, next) => {
       sourceKey: logSourceKey,
       sourceId: foundDate._id,
       changes: {
-        requester: userId,
+        requester: foundUser._id,
         oldInTime: foundDate.inTime,
         oldOutTime: foundDate.outTime,
         newInTime: clockIn,
@@ -571,7 +576,9 @@ const correctAttendance = async (req, res, next) => {
       },
     });
 
-    return res.status(200).json({ message: "Attendance corrected" });
+    return res
+      .status(200)
+      .json({ message: "Attendance corrected successfully" });
   } catch (error) {
     if (error instanceof CustomError) {
       next(error);
