@@ -5,6 +5,7 @@ const projectSchema = new mongoose.Schema({
     type:String,
     required:true
   },
+  
   Department: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",
