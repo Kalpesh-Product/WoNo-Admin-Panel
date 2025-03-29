@@ -32,7 +32,6 @@ const getLogs = async (req, res, next) => {
     try {
       Model = require(AlternativeModelPath);
     } catch (alternativeError) {
-      console.error(`Failed to load ${AlternativeModelPath}.`);
       throw alternativeError;
     }
   }

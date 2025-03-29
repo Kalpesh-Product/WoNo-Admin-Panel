@@ -374,7 +374,10 @@ const bulkInsertCoworkingClients = async (req, res, next) => {
 
     // Convert file buffer to readable stream
     const stream = Readable.from(file.buffer.toString("utf-8").trim());
-    const getClientService = await ClientService.findOne({ serviceName: "Co-working", company });
+    const getClientService = await ClientService.findOne({
+      serviceName: "Co-working",
+      company,
+    });
 
     let coWorkingClients = [];
 
@@ -383,11 +386,11 @@ const bulkInsertCoworkingClients = async (req, res, next) => {
       .on("data", (row) => {
         const {
           "Client Name": clientName,
-          "Sector": sector,
+          Sector: sector,
           "Booking Type": bookingType,
           "HO City": hoCity,
           "HO State": hoState,
-          "Unit": unitNo,
+          Unit: unitNo,
           "Cabin Desks": cabinDesks,
           "Open Desks": openDesks,
           "Rate Per Desk": ratePerDesk,
@@ -422,7 +425,6 @@ const bulkInsertCoworkingClients = async (req, res, next) => {
 
         const parsedStartDate = startDate ? new Date(startDate) : null;
         const parsedEndDate = endDate ? new Date(endDate) : null;
-
 
         const newClientObj = {
           company,
@@ -485,7 +487,6 @@ const bulkInsertCoworkingClients = async (req, res, next) => {
     next(error);
   }
 };
-
 
 const uploadClientOccupancyImage = async (req, res, next) => {
   const logPath = "sales/salesLog";
@@ -577,7 +578,7 @@ const uploadClientOccupancyImage = async (req, res, next) => {
 
     // Update the client document with the new image details
     client[imageType] = imageDetails;
-    console.log(imageDetails);
+
     const updatedClient = await CoworkingClient.findByIdAndUpdate(
       { _id: clientId },
       { $set: { [imageType]: imageDetails } },

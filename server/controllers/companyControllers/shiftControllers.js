@@ -43,8 +43,6 @@ const addShift = async (req, res, next) => {
       }
     );
 
-    console.log(updatedCompany);
-
     if (!updatedCompany) {
       throw new CustomError(
         "Failed to add shifts",
