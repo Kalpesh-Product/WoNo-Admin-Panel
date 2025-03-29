@@ -56,23 +56,23 @@ const clockIn = async (req, res, next) => {
       return attendanceTime.getDate() === clockInTime.getDate();
     });
 
-    if (todayClockInExists) {
-      throw new CustomError(
-        "Cannot clock in for the day again",
-        logPath,
-        logAction,
-        logSourceKey
-      );
-    }
+    // if (todayClockInExists) {
+    //   throw new CustomError(
+    //     "Cannot clock in for the day again",
+    //     logPath,
+    //     logAction,
+    //     logSourceKey
+    //   );
+    // }
 
     const newAttendance = new Attendance({
       inTime: clockInTime,
       entryType,
-      user: user._id,
+      user: user,
       company,
     });
 
-    await newAttendance.save();
+    const savedAttendance = await newAttendance.save();
 
     // Log the successful clock-in
     await createLog({
@@ -131,7 +131,7 @@ const clockOut = async (req, res, next) => {
     }
 
     // Retrieve the latest attendance record for the user
-    const attendance = await Attendance.findOne({ user: user._id }).sort({
+    const attendance = await Attendance.findOne({ user }).sort({
       createdAt: -1,
     });
     if (!attendance) {
@@ -474,7 +474,7 @@ const getAttendance = async (req, res, next) => {
 
 const correctAttendance = async (req, res, next) => {
   const { user, ip, company } = req;
-  const { targetedDay, inTime, outTime } = req.body;
+  const { targetedDay, inTime, outTime, userId } = req.body;
   const logPath = "hr/HrLog";
   const logAction = "Correct Attendance";
   const logSourceKey = "attendance";
@@ -491,25 +491,35 @@ const correctAttendance = async (req, res, next) => {
 
     // ✅ Convert `targetedDay` to UTC midnight to match MongoDB stored date
     const targetedDate = new Date(targetedDay);
-    const targetDateOnly = new Date(
-      targetedDate.getUTCFullYear(),
-      targetedDate.getUTCMonth(),
-      targetedDate.getUTCDate()
+    const startOfDay = new Date(
+      targetedDate.getFullYear(),
+      targetedDate.getMonth(),
+      targetedDate.getDate(),
+      0,
+      0,
+      0,
+      0
     );
 
-    const startOfDay = new Date(targetDateOnly.setUTCHours(0, 0, 0, 0)); // 00:00 UTC
-    const endOfDay = new Date(targetDateOnly.setUTCHours(23, 59, 59, 999)); // 23:59 UTC
-
-    console.log("🔍 Searching attendance for:", startOfDay, "to", endOfDay);
+    const endOfDay = new Date(
+      targetedDate.getFullYear(),
+      targetedDate.getMonth(),
+      targetedDate.getDate(),
+      23,
+      59,
+      59,
+      999
+    );
 
     // ✅ Find the attendance record using the corrected date range
     const foundDate = await Attendance.findOne({
+      user: userId,
       createdAt: { $gte: startOfDay, $lt: endOfDay },
     });
 
     if (!foundDate) {
       throw new CustomError(
-        "No timeclock found for the date",
+        "No timeclock found for that day",
         logPath,
         logAction,
         logSourceKey
@@ -520,15 +530,25 @@ const correctAttendance = async (req, res, next) => {
     const clockOut = outTime ? new Date(outTime) : foundDate.outTime;
 
     if (inTime && isNaN(clockIn.getTime())) {
-      throw new CustomError("Invalid inTime format", logPath, logAction, logSourceKey);
+      throw new CustomError(
+        "Invalid clock-in format",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
     if (outTime && isNaN(clockOut.getTime())) {
-      throw new CustomError("Invalid outTime format", logPath, logAction, logSourceKey);
+      throw new CustomError(
+        "Invalid clock-out format",
+        logPath,
+        logAction,
+        logSourceKey
+      );
     }
 
     // ✅ Update attendance record
     await Attendance.findOneAndUpdate(
-      { createdAt: { $gte: startOfDay, $lt: endOfDay } },
+      { user: userId, createdAt: { $gte: startOfDay, $lt: endOfDay } },
       { $set: { inTime: clockIn, outTime: clockOut } }
     );
 
@@ -543,6 +563,7 @@ const correctAttendance = async (req, res, next) => {
       sourceKey: logSourceKey,
       sourceId: foundDate._id,
       changes: {
+        requester: userId,
         oldInTime: foundDate.inTime,
         oldOutTime: foundDate.outTime,
         newInTime: clockIn,
@@ -561,7 +582,6 @@ const correctAttendance = async (req, res, next) => {
     }
   }
 };
-
 
 const bulkInsertAttendance = async (req, res, next) => {
   try {

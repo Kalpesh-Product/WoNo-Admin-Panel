@@ -16,7 +16,7 @@ router.post("/clock-in", clockIn);
 router.post("/clock-out", clockOut);
 router.post("/start-break", startBreak);
 router.post("/end-break", endBreak);
-router.post("/correct-attendance", correctAttendance);
+router.patch("/correct-attendance", correctAttendance);
 router.get("/get-all-attendance", getAllAttendance);
 router.get("/get-attendance/:id", getAttendance);
 router.post(
