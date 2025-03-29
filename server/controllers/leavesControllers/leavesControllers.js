@@ -26,7 +26,7 @@ const requestLeave = async (req, res, next) => {
     } = req.body;
 
     if (
-      !userId ||
+      !empId ||
       !fromDate ||
       !toDate ||
       !leaveType ||
