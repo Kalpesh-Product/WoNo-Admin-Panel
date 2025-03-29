@@ -372,7 +372,7 @@ const MeetingFormLayout = () => {
                      multiple
                      options={externalUsers} // The user list
                      getOptionLabel={(user) =>
-                       `${user.fullName}`
+                       `${user.firstName} ${user.lastName}`
                      } // Display names
                      onChange={(_, newValue) =>  field.onChange(newValue.map(user => user._id))
                      } // Sync selected users with form state
@@ -380,7 +380,7 @@ const MeetingFormLayout = () => {
                        selected.map((user, index) => (
                          <Chip
                            key={user._id}
-                           label={`${user.fullName}`}
+                           label={`${user.firstName} ${user.lastName}`}
                            {...getTagProps({ index })}
                            deleteIcon={<IoMdClose />}
                          />
