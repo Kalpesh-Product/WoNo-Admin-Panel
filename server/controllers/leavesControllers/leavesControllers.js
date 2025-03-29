@@ -16,7 +16,7 @@ const requestLeave = async (req, res, next) => {
 
   try {
     const {
-      userId,
+      empId,
       fromDate,
       toDate,
       leaveType,
@@ -26,7 +26,7 @@ const requestLeave = async (req, res, next) => {
     } = req.body;
 
     if (
-      !userId ||
+      !empId ||
       !fromDate ||
       !toDate ||
       !leaveType ||
@@ -65,7 +65,7 @@ const requestLeave = async (req, res, next) => {
       );
     }
 
-    const foundUser = await UserData.findById({ _id: userId }).populate({
+    const foundUser = await UserData.findOne({ empId }).populate({
       path: "company",
       select: "employeeTypes",
     });
@@ -75,7 +75,7 @@ const requestLeave = async (req, res, next) => {
     }
 
     // Check if the user has already taken leaves that exceed the granted limit
-    const leaves = await Leave.find({ takenBy: foundUser });
+    const leaves = await Leave.find({ takenBy: foundUser._id });
     if (leaves) {
       const singleLeaves = leaves.filter(
         (leave) =>
@@ -116,7 +116,7 @@ const requestLeave = async (req, res, next) => {
 
     const newLeave = new Leave({
       company,
-      takenBy: user,
+      takenBy: foundUser._id,
       leaveType: updatedLeaveType ? updatedLeaveType : leaveType,
       fromDate,
       toDate,
@@ -146,8 +146,9 @@ const requestLeave = async (req, res, next) => {
         leavePeriod,
         hours,
         description,
-      },
-    });
+        requester: foundUser._id,
+      }
+    );
 
     return res.status(201).json({ message: "Leave request sent" });
   } catch (error) {

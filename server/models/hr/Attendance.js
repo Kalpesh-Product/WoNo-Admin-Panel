@@ -4,11 +4,9 @@ const attendanceSchema = new mongoose.Schema(
   {
     inTime: {
       type: Date,
-      required: true,
     },
     outTime: {
       type: Date,
-      required: true,
     },
     startBreak: {
       type: Date,

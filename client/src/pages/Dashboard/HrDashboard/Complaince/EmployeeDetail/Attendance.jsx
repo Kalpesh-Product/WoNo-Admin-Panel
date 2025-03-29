@@ -51,7 +51,7 @@ const Attendance = () => {
 
   const { mutate: correctionPost, isPending: correctionPending } = useMutation({
     mutationFn: async (data) => {
-      const response = axios.post("/api/attendance/correct-attendance", data);
+      const response = await axios.patch("/api/attendance/correct-attendance", {...data,empId:id});
       return response.data;
     },
     onSuccess: function (data) {
@@ -60,8 +60,8 @@ const Attendance = () => {
       queryClient.invalidateQueries({ queryKey: ["attendance"] });
       reset();
     },
-    onError: function (data) {
-      toast.error(data.message);
+    onError: function (error) {
+      toast.error(error.response.data.message);
     },
   });
   const attendanceColumns = [
@@ -400,7 +400,6 @@ const Attendance = () => {
   };
 
   const onSubmit = (data) => {
-    console.log(data);
     correctionPost(data);
   };
 
