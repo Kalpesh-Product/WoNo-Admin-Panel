@@ -1,7 +1,8 @@
 import React from "react";
 import WidgetSection from "../../components/WidgetSection";
 import AreaGraph from "../../components/graphs/AreaGraph";
-import Card from "../../components/TicketCard";
+import Card from "../../components/Card";
+import TicketCard from "../../components/TicketCard"
 import DonutChart from "../../components/graphs/DonutChart";
 import { RiArchiveDrawerLine } from "react-icons/ri";
 import { RiPagesLine } from "react-icons/ri";
@@ -92,7 +93,7 @@ const TicketDashboard = () => {
         <div className="  rounded-md">
           <div className="">
             <WidgetSection layout={2} border title={"Basic Priority Dashboard"}>
-              <Card
+              <TicketCard
                 title={"MT. AV. Performance"}
                 bgcolor={"#60A5F9"}
                 data={"70%"}
@@ -100,7 +101,7 @@ const TicketDashboard = () => {
                 fontColor={"white"}
                 height={"10rem"}
               />
-              <Card
+              <TicketCard
                 title={"Immediate Attended"}
                 data={"12"}
                 bgcolor={"#FF0000"}
@@ -108,7 +109,7 @@ const TicketDashboard = () => {
                 fontColor={"white"}
                 height={"10rem"}
               />
-              <Card
+              <TicketCard
                 title={"Medium Attended"}
                 data={"10"}
                 bgcolor={"#FFBF42"}
@@ -116,7 +117,7 @@ const TicketDashboard = () => {
                 fontColor={"white"}
                 height={"10rem"}
               />
-              <Card
+              <TicketCard
                 title={"Low Attended"}
                 data={"26"}
                 bgcolor={"#01D870"}
@@ -131,21 +132,21 @@ const TicketDashboard = () => {
         <div className=" rounded-md flex flex-col gap-4">
           <div className=" rounded-md">
             <WidgetSection layout={3} border title={"Department Tickets List"}>
-              <Card
+              <TicketCard
                 title={"Open Tickets"}
                 titleColor={"#1E3D73"}
                 data={"200"}
                 fontColor={"red"}
                 fontFamily={"Poppins-Bold"}
               />
-              <Card
+              <TicketCard
                 title={"Closed Tickets"}
                 titleColor={"#1E3D73"}
                 data={"75"}
                 fontColor={"#52CE71"}
                 fontFamily={"Poppins-Bold"}
               />
-              <Card
+              <TicketCard
                 title={"Pending Tickets"}
                 titleColor={"#1E3D73"}
                 data={"100"}
@@ -156,21 +157,21 @@ const TicketDashboard = () => {
           </div>
           <div className="rounded-md">
             <WidgetSection layout={3} border title={"Personal Tickets List"}>
-              <Card
+              <TicketCard
                 title={"Accepted Tickets"}
                 data={"106"}
                 fontColor={"#1E3D73"}
                 fontFamily={"Poppins-Bold"}
                 titleColor={"#1E3D73"}
               />
-              <Card
+              <TicketCard
                 title={"Assigned Tickets"}
                 data={"65"}
                 fontColor={"#1E3D73"}
                 fontFamily={"Poppins-Bold"}
                 titleColor={"#1E3D73"}
               />
-              <Card
+              <TicketCard
                 title={"Escalated Tickets"}
                 data={"50"}
                 fontColor={"#1E3D73"}
