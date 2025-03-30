@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const revenueSchema = new mongoose.Schema(
+const coworkingClientRevenue = new mongoose.Schema(
   {
     actualRevenue: {
       type: String,
@@ -15,7 +15,7 @@ const revenueSchema = new mongoose.Schema(
     },
     client: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "CoworkingClient",
+      ref: "VirtualOfficeClient",
     },
     service: {
       type: mongoose.Schema.Types.ObjectId,
@@ -29,5 +29,5 @@ const revenueSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Revenue = mongoose.model("Revenue", revenueSchema);
+const Revenue = mongoose.model("CoworkingClientRevenue", coworkingClientRevenue);
 module.exports = Revenue;

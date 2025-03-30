@@ -45,6 +45,7 @@ const errorHandler = async (err, req, res, next) => {
       }
       return res.status(statusCode).json({ message });
     }
+    return res.status(401).json(err.message);
   } catch (criticalError) {
     return res.status(500).json({
       message: "Critical error in error handler",
