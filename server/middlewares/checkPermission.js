@@ -6,7 +6,6 @@ const checkPermissions = (requiredPermissions, requiredRole) => {
     try {
       const { user: userId, company: companyId } = req;
 
-      // Step 1: Fetch User from Database
       const user = await User.findById(userId).populate({
         path: "role",
         select: "roleTitle",
@@ -15,7 +14,7 @@ const checkPermissions = (requiredPermissions, requiredRole) => {
         return res.status(404).json({ error: "User not found" });
       }
 
-      // Step 2: Check if User Has the Required Role
+      //Check if User Has the Required Role
       const userRoles = new Set(user.role.map((r) => r.roleID)); 
 
       if (
@@ -26,7 +25,6 @@ const checkPermissions = (requiredPermissions, requiredRole) => {
         return next();
       }
 
-      // Step 3: If No Role Match, Check Permissions
       const userPermissions = await Permission.findOne({
         user: userId,
         company: companyId,
