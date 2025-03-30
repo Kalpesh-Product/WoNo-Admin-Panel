@@ -1,7 +1,7 @@
 import React from "react";
 import WidgetSection from "../../components/WidgetSection";
 import AreaGraph from "../../components/graphs/AreaGraph";
-import Card from "../../components/Card";
+import Card from "../../components/TicketCard";
 import DonutChart from "../../components/graphs/DonutChart";
 import { RiArchiveDrawerLine } from "react-icons/ri";
 import { RiPagesLine } from "react-icons/ri";
@@ -13,7 +13,12 @@ const TicketDashboard = () => {
     {
       layout: 1,
       widgets: [
-        <WidgetSection layout={1} border padding title={"Annual Tickets Raised"}>
+        <WidgetSection
+          layout={1}
+          border
+          padding
+          title={"Annual Tickets Raised"}
+        >
           <AreaGraph />
         </WidgetSection>,
       ],

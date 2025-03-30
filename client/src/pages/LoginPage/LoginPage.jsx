@@ -132,9 +132,6 @@ const LoginPage = () => {
 
                   <Grid item xs={12}>
                     <div className="centerInPhone">
-                      {/* <button type="submit" className="loginButtonStyling">
-                    Login
-                  </button> */}
                       <button
                         type="submit"
                         className="loginButtonStyling text-decoration-none"
