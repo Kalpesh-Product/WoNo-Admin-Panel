@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Container, Box, Grid, TextField } from "@mui/material";
 import { toast } from "sonner";
@@ -12,20 +12,21 @@ import LoginWithFacebookImage from "../../assets/WONO_images/img/login_images/lo
 import LoginWithEmailImage from "../../assets/WONO_images/img/login_images/email-icon.png";
 import WonoLogo from "../../assets/WONO_images/img/WONO.png";
 import Footer from "../../components/Footer";
-
+import { CircularProgress } from "@mui/material";
 
 const LoginPage = () => {
   const { auth, setAuth } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const refresh = useRefresh();
 
   useEffect(() => {
     if (auth.accessToken) {
-      navigate('/app/dashboard/frontend-dashboard')
-    }else{
-      refresh()
+      navigate("/app/dashboard/frontend-dashboard");
+    } else {
+      refresh();
     }
   }, [auth.accessToken]);
 
@@ -33,6 +34,7 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
+      setLoading(true);
       const response = await api.post(
         "/api/auth/login",
         { email, password },
@@ -50,8 +52,9 @@ const LoginPage = () => {
       toast.success("Successfully logged in");
     } catch (error) {
       toast.error(error.response?.data.message);
+    } finally {
+      setLoading(false);
     }
-    
   };
 
   return (
@@ -90,7 +93,8 @@ const LoginPage = () => {
                 sx={{ flexGrow: 1 }}
                 onSubmit={handleLogin}
                 noValidate
-                autoComplete="off">
+                autoComplete="off"
+              >
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
                     <TextField
@@ -119,7 +123,8 @@ const LoginPage = () => {
                     <Box p={0} mt={2}>
                       <Link
                         to="/forgot-password"
-                        style={{ textDecoration: "none" }}>
+                        style={{ textDecoration: "none" }}
+                      >
                         Forgot Password?
                       </Link>
                     </Box>
@@ -132,8 +137,9 @@ const LoginPage = () => {
                   </button> */}
                       <button
                         type="submit"
-                        className="loginButtonStyling text-decoration-none">
-                        Login
+                        className="loginButtonStyling text-decoration-none"
+                      >
+                        {loading ? <CircularProgress size={20} color="white" /> : "Login"}
                       </button>
                     </div>
                   </Grid>
@@ -160,7 +166,6 @@ const LoginPage = () => {
           <div className="loginRightContainer">
             <div className="loginWithSection d-flex flex-column justify-content-center align-items-center">
               <div className="loginWithSection d-flex flex-column justify-content-center align-items-center">
-                
                 <div className="LoginWithGoogleContainer loginWithBox loginWithGoogleBox d-flex justify-content-between align-items-center centerElement">
                   <div className="loginWithIconBox loginWithGoogleIconBox centerElement">
                     <img
