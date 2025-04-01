@@ -118,9 +118,9 @@ const AdminDashboard = () => {
   };
   //-----------------------------------------------------------------------------------------------------------------//
   const executiveTasks = [
-    { name: "Mac", tasks: 10 },
-    { name: "Rajiv", tasks: 20 },
-    { name: "Faizan", tasks: 30 },
+    { name: "Mac", tasks: 30 },
+    { name: "Anne", tasks: 10 },
+    { name: "Naaz", tasks: 20 },
   ];
 
   const executiveTotalTasks = executiveTasks.reduce(
@@ -442,7 +442,11 @@ const AdminDashboard = () => {
           title="Finance"
           route={"/app/dashboard/admin-dashboard/finance"}
         />,
-        <Card icon={<MdFormatListBulleted />} title="Mix-Bag" />,
+        <Card
+          icon={<MdFormatListBulleted />}
+          title="Mix-Bag"
+          route={"mix-bag"}
+        />,
         <Card
           icon={<SiGoogleadsense />}
           title="Data"
