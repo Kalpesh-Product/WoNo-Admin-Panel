@@ -5,37 +5,36 @@ import { useNavigate } from "react-router-dom";
 import { IoIosSearch } from "react-icons/io";
 import { TextField } from "@mui/material";
 
-const SalesMixBag = () => {
+const AdminMixBag = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const routes = [
     {
-      title: "Actual Occupancy",
-      route:
-        "/app/dashboard/sales-dashboard/co-working-seats/check-availability",
+      title: "Team Members Schedule",
+      route: "/app/dashboard/admin-dashboard/team-members-schedule",
     },
     {
-      title: "Total revenue",
-      route: "/app/dashboard/sales-dashboard/revenue",
+      title: "Housekeeping Members Schedule",
+      route: "/app/dashboard/admin-dashboard/housekeeping-members-schedule",
     },
     {
-      title: "Unique Clients",
-      route: "/app/dashboard/sales-dashboard/clients",
+      title: "Holidays & Events",
+      route: "/app/dashboard/admin-dashboard/holidays-events",
     },
     {
-      title: "Co-Working Seats",
-      route: "/app/dashboard/sales-dashboard/co-working-seats",
+      title: "Client Members",
+      route: "/app/dashboard/admin-dashboard/admin-client-list",
     },
-    {
-      title: "Booked",
-      route:
-        "/app/dashboard/sales-dashboard/co-working-seats/check-availability",
-    },
-    {
-      title: "Free",
-      route:
-        "/app/dashboard/sales-dashboard/co-working-seats/check-availability",
-    },
+    // {
+    //   title: "Booked",
+    //   route:
+    //     "/app/dashboard/admin-dashboard/co-working-seats/check-availability",
+    // },
+    // {
+    //   title: "Free",
+    //   route:
+    //     "/app/dashboard/admin-dashboard/co-working-seats/check-availability",
+    // },
   ];
 
   const handleSearch = (event) => {
@@ -85,4 +84,4 @@ const SalesMixBag = () => {
   );
 };
 
-export default SalesMixBag;
+export default AdminMixBag;

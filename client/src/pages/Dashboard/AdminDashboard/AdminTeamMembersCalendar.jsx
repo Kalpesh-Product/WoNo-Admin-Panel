@@ -5,9 +5,9 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import dayjs from "dayjs";
 import { FormGroup, FormControlLabel, Checkbox } from "@mui/material";
-import MuiModal from "../../../../components/MuiModal";
+import MuiModal from "../../../components/MuiModal";
 
-const FrontendPayment = () => {
+const AdminTeamMembersCalendar = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
 
@@ -19,23 +19,38 @@ const FrontendPayment = () => {
   // Dummy data for department payments
   const dummyData = [
     {
-      payment: "Google Workspace",
+      payment: "Anne",
       color: "#FF5733",
       transactions: [
         {
-          title: "Google Workspace Renewal - Basic",
-          date: "2025-04-05",
+          title: "ST-701A",
+          date: "2025-04-01",
           amount: "$1200",
         },
         {
-          title: "Google Workspace Renewal - Business",
-          date: "2025-01-12",
+          title: "ST-701A",
+          date: "2025-04-02",
+          amount: "$1200",
+        },
+        {
+          title: "ST-701A",
+          date: "2025-04-03",
+          amount: "$1200",
+        },
+        {
+          title: "ST-701A",
+          date: "2025-04-04",
+          amount: "$1200",
+        },
+        {
+          title: "ST-701A",
+          date: "2025-04-05",
           amount: "$2500",
         },
       ],
     },
     {
-      payment: "Domain Renewal",
+      payment: "Naaz",
       color: "#33FF57",
       transactions: [
         {
@@ -51,7 +66,7 @@ const FrontendPayment = () => {
       ],
     },
     {
-      payment: "SSL Certificate",
+      payment: "Melisa",
       color: "#3357FF",
       transactions: [
         {
@@ -67,7 +82,7 @@ const FrontendPayment = () => {
       ],
     },
     {
-      payment: "SEO Analysis",
+      payment: "Urjita",
       color: "#FF33A1",
       transactions: [
         {
@@ -121,7 +136,7 @@ const FrontendPayment = () => {
           <div className="border-2 border-gray-300 rounded-md">
             <div className="w-full flex justify-start border-b-default border-borderGray p-2">
               <span className="text-content font-bold uppercase">
-                Department Filters
+                Team Members
               </span>
             </div>
             <div className="flex justify-start text-content px-2">
@@ -159,7 +174,7 @@ const FrontendPayment = () => {
             </div>
           </div>
 
-          <div className="border-2 border-gray-300 rounded-md">
+          {/* <div className="border-2 border-gray-300 rounded-md">
             <div className="mb-2 text-content font-bold uppercase border-b-default border-borderGray p-2">
               <span>Today's Payments</span>
             </div>
@@ -187,7 +202,7 @@ const FrontendPayment = () => {
                 <span>No payments today.</span>
               )}
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Calendar Section */}
@@ -218,7 +233,7 @@ const FrontendPayment = () => {
           <div>
             <div className="flex flex-col gap-2">
               <span className="text-content flex items-center">
-                <span className="w-[30%]">Title</span> <span>:</span>
+                <span className="w-[30%]">Unit</span> <span>:</span>
                 <span className="text-content font-pmedium w-full pl-4">
                   {selectedEvent.title}
                 </span>
@@ -230,15 +245,15 @@ const FrontendPayment = () => {
                 </span>
               </span>
               <span className="text-content flex items-center">
-                <span className="w-[30%]">Payment Type</span> <span>:</span>
+                <span className="w-[30%]">Team Member</span> <span>:</span>
                 <span className="text-content font-pmedium w-full pl-4">
                   {selectedEvent.extendedProps.payment}
                 </span>
               </span>
               <span className="text-content flex items-center">
-                <span className="w-[30%]">Amount</span> <span>:</span>
+                <span className="w-[30%]">Manager</span> <span>:</span>
                 <span className="text-content font-pmedium w-full pl-4">
-                  {selectedEvent.extendedProps.amount}
+                  Machindrath Parkar
                 </span>
               </span>
             </div>
@@ -249,4 +264,4 @@ const FrontendPayment = () => {
   );
 };
 
-export default FrontendPayment;
+export default AdminTeamMembersCalendar;

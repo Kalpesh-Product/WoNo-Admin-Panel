@@ -1,10 +1,10 @@
 import React from "react";
-import PrimaryButton from "../../../../components/PrimaryButton";
-import AgTable from "../../../../components/AgTable";
-import useAxiosPrivate from "../../../../hooks/useAxiosPrivate";
+import PrimaryButton from "../../../components/PrimaryButton";
+import AgTable from "../../../components/AgTable";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import { useQuery } from "@tanstack/react-query";
 
-const HoildaysEvents = ({ title }) => {
+const AdminHolidaysEvents = ({ title }) => {
   const axios = useAxiosPrivate();
   const holdiayEvents = [
     { field: "id", headerName: "SR No", flex: 1 },
@@ -103,4 +103,4 @@ const HoildaysEvents = ({ title }) => {
   );
 };
 
-export default HoildaysEvents;
+export default AdminHolidaysEvents;

@@ -256,6 +256,16 @@ import AdminExecutiveExpenses from "../pages/Dashboard/AdminDashboard/AdminExecu
 import MaintenancePerSqFtExpense from "../pages/Dashboard/MaintainanceDashboard/MaintenancePerSqFtExpense";
 import MaintenanceAssets from "../pages/Dashboard/MaintainanceDashboard/MaintenanceAssets";
 import NotFoundPage from "../pages/NotFoundPage";
+import AdminMixBag from "../pages/Dashboard/AdminDashboard/AdminMixBag";
+import AdminTeamMembersSchedule from "../pages/Dashboard/AdminDashboard/AdminTeamMembersSchedule";
+import HousekeepingTeamMembersSchedule from "../pages/Dashboard/AdminDashboard/HousekeepingTeamMembersSchedule";
+import AdminHolidaysEvents from "../pages/Dashboard/AdminDashboard/AdminHolidaysEvents";
+import AdminClientsList from "../pages/Dashboard/AdminDashboard/AdminClientsList";
+import AdminTeamMembersCalendar from "../pages/Dashboard/AdminDashboard/AdminTeamMembersCalendar";
+import HousekeepingTeamMembersCalendar from "../pages/Dashboard/AdminDashboard/HousekeepingTeamMembersCalendar";
+import AdminClientMembersLayout from "../pages/Dashboard/AdminDashboard/AdminClientMembersLayout";
+import AdminClientDetails from "../pages/Dashboard/AdminDashboard/AdminClientDetails";
+import AdminClientMembers from "../pages/Dashboard/AdminDashboard/AdminClientMembers";
 
 export const routes = createBrowserRouter([
   {
@@ -394,6 +404,61 @@ export const routes = createBrowserRouter([
                           },
                         ],
                       },
+                      {
+                        path: "mix-bag",
+                        element: <AdminMixBag />,
+                      },
+                      {
+                        path: "team-members-schedule",
+                        element: <AdminTeamMembersSchedule />,
+                      },
+                      {
+                        path: "team-members-calendar/:id",
+                        element: <AdminTeamMembersCalendar />,
+                      },
+                      {
+                        path: "housekeeping-members-schedule",
+                        element: <HousekeepingTeamMembersSchedule />,
+                      },
+                      {
+                        path: "housekeeping-members-calendar/:id",
+                        element: <HousekeepingTeamMembersCalendar />,
+                      },
+                      {
+                        path: "holidays-events",
+                        element: <AdminHolidaysEvents />,
+                      },
+                      {
+                        path: "admin-client-list",
+                        element: <AdminClientsList />,
+                      },
+                      {
+                        path: "admin-client-list/:clientName",
+                        element: <AdminClientMembersLayout />,
+                        children: [
+                          {
+                            path: "client-details",
+                            element: <AdminClientDetails />,
+                          },
+                          // {
+                          //   path: "desks",
+                          //   element: <Desks />,
+                          // },
+                          // {
+                          //   path: "revenue",
+                          //   element: <ClientRevenue />,
+                          // },
+                          {
+                            path: "members",
+                            element: <AdminClientMembers />,
+                          },
+                          {
+                            path: "members/view-member/:id",
+                            element: <MemberDetails />,
+                          },
+                        ],
+                      },
+
                       {
                         path: "data",
                         element: <AdminData />,
@@ -1444,7 +1509,7 @@ export const routes = createBrowserRouter([
     ],
   },
   {
-    path: '*',
+    path: "*",
     element: <NotFoundPage />,
-  }
+  },
 ]);
