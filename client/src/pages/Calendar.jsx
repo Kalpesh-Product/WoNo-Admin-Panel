@@ -6,7 +6,12 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import "../pages/LoginPage/CalenderModal.css";
 
-import { Checkbox, CircularProgress, FormControlLabel, FormGroup } from "@mui/material";
+import {
+  Checkbox,
+  CircularProgress,
+  FormControlLabel,
+  FormGroup,
+} from "@mui/material";
 import dayjs from "dayjs";
 
 import MuiModal from "../components/MuiModal";
@@ -146,7 +151,7 @@ const Calender = () => {
                     })}
                   </FormGroup>
                 ) : (
-                  <CircularProgress color="#1E3D73" size={15}/>
+                  <CircularProgress color="#1E3D73" size={15} />
                 )}
               </div>
             </div>
@@ -228,7 +233,11 @@ const Calender = () => {
                   <span className="w-[30%]"> Start Date </span>
                   <span>:</span>
                   <span className="text-content font-pmedium w-full justify-start pl-4">
-                    {dayjs(selectedEvent.start).format("YYYY-MM-DD")}
+                    {new Intl.DateTimeFormat("en-GB", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    }).format(new Date(selectedEvent.start))}
                   </span>{" "}
                 </span>{" "}
                 {selectedEvent.extendedProps.description && (

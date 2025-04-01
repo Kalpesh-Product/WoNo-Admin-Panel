@@ -133,10 +133,15 @@ const LoginPage = () => {
                   <Grid item xs={12}>
                     <div className="centerInPhone">
                       <button
+                        disabled={loading}
                         type="submit"
                         className="loginButtonStyling text-decoration-none"
                       >
-                        {loading ? <CircularProgress size={20} color="white" /> : "Login"}
+                        {loading ? (
+                          <CircularProgress size={20} color="white" />
+                        ) : (
+                          "Login"
+                        )}
                       </button>
                     </div>
                   </Grid>
