@@ -11,6 +11,9 @@ const {
   getClientServices,
 } = require("../controllers/salesControllers/clientServiceControllers");
 const {
+  bulkInsertVirtualOfficeClients,
+} = require("../controllers/salesControllers/virtualOfficeClientControllers");
+const {
   createLead,
   getLeads,
   bulkInsertLeads,
@@ -47,6 +50,11 @@ router.post(
   "/bulk-insert-co-working-clients",
   upload.single("clients"),
   bulkInsertCoworkingClients
+);
+router.post(
+  "/bulk-insert-virtual-office-clients",
+  upload.single("virtualoffice"),
+  bulkInsertVirtualOfficeClients
 );
 
 module.exports = router;

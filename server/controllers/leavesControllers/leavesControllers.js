@@ -148,7 +148,7 @@ const requestLeave = async (req, res, next) => {
         description,
         requester: foundUser._id,
       }
-  });
+  })
 
     return res.status(201).json({ message: "Leave request sent" });
   } catch (error) {

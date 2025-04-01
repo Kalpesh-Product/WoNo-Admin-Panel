@@ -1,4 +1,4 @@
-const Revenue = require("../../models/sales/Revenue");
+const Revenue = require("../../models/sales/CoworkingRevenue");
 const CoworkingClient = require("../../models/sales/CoworkingClient");
 const Service = require("../../models/sales/ClientService");
 const addRevenue = async (req, res, next) => {
